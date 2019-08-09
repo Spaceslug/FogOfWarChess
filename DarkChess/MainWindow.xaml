@@ -13,9 +13,9 @@
         </Grid.ColumnDefinitions>
         <Rectangle Fill="#FFF4F4F5" HorizontalAlignment="Right" Height="412" Margin="0,10,-0.4,0" Stroke="Black" VerticalAlignment="Top" Width="352" Grid.ColumnSpan="2"/>
         <UniformGrid x:Name="BoardGrid" Margin="28,10,119,29.2" Background="Black" >
-            <Grid x:Name="a8" Background="#FFFFFFFF"/>
-            <Grid x:Name="b8" Background="#FF6F6F6F"/>
-            <Grid x:Name="c8" Background="#FFFFFFFF"/>
+            <Grid x:Name="a8" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown"/>
+            <Grid x:Name="b8" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="c8" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
             <Grid x:Name="d8" Background="#FF6F6F6F"/>
             <Grid x:Name="e8" Background="#FFFFFFFF"/>
             <Grid x:Name="f8" Background="#FF6F6F6F"/>

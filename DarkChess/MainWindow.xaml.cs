@@ -217,6 +217,13 @@ namespace DarkChess
             }
         }
 
+        private void Field_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            //sender
+            Grid fieldGrid = (Grid)sender;
+            MessageBox.Show(fieldGrid.Name);
+        }
+
         private void ApplyFieldStateToGrid(Grid grid, FieldState fieldState)
         {
             switch (fieldState.Pice)
