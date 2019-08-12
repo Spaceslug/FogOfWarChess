@@ -132,7 +132,7 @@ namespace DarkChess
         public static MainWindow Instance { get; private set; }
 
         private GlobalState _globalState = new GlobalState();
-        private List<string> _legalMoves = new List<string>();
+        private List<(string, List<FieldState>)> _legalMoves = new List<(string, List<FieldState>)>();
         private List<Pices> _killedPices = new List<Pices>();
 
         public MainWindow()
@@ -177,11 +177,11 @@ namespace DarkChess
                     border.BorderThickness = new Thickness(2, 2, 2, 2); //You can specify here which borders do you want
                     child.Children.Add(border);
                 }
-                else if (_legalMoves.Contains(child.Name))
+                else if (_legalMoves.Any((a) => a.Item1 == child.Name))
                 {
                     var border = new Border();
-                    border.BorderBrush = Brushes.DarkMagenta;
-                    border.BorderThickness = new Thickness(2, 2, 2, 2); //You can specify here which borders do you want
+                    border.BorderBrush = Brushes.Red;
+                    border.BorderThickness = new Thickness(3, 3, 3, 3); //You can specify here which borders do you want
                     child.Children.Add(border);
                 }
                 ApplyFieldStateToGrid(child, _globalState.Board[BoardPosToIndex[child.Name]]);
@@ -214,12 +214,34 @@ namespace DarkChess
                 }
                 else
                 {
-                    if (_legalMoves.Contains(fieldGrid.Name))
+                    if (_legalMoves.Any((a) => a.Item1 == fieldGrid.Name))
                     {
+                        (var name, var extraFieldList) = _legalMoves.Find((a) => a.Item1 == fieldGrid.Name);
                         Field selectState = _globalState.Board[BoardPosToIndex[_globalState.Selected]];
-                        (Field from, Field to) = Move(selectState, clickState);
-                        _globalState.Board[BoardPosToIndex[_globalState.Selected]] = from;
-                        _globalState.Board[BoardPosToIndex[fieldGrid.Name]] = to;
+                        if(extraFieldList == null || extraFieldList.Count == 0)
+                        {
+                            (Field from, Field to) = Move(selectState, clickState);
+                            _globalState.Board[BoardPosToIndex[_globalState.Selected]] = from;
+                            _globalState.Board[BoardPosToIndex[fieldGrid.Name]] = to;
+                        }
+                        else if(extraFieldList.Count == 1)
+                        {
+
+                        }
+                        else if(extraFieldList.Count == 2)
+                        {
+                            (Field fromK, Field toK, Field fromR, Field toR) = Move(selectState, clickState, extraFieldList[0].Field, extraFieldList[1].Field);
+                            _globalState.Board[BoardPosToIndex[_globalState.Selected]] = fromK;
+                            _globalState.Board[BoardPosToIndex[fieldGrid.Name]] = toK;
+                            _globalState.Board[BoardPosToIndex[extraFieldList[0].FieldName]] = fromR;
+                            _globalState.Board[BoardPosToIndex[extraFieldList[1].FieldName]] = toR;
+                        }
+                        else
+                        {
+                            throw new NotImplementedException("what tha fuck man");
+                        }
+
+                        _globalState.WhiteTurn = !_globalState.WhiteTurn;
 
                         _globalState.Selected = null;
                         _legalMoves.Clear();
@@ -241,11 +263,11 @@ namespace DarkChess
             
         }
 
-        private (Field, Field, Field, Field) Move(Field from, Field to, Field backup1, Field backup2)
+        private (Field, Field, Field, Field) Move(Field fromK, Field toK, Field fromR, Field toR)
         {
-            if((from.Pice == Pices.WhiteKing && to.Pice == Pices.WhiteRook) || (from.Pice == Pices.BlackKing && to.Pice == Pices.BlackRook))
+            if((fromK.Pice == Pices.WhiteKing && fromR.Pice == Pices.WhiteRook) || (fromK.Pice == Pices.BlackKing && fromR.Pice == Pices.BlackRook))
             {
-                return (new Field(Pices.Non), new Field(Pices.Non), new Field(from.Pice), new Field(to.Pice));
+                return (new Field(Pices.Non), new Field(fromK.Pice), new Field(Pices.Non), new Field(fromR.Pice));
             }
             else 
             {

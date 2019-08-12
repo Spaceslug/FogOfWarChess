@@ -28,14 +28,14 @@ namespace DarkChess
         public static GlobalState CreateStartState()
         {
             var globalState = new GlobalState();
-            globalState.Board.Add(new Field(Pices.WhiteRook, false, false, true, false));
-            globalState.Board.Add(new Field(Pices.WhiteKnight));
-            globalState.Board.Add(new Field(Pices.WhiteBishop));
-            globalState.Board.Add(new Field(Pices.WhiteQueen));
-            globalState.Board.Add(new Field(Pices.WhiteKing, false, false, true, false));
-            globalState.Board.Add(new Field(Pices.WhiteBishop));
-            globalState.Board.Add(new Field(Pices.WhiteKnight));
-            globalState.Board.Add(new Field(Pices.WhiteRook, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.WhiteRook, false, false, true, true));
+            globalState.Board.Add(new Field(Pices.WhiteKnight, false, false, false, true));
+            globalState.Board.Add(new Field(Pices.WhiteBishop, false, false, false, true));
+            globalState.Board.Add(new Field(Pices.WhiteQueen, false, false, false, true));
+            globalState.Board.Add(new Field(Pices.WhiteKing, false, false, true, true));
+            globalState.Board.Add(new Field(Pices.WhiteBishop, false, false, false, true));
+            globalState.Board.Add(new Field(Pices.WhiteKnight, false, false, false, true));
+            globalState.Board.Add(new Field(Pices.WhiteRook, false, false, true, true));
             //
             globalState.Board.Add(new Field(Pices.WhitePawn, true, false, false, true));
             globalState.Board.Add(new Field(Pices.WhitePawn, true, false, false, true));
@@ -105,14 +105,14 @@ namespace DarkChess
         public static GlobalState CreateStartStateNoPawns()
         {
             var globalState = new GlobalState();
-            globalState.Board.Add(new Field(Pices.WhiteRook, false, false, true, false));
-            globalState.Board.Add(new Field(Pices.WhiteKnight));
-            globalState.Board.Add(new Field(Pices.WhiteBishop));
-            globalState.Board.Add(new Field(Pices.WhiteQueen));
-            globalState.Board.Add(new Field(Pices.WhiteKing, false, false, true, false));
-            globalState.Board.Add(new Field(Pices.WhiteBishop));
-            globalState.Board.Add(new Field(Pices.WhiteKnight));
-            globalState.Board.Add(new Field(Pices.WhiteRook, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.WhiteRook, false, false, true, true));
+            globalState.Board.Add(new Field(Pices.WhiteKnight, false, false, false, true));
+            globalState.Board.Add(new Field(Pices.WhiteBishop, false, false, false, true));
+            globalState.Board.Add(new Field(Pices.WhiteQueen, false, false, false, true));
+            globalState.Board.Add(new Field(Pices.WhiteKing, false, false, true, true));
+            globalState.Board.Add(new Field(Pices.WhiteBishop, false, false, false, true));
+            globalState.Board.Add(new Field(Pices.WhiteKnight, false, false, false, true));
+            globalState.Board.Add(new Field(Pices.WhiteRook, false, false, true, true));
             //
             globalState.Board.Add(new Field(Pices.Non));
             globalState.Board.Add(new Field(Pices.Non));

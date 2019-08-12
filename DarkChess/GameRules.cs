@@ -34,20 +34,31 @@ namespace DarkChess
             return char.ConvertFromUtf32(((int)startPos[0]) + 1) + startPos[1];
         }
 
-        public static List<string> FindMoveTillEnd(GlobalState state, FieldState fromField, MoveFunction moveFunc)
+        public static void AddMove(GlobalState state, FieldState fromField, List<(string, List<FieldState>)> moveList, string endPos)
         {
-            List<string> moves = new List<string>();
+            bool moveIsWhite = Field.HasWhitePice(fromField.Field);
+            if (!LegalPos(endPos)) return;
+            Field currentField = state.Board[MainWindow.BoardPosToIndex[endPos]];
+            if (!(moveIsWhite ? Field.HasWhitePice(currentField) : Field.HasBlackPice(currentField)))
+            {
+                moveList.Add((endPos, null));
+            }
+        }
+
+        public static void AddMovesTillEnd(GlobalState state, FieldState fromField, List<(string, List<FieldState>)> moveList, MoveFunction moveFunc)
+        {
             bool validMove = true;
             string currentFieldName = fromField.FieldName;
             bool moveIsWhite = Field.HasWhitePice(fromField.Field);
             while (true)
             {
                 currentFieldName = moveFunc(currentFieldName);
+                if (!LegalPos(currentFieldName)) break;
                 Field currentField = state.Board[MainWindow.BoardPosToIndex[currentFieldName]];
-                validMove = LegalPos(currentFieldName) && !(moveIsWhite?Field.HasWhitePice(currentField):Field.HasBlackPice(currentField));
+                validMove = !(moveIsWhite?Field.HasWhitePice(currentField):Field.HasBlackPice(currentField));
                 if (validMove)
                 {
-                    moves.Add(currentFieldName);
+                    moveList.Add((currentFieldName, null));
                     if ((moveIsWhite ? Field.HasBlackPice(currentField) : Field.HasWhitePice(currentField)))
                     {
                         break;
@@ -58,7 +69,42 @@ namespace DarkChess
                     break;
                 }
             }
-            return moves;
+        }
+
+        public static void AddCastelling(GlobalState state, FieldState fromField, List<(string, List<FieldState>)> moveList, MoveFunction moveFunc)
+        {
+            if (!fromField.Field.FirstMove) return;
+            bool validMove = true;
+            string currentFieldName = fromField.FieldName;
+            Field currentField = new Field();
+            (string, Field) lastField = (null, new Field());
+            (string, Field) lastLastField = (null, new Field());
+            bool moveIsWhite = Field.HasWhitePice(fromField.Field);
+            while (true)
+            {
+                lastLastField = lastField;
+                lastField = (currentFieldName, currentField);
+                currentFieldName = moveFunc(currentFieldName);
+                if (!LegalPos(currentFieldName)) break;
+                currentField = state.Board[MainWindow.BoardPosToIndex[currentFieldName]];
+                validMove = !(moveIsWhite ? Field.HasWhitePice(currentField) : Field.HasBlackPice(currentField));
+                if (validMove)
+                {
+                    if ((moveIsWhite ? Field.HasBlackPice(currentField) : Field.HasWhitePice(currentField)))
+                    {
+                        break;
+                    }
+                }
+                else if(currentField.Pice == (moveIsWhite ? Pices.WhiteRook:Pices.BlackRook) && currentField.Rokade_able)
+                {
+                    moveList.Add((lastField.Item1, new List<FieldState> { new FieldState(currentFieldName, currentField), new FieldState(lastLastField.Item1, lastLastField.Item2)}));
+                    break;
+                }
+                else
+                {
+                    break;
+                }
+            }
         }
 
         public static Field BPToFi(GlobalState state, string pos)
@@ -66,85 +112,90 @@ namespace DarkChess
             return state.Board[MainWindow.BoardPosToIndex[pos]];
         }
 
-        public static List<string> GetLegalMoves(GlobalState state, FieldState fromField)
+        public static List<(string, List<FieldState>)> GetLegalMoves(GlobalState state, FieldState fromField)
         {
-            List<string> legalMoves = new List<string>();
+            List<(string, List<FieldState>)> legalMoves = new List<(string, List<FieldState>)>();
             switch (fromField.Field.Pice)
             {
                 case Pices.Non:
-                    return new List<string>();
-                case Pices.BlackKing:
-                    //if(LegalPos(UpOne(fromField.)))
-                    break;
-                case Pices.BlackQueen:
-                    //grid.Children.Add(BlackQueen);
-                    break;
-                case Pices.BlackBishop:
-                    //grid.Children.Add(BlackBishop);
-                    break;
-                case Pices.BlackKnight:
-                    //grid.Children.Add(BlackKnight);
-                    break;
-                case Pices.BlackRook:
-                    //grid.Children.Add(BlackRook);
-                    break;
+                    return legalMoves;
                 case Pices.BlackPawn:
                     string bpDown = DownOne(fromField.FieldName);
                     bool bpDownLegal = LegalPos(bpDown) && !Field.HasBlackPice(state.Board[MainWindow.BoardPosToIndex[bpDown]]);
                     if (bpDownLegal)
                     {
-                        legalMoves.Add(bpDown);
+                        legalMoves.Add((bpDown, null));
 
                         string bpDown2 = UpOne(bpDown);
                         bool bpDown2Legal = fromField.Field.FirstMove && LegalPos(bpDown2) && !Field.HasBlackPice(state.Board[MainWindow.BoardPosToIndex[bpDown2]]);
-                        if (bpDown2Legal) legalMoves.Add(bpDown2);
+                        if (bpDown2Legal) legalMoves.Add((bpDown2, null));
                     }
                     break;
+                case Pices.BlackKing:
                 case Pices.WhiteKing:
-                    string up = UpOne(fromField.FieldName);
-                    if (LegalPos(up) && !BPToFi(state, up).HasWhitePice()) legalMoves.Add(up);
-                    string down = DownOne(fromField.FieldName);
-                    if (LegalPos(down) && !BPToFi(state, down).HasWhitePice()) legalMoves.Add(down);
-                    string left = LeftOne(fromField.FieldName);
-                    if (LegalPos(left) && !BPToFi(state, left).HasWhitePice()) legalMoves.Add(left);
-                    string right = RightOne(fromField.FieldName);
-                    if (LegalPos(right) && !BPToFi(state, right).HasWhitePice()) legalMoves.Add(right);
+                    AddMove(state, fromField, legalMoves, UpOne(fromField.FieldName));
+                    AddMove(state, fromField, legalMoves, DownOne(fromField.FieldName));
+                    AddMove(state, fromField, legalMoves, LeftOne(fromField.FieldName));
+                    AddMove(state, fromField, legalMoves, RightOne(fromField.FieldName));
 
-                    string upright = RightOne(UpOne(fromField.FieldName));
-                    if (LegalPos(upright) && !BPToFi(state, upright).HasWhitePice()) legalMoves.Add(upright);
-                    string downLeft = LeftOne(DownOne(fromField.FieldName));
-                    if (LegalPos(downLeft) && !BPToFi(state, downLeft).HasWhitePice()) legalMoves.Add(downLeft);
-                    string leftUp = UpOne(LeftOne(fromField.FieldName));
-                    if (LegalPos(leftUp) && !BPToFi(state, leftUp).HasWhitePice()) legalMoves.Add(leftUp);
-                    string rightDown = DownOne(RightOne(fromField.FieldName));
-                    if (LegalPos(rightDown) && !BPToFi(state, rightDown).HasWhitePice()) legalMoves.Add(rightDown);
+                    AddMove(state, fromField, legalMoves, UpOne(LeftOne(fromField.FieldName)));
+                    AddMove(state, fromField, legalMoves, LeftOne(DownOne(fromField.FieldName)));
+                    AddMove(state, fromField, legalMoves, DownOne(RightOne(fromField.FieldName)));
+                    AddMove(state, fromField, legalMoves, RightOne(UpOne(fromField.FieldName)));
+
+                    AddCastelling(state, fromField, legalMoves, RightOne);
+                    AddCastelling(state, fromField, legalMoves, LeftOne);
                     break;
+                case Pices.BlackQueen:
                 case Pices.WhiteQueen:
-                    //grid.Children.Add(WhiteQueen);
+                    AddMovesTillEnd(state, fromField, legalMoves, pos => UpOne(LeftOne(pos)));
+                    AddMovesTillEnd(state, fromField, legalMoves, pos => UpOne(RightOne(pos)));
+                    AddMovesTillEnd(state, fromField, legalMoves, pos => DownOne(LeftOne(pos)));
+                    AddMovesTillEnd(state, fromField, legalMoves, pos => DownOne(RightOne(pos)));
+                    AddMovesTillEnd(state, fromField, legalMoves, UpOne);
+                    AddMovesTillEnd(state, fromField, legalMoves, DownOne);
+                    AddMovesTillEnd(state, fromField, legalMoves, LeftOne);
+                    AddMovesTillEnd(state, fromField, legalMoves, RightOne);
                     break;
+                case Pices.BlackBishop:
                 case Pices.WhiteBishop:
-                    //grid.Children.Add(WhiteBishop);
+                    AddMovesTillEnd(state, fromField, legalMoves, pos => UpOne(LeftOne(pos)));
+                    AddMovesTillEnd(state, fromField, legalMoves, pos => UpOne(RightOne(pos)));
+                    AddMovesTillEnd(state, fromField, legalMoves, pos => DownOne(LeftOne(pos)));
+                    AddMovesTillEnd(state, fromField, legalMoves, pos => DownOne(RightOne(pos)));
                     break;
+                case Pices.BlackKnight:
                 case Pices.WhiteKnight:
-                    //grid.Children.Add(WhiteKnight);
+                    AddMove(state, fromField, legalMoves, UpOne(UpOne(LeftOne(fromField.FieldName))));
+                    AddMove(state, fromField, legalMoves, UpOne(UpOne(RightOne(fromField.FieldName))));
+                    AddMove(state, fromField, legalMoves, LeftOne(LeftOne(UpOne(fromField.FieldName))));
+                    AddMove(state, fromField, legalMoves, LeftOne(LeftOne(DownOne(fromField.FieldName))));
+                    AddMove(state, fromField, legalMoves, RightOne(RightOne(UpOne(fromField.FieldName))));
+                    AddMove(state, fromField, legalMoves, RightOne(RightOne(DownOne(fromField.FieldName))));
+                    AddMove(state, fromField, legalMoves, DownOne(DownOne(LeftOne(fromField.FieldName))));
+                    AddMove(state, fromField, legalMoves, DownOne(DownOne(RightOne(fromField.FieldName))));
                     break;
+                case Pices.BlackRook:
                 case Pices.WhiteRook:
-                    //grid.Children.Add(WhiteRook);
+                    AddMovesTillEnd(state, fromField, legalMoves, UpOne);
+                    AddMovesTillEnd(state, fromField, legalMoves, DownOne);
+                    AddMovesTillEnd(state, fromField, legalMoves, LeftOne);
+                    AddMovesTillEnd(state, fromField, legalMoves, RightOne);
                     break;
                 case Pices.WhitePawn:
                     string wpUp = UpOne(fromField.FieldName);
                     bool wpUpLegal = LegalPos(wpUp) && !Field.HasWhitePice(state.Board[MainWindow.BoardPosToIndex[wpUp]]);
                     if (wpUpLegal)
                     {
-                        legalMoves.Add(wpUp);
+                        legalMoves.Add((wpUp, null));
 
                         string wpUp2 = UpOne(wpUp);
                         bool wpUp2Legal = fromField.Field.FirstMove && LegalPos(wpUp2) && !Field.HasWhitePice(state.Board[MainWindow.BoardPosToIndex[wpUp2]]);
-                        if (wpUp2Legal) legalMoves.Add(wpUp2);
+                        if (wpUp2Legal) legalMoves.Add((wpUp2, null));
                     }
                     break;
                 default:
-                    return new List<string>();
+                    return legalMoves;
             }
             return legalMoves;
         }
