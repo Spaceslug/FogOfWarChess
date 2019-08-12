@@ -11,72 +11,72 @@
             <ColumnDefinition Width="557*"/>
             <ColumnDefinition Width="236*"/>
         </Grid.ColumnDefinitions>
-        <Rectangle Fill="#FFF4F4F5" HorizontalAlignment="Right" Height="412" Margin="0,10,-0.4,0" Stroke="Black" VerticalAlignment="Top" Width="352" Grid.ColumnSpan="2"/>
+        <Rectangle Fill="#FFF4F4F5" HorizontalAlignment="Right" Height="329" Margin="0,93,-0.4,0" Stroke="Black" VerticalAlignment="Top" Width="352" Grid.ColumnSpan="2"/>
         <UniformGrid x:Name="BoardGrid" Margin="28,10,119,29.2" Background="Black" >
             <Grid x:Name="a8" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown"/>
             <Grid x:Name="b8" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
             <Grid x:Name="c8" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="d8" Background="#FF6F6F6F"/>
-            <Grid x:Name="e8" Background="#FFFFFFFF"/>
-            <Grid x:Name="f8" Background="#FF6F6F6F"/>
-            <Grid x:Name="g8" Background="#FFFFFFFF"/>
-            <Grid x:Name="h8" Background="#FF6F6F6F"/>
-            <Grid x:Name="a7" Background="#FF6F6F6F"/>
-            <Grid x:Name="b7" Background="#FFFFFFFF"/>
-            <Grid x:Name="c7" Background="#FF6F6F6F"/>
-            <Grid x:Name="d7" Background="#FFFFFFFF"/>
-            <Grid x:Name="e7" Background="#FF6F6F6F"/>
-            <Grid x:Name="f7" Background="#FFFFFFFF"/>
-            <Grid x:Name="g7" Background="#FF6F6F6F"/>
-            <Grid x:Name="h7" Background="#FFFFFFFF"/>
-            <Grid x:Name="a6" Background="#FFFFFFFF"/>
-            <Grid x:Name="b6" Background="#FF6F6F6F"/>
-            <Grid x:Name="c6" Background="#FFFFFFFF"/>
-            <Grid x:Name="d6" Background="#FF6F6F6F"/>
-            <Grid x:Name="e6" Background="#FFFFFFFF"/>
-            <Grid x:Name="f6" Background="#FF6F6F6F"/>
-            <Grid x:Name="g6" Background="#FFFFFFFF"/>
-            <Grid x:Name="h6" Background="#FF6F6F6F"/>
-            <Grid x:Name="a5" Background="#FF6F6F6F"/>
-            <Grid x:Name="b5" Background="#FFFFFFFF"/>
-            <Grid x:Name="c5" Background="#FF6F6F6F"/>
-            <Grid x:Name="d5" Background="#FFFFFFFF"/>
-            <Grid x:Name="e5" Background="#FF6F6F6F"/>
-            <Grid x:Name="f5" Background="#FFFFFFFF"/>
-            <Grid x:Name="g5" Background="#FF6F6F6F"/>
-            <Grid x:Name="h5" Background="#FFFFFFFF"/>
-            <Grid x:Name="a4" Background="#FFFFFFFF"/>
-            <Grid x:Name="b4" Background="#FF6F6F6F"/>
-            <Grid x:Name="c4" Background="#FFFFFFFF"/>
-            <Grid x:Name="d4" Background="#FF6F6F6F"/>
-            <Grid x:Name="e4" Background="#FFFFFFFF"/>
-            <Grid x:Name="f4" Background="#FF6F6F6F"/>
-            <Grid x:Name="g4" Background="#FFFFFFFF"/>
-            <Grid x:Name="h4" Background="#FF6F6F6F"/>
-            <Grid x:Name="a3" Background="#FF6F6F6F"/>
-            <Grid x:Name="b3" Background="#FFFFFFFF"/>
-            <Grid x:Name="c3" Background="#FF6F6F6F"/>
-            <Grid x:Name="d3" Background="#FFFFFFFF"/>
-            <Grid x:Name="e3" Background="#FF6F6F6F"/>
-            <Grid x:Name="f3" Background="#FFFFFFFF"/>
-            <Grid x:Name="g3" Background="#FF6F6F6F"/>
-            <Grid x:Name="h3" Background="#FFFFFFFF"/>
-            <Grid x:Name="a2" Background="#FFFFFFFF"/>
-            <Grid x:Name="b2" Background="#FF6F6F6F"/>
-            <Grid x:Name="c2" Background="#FFFFFFFF"/>
-            <Grid x:Name="d2" Background="#FF6F6F6F"/>
-            <Grid x:Name="e2" Background="#FFFFFFFF"/>
-            <Grid x:Name="f2" Background="#FF6F6F6F"/>
-            <Grid x:Name="g2" Background="#FFFFFFFF"/>
-            <Grid x:Name="h2" Background="#FF6F6F6F"/>
-            <Grid x:Name="a1" Background="#FF6F6F6F"/>
-            <Grid x:Name="b1" Background="#FFFFFFFF"/>
-            <Grid x:Name="c1" Background="#FF6F6F6F"/>
-            <Grid x:Name="d1" Background="#FFFFFFFF"/>
-            <Grid x:Name="e1" Background="#FF6F6F6F"/>
-            <Grid x:Name="f1" Background="#FFFFFFFF"/>
-            <Grid x:Name="g1" Background="#FF6F6F6F"/>
-            <Grid x:Name="h1" Background="#FFFFFFFF"/>
+            <Grid x:Name="d8" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="e8" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="f8" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="g8" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="h8" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="a7" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="b7" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="c7" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="d7" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="e7" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="f7" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="g7" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="h7" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="a6" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="b6" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="c6" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="d6" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="e6" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="f6" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="g6" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="h6" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="a5" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="b5" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="c5" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="d5" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="e5" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="f5" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="g5" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="h5" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="a4" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="b4" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="c4" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="d4" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="e4" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="f4" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="g4" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="h4" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="a3" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="b3" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="c3" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="d3" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="e3" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="f3" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="g3" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="h3" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="a2" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="b2" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="c2" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="d2" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="e2" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="f2" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="g2" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="h2" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="a1" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="b1" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="c1" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="d1" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="e1" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="f1" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="g1" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            <Grid x:Name="h1" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
         </UniformGrid>
         <UniformGrid HorizontalAlignment="Left" Margin="0,10,0,9.6" Width="30" MaxWidth="30" Rows="8" Columns="1">
             <Label FontWeight="DemiBold" FontSize="18" Content="8" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"/>
@@ -98,6 +98,7 @@
             <Label FontWeight="DemiBold" FontSize="18" Content="G" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
             <Label FontWeight="DemiBold" FontSize="18" Content="H" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
         </UniformGrid>
+        <UniformGrid x:Name="KilledPicesGrid" HorizontalAlignment="Left" Height="83" Margin="446,10,0,0" VerticalAlignment="Top" Width="342" Grid.ColumnSpan="2" Rows="4" Columns="10"/>
     </Grid>
     <Window.InputBindings>
         <KeyBinding Command="{Binding ClearBoardCommand}" Key="C"/>

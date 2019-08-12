@@ -95,62 +95,14 @@ namespace DarkChess
             get { return _pressMeCommand; }
         }
 
-        public static Image BlackBishop
-        {
-            get
-            {
-                return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/BlackBishop.png", UriKind.Absolute)) };
-            }
-        }
-        public static Image BlackKing
-        {
-            get
-            {
-                return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/BlackKing.png", UriKind.Absolute)) };
-            }
-        }
-        public static Image BlackKnight
-        {
-            get
-            {
-                return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/BlackKnight.png", UriKind.Absolute)) };
-            }
-        }
-        public static Image BlackPawn
-        {
-            get
-            {
-                return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/BlackPawn.png", UriKind.Absolute)) };
-            }
-        }
-        public static Image BlackQueen
-        {
-            get
-            {
-                return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/BlackQueen.png", UriKind.Absolute)) };
-            }
-        }
-        public static Image BlackRook
-        {
-            get
-            {
-                return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/BlackRook.png", UriKind.Absolute)) };
-            }
-        }
-        public static Image WhiteBishop
-        {
-            get
-            {
-                return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhiteBishop.png", UriKind.Absolute)) };
-            }
-        }
-        public static Image WhiteKing
-        {
-            get
-            {
-                return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhiteKing.png", UriKind.Absolute)) };
-            }
-        }
+        public static Image BlackBishop { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/BlackBishop.png", UriKind.Absolute)) }; } }
+        public static Image BlackKing { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/BlackKing.png", UriKind.Absolute)) }; } }
+        public static Image BlackKnight { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/BlackKnight.png", UriKind.Absolute)) }; } }
+        public static Image BlackPawn { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/BlackPawn.png", UriKind.Absolute)) }; } }
+        public static Image BlackQueen { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/BlackQueen.png", UriKind.Absolute)) }; } }
+        public static Image BlackRook { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/BlackRook.png", UriKind.Absolute)) }; } }
+        public static Image WhiteBishop { get{ return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhiteBishop.png", UriKind.Absolute)) }; } }
+        public static Image WhiteKing { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhiteKing.png", UriKind.Absolute)) }; } }
         public static Image WhiteKnight
         {
             get
@@ -174,28 +126,31 @@ namespace DarkChess
             {
                 return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhiteRook.png", UriKind.Absolute)) };
             }
-        } 
+        }
+
 
         public static MainWindow Instance { get; private set; }
 
-        public GlobalState GlobalState = new GlobalState();
+        private GlobalState _globalState = new GlobalState();
+        private List<string> _legalMoves = new List<string>();
+        private List<Pices> _killedPices = new List<Pices>();
 
         public MainWindow()
         {
             InitializeComponent();
             DataContext = new MyLittleFuckingDataContext();
             
-            Uri pageUri = new Uri("pack://siteoforigin:,,,/SiteOfOriginFile.xaml", UriKind.Absolute);
-            this.a6.Children.Add(new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/BlackKing.png", UriKind.Absolute)) });
-            this.a8.Children.Add(new Image { Source = new BitmapImage(new Uri("img\\BlackKing.png", UriKind.RelativeOrAbsolute)) });
-            string d = System.AppDomain.CurrentDomain.BaseDirectory;
-            this.a2.Children.Add(new Image { Source = new BitmapImage(new Uri("BlackPawn.png", UriKind.RelativeOrAbsolute)) });
-            Grid b8 = (Grid)this.BoardGrid.FindName("b8");
-            b8.Children.Clear();
-            b8.Children.Add(BlackPawn);
-            BlackOutField("d4");
+            //Uri pageUri = new Uri("pack://siteoforigin:,,,/SiteOfOriginFile.xaml", UriKind.Absolute);
+            //this.a6.Children.Add(new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/BlackKing.png", UriKind.Absolute)) });
+            //this.a8.Children.Add(new Image { Source = new BitmapImage(new Uri("img\\BlackKing.png", UriKind.RelativeOrAbsolute)) });
+            //string d = System.AppDomain.CurrentDomain.BaseDirectory;
+            //this.a2.Children.Add(new Image { Source = new BitmapImage(new Uri("BlackPawn.png", UriKind.RelativeOrAbsolute)) });
+            //Grid b8 = (Grid)this.BoardGrid.FindName("b8");
+            //b8.Children.Clear();
+            //b8.Children.Add(BlackPawn);
+            //BlackOutField("d4");
             ClearBoard();
-            GlobalState.UpdateState(DarkChess.GlobalState.CreateStartState());
+            _globalState = DarkChess.GlobalState.CreateStartState();
             UpdateBoardFromGlobalState();
             Instance = this;
         }
@@ -207,29 +162,166 @@ namespace DarkChess
                 child.Children.Clear();
                 child.Visibility = Visibility.Visible;
             }
+            KilledPicesGrid.Children.Clear();
         }
 
         public void UpdateBoardFromGlobalState()
         {
             foreach (Grid child in this.BoardGrid.Children)
             {
-                ApplyFieldStateToGrid(child, GlobalState.Board[BoardPosToIndex[child.Name]]);
+
+                if (child.Name == _globalState.Selected)
+                {
+                    var border = new Border();
+                    border.BorderBrush = Brushes.Red;
+                    border.BorderThickness = new Thickness(2, 2, 2, 2); //You can specify here which borders do you want
+                    child.Children.Add(border);
+                }
+                else if (_legalMoves.Contains(child.Name))
+                {
+                    var border = new Border();
+                    border.BorderBrush = Brushes.DarkMagenta;
+                    border.BorderThickness = new Thickness(2, 2, 2, 2); //You can specify here which borders do you want
+                    child.Children.Add(border);
+                }
+                ApplyFieldStateToGrid(child, _globalState.Board[BoardPosToIndex[child.Name]]);
+            }
+            _killedPices.Sort();
+            foreach (var pice in _killedPices)
+            {
+                AddPiceToGrid(KilledPicesGrid, pice);
             }
         }
 
         private void Field_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             //sender
-            Grid fieldGrid = (Grid)sender;
-            MessageBox.Show(fieldGrid.Name);
+            if(e.LeftButton == MouseButtonState.Pressed)
+            {
+                Grid fieldGrid = (Grid)sender;
+                Field clickState = _globalState.Board[BoardPosToIndex[fieldGrid.Name]];
+                if (_globalState.Selected == null)
+                {
+                    if((_globalState.WhiteTurn && Field.HasWhitePice(clickState)) || (!_globalState.WhiteTurn && Field.HasBlackPice(clickState)))
+                    {
+                        _globalState.Selected = fieldGrid.Name;
+                        _legalMoves = GameRules.GetLegalMoves(_globalState, new FieldState(_globalState.Selected, clickState));
+                        ClearBoard();
+                        UpdateBoardFromGlobalState();
+                    }
+
+                    
+                }
+                else
+                {
+                    if (_legalMoves.Contains(fieldGrid.Name))
+                    {
+                        Field selectState = _globalState.Board[BoardPosToIndex[_globalState.Selected]];
+                        (Field from, Field to) = Move(selectState, clickState);
+                        _globalState.Board[BoardPosToIndex[_globalState.Selected]] = from;
+                        _globalState.Board[BoardPosToIndex[fieldGrid.Name]] = to;
+
+                        _globalState.Selected = null;
+                        _legalMoves.Clear();
+                        ClearBoard();
+                        UpdateBoardFromGlobalState();
+                    }
+                    //
+
+                }
+                
+            }
+            else if(e.RightButton == MouseButtonState.Pressed)
+            {
+                _legalMoves.Clear();
+                _globalState.Selected = null;
+                ClearBoard();
+                UpdateBoardFromGlobalState();
+            }
+            
         }
 
-        private void ApplyFieldStateToGrid(Grid grid, FieldState fieldState)
+        private (Field, Field, Field, Field) Move(Field from, Field to, Field backup1, Field backup2)
+        {
+            if((from.Pice == Pices.WhiteKing && to.Pice == Pices.WhiteRook) || (from.Pice == Pices.BlackKing && to.Pice == Pices.BlackRook))
+            {
+                return (new Field(Pices.Non), new Field(Pices.Non), new Field(from.Pice), new Field(to.Pice));
+            }
+            else 
+            {
+                throw new NotImplementedException("I only know of castling that can use this");
+            }
+        }
+        private (Field, Field, Field) Move(Field from, Field to, Field backup)
+        {
+            if(((from.Pice == Pices.WhitePawn) || (from.Pice == Pices.BlackPawn)) && to.Pice == Pices.Non)
+            {
+                _killedPices.Add(backup.Pice);
+                return (new Field(Pices.Non), new Field(from.Pice), new Field(Pices.Non));
+            }
+            else
+            {
+                throw new NotImplementedException("Only an passan here");
+            }
+        }
+        private (Field, Field) Move(Field from, Field to)
+        {
+            if(to.Pice != Pices.Non)_killedPices.Add(to.Pice);
+            return (new Field(Pices.Non), new Field(from.Pice));
+        }
+
+        private void ApplyFieldStateToGrid(Grid grid, Field fieldState)
         {
             switch (fieldState.Pice)
             {
                 case Pices.Non:
                     
+                    break;
+                case Pices.BlackKing:
+                    grid.Children.Add(BlackKing);
+                    break;
+                case Pices.BlackQueen:
+                    grid.Children.Add(BlackQueen);
+                    break;
+                case Pices.BlackBishop:
+                    grid.Children.Add(BlackBishop);
+                    break;
+                case Pices.BlackKnight:
+                    grid.Children.Add(BlackKnight);
+                    break;
+                case Pices.BlackRook:
+                    grid.Children.Add(BlackRook);
+                    break;
+                case Pices.BlackPawn:
+                    grid.Children.Add(BlackPawn);
+                    break;
+                case Pices.WhiteKing:
+                    grid.Children.Add(WhiteKing);
+                    break;
+                case Pices.WhiteQueen:
+                    grid.Children.Add(WhiteQueen);
+                    break;
+                case Pices.WhiteBishop:
+                    grid.Children.Add(WhiteBishop);
+                    break;
+                case Pices.WhiteKnight:
+                    grid.Children.Add(WhiteKnight);
+                    break;
+                case Pices.WhiteRook:
+                    grid.Children.Add(WhiteRook);
+                    break;
+                case Pices.WhitePawn:
+                    grid.Children.Add(WhitePawn);
+                    break;
+            }
+        }
+
+        private void AddPiceToGrid(System.Windows.Controls.Primitives.UniformGrid grid, Pices pice)
+        {
+            switch (pice)
+            {
+                case Pices.Non:
+
                     break;
                 case Pices.BlackKing:
                     grid.Children.Add(BlackKing);
