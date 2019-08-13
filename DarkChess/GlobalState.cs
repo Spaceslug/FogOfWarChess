@@ -24,6 +24,16 @@ namespace DarkChess
         //    Selected = oldState.Selected;
 
         //}
+        public void CleanAnPassants()
+        {
+            int i = Board.FindIndex(field => field.AnPassan_able);
+            if(i > -1)
+            {
+                Field f = Board[i];
+                f.AnPassan_able = false;
+                Board[i]= f;
+            }
+        }
 
         public static GlobalState CreateStartState()
         {
@@ -178,6 +188,8 @@ namespace DarkChess
             globalState.Board.Add(new Field(Pices.BlackRook, false, false, true, true));
             return globalState;
         }
+
+
     }
 
     public enum Pices

@@ -45,6 +45,26 @@ namespace DarkChess
             }
         }
 
+        public static void AddPwnAttack(GlobalState state, FieldState fromField, List<(string, List<FieldState>)> moveList, string endPos)
+        {
+            bool moveIsWhite = Field.HasWhitePice(fromField.Field);
+            if (!LegalPos(endPos)) return;
+            Field currentField = state.Board[MainWindow.BoardPosToIndex[endPos]];
+            if ((moveIsWhite ?Field.HasBlackPice(currentField) : Field.HasWhitePice(currentField)))
+            {
+                moveList.Add((endPos, null));
+            }
+            else if(currentField.AnPassan_able)
+            {
+                string anPs = (moveIsWhite ? DownOne(endPos) : UpOne(endPos));
+                Field anPsField = BPToFi(state, anPs);
+                if((moveIsWhite? anPsField.HasBlackPice() : anPsField.HasWhitePice()))
+                {
+                    moveList.Add((endPos, new List<FieldState> { new FieldState(anPs, anPsField)}));
+                }
+            }
+        }
+
         public static void AddMovesTillEnd(GlobalState state, FieldState fromField, List<(string, List<FieldState>)> moveList, MoveFunction moveFunc)
         {
             bool validMove = true;
@@ -120,15 +140,20 @@ namespace DarkChess
                 case Pices.Non:
                     return legalMoves;
                 case Pices.BlackPawn:
+                    AddPwnAttack(state, fromField, legalMoves, LeftOne(DownOne(fromField.FieldName)));
+                    AddPwnAttack(state, fromField, legalMoves, RightOne(DownOne(fromField.FieldName)));
+
                     string bpDown = DownOne(fromField.FieldName);
-                    bool bpDownLegal = LegalPos(bpDown) && !Field.HasBlackPice(state.Board[MainWindow.BoardPosToIndex[bpDown]]);
+                    bool bpDownLegal = LegalPos(bpDown) && BPToFi(state, bpDown).Pice == Pices.Non;
                     if (bpDownLegal)
                     {
                         legalMoves.Add((bpDown, null));
+                        if (!fromField.Field.FirstMove) break;
 
-                        string bpDown2 = UpOne(bpDown);
-                        bool bpDown2Legal = fromField.Field.FirstMove && LegalPos(bpDown2) && !Field.HasBlackPice(state.Board[MainWindow.BoardPosToIndex[bpDown2]]);
-                        if (bpDown2Legal) legalMoves.Add((bpDown2, null));
+                        string bpDown2 = DownOne(bpDown);
+                        Field bpDown2Field = BPToFi(state, bpDown2);
+                        bool bpDown2Legal =  LegalPos(bpDown2) && bpDown2Field.Pice == Pices.Non;
+                        if (bpDown2Legal) legalMoves.Add((bpDown2, new List<FieldState> { new FieldState(bpDown, BPToFi(state, bpDown)) }));
                     }
                     break;
                 case Pices.BlackKing:
@@ -183,15 +208,20 @@ namespace DarkChess
                     AddMovesTillEnd(state, fromField, legalMoves, RightOne);
                     break;
                 case Pices.WhitePawn:
+                    AddPwnAttack(state, fromField, legalMoves, LeftOne(UpOne(fromField.FieldName)));
+                    AddPwnAttack(state, fromField, legalMoves, RightOne(UpOne(fromField.FieldName)));
+
                     string wpUp = UpOne(fromField.FieldName);
-                    bool wpUpLegal = LegalPos(wpUp) && !Field.HasWhitePice(state.Board[MainWindow.BoardPosToIndex[wpUp]]);
+                    bool wpUpLegal = LegalPos(wpUp) && BPToFi(state, wpUp).Pice == Pices.Non;
                     if (wpUpLegal)
                     {
                         legalMoves.Add((wpUp, null));
+                        if (!fromField.Field.FirstMove) break;
 
                         string wpUp2 = UpOne(wpUp);
-                        bool wpUp2Legal = fromField.Field.FirstMove && LegalPos(wpUp2) && !Field.HasWhitePice(state.Board[MainWindow.BoardPosToIndex[wpUp2]]);
-                        if (wpUp2Legal) legalMoves.Add((wpUp2, null));
+                        Field wpUp2Field = BPToFi(state, wpUp2);
+                        bool wpUp2Legal =  LegalPos(wpUp2) && wpUp2Field.Pice == Pices.Non;
+                        if (wpUp2Legal) legalMoves.Add((wpUp2, new List<FieldState> { new FieldState(wpUp, BPToFi(state, wpUp)) }));
                     }
                     break;
                 default:
@@ -199,5 +229,46 @@ namespace DarkChess
             }
             return legalMoves;
         }
+
+        public static SortedSet<string> GetVision(GlobalState state, bool whiteVision, VisionRules rules)
+        {
+            SortedSet<string> visionSet = new SortedSet<string>();
+            if (rules.ViewMoveFields)
+            {
+                throw new NotImplementedException("addgagg");
+            }
+            if(rules.ViewRange > 0)
+            {
+                List<string> posesWithVision = MainWindow.BoardPosToIndex.Where((keyVal) => whiteVision ? state.Board[keyVal.Value].HasWhitePice() : state.Board[keyVal.Value].HasBlackPice()).Select(keyVal => keyVal.Key).ToList<string>();
+                posesWithVision.ForEach(s => AddFromWithRange(visionSet, s, rules.ViewRange));
+            }
+            return visionSet;
+        }
+
+        private static void AddFromWithRange(SortedSet<string> vision, string from, int range)
+        {
+            string start = from;
+            for (int i = 0; i < range; i++){
+                start = DownOne(LeftOne(start));
+            }
+            int iterate = range * 2 + 1;
+            string current = start;
+            for (int i = 0; i < iterate; i++)
+            {
+                for(int j = 0; j < iterate; j++)
+                {
+                    if(LegalPos(current))vision.Add(current);
+                    current = UpOne(current);
+                }
+                start = RightOne(start);
+                current = start;
+            }
+        }
+    }
+
+    public class VisionRules
+    {
+        public bool ViewMoveFields { get; set; } = false;
+        public int ViewRange { get; set; } = 2;
     }
 }

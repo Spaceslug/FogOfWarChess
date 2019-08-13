@@ -167,6 +167,7 @@ namespace DarkChess
 
         public void UpdateBoardFromGlobalState()
         {
+            var vision = GameRules.GetVision(_globalState, _globalState.WhiteTurn, new VisionRules { ViewMoveFields = false, ViewRange = 2 });
             foreach (Grid child in this.BoardGrid.Children)
             {
 
@@ -183,6 +184,14 @@ namespace DarkChess
                     border.BorderBrush = Brushes.Red;
                     border.BorderThickness = new Thickness(3, 3, 3, 3); //You can specify here which borders do you want
                     child.Children.Add(border);
+                }
+                if (vision.Contains(child.Name))
+                {
+                    child.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    child.Visibility = Visibility.Hidden;
                 }
                 ApplyFieldStateToGrid(child, _globalState.Board[BoardPosToIndex[child.Name]]);
             }
@@ -217,6 +226,9 @@ namespace DarkChess
                     if (_legalMoves.Any((a) => a.Item1 == fieldGrid.Name))
                     {
                         (var name, var extraFieldList) = _legalMoves.Find((a) => a.Item1 == fieldGrid.Name);
+                        //Must clean an passants
+                        _globalState.CleanAnPassants();
+                        //
                         Field selectState = _globalState.Board[BoardPosToIndex[_globalState.Selected]];
                         if(extraFieldList == null || extraFieldList.Count == 0)
                         {
@@ -226,7 +238,10 @@ namespace DarkChess
                         }
                         else if(extraFieldList.Count == 1)
                         {
-
+                            (Field from, Field to, Field anPs) = Move(selectState, clickState, extraFieldList[0].Field);
+                            _globalState.Board[BoardPosToIndex[_globalState.Selected]] = from;
+                            _globalState.Board[BoardPosToIndex[fieldGrid.Name]] = to;
+                            _globalState.Board[BoardPosToIndex[extraFieldList[0].FieldName]] = anPs;
                         }
                         else if(extraFieldList.Count == 2)
                         {
@@ -276,10 +291,14 @@ namespace DarkChess
         }
         private (Field, Field, Field) Move(Field from, Field to, Field backup)
         {
-            if(((from.Pice == Pices.WhitePawn) || (from.Pice == Pices.BlackPawn)) && to.Pice == Pices.Non)
+            if (to.AnPassan_able)
             {
                 _killedPices.Add(backup.Pice);
                 return (new Field(Pices.Non), new Field(from.Pice), new Field(Pices.Non));
+            }
+            else if (from.Pice == Pices.WhitePawn || from.Pice == Pices.BlackPawn)
+            {
+                return (new Field(Pices.Non), new Field(from.Pice), new Field(Pices.Non, false, true, false, false));
             }
             else
             {
