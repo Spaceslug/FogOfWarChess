@@ -167,10 +167,29 @@ namespace DarkChess
 
         public void UpdateBoardFromGlobalState()
         {
-            var vision = GameRules.GetVision(_globalState, _globalState.WhiteTurn, new VisionRules { ViewMoveFields = false, ViewRange = 2 });
+            var vision = GameRules.GetVision(_globalState, _globalState.WhiteTurn, new VisionRules { ViewMoveFields = false, ViewRange = 1 });
             foreach (Grid child in this.BoardGrid.Children)
             {
 
+
+                
+                ApplyFieldStateToGrid(child, _globalState.Board[BoardPosToIndex[child.Name]]);
+                if (vision.Contains(child.Name))
+                {
+                    child.Opacity = 1;
+                    foreach (UIElement underChiled in child.Children)
+                    {
+                        underChiled.Visibility = Visibility.Visible;
+                    }
+                }
+                else
+                {
+                    child.Opacity = 0.2;
+                    foreach (UIElement underChiled in child.Children)
+                    {
+                        underChiled.Visibility = Visibility.Hidden;
+                    }
+                }
                 if (child.Name == _globalState.Selected)
                 {
                     var border = new Border();
@@ -185,15 +204,6 @@ namespace DarkChess
                     border.BorderThickness = new Thickness(3, 3, 3, 3); //You can specify here which borders do you want
                     child.Children.Add(border);
                 }
-                if (vision.Contains(child.Name))
-                {
-                    child.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    child.Visibility = Visibility.Hidden;
-                }
-                ApplyFieldStateToGrid(child, _globalState.Board[BoardPosToIndex[child.Name]]);
             }
             _killedPices.Sort();
             foreach (var pice in _killedPices)
