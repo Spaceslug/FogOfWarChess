@@ -17,28 +17,62 @@ namespace DarkChess
             int pos2Int = (int)pos[1];
             return pos1Int >= 97 && pos1Int <= 104 && pos2Int >= 49 && pos2Int <= 56;
         }
+        private static bool LegalPos(int pos)
+        {
+            return pos >= 0 && pos < 64;
+        }
+        private static bool LegalColumn(int column)
+        {
+            return column >= 0 && column < 8;
+        }
+        private static bool LegalRow(int pos)
+        {
+            return LegalColumn(pos);
+        }
+        private static int IndexFromColRow(int column, int row)
+        {
+            return column+(8*row);
+        }
         private static string UpOne(string startPos)
         {
             return startPos[0] + char.ConvertFromUtf32(((int)startPos[1]) + 1);
+        }
+        private static int UpOne(int startPos)
+        {
+            return startPos + 8;
         }
         private static string DownOne(string startPos)
         {
             return startPos[0] + char.ConvertFromUtf32(((int)startPos[1]) - 1);
         }
+        private static int DownOne(int startPos)
+        {
+            return startPos - 8;
+        }
         private static string LeftOne(string startPos)
         {
             return char.ConvertFromUtf32(((int)startPos[0]) - 1) + startPos[1];
         }
+        private static int LeftOne(int startPos)
+        {
+            if (startPos % 8 == 0) return -1;
+            return startPos - 1;
+        }
         private static string RightOne(string startPos)
         {
             return char.ConvertFromUtf32(((int)startPos[0]) + 1) + startPos[1];
+        }
+        private static int RightOne(int startPos)
+        {
+            if(startPos%8 == 7) return -1;
+            return startPos + 1;
         }
 
         public static void AddMove(GlobalState state, FieldState fromField, List<(string, List<FieldState>)> moveList, string endPos)
         {
             bool moveIsWhite = Field.HasWhitePice(fromField.Field);
             if (!LegalPos(endPos)) return;
-            Field currentField = state.Board[MainWindow.BoardPosToIndex[endPos]];
+            Field currentField = state.GetFieldAt(endPos);
             if (!(moveIsWhite ? Field.HasWhitePice(currentField) : Field.HasBlackPice(currentField)))
             {
                 moveList.Add((endPos, null));
@@ -49,7 +83,7 @@ namespace DarkChess
         {
             bool moveIsWhite = Field.HasWhitePice(fromField.Field);
             if (!LegalPos(endPos)) return;
-            Field currentField = state.Board[MainWindow.BoardPosToIndex[endPos]];
+            Field currentField = state.GetFieldAt(endPos);
             if ((moveIsWhite ?Field.HasBlackPice(currentField) : Field.HasWhitePice(currentField)))
             {
                 moveList.Add((endPos, null));
@@ -74,7 +108,7 @@ namespace DarkChess
             {
                 currentFieldName = moveFunc(currentFieldName);
                 if (!LegalPos(currentFieldName)) break;
-                Field currentField = state.Board[MainWindow.BoardPosToIndex[currentFieldName]];
+                Field currentField = state.GetFieldAt(currentFieldName);
                 validMove = !(moveIsWhite?Field.HasWhitePice(currentField):Field.HasBlackPice(currentField));
                 if (validMove)
                 {
@@ -106,7 +140,7 @@ namespace DarkChess
                 lastField = (currentFieldName, currentField);
                 currentFieldName = moveFunc(currentFieldName);
                 if (!LegalPos(currentFieldName)) break;
-                currentField = state.Board[MainWindow.BoardPosToIndex[currentFieldName]];
+                currentField = state.GetFieldAt(currentFieldName);
                 validMove = !(moveIsWhite ? Field.HasWhitePice(currentField) : Field.HasBlackPice(currentField));
                 if (validMove)
                 {
@@ -129,12 +163,17 @@ namespace DarkChess
 
         public static Field BPToFi(GlobalState state, string pos)
         {
-            return state.Board[MainWindow.BoardPosToIndex[pos]];
+            return state.GetFieldAt(pos);
+        }
+        public static int BPToIndx(string pos)
+        {
+            return GlobalState.BoardPosToIndex[pos];
         }
 
         public static List<(string, List<FieldState>)> GetLegalMoves(GlobalState state, FieldState fromField)
         {
             List<(string, List<FieldState>)> legalMoves = new List<(string, List<FieldState>)>();
+            if (fromField.FieldName == null) return legalMoves;
             switch (fromField.Field.Pice)
             {
                 case Pices.Non:
@@ -239,10 +278,30 @@ namespace DarkChess
             }
             if(rules.ViewRange > 0)
             {
-                List<string> posesWithVision = MainWindow.BoardPosToIndex.Where((keyVal) => whiteVision ? state.Board[keyVal.Value].HasWhitePice() : state.Board[keyVal.Value].HasBlackPice()).Select(keyVal => keyVal.Key).ToList<string>();
+                List<string> posesWithVision = GlobalState.BoardPosToIndex.Where((keyVal) => whiteVision ? state.GetField(keyVal.Value).HasWhitePice() : state.GetField(keyVal.Value).HasBlackPice()).Select(keyVal => keyVal.Key).ToList<string>();
                 posesWithVision.ForEach(s => AddFromWithRange(visionSet, s, rules.ViewRange));
             }
             return visionSet;
+        }
+
+        
+
+        public static void AddPiceVision(List<Field> board, int index, VisionRules vision, bool[] visionBoard)
+        {
+            int column = index % 8 - vision.ViewRange;
+            int row = index / 8 - vision.ViewRange;
+            //int start = index - visionRules.ViewRange - visionRules.ViewRange* 8;
+            
+            int iterate = vision.ViewRange * 2 + 1;
+            for (int i = 0; i < iterate; i++)
+            {
+                if (!LegalColumn(column + i)) continue;
+                for (int j = 0; j < iterate; j++)
+                {
+                    if (!LegalRow(row+j)) continue;
+                    visionBoard[IndexFromColRow(column + i, row + j)] = true;
+                }
+            }
         }
 
         private static void AddFromWithRange(SortedSet<string> vision, string from, int range)
@@ -264,11 +323,45 @@ namespace DarkChess
                 current = start;
             }
         }
+
+        public static(Field, Field, Field, Field, Pices) Move(Field fromK, Field toK, Field fromR, Field toR)
+        {
+            if ((fromK.Pice == Pices.WhiteKing && fromR.Pice == Pices.WhiteRook) || (fromK.Pice == Pices.BlackKing && fromR.Pice == Pices.BlackRook))
+            {
+                return (new Field(Pices.Non), new Field(fromK.Pice), new Field(Pices.Non), new Field(fromR.Pice), Pices.Non);
+            }
+            else
+            {
+                throw new NotImplementedException("I only know of castling that can use this");
+            }
+        }
+        public static (Field, Field, Field, Pices) Move(Field from, Field to, Field backup)
+        {
+            if (to.AnPassan_able)
+            {
+                //_killedPices.Add(backup.Pice);
+                return (new Field(Pices.Non), new Field(from.Pice), new Field(Pices.Non), backup.Pice);
+            }
+            else if (from.Pice == Pices.WhitePawn || from.Pice == Pices.BlackPawn)
+            {
+                return (new Field(Pices.Non), new Field(from.Pice), new Field(Pices.Non, false, true, false, false), Pices.Non);
+            }
+            else
+            {
+                throw new NotImplementedException("Only an passan here");
+            }
+        }
+        public static (Field, Field, Pices) Move(Field from, Field to)
+        {
+            return (new Field(Pices.Non), new Field(from.Pice), to.Pice);
+        }
     }
 
     public class VisionRules
     {
+        public bool Enabled { get; set; } = true;
         public bool ViewMoveFields { get; set; } = false;
         public int ViewRange { get; set; } = 2;
+        public Dictionary<Pices, VisionRules> PiceOverwrite { get; set; }
     }
 }

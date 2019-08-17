@@ -20,73 +20,7 @@ namespace DarkChess
     /// </summary>
     public partial class MainWindow : Window
     {
-        public static readonly Dictionary<string, int> BoardPosToIndex = new Dictionary<string, int>
-        {
-            { "a1", 0 },
-            { "b1", 1 },
-            { "c1", 2 },
-            { "d1", 3 },
-            { "e1", 4 },
-            { "f1", 5 },
-            { "g1", 6 },
-            { "h1", 7 },
-            { "a2", 8 },
-            { "b2", 9 },
-            { "c2", 10 },
-            { "d2", 11 },
-            { "e2", 12 },
-            { "f2", 13 },
-            { "g2", 14 },
-            { "h2", 15 },
-            { "a3", 16 },
-            { "b3", 17 },
-            { "c3", 18 },
-            { "d3", 19 },
-            { "e3", 20 },
-            { "f3", 21 },
-            { "g3", 22 },
-            { "h3", 23 },
-            { "a4", 24 },
-            { "b4", 25 },
-            { "c4", 26 },
-            { "d4", 27 },
-            { "e4", 28 },
-            { "f4", 29 },
-            { "g4", 30 },
-            { "h4", 31 },
-            { "a5", 32 },
-            { "b5", 33 },
-            { "c5", 34 },
-            { "d5", 35 },
-            { "e5", 36 },
-            { "f5", 37 },
-            { "g5", 38 },
-            { "h5", 39 },
-            { "a6", 40 },
-            { "b6", 41 },
-            { "c6", 42 },
-            { "d6", 43 },
-            { "e6", 44 },
-            { "f6", 45 },
-            { "g6", 46 },
-            { "h6", 47 },
-            { "a7", 48 },
-            { "b7", 49 },
-            { "c7", 50 },
-            { "d7", 51 },
-            { "e7", 52 },
-            { "f7", 53 },
-            { "g7", 54 },
-            { "h7", 55 },
-            { "a8", 56 },
-            { "b8", 57 },
-            { "c8", 58 },
-            { "d8", 59 },
-            { "e8", 60 },
-            { "f8", 61 },
-            { "g8", 62 },
-            { "h8", 63 }
-        };
+        
 
 
         private static RoutedUICommand _pressMeCommand = new RoutedUICommand("Press Me", "PressMe", typeof(MainWindow));
@@ -132,8 +66,8 @@ namespace DarkChess
         public static MainWindow Instance { get; private set; }
 
         private GlobalState _globalState = new GlobalState();
-        private List<(string, List<FieldState>)> _legalMoves = new List<(string, List<FieldState>)>();
         private List<Pices> _killedPices = new List<Pices>();
+        private VisionMode _visionMode = VisionMode.CurrentMove;
 
         public MainWindow()
         {
@@ -150,7 +84,12 @@ namespace DarkChess
             //b8.Children.Add(BlackPawn);
             //BlackOutField("d4");
             ClearBoard();
-            _globalState = DarkChess.GlobalState.CreateStartState();
+            _globalState = GlobalState.CreateStartState(new VisionRules { Enabled = true, ViewMoveFields = false, ViewRange = 2, PiceOverwrite = new Dictionary<Pices, VisionRules>() {
+                [Pices.BlackPawn] = new VisionRules { ViewRange = 1 },
+                [Pices.WhitePawn] = new VisionRules { ViewRange = 1 },
+                [Pices.BlackKing] = new VisionRules { ViewRange = 1 },
+                [Pices.WhiteKing] = new VisionRules { ViewRange = 1 },
+            } });
             UpdateBoardFromGlobalState();
             Instance = this;
         }
@@ -165,16 +104,17 @@ namespace DarkChess
             KilledPicesGrid.Children.Clear();
         }
 
+
+
         public void UpdateBoardFromGlobalState()
         {
-            var vision = GameRules.GetVision(_globalState, _globalState.WhiteTurn, new VisionRules { ViewMoveFields = false, ViewRange = 1 });
+            //var vision = GameRules.GetVision(_globalState, _globalState.WhiteTurn, new VisionRules { ViewMoveFields = false, ViewRange = 1 });
+            
+
             foreach (Grid child in this.BoardGrid.Children)
             {
-
-
-                
-                ApplyFieldStateToGrid(child, _globalState.Board[BoardPosToIndex[child.Name]]);
-                if (vision.Contains(child.Name))
+                ApplyFieldStateToGrid(child, _globalState.GetFieldAt(child.Name));
+                if (_globalState.CanSeeField(_visionMode, child.Name))
                 {
                     child.Opacity = 1;
                     foreach (UIElement underChiled in child.Children)
@@ -184,6 +124,7 @@ namespace DarkChess
                 }
                 else
                 {
+                    child.Visibility = Visibility.Hidden;
                     child.Opacity = 0.2;
                     foreach (UIElement underChiled in child.Children)
                     {
@@ -197,7 +138,7 @@ namespace DarkChess
                     border.BorderThickness = new Thickness(2, 2, 2, 2); //You can specify here which borders do you want
                     child.Children.Add(border);
                 }
-                else if (_legalMoves.Any((a) => a.Item1 == child.Name))
+                else if (_globalState.IsLegalMove(child.Name))
                 {
                     var border = new Border();
                     border.BorderBrush = Brushes.Red;
@@ -218,13 +159,13 @@ namespace DarkChess
             if(e.LeftButton == MouseButtonState.Pressed)
             {
                 Grid fieldGrid = (Grid)sender;
-                Field clickState = _globalState.Board[BoardPosToIndex[fieldGrid.Name]];
+                Field clickState = _globalState.GetFieldAt(fieldGrid.Name);
                 if (_globalState.Selected == null)
                 {
                     if((_globalState.WhiteTurn && Field.HasWhitePice(clickState)) || (!_globalState.WhiteTurn && Field.HasBlackPice(clickState)))
                     {
                         _globalState.Selected = fieldGrid.Name;
-                        _legalMoves = GameRules.GetLegalMoves(_globalState, new FieldState(_globalState.Selected, clickState));
+                        //_legalMoves = GameRules.GetLegalMoves(_globalState, new FieldState(_globalState.Selected, clickState));
                         ClearBoard();
                         UpdateBoardFromGlobalState();
                     }
@@ -233,43 +174,13 @@ namespace DarkChess
                 }
                 else
                 {
-                    if (_legalMoves.Any((a) => a.Item1 == fieldGrid.Name))
+                    if (_globalState.IsLegalMove(fieldGrid.Name))
                     {
-                        (var name, var extraFieldList) = _legalMoves.Find((a) => a.Item1 == fieldGrid.Name);
-                        //Must clean an passants
-                        _globalState.CleanAnPassants();
-                        //
-                        Field selectState = _globalState.Board[BoardPosToIndex[_globalState.Selected]];
-                        if(extraFieldList == null || extraFieldList.Count == 0)
-                        {
-                            (Field from, Field to) = Move(selectState, clickState);
-                            _globalState.Board[BoardPosToIndex[_globalState.Selected]] = from;
-                            _globalState.Board[BoardPosToIndex[fieldGrid.Name]] = to;
-                        }
-                        else if(extraFieldList.Count == 1)
-                        {
-                            (Field from, Field to, Field anPs) = Move(selectState, clickState, extraFieldList[0].Field);
-                            _globalState.Board[BoardPosToIndex[_globalState.Selected]] = from;
-                            _globalState.Board[BoardPosToIndex[fieldGrid.Name]] = to;
-                            _globalState.Board[BoardPosToIndex[extraFieldList[0].FieldName]] = anPs;
-                        }
-                        else if(extraFieldList.Count == 2)
-                        {
-                            (Field fromK, Field toK, Field fromR, Field toR) = Move(selectState, clickState, extraFieldList[0].Field, extraFieldList[1].Field);
-                            _globalState.Board[BoardPosToIndex[_globalState.Selected]] = fromK;
-                            _globalState.Board[BoardPosToIndex[fieldGrid.Name]] = toK;
-                            _globalState.Board[BoardPosToIndex[extraFieldList[0].FieldName]] = fromR;
-                            _globalState.Board[BoardPosToIndex[extraFieldList[1].FieldName]] = toR;
-                        }
-                        else
-                        {
-                            throw new NotImplementedException("what tha fuck man");
-                        }
-
-                        _globalState.WhiteTurn = !_globalState.WhiteTurn;
-
+                        //(var name, var extraFieldList) = _legalMoves.Find((a) => a.Item1 == fieldGrid.Name);
+                        Pices killedPice = _globalState.DoMoveTo(fieldGrid.Name);
+                        if (killedPice != Pices.Non) _killedPices.Add(killedPice);
+                        //_legalMoves.Clear();
                         _globalState.Selected = null;
-                        _legalMoves.Clear();
                         ClearBoard();
                         UpdateBoardFromGlobalState();
                     }
@@ -280,7 +191,7 @@ namespace DarkChess
             }
             else if(e.RightButton == MouseButtonState.Pressed)
             {
-                _legalMoves.Clear();
+                //_legalMoves.Clear();
                 _globalState.Selected = null;
                 ClearBoard();
                 UpdateBoardFromGlobalState();
@@ -288,38 +199,7 @@ namespace DarkChess
             
         }
 
-        private (Field, Field, Field, Field) Move(Field fromK, Field toK, Field fromR, Field toR)
-        {
-            if((fromK.Pice == Pices.WhiteKing && fromR.Pice == Pices.WhiteRook) || (fromK.Pice == Pices.BlackKing && fromR.Pice == Pices.BlackRook))
-            {
-                return (new Field(Pices.Non), new Field(fromK.Pice), new Field(Pices.Non), new Field(fromR.Pice));
-            }
-            else 
-            {
-                throw new NotImplementedException("I only know of castling that can use this");
-            }
-        }
-        private (Field, Field, Field) Move(Field from, Field to, Field backup)
-        {
-            if (to.AnPassan_able)
-            {
-                _killedPices.Add(backup.Pice);
-                return (new Field(Pices.Non), new Field(from.Pice), new Field(Pices.Non));
-            }
-            else if (from.Pice == Pices.WhitePawn || from.Pice == Pices.BlackPawn)
-            {
-                return (new Field(Pices.Non), new Field(from.Pice), new Field(Pices.Non, false, true, false, false));
-            }
-            else
-            {
-                throw new NotImplementedException("Only an passan here");
-            }
-        }
-        private (Field, Field) Move(Field from, Field to)
-        {
-            if(to.Pice != Pices.Non)_killedPices.Add(to.Pice);
-            return (new Field(Pices.Non), new Field(from.Pice));
-        }
+        
 
         private void ApplyFieldStateToGrid(Grid grid, Field fieldState)
         {
@@ -418,5 +298,12 @@ namespace DarkChess
             Grid field = (Grid)this.BoardGrid.FindName(fieldName);
             field.Visibility = Visibility.Hidden;
         }
+    }
+
+    public enum VisionMode
+    {
+        CurrentMove,
+        White,
+        Black
     }
 }
