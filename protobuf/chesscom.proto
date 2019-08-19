@@ -8,6 +8,22 @@ package chesscom;
 service ChessCom {
     // Function invoked to send the request
     rpc sendRequest (MathRequest) returns (MathReply) {}
+	rpc Loggin(LoginForm) return (LoginResult) {}
+	rpc LookForMatch(string) return (LookForMatchResult) {}
+}
+
+message LoginForm {
+	string username = 1;
+}
+
+message LoginResult {
+	bool successfullLogin = 1;
+	string userToken = 2;
+}
+
+message LookForMatchResult {
+	bool succes = 1;
+	string matchToken = 2;
 }
 
 // The request message containing requested numbers

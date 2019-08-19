@@ -92,6 +92,10 @@ namespace DarkChess
             } });
             UpdateBoardFromGlobalState();
             Instance = this;
+            ServerConnection connection = new ServerConnection("82.164.245.129", 43326);
+            connection.AsyncConnect();
+            var a = connection.Call.sendRequest(new ChessCom.MathRequest { A = 3, B = 4});
+            Console.WriteLine(a);
         }
 
         public void ClearBoard()
