@@ -26,7 +26,7 @@ namespace DarkChess
             Port = port;
         }
 
-        public void AsyncConnect()
+        public void Connect()
         {
             _channel = new Channel(IpAdress, Port, ChannelCredentials.Insecure);
             _channel.ConnectAsync(DateTime.UtcNow + TimeSpan.FromSeconds(10)).Wait();

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -92,10 +93,23 @@ namespace DarkChess
             } });
             UpdateBoardFromGlobalState();
             Instance = this;
-            ServerConnection connection = new ServerConnection("82.164.245.129", 43326);
-            connection.AsyncConnect();
-            var a = connection.Call.sendRequest(new ChessCom.MathRequest { A = 3, B = 4});
-            Console.WriteLine(a);
+            ServerConnection connection = new ServerConnection("hive.spaceslug.no", 43326);
+            try
+            {
+                connection.Connect();
+                var a = connection.Call.sendRequest(new ChessCom.MathRequest { A = 3, B = 4 });
+                //connection.Call.
+                Console.WriteLine(a);
+            }
+            catch (AggregateException ex)
+            {
+                string popupText = "Slug Chess Connection failed";
+                string textBoxText = "Can not connect to Slug Chess server. Please bother admin at support@spaceslug.no";
+                MessageBoxButton button = MessageBoxButton.OK;
+                MessageBoxImage icon = MessageBoxImage.Error;
+                MessageBox.Show(textBoxText, popupText, button, icon);
+                Application.Current.Shutdown();
+            }
         }
 
         public void ClearBoard()

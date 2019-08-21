@@ -8,8 +8,16 @@ package chesscom;
 service ChessCom {
     // Function invoked to send the request
     rpc sendRequest (MathRequest) returns (MathReply) {}
-	rpc Loggin(LoginForm) return (LoginResult) {}
-	rpc LookForMatch(string) return (LookForMatchResult) {}
+	rpc Loggin(LoginForm) returns (LoginResult) {}
+	rpc LookForMatch(UserIdentity) returns (LookForMatchResult) {}
+	rpc Match(stream MovePacket) returns (stream MoveResult) {}
+}
+
+enum MatchEvent{
+	Non = 0;
+	WhiteWin = 1;
+	BlackWin = 2;
+	Draw = 3;
 }
 
 message LoginForm {
@@ -21,9 +29,28 @@ message LoginResult {
 	string userToken = 2;
 }
 
+message UserIdentity {
+	string userToken = 1;
+}
+
 message LookForMatchResult {
 	bool succes = 1;
 	string matchToken = 2;
+	bool isWhitePlayer = 3;
+}
+
+message MovePacket{
+	bool doingMove = 1;
+	string from = 2;
+	string to = 3;
+	bool askingForDraw = 4;
+
+}
+message MoveResult{
+	bool moveHappned = 1;
+	string from = 2;
+	string to = 3;
+	bool opponentAskingForDraw = 4;
 }
 
 // The request message containing requested numbers

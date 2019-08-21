@@ -5,14 +5,28 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DarkChess"
         mc:Ignorable="d"
-        Title="DarkChess" Height="479.487" Width="803.846" MinWidth="803" MinHeight="479">
-    <Grid>
+        Title="SlugChess" Height="479.487" Width="803.846" MinWidth="803" MinHeight="479">
+    <Grid x:Name="RootGrid">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="557*"/>
-            <ColumnDefinition Width="236*"/>
+            <ColumnDefinition Width="366*"/>
+            <ColumnDefinition Width="195*"/>
+            <ColumnDefinition Width="238*"/>
         </Grid.ColumnDefinitions>
-        <Rectangle Fill="#FFF4F4F5" HorizontalAlignment="Right" Height="329" Margin="0,93,-0.4,0" Stroke="Black" VerticalAlignment="Top" Width="352" Grid.ColumnSpan="2"/>
-        <UniformGrid x:Name="BoardGrid" Margin="28,10,119,29.2" Background="Black" >
+        <Grid  HorizontalAlignment="Right" Height="329" Margin="0,93,-0.4,0"  VerticalAlignment="Top" Width="352" Grid.ColumnSpan="2" Grid.Column="1" Background="White">
+            <Label x:Name="LoginLabel" Content="Label" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+            <TextBox x:Name="nameTextBox" HorizontalAlignment="Left" Height="23" Margin="53,12,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+            <Button x:Name="loginButton" Content="Button" HorizontalAlignment="Left" Margin="178,12,0,0" VerticalAlignment="Top" Width="75"/>
+            <RichTextBox x:Name="messageBox" HorizontalAlignment="Left" Height="203" Margin="10,79,0,0" VerticalAlignment="Top" Width="332">
+                <FlowDocument>
+                    <Paragraph>
+                        <Run Text="RichTextBox"/>
+                    </Paragraph>
+                </FlowDocument>
+            </RichTextBox>
+            <TextBox x:Name="sendTextBox" HorizontalAlignment="Left" Height="23" Margin="10,287,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="249"/>
+            <Button x:Name="sendTextButton" Content="Button" HorizontalAlignment="Left" Margin="264,288,0,0" VerticalAlignment="Top" Width="75"/>
+        </Grid>
+        <UniformGrid x:Name="BoardGrid" Margin="28,10,119,29.2" Background="Black" Grid.ColumnSpan="2" >
             <Grid x:Name="a8" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown"/>
             <Grid x:Name="b8" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
             <Grid x:Name="c8" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
@@ -78,7 +92,7 @@
             <Grid x:Name="g1" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
             <Grid x:Name="h1" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
         </UniformGrid>
-        <UniformGrid HorizontalAlignment="Left" Margin="0,10,0,9.6" Width="30" MaxWidth="30" Rows="8" Columns="1">
+        <UniformGrid HorizontalAlignment="Left" Margin="0,10,0,9.2" Width="30" MaxWidth="30" Rows="8" Columns="1">
             <Label FontWeight="DemiBold" FontSize="18" Content="8" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"/>
             <Label FontWeight="DemiBold" FontSize="18" Content="7" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" />
             <Label FontWeight="DemiBold" FontSize="18" Content="6" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"/>
@@ -88,7 +102,7 @@
             <Label FontWeight="DemiBold" FontSize="18" Content="2" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"/>
             <Label FontWeight="DemiBold" FontSize="18" Content="1" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"/>
         </UniformGrid>
-        <UniformGrid Height="30" Margin="30,0,119,-0.8" VerticalAlignment="Bottom" Rows="1" Columns="8" MinHeight="30">
+        <UniformGrid Height="30" Margin="30,0,119,-0.8" VerticalAlignment="Bottom" Rows="1" Columns="8" MinHeight="30" Grid.ColumnSpan="2">
             <Label FontWeight="DemiBold" FontSize="18" Content="A" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
             <Label FontWeight="DemiBold" FontSize="18" Content="B" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
             <Label FontWeight="DemiBold" FontSize="18" Content="C" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
@@ -98,7 +112,7 @@
             <Label FontWeight="DemiBold" FontSize="18" Content="G" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
             <Label FontWeight="DemiBold" FontSize="18" Content="H" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
         </UniformGrid>
-        <UniformGrid x:Name="KilledPicesGrid" HorizontalAlignment="Left" Height="83" Margin="446,10,0,0" VerticalAlignment="Top" Width="342" Grid.ColumnSpan="2" Rows="4" Columns="10"/>
+        <UniformGrid x:Name="KilledPicesGrid" HorizontalAlignment="Left" Height="83" Margin="80.4,10,-0.4,0" VerticalAlignment="Top" Width="352" Grid.ColumnSpan="2" Rows="4" Columns="10" Grid.Column="1" Background="#FFFAFAFA"/>
     </Grid>
     <Window.InputBindings>
         <KeyBinding Command="{Binding ClearBoardCommand}" Key="C"/>
