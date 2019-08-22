@@ -69,12 +69,14 @@ namespace DarkChess
         private GlobalState _globalState = new GlobalState();
         private List<Pices> _killedPices = new List<Pices>();
         private VisionMode _visionMode = VisionMode.CurrentMove;
+        private ServerConnection _connection;
+        private string _userToken;
 
         public MainWindow()
         {
             InitializeComponent();
             DataContext = new MyLittleFuckingDataContext();
-            
+
             //Uri pageUri = new Uri("pack://siteoforigin:,,,/SiteOfOriginFile.xaml", UriKind.Absolute);
             //this.a6.Children.Add(new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/BlackKing.png", UriKind.Absolute)) });
             //this.a8.Children.Add(new Image { Source = new BitmapImage(new Uri("img\\BlackKing.png", UriKind.RelativeOrAbsolute)) });
@@ -85,31 +87,77 @@ namespace DarkChess
             //b8.Children.Add(BlackPawn);
             //BlackOutField("d4");
             ClearBoard();
-            _globalState = GlobalState.CreateStartState(new VisionRules { Enabled = true, ViewMoveFields = false, ViewRange = 2, PiceOverwrite = new Dictionary<Pices, VisionRules>() {
-                [Pices.BlackPawn] = new VisionRules { ViewRange = 1 },
-                [Pices.WhitePawn] = new VisionRules { ViewRange = 1 },
-                [Pices.BlackKing] = new VisionRules { ViewRange = 1 },
-                [Pices.WhiteKing] = new VisionRules { ViewRange = 1 },
-            } });
+            _globalState = GlobalState.CreateStartState(new VisionRules{ Enabled = false });
             UpdateBoardFromGlobalState();
+
             Instance = this;
-            ServerConnection connection = new ServerConnection("hive.spaceslug.no", 43326);
+            //ServerConnection connection = new ServerConnection("hive.spaceslug.no", 43326);
+            _connection = new ServerConnection("hive.spaceslug.no", 43326);
             try
             {
-                connection.Connect();
-                var a = connection.Call.sendRequest(new ChessCom.MathRequest { A = 3, B = 4 });
+                _connection.Connect();
+                var a = _connection.Call.sendRequest(new ChessCom.MathRequest { A = 3, B = 4 });
                 //connection.Call.
                 Console.WriteLine(a);
             }
             catch (AggregateException ex)
             {
                 string popupText = "Slug Chess Connection failed";
-                string textBoxText = "Can not connect to Slug Chess server. Please bother admin at support@spaceslug.no";
+                string textBoxText = "Can not connect to Slug Chess server. Please bother admin at support@spaceslug.no. Continue to singleplayer?";
+                MessageBoxButton button = MessageBoxButton.YesNo;
+                MessageBoxImage icon = MessageBoxImage.Error;
+                var result = MessageBox.Show(textBoxText, popupText, button, icon);
+                if(result == MessageBoxResult.No) Application.Current.Shutdown();
+            }
+        }
+
+        public void Runner()
+        {
+            ChessCom.LookForMatchResult result = _connection.Call.LookForMatch(new ChessCom.UserIdentity { UserToken = _userToken });
+            if (result.Succes)
+            {
+                StartMatch(result.IsWhitePlayer, result.MatchToken);
+                var matchStream = _connection.Call.Match();
+                bool matchEnded = false;
+                while (!matchEnded)
+                {
+                    ChessCom.MoveResult move = matchStream.ResponseStream.Current;
+                    if (move.MoveHappned)
+                    {
+                        _globalState.Selected = move.From;
+                        _globalState.DoMoveTo(move.To);
+                    }
+                    //move.OpponentAskingForDraw;
+                }
+            }
+            else
+            {
+                string popupText = "Failed";
+                string textBoxText = "Failed to find match";
                 MessageBoxButton button = MessageBoxButton.OK;
                 MessageBoxImage icon = MessageBoxImage.Error;
                 MessageBox.Show(textBoxText, popupText, button, icon);
-                Application.Current.Shutdown();
             }
+        }
+
+        public void StartMatch(bool isWhitePlayer, string matchToken)
+        {
+            _visionMode = isWhitePlayer ? VisionMode.White : VisionMode.Black;
+            ClearBoard();
+            _globalState = GlobalState.CreateStartState(new VisionRules
+            {
+                Enabled = true,
+                ViewMoveFields = false,
+                ViewRange = 2,
+                PiceOverwrite = new Dictionary<Pices, VisionRules>()
+                {
+                    [Pices.BlackPawn] = new VisionRules { ViewRange = 1 },
+                    [Pices.WhitePawn] = new VisionRules { ViewRange = 1 },
+                    [Pices.BlackKing] = new VisionRules { ViewRange = 1 },
+                    [Pices.WhiteKing] = new VisionRules { ViewRange = 1 },
+                }
+            });
+            UpdateBoardFromGlobalState();
         }
 
         public void ClearBoard()

@@ -13,7 +13,7 @@ service ChessCom {
 	rpc Match(stream MovePacket) returns (stream MoveResult) {}
 }
 
-enum MatchEvent{
+enum MatchEvent {
 	Non = 0;
 	WhiteWin = 1;
 	BlackWin = 2;
@@ -44,7 +44,7 @@ message MovePacket{
 	string from = 2;
 	string to = 3;
 	bool askingForDraw = 4;
-
+	MatchEvent cheatMatchEvent = 5;
 }
 message MoveResult{
 	bool moveHappned = 1;

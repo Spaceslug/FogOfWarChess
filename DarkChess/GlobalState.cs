@@ -79,6 +79,8 @@ namespace DarkChess
             if (extraFieldList == null || extraFieldList.Count == 0)
             {
                 (Field from, Field to, Pices killed) = GameRules.Move(fromField, toField);
+                if (to.Pice == Pices.WhitePawn && moveTo[1] == '8') to.Pice = Pices.WhiteQueen;
+                if (to.Pice == Pices.BlackPawn && moveTo[1] == '1') to.Pice = Pices.BlackQueen;
                 Board[BoardPosToIndex[_selected]] = from;
                 Board[BoardPosToIndex[moveTo]] = to;
                 killedPice = killed;
@@ -112,6 +114,12 @@ namespace DarkChess
 
         public void CalculateVision()
         {
+            if (!VisionRules.Enabled)
+            {
+                WhiteVision = Enumerable.Repeat<bool>(true, 64).ToArray();
+                BlackVision = Enumerable.Repeat<bool>(true, 64).ToArray();
+                return;
+            }
             BlackVision = new bool[64];
             WhiteVision = new bool[64];
             for (int i = 0; i < 64; i++)
