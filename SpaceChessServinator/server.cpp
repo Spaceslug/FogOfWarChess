@@ -38,6 +38,14 @@ class ChessComImplementation final : public ChessCom::Service {
 
         return Status::OK;
     } 
+
+    Status Login(
+        ServerContext* context,
+        const LoginForm* request,
+        LoginResult* reply
+    ) override {
+        return Status::OK;
+    }
 };
 
 void Run() {

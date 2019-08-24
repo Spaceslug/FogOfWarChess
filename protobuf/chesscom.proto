@@ -8,7 +8,7 @@ package chesscom;
 service ChessCom {
     // Function invoked to send the request
     rpc sendRequest (MathRequest) returns (MathReply) {}
-	rpc Loggin(LoginForm) returns (LoginResult) {}
+	rpc Login(LoginForm) returns (LoginResult) {}
 	rpc LookForMatch(UserIdentity) returns (LookForMatchResult) {}
 	rpc Match(stream MovePacket) returns (stream MoveResult) {}
 }
