@@ -13,9 +13,9 @@
             <ColumnDefinition Width="238*"/>
         </Grid.ColumnDefinitions>
         <Grid  HorizontalAlignment="Right" Height="329" Margin="0,93,-0.4,0"  VerticalAlignment="Top" Width="352" Grid.ColumnSpan="2" Grid.Column="1" Background="White">
-            <Label x:Name="LoginLabel" Content="Label" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+            <Label x:Name="loginLabel" Content="Name:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
             <TextBox x:Name="nameTextBox" HorizontalAlignment="Left" Height="23" Margin="53,12,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
-            <Button x:Name="loginButton" Content="Button" HorizontalAlignment="Left" Margin="178,12,0,0" VerticalAlignment="Top" Width="75"/>
+            <Button x:Name="loginButton" Content="Log In" Click="LoginButtonClick" HorizontalAlignment="Left" Margin="178,12,0,0" VerticalAlignment="Top" Width="75"/>
             <RichTextBox x:Name="messageBox" HorizontalAlignment="Left" Height="203" Margin="10,79,0,0" VerticalAlignment="Top" Width="332">
                 <FlowDocument>
                     <Paragraph>

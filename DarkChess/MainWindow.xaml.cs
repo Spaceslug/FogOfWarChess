@@ -68,9 +68,10 @@ namespace DarkChess
 
         private GlobalState _globalState = new GlobalState();
         private List<Pices> _killedPices = new List<Pices>();
-        private VisionMode _visionMode = VisionMode.CurrentMove;
+        private ClientIsPlayer _clientIsPlayer = ClientIsPlayer.Both;
         private ServerConnection _connection;
         private string _userToken;
+        private Grpc.Core.IClientStreamWriter<ChessCom.MovePacket> _matchMoveSteam;
 
         public MainWindow()
         {
@@ -87,7 +88,20 @@ namespace DarkChess
             //b8.Children.Add(BlackPawn);
             //BlackOutField("d4");
             ClearBoard();
-            _globalState = GlobalState.CreateStartState(new VisionRules{ Enabled = false });
+            //_globalState = GlobalState.CreateStartState(new VisionRules{ Enabled = false });
+            _globalState = GlobalState.CreateStartState(new VisionRules
+            {
+                Enabled = true,
+                ViewMoveFields = false,
+                ViewRange = 2,
+                PiceOverwrite = new Dictionary<Pices, VisionRules>()
+                {
+                    [Pices.BlackPawn] = new VisionRules { ViewRange = 1 },
+                    [Pices.WhitePawn] = new VisionRules { ViewRange = 1 },
+                    [Pices.BlackKing] = new VisionRules { ViewRange = 1 },
+                    [Pices.WhiteKing] = new VisionRules { ViewRange = 1 },
+                }
+            });
             UpdateBoardFromGlobalState();
 
             Instance = this;
@@ -102,6 +116,7 @@ namespace DarkChess
             }
             catch (AggregateException ex)
             {
+                _connection = null;
                 string popupText = "Slug Chess Connection failed";
                 string textBoxText = "Can not connect to Slug Chess server. Please bother admin at support@spaceslug.no. Continue to singleplayer?";
                 MessageBoxButton button = MessageBoxButton.YesNo;
@@ -118,6 +133,7 @@ namespace DarkChess
             {
                 StartMatch(result.IsWhitePlayer, result.MatchToken);
                 var matchStream = _connection.Call.Match();
+                _matchMoveSteam = matchStream.RequestStream;
                 bool matchEnded = false;
                 while (!matchEnded)
                 {
@@ -125,10 +141,27 @@ namespace DarkChess
                     if (move.MoveHappned)
                     {
                         _globalState.Selected = move.From;
-                        _globalState.DoMoveTo(move.To);
+                        Pices killedPice = _globalState.DoMoveTo(move.To);
+                        if (killedPice != Pices.Non) _killedPices.Add(killedPice);
+                        _globalState.Selected = null;
+                        ClearBoard();
+                        UpdateBoardFromGlobalState();
                     }
-                    //move.OpponentAskingForDraw;
+                    else if(move.OpponentAskingForDraw)
+                    {
+                        string popupText = "Draw?";
+                        string textBoxText = "Opponent is asking for draw. Do you accept?";
+                        MessageBoxButton button = MessageBoxButton.YesNo;
+                        MessageBoxImage icon = MessageBoxImage.Error;
+                        var drawResult = MessageBox.Show(textBoxText, popupText, button, icon);
+                        if (drawResult == MessageBoxResult.Yes)
+                        {
+                            _matchMoveSteam.WriteAsync(new ChessCom.MovePacket { AskingForDraw = true});
+                        }
+                    }
                 }
+                _matchMoveSteam.CompleteAsync();
+                _matchMoveSteam = null;
             }
             else
             {
@@ -142,7 +175,7 @@ namespace DarkChess
 
         public void StartMatch(bool isWhitePlayer, string matchToken)
         {
-            _visionMode = isWhitePlayer ? VisionMode.White : VisionMode.Black;
+            _clientIsPlayer = isWhitePlayer ? ClientIsPlayer.White : ClientIsPlayer.Black;
             ClearBoard();
             _globalState = GlobalState.CreateStartState(new VisionRules
             {
@@ -180,7 +213,7 @@ namespace DarkChess
             foreach (Grid child in this.BoardGrid.Children)
             {
                 ApplyFieldStateToGrid(child, _globalState.GetFieldAt(child.Name));
-                if (_globalState.CanSeeField(_visionMode, child.Name))
+                if (_globalState.CanSeeField(_clientIsPlayer, child.Name))
                 {
                     child.Opacity = 1;
                     foreach (UIElement underChiled in child.Children)
@@ -219,6 +252,17 @@ namespace DarkChess
             }
         }
 
+        private void LoginButtonClick(object sender, RoutedEventArgs args)
+        {
+            string name = nameTextBox.Text;
+            var result = _connection.Call.Loggin(new ChessCom.LoginForm { Username = name });
+            if (result.SuccessfullLogin)
+            {
+                loginButton.Content = "Your are logged in";
+                loginButton.IsEnabled = false;
+            }
+        }
+
         private void Field_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             //sender
@@ -226,9 +270,11 @@ namespace DarkChess
             {
                 Grid fieldGrid = (Grid)sender;
                 Field clickState = _globalState.GetFieldAt(fieldGrid.Name);
+                //Early escape not player pice
                 if (_globalState.Selected == null)
                 {
-                    if((_globalState.WhiteTurn && Field.HasWhitePice(clickState)) || (!_globalState.WhiteTurn && Field.HasBlackPice(clickState)))
+                    if (_globalState.WhiteTurn ? _clientIsPlayer == ClientIsPlayer.Black : _clientIsPlayer == ClientIsPlayer.White) return;
+                    if ((_globalState.WhiteTurn && Field.HasWhitePice(clickState)) || (!_globalState.WhiteTurn && Field.HasBlackPice(clickState)))
                     {
                         _globalState.Selected = fieldGrid.Name;
                         //_legalMoves = GameRules.GetLegalMoves(_globalState, new FieldState(_globalState.Selected, clickState));
@@ -243,6 +289,17 @@ namespace DarkChess
                     if (_globalState.IsLegalMove(fieldGrid.Name))
                     {
                         //(var name, var extraFieldList) = _legalMoves.Find((a) => a.Item1 == fieldGrid.Name);
+                        if(_matchMoveSteam != null)
+                        {
+                            _matchMoveSteam.WriteAsync(new ChessCom.MovePacket
+                            {
+                                AskingForDraw = false,
+                                CheatMatchEvent = ChessCom.MatchEvent.Non,
+                                DoingMove = true,
+                                From = _globalState.Selected,
+                                To = fieldGrid.Name
+                            });
+                        }
                         Pices killedPice = _globalState.DoMoveTo(fieldGrid.Name);
                         if (killedPice != Pices.Non) _killedPices.Add(killedPice);
                         //_legalMoves.Clear();
@@ -313,7 +370,7 @@ namespace DarkChess
             }
         }
 
-        private void AddPiceToGrid(System.Windows.Controls.Primitives.UniformGrid grid, Pices pice)
+        private void AddPiceToGrid(UniformGrid grid, Pices pice)
         {
             switch (pice)
             {
@@ -366,9 +423,9 @@ namespace DarkChess
         }
     }
 
-    public enum VisionMode
+    public enum ClientIsPlayer
     {
-        CurrentMove,
+        Both,
         White,
         Black
     }

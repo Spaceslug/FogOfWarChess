@@ -129,15 +129,15 @@ namespace DarkChess
             }
         }
 
-        public bool CanSeeField(VisionMode visionMode, string fieldName)
+        public bool CanSeeField(ClientIsPlayer visionMode, string fieldName)
         {
             switch (visionMode)
             {
-                case VisionMode.CurrentMove:
+                case ClientIsPlayer.Both:
                     return WhiteTurn ? WhiteVision[GameRules.BPToIndx(fieldName)] : BlackVision[GameRules.BPToIndx(fieldName)];
-                case VisionMode.White:
+                case ClientIsPlayer.White:
                     return WhiteVision[GameRules.BPToIndx(fieldName)];
-                case VisionMode.Black:
+                case ClientIsPlayer.Black:
                     return BlackVision[GameRules.BPToIndx(fieldName)];
                 default:
                     throw new Exception("fuck you this cant happen");
