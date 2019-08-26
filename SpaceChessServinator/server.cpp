@@ -52,7 +52,6 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
         return Status::OK;
     }
 
-<<<<<<< HEAD
     Status LookForMatch(ServerContext* context, const chesscom::UserIdentity* request, chesscom::LookForMatchResult* response) override 
     {
         
@@ -65,23 +64,7 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
     }
 
 
-=======
-    Status LookForMatch(
-        ServerContext* context, 
-        const UserIdentity* request, 
-        LookForMatchResult* reply
-    ) override {
-        return Status::OK;
-    }
-    Status Match(
-        ServerContext* context,
-        ServerReaderWriter<MovePacket,MoveResult>* stream
-    ) override {
 
-        return Status::OK;
-    }
-
->>>>>>> 62d24b4c806e1f09cfe091dd491d759a1a3b3fdb
 };
 
 void Run() {
