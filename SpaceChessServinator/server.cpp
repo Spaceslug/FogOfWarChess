@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include <csignal>
+#include <unordered_map>
 
 #include <grpcpp/grpcpp.h>
 #include "chesscom.grpc.pb.h"
@@ -17,6 +18,7 @@ using grpc::Status;
 
 std::sig_atomic_t signaled = 0;
 std::unique_ptr<Server> server;
+static std::unordered_map<std::string, std::string> 
 
 std::unordered_map<std::string, std::string> userTokens;
 
@@ -40,7 +42,7 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
         responce->set_result(a * b);
 
         return Status::OK;
-    } 
+    }
 
     Status Login(
         ServerContext* context,
@@ -50,6 +52,7 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
         return Status::OK;
     }
 
+<<<<<<< HEAD
     Status LookForMatch(ServerContext* context, const chesscom::UserIdentity* request, chesscom::LookForMatchResult* response) override 
     {
         
@@ -62,6 +65,23 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
     }
 
 
+=======
+    Status LookForMatch(
+        ServerContext* context, 
+        const UserIdentity* request, 
+        LookForMatchResult* reply
+    ) override {
+        return Status::OK;
+    }
+    Status Match(
+        ServerContext* context,
+        ServerReaderWriter<MovePacket,MoveResult>* stream
+    ) override {
+
+        return Status::OK;
+    }
+
+>>>>>>> 62d24b4c806e1f09cfe091dd491d759a1a3b3fdb
 };
 
 void Run() {
