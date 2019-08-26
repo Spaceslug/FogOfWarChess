@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include <csignal>
+#include <unordered_map>
 
 #include <grpcpp/grpcpp.h>
 #include "chesscom.grpc.pb.h"
@@ -16,6 +17,7 @@ using chesscom::MathReply;
 
 std::sig_atomic_t signaled = 0;
 std::unique_ptr<Server> server;
+static std::unordered_map<std::string, std::string> 
 
 void SigintHandler (int param)
 {
@@ -37,7 +39,7 @@ class ChessComImplementation final : public ChessCom::Service {
         reply->set_result(a * b);
 
         return Status::OK;
-    } 
+    }
 
     Status Login(
         ServerContext* context,
@@ -46,6 +48,22 @@ class ChessComImplementation final : public ChessCom::Service {
     ) override {
         return Status::OK;
     }
+
+    Status LookForMatch(
+        ServerContext* context, 
+        const UserIdentity* request, 
+        LookForMatchResult* reply
+    ) override {
+        return Status::OK;
+    }
+    Status Match(
+        ServerContext* context,
+        ServerReaderWriter<MovePacket,MoveResult>* stream
+    ) override {
+
+        return Status::OK;
+    }
+
 };
 
 void Run() {
