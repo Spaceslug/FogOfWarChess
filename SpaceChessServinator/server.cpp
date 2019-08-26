@@ -10,12 +10,15 @@ using grpc::ServerBuilder;
 using grpc::ServerContext;
 using grpc::Status;
 
-using chesscom::ChessCom;
-using chesscom::MathRequest;
-using chesscom::MathReply;
+//using chesscom::ChessCom;
+//using chesscom::MathRequest;
+//using chesscom::MathReply;
+//using chesscom::ChessCom;
 
 std::sig_atomic_t signaled = 0;
 std::unique_ptr<Server> server;
+
+std::unordered_map<std::string, std::string> userTokens;
 
 void SigintHandler (int param)
 {
@@ -24,28 +27,41 @@ void SigintHandler (int param)
     server->Shutdown();
 }
 
-class ChessComImplementation final : public ChessCom::Service {
+class ChessComImplementation final : public chesscom::ChessCom::Service {
     Status sendRequest(
         ServerContext* context, 
-        const MathRequest* request, 
-        MathReply* reply
+        const chesscom::MathRequest* request, 
+        chesscom::MathReply* responce
     ) override {
         int a = request->a();
         int b = request->b();
         std::cout << "Doing multi";
 
-        reply->set_result(a * b);
+        responce->set_result(a * b);
 
         return Status::OK;
     } 
 
     Status Login(
         ServerContext* context,
-        const LoginForm* request,
-        LoginResult* reply
+        const chesscom::LoginForm* request,
+        chesscom::LoginResult* responce
     ) override {
         return Status::OK;
     }
+
+    Status LookForMatch(ServerContext* context, const chesscom::UserIdentity* request, chesscom::LookForMatchResult* response) override 
+    {
+        
+        return Status::OK;
+    }
+
+    Status Match(ServerContext* context, grpc::ServerReaderWriter< chesscom::MoveResult, chesscom::MovePacket>* stream) override 
+    {
+        return Status::OK;
+    }
+
+
 };
 
 void Run() {
