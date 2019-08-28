@@ -20,6 +20,11 @@ enum MatchEvent {
 	Draw = 3;
 }
 
+message Move {
+	string from = 2;
+	string to = 3;
+}
+
 message LoginForm {
 	string username = 1;
 }
@@ -41,15 +46,13 @@ message LookForMatchResult {
 
 message MovePacket{
 	bool doingMove = 1;
-	string from = 2;
-	string to = 3;
+	Move move = 2;
 	bool askingForDraw = 4;
 	MatchEvent cheatMatchEvent = 5;
 }
 message MoveResult{
 	bool moveHappned = 1;
-	string from = 2;
-	string to = 3;
+	Move move = 2;
 	bool opponentAskingForDraw = 4;
 }
 
