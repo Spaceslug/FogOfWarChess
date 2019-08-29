@@ -96,7 +96,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ClearBoardCommand.cs" />
-    <Compile Include="chesscom\*.cs" />
+    <Compile Include="chesscom\Chesscom.cs" />
+    <Compile Include="chesscom\ChesscomGrpc.cs" />
     <Compile Include="GameRules.cs" />
     <Compile Include="GlobalState.cs" />
     <Compile Include="MainWindow.xaml.cs">
