@@ -140,8 +140,8 @@ namespace DarkChess
                     ChessCom.MoveResult move = matchStream.ResponseStream.Current;
                     if (move.MoveHappned)
                     {
-                        _globalState.Selected = move.From;
-                        Pices killedPice = _globalState.DoMoveTo(move.To);
+                        _globalState.Selected = move.Move.From;
+                        Pices killedPice = _globalState.DoMoveTo(move.Move.To);
                         if (killedPice != Pices.Non) _killedPices.Add(killedPice);
                         _globalState.Selected = null;
                         ClearBoard();
@@ -255,7 +255,7 @@ namespace DarkChess
         private void LoginButtonClick(object sender, RoutedEventArgs args)
         {
             string name = nameTextBox.Text;
-            var result = _connection.Call.Loggin(new ChessCom.LoginForm { Username = name });
+            var result = _connection.Call.Login(new ChessCom.LoginForm { Username = name });
             if (result.SuccessfullLogin)
             {
                 loginButton.Content = "Your are logged in";
@@ -296,8 +296,8 @@ namespace DarkChess
                                 AskingForDraw = false,
                                 CheatMatchEvent = ChessCom.MatchEvent.Non,
                                 DoingMove = true,
-                                From = _globalState.Selected,
-                                To = fieldGrid.Name
+                                Move = new ChessCom.Move { From = _globalState.Selected, To = fieldGrid.Name},
+                                
                             });
                         }
                         Pices killedPice = _globalState.DoMoveTo(fieldGrid.Name);
