@@ -25,7 +25,9 @@ using grpc::Status;
 //using chesscom::ChessCom;
 
 
-struct Match{
+struct MatchStruct{
+    bool newUpdate = false;
+    bool askingForDraw = false;
     std::string whitePlayer;
     std::string blackPlayer;
     std::string matchToken;
@@ -48,7 +50,7 @@ static std::unordered_map<std::string, std::string> userTokens;
 static std::ofstream logFile;
 std::queue<std::string> lookingForMatchQueue;
 std::map<std::string, std::string> foundMatchReply;
-std::map<std::string, std::shared_ptr<Match>> matches;
+std::map<std::string, std::shared_ptr<MatchStruct>> matches;
 
 
 
@@ -62,8 +64,8 @@ void SigintHandler (int param)
 }
 
 std::string createMatch(std::string& player1Token, std::string& player2Token){
-    std::string matchToken = "match"+ tokenCounter++;
-    std::shared_ptr<Match> match = std::make_shared<Match>();
+    std::string matchToken = "match"+ std::to_string(tokenCounter++);
+    std::shared_ptr<MatchStruct> match = std::make_shared<MatchStruct>();
     match->matchToken = matchToken;
     std::random_device rd;
     std::mt19937 mt(rd());
@@ -78,30 +80,19 @@ std::string createMatch(std::string& player1Token, std::string& player2Token){
         match->whitePlayer = player2Token;
         match->blackPlayer = player1Token;
     }
-    
+    matches[matchToken] = match;
+    std::cout << "  checing match" << std::endl << std::flush;
+    auto matPtr = matches[matchToken];
+    std::cout << "  white player " <<  matPtr->whitePlayer << std::endl << std::flush;
     return matchToken;
 }
 
 class ChessComImplementation final : public chesscom::ChessCom::Service {
-    Status sendRequest(
-        ServerContext* context, 
-        const chesscom::MathRequest* request, 
-        chesscom::MathReply* responce
-    ) override {
-        int a = request->a();
-        int b = request->b();
-        std::cout << "Doing multi";
-
-        responce->set_result(a * b);
-
-        return Status::OK;
-    }
-
     Status Login(ServerContext* context, const chesscom::LoginForm* request, chesscom::LoginResult* response) override 
     {
-        response->set_usertoken("usertoken"+tokenCounter++);
+        response->set_usertoken("usertoken"+std::to_string(tokenCounter++));
         response->set_successfulllogin(true);
-
+        std::cout << "User " << request->username() << " " << response->usertoken() << " logged in" << std::endl << std::flush;
         return Status::OK;
     }
 
@@ -110,6 +101,7 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
         bool loop = true;
         std::string matchToken = "";
         std::string userToken = request->usertoken();
+        std::cout << userToken << " looking for match"<< std::endl << std::flush;
         {
             std::unique_lock<std::mutex> scopeLock (lock);
             if(!lookingForMatchQueue.empty()){
@@ -121,6 +113,7 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
             }
             else
             {
+                std::cout << userToken << " entering queue"<< std::endl << std::flush;
                 lookingForMatchQueue.emplace(userToken);
             }
         }
@@ -128,12 +121,21 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
             std::this_thread::sleep_for(std::chrono::milliseconds(MAX_SLEEP_MS));
             {
                 std::unique_lock<std::mutex> scopeLock (lock);
+                std::cout << userToken << " checking foundMatchReply " << std::flush << std::to_string(foundMatchReply.count(userToken)) << std::endl << std::flush;
                 if(foundMatchReply.count(userToken) > 0){
+                    std::cout << userToken << " found match reply MT: " << foundMatchReply[userToken]<< std::endl << std::flush;
                     matchToken = foundMatchReply[userToken];
                     foundMatchReply.erase(userToken);
                     loop = false;
                 }
             }
+        }
+        {
+            std::unique_lock<std::mutex> scopeLock (lock);
+            std::cout << userToken << " found match " <<  matchToken << std::endl << std::flush;
+            std::cout << "  checing match" << std::endl << std::flush;
+            auto matPtr = matches[matchToken];
+            std::cout << "  white player " <<  matPtr->whitePlayer << std::endl << std::flush;
         }
         response->set_succes(true);
         response->set_matchtoken(matchToken);
@@ -144,8 +146,78 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
     Status Match(ServerContext* context, grpc::ServerReaderWriter< chesscom::MoveResult, chesscom::MovePacket>* stream) override 
     {
         chesscom::MovePacket movePkt;
+        chesscom::MoveResult moveResultPkt;
         stream->Read(&movePkt);
+        if(movePkt.doingmove()){
+            std::cout << "Error: doing move as first " << movePkt.usertoken() << ". Terminating!" << std::endl << std::flush;
+            return Status::OK; 
+        }
+        std::cout << "Opening matchstream for " << movePkt.matchtoken() << " " <<  movePkt.usertoken() << std::endl << std::flush;
+        std::string userToken = movePkt.usertoken();
+        std::shared_ptr<MatchStruct> matchPtr = matches[movePkt.matchtoken()];
+        bool playerWhite = matchPtr->whitePlayer == userToken;
+        bool loop = true;
+        while (loop)
+        {
+            bool isPlayersCurrentTurn;
+            {
+                std::unique_lock<std::mutex> scopeLock (lock);
+                isPlayersCurrentTurn = matchPtr->moves.size()%2 == (playerWhite?0:1); 
+            }
+            std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " IsCurrentTurn "<< std::to_string(isPlayersCurrentTurn) << std::endl << std::flush;
+            if(isPlayersCurrentTurn)
+            {
+                bool isUpdate;
+                {
+                    std::unique_lock<std::mutex> scopeLock (lock);
+                    isUpdate = matchPtr->newUpdate;
+                    if(isUpdate){
+                        matchPtr->newUpdate = false;
+                        moveResultPkt.set_movehappned(true);
+                        moveResultPkt.set_opponentaskingfordraw(false);
+                        moveResultPkt.set_allocated_move(matchPtr->moves.back().get());
+                        stream->Write(moveResultPkt);
+                        moveResultPkt.release_move();
+                    }
+                    std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " SentMoveResult "<< std::to_string(isUpdate) << std::endl << std::flush;
+                }
+                
+                if(!stream->Read(&movePkt))throw "premeture end of steam";
+                if(movePkt.askingfordraw())throw "draw not implemented";
+                std::shared_ptr<chesscom::Move> movePtr = std::make_shared<chesscom::Move>();
+                movePtr->set_from(movePkt.move().from());
+                movePtr->set_to(movePkt.move().to());
+                std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got move " << movePkt.move().from() << " " << movePkt.move().to() << std::endl << std::flush;
+                {
+                    std::unique_lock<std::mutex> scopeLock (lock);
+                    matchPtr->moves.push_back(movePtr);
+                    matchPtr->newUpdate = true;
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(MAX_SLEEP_MS));
+            }
+            else
+            {
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(MAX_SLEEP_MS));
+            }
+        }
+        
+        
+        while(stream->Read(&movePkt)){
+            
+        }/*
         //movePkt.
+        std::vector<RouteNote> received_notes;
+        RouteNote note;
+        while (stream->Read(&note)) {
+            for (const RouteNote& n : received_notes) {
+            if (n.location().latitude() == note.location().latitude() &&
+                n.location().longitude() == note.location().longitude()) {
+                stream->Write(n);
+            }
+            }
+            received_notes.push_back(note);
+        }*/
 
         return Status::OK;
     }
