@@ -47,8 +47,10 @@ message LookForMatchResult {
 message MovePacket{
 	bool doingMove = 1;
 	Move move = 2;
+	string userToken = 3;
 	bool askingForDraw = 4;
 	MatchEvent cheatMatchEvent = 5;
+	string matchToken = 6;
 }
 message MoveResult{
 	bool moveHappned = 1;
