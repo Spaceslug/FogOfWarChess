@@ -71,6 +71,7 @@ namespace DarkChess
         private ClientIsPlayer _clientIsPlayer = ClientIsPlayer.Both;
         private ServerConnection _connection;
         private string _userToken;
+        private string _matchToken;
         private Grpc.Core.IClientStreamWriter<ChessCom.MovePacket> _matchMoveSteam;
 
         public MainWindow()
@@ -110,9 +111,9 @@ namespace DarkChess
             try
             {
                 _connection.Connect();
-                var a = _connection.Call.sendRequest(new ChessCom.MathRequest { A = 3, B = 4 });
+                //var a = _connection.Call.sendRequest(new ChessCom.MathRequest { A = 3, B = 4 });
                 //connection.Call.
-                Console.WriteLine(a);
+                //Console.WriteLine(a);
             }
             catch (AggregateException ex)
             {
@@ -131,12 +132,16 @@ namespace DarkChess
             ChessCom.LookForMatchResult result = _connection.Call.LookForMatch(new ChessCom.UserIdentity { UserToken = _userToken });
             if (result.Succes)
             {
-                StartMatch(result.IsWhitePlayer, result.MatchToken);
+                Instance.Dispatcher.Invoke(()=> {
+                    StartMatch(result.IsWhitePlayer, result.MatchToken);
+                });
+
                 var matchStream = _connection.Call.Match();
                 _matchMoveSteam = matchStream.RequestStream;
                 bool matchEnded = false;
                 while (!matchEnded)
                 {
+                    if(!matchStream.ResponseStream.MoveNext().Result) throw new NotImplementedException("dang");
                     ChessCom.MoveResult move = matchStream.ResponseStream.Current;
                     if (move.MoveHappned)
                     {
@@ -157,6 +162,7 @@ namespace DarkChess
                         if (drawResult == MessageBoxResult.Yes)
                         {
                             _matchMoveSteam.WriteAsync(new ChessCom.MovePacket { AskingForDraw = true});
+                            matchEnded = true;
                         }
                     }
                 }
@@ -258,10 +264,39 @@ namespace DarkChess
             var result = _connection.Call.Login(new ChessCom.LoginForm { Username = name });
             if (result.SuccessfullLogin)
             {
-                loginButton.Content = "Your are logged in";
+                _userToken = result.UserToken;
+                loginButton.Content = "U logged in";
                 loginButton.IsEnabled = false;
+                lookForMatchButton.IsEnabled = true;
             }
+
         }
+
+        private void LookForMatchClick(object sender, RoutedEventArgs args)
+        {
+            Task.Run(() => { Runner(); });
+            ((Button)sender).IsEnabled = false;
+            //ChessCom.LookForMatchResult result = _connection.Call.LookForMatch(new ChessCom.UserIdentity {UserToken =  _userToken});
+            //if (result.Succes)
+            //{
+            //    //_matchToken = result.MatchToken;
+            //    var match = _connection.Call.Match();
+
+            //    _matchMoveSteam = match.RequestStream;
+
+            //    StartMatch(result.IsWhitePlayer, result.MatchToken);
+            //    HandleMovesLoop(match);
+            //}
+
+        }
+
+        //private void HandleMovesLoop(Grpc.Core.AsyncDuplexStreamingCall<ChessCom.MovePacket, ChessCom.MoveResult> match)
+        //{
+        //    while (match.ResponseStream.MoveNext().Result)
+        //    {
+
+        //    }
+        //}
 
         private void Field_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
