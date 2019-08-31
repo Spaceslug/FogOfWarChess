@@ -18,6 +18,7 @@ enum MatchEvent {
 	WhiteWin = 1;
 	BlackWin = 2;
 	Draw = 3;
+	UnexpectedClosing = 4;
 }
 
 message Move {
