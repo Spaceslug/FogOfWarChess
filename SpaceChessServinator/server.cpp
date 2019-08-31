@@ -173,27 +173,80 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                     std::unique_lock<std::mutex> scopeLock (lock);
                     isUpdate = matchPtr->newUpdate;
                     if(isUpdate){
-                        matchPtr->newUpdate = false;
-                        moveResultPkt.set_movehappned(true);
-                        moveResultPkt.set_opponentaskingfordraw(false);
-                        moveResultPkt.set_allocated_move(matchPtr->moves.back().get());
-                        stream->Write(moveResultPkt);
-                        moveResultPkt.release_move();
+                        if(matchPtr->matchEvent == chesscom::MatchEvent::UnexpectedClosing)
+                        {
+                            std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Opponent UnexpectedClosing" << std::endl << std::flush;
+                            //moveResultPkt.set
+                            //moveResultPkt.set_movehappned(true);
+                            //moveResultPkt.set_opponentaskingfordraw(false);
+                            //moveResultPkt.set_allocated_move(matchPtr->moves.back().get());
+                            //stream->Write(moveResultPkt);
+                            loop = false;
+                            continue;
+                        }
+                        else
+                        {
+                            matchPtr->newUpdate = false;
+                            moveResultPkt.set_movehappned(true);
+                            moveResultPkt.set_opponentaskingfordraw(false);
+                            moveResultPkt.set_allocated_move(matchPtr->moves.back().get());
+                            stream->Write(moveResultPkt);
+                            moveResultPkt.release_move();
+                            std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " SentMoveResult " << std::endl << std::flush;
+                        }
+                        
                     }
-                    std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " SentMoveResult "<< std::to_string(isUpdate) << std::endl << std::flush;
                 }
                 if(!stream->Read(&movePkt))throw "premeture end of steam";
                 if(movePkt.askingfordraw())throw "draw not implemented";
                 std::shared_ptr<chesscom::Move> movePtr = std::make_shared<chesscom::Move>();
-                movePtr->set_from(movePkt.move().from());
-                movePtr->set_to(movePkt.move().to());
-                std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got move " << movePkt.move().from() << " " << movePkt.move().to() << std::endl << std::flush;
-                {
-                    std::unique_lock<std::mutex> scopeLock (lock);
-                    matchPtr->moves.push_back(movePtr);
-                    matchPtr->newUpdate = true;
+                if(movePkt.doingmove()){
+                    movePtr->set_from(movePkt.move().from());
+                    movePtr->set_to(movePkt.move().to());
                 }
-                std::this_thread::sleep_for(std::chrono::milliseconds(MAX_SLEEP_MS));
+                
+                switch (movePkt.cheatmatchevent())
+                {
+                case chesscom::MatchEvent::Non:
+                    std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got move " << movePkt.move().from() << " " << movePkt.move().to() << std::endl << std::flush;
+                    {
+                        std::unique_lock<std::mutex> scopeLock (lock);
+                        matchPtr->moves.push_back(movePtr);
+                        matchPtr->newUpdate = true;
+                    }
+                    std::this_thread::sleep_for(std::chrono::milliseconds(MAX_SLEEP_MS));
+                    break;
+                case chesscom::MatchEvent::UnexpectedClosing:
+                    {
+                        std::unique_lock<std::mutex> scopeLock (lock);
+                        //if(movePkt.doingmove()){
+                        //    std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got move " << movePkt.move().from() << " " << movePkt.move().to() << std::endl << std::flush;
+                        //    matchPtr->moves.push_back(movePtr);
+                        //}else{
+                            matchPtr->moves.push_back(std::make_shared<chesscom::Move>());
+                        //}
+                        std::cout << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got UnexpectedClosing" << std::endl << std::flush;
+                        matchPtr->matchEvent = chesscom::MatchEvent::UnexpectedClosing;
+                        matchPtr->newUpdate = true;
+                        loop = false;
+                    }
+                    break;
+                case chesscom::MatchEvent::WhiteWin:
+                case chesscom::MatchEvent::BlackWin:
+                    {
+                        std::unique_lock<std::mutex> scopeLock (lock);
+                        std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got move " << movePkt.move().from() << " " << movePkt.move().to() << std::endl << std::flush;
+                        matchPtr->moves.push_back(movePtr);
+                        std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got Win" << std::endl << std::flush;
+                        matchPtr->matchEvent = movePkt.cheatmatchevent();
+                        matchPtr->newUpdate = true;
+                        loop = false;
+                    }
+                    break;
+                default:
+                    throw "fuck fwafdw";
+                    break;
+                }
             }
             else
             {
