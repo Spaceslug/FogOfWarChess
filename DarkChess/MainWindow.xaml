@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:DarkChess"
         mc:Ignorable="d"
         Title="Slug Chess v0.1.1" Height="479.487" Width="803.846" MinWidth="803" MinHeight="479"
-        Closing="Window_Closing">
+        Closing="Window_Closing"
+        Icon="img/icon.png">
     <Grid x:Name="RootGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="366*"/>
