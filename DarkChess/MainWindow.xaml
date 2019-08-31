@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DarkChess"
         mc:Ignorable="d"
-        Title="SlugChess" Height="479.487" Width="803.846" MinWidth="803" MinHeight="479"
+        Title="Slug Chess v0.1.1" Height="479.487" Width="803.846" MinWidth="803" MinHeight="479"
         Closing="Window_Closing">
     <Grid x:Name="RootGrid">
         <Grid.ColumnDefinitions>
