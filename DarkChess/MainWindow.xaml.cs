@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -38,30 +39,10 @@ namespace DarkChess
         public static Image BlackRook { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/BlackRook.png", UriKind.Absolute)) }; } }
         public static Image WhiteBishop { get{ return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhiteBishop.png", UriKind.Absolute)) }; } }
         public static Image WhiteKing { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhiteKing.png", UriKind.Absolute)) }; } }
-        public static Image WhiteKnight
-        {
-            get
-            {
-                return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhiteKnight.png", UriKind.Absolute)) };
-            }
-        }
-        public static Image WhitePawn
-        {
-            get
-            {
-                return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhitePawn.png", UriKind.Absolute)) };
-            }
-        }
-        public static Image WhiteQueen { get
-            {
-                return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhiteQueen.png", UriKind.Absolute)) };
-            }
-        }
-        public static Image WhiteRook { get
-            {
-                return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhiteRook.png", UriKind.Absolute)) };
-            }
-        }
+        public static Image WhiteKnight { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhiteKnight.png", UriKind.Absolute)) }; } }
+        public static Image WhitePawn { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhitePawn.png", UriKind.Absolute)) }; } }
+        public static Image WhiteQueen { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhiteQueen.png", UriKind.Absolute)) }; } }
+        public static Image WhiteRook { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhiteRook.png", UriKind.Absolute)) }; } }
 
 
         public static MainWindow Instance { get; private set; }
@@ -72,7 +53,8 @@ namespace DarkChess
         private ServerConnection _connection;
         private string _userToken;
         private string _matchToken;
-        private Grpc.Core.IClientStreamWriter<ChessCom.MovePacket> _matchMoveSteam;
+        private Grpc.Core.AsyncDuplexStreamingCall<ChessCom.MovePacket, ChessCom.MoveResult> _matchStream;
+        private Task _runnerTask;
 
         public MainWindow()
         {
@@ -111,6 +93,7 @@ namespace DarkChess
             try
             {
                 _connection.Connect();
+                messageBox.AppendText("\nConnected to SlugChessServer\n");
                 //var a = _connection.Call.sendRequest(new ChessCom.MathRequest { A = 3, B = 4 });
                 //connection.Call.
                 //Console.WriteLine(a);
@@ -119,7 +102,7 @@ namespace DarkChess
             {
                 _connection = null;
                 string popupText = "Slug Chess Connection failed";
-                string textBoxText = "Can not connect to Slug Chess server. Please bother admin at support@spaceslug.no. Continue to singleplayer?";
+                string textBoxText = "Can not connect to Slug Chess server. Please bother admin at admin@spaceslug.no. Continue to singleplayer?";
                 MessageBoxButton button = MessageBoxButton.YesNo;
                 MessageBoxImage icon = MessageBoxImage.Error;
                 var result = MessageBox.Show(textBoxText, popupText, button, icon);
@@ -127,33 +110,58 @@ namespace DarkChess
             }
         }
 
+        private void Window_Closing(object sender, CancelEventArgs args)
+        {
+            _matchStream?.RequestStream.WriteAsync(new ChessCom.MovePacket { CheatMatchEvent = ChessCom.MatchEvent.UnexpectedClosing, UserToken = _userToken, DoingMove=false});
+            _runnerTask?.Wait();
+            _connection?.ShutDownAsync();
+        }
+
         public void Runner()
         {
             ChessCom.LookForMatchResult result = _connection.Call.LookForMatch(new ChessCom.UserIdentity { UserToken = _userToken });
             if (result.Succes)
             {
+                Instance._matchToken = result.MatchToken;
                 Instance.Dispatcher.Invoke(()=> {
                     StartMatch(result.IsWhitePlayer, result.MatchToken);
                 });
 
                 var matchStream = _connection.Call.Match();
-                _matchMoveSteam = matchStream.RequestStream;
+                _matchStream = matchStream;
+                //Open match stream call
+                _matchStream.RequestStream.WriteAsync(new ChessCom.MovePacket { AskingForDraw = false, DoingMove = false, MatchToken = _matchToken, UserToken = _userToken });
                 bool matchEnded = false;
                 while (!matchEnded)
                 {
-                    if(!matchStream.ResponseStream.MoveNext().Result) throw new NotImplementedException("dang");
+                    if (!matchStream.ResponseStream.MoveNext().Result)
+                    {
+                        matchEnded = true;
+                        continue;
+                    }
                     ChessCom.MoveResult move = matchStream.ResponseStream.Current;
+
+                    //if (move.)
+                    //{
+
+                    //}
                     if (move.MoveHappned)
                     {
-                        _globalState.Selected = move.Move.From;
-                        Pices killedPice = _globalState.DoMoveTo(move.Move.To);
-                        if (killedPice != Pices.Non) _killedPices.Add(killedPice);
-                        _globalState.Selected = null;
-                        ClearBoard();
-                        UpdateBoardFromGlobalState();
+                        Instance.Dispatcher.Invoke(() => {
+                            messageBox.AppendText("Opponent did move!\n");
+                            //messageBox.CaretPosition.DocumentEnd;
+                            _globalState.Selected = move.Move.From;
+                            Pices killedPice = _globalState.DoMoveTo(move.Move.To);
+                            if (killedPice != Pices.Non) _killedPices.Add(killedPice);
+                            _globalState.Selected = null;
+                            ClearBoard();
+                            UpdateBoardFromGlobalState();
+                        });
+
                     }
                     else if(move.OpponentAskingForDraw)
                     {
+
                         string popupText = "Draw?";
                         string textBoxText = "Opponent is asking for draw. Do you accept?";
                         MessageBoxButton button = MessageBoxButton.YesNo;
@@ -161,13 +169,13 @@ namespace DarkChess
                         var drawResult = MessageBox.Show(textBoxText, popupText, button, icon);
                         if (drawResult == MessageBoxResult.Yes)
                         {
-                            _matchMoveSteam.WriteAsync(new ChessCom.MovePacket { AskingForDraw = true});
+                            _matchStream.RequestStream.WriteAsync(new ChessCom.MovePacket { AskingForDraw = true});
                             matchEnded = true;
                         }
                     }
                 }
-                _matchMoveSteam.CompleteAsync();
-                _matchMoveSteam = null;
+                _matchStream.RequestStream.CompleteAsync();
+                _matchStream = null;
             }
             else
             {
@@ -181,6 +189,7 @@ namespace DarkChess
 
         public void StartMatch(bool isWhitePlayer, string matchToken)
         {
+            messageBox.AppendText("Starting match: " + matchToken +  ", player is " + (isWhitePlayer?"white":"black") + "\n");
             _clientIsPlayer = isWhitePlayer ? ClientIsPlayer.White : ClientIsPlayer.Black;
             ClearBoard();
             _globalState = GlobalState.CreateStartState(new VisionRules
@@ -264,6 +273,7 @@ namespace DarkChess
             var result = _connection.Call.Login(new ChessCom.LoginForm { Username = name });
             if (result.SuccessfullLogin)
             {
+                messageBox.AppendText("Logged in as " + name + "\n");
                 _userToken = result.UserToken;
                 loginButton.Content = "U logged in";
                 loginButton.IsEnabled = false;
@@ -274,7 +284,7 @@ namespace DarkChess
 
         private void LookForMatchClick(object sender, RoutedEventArgs args)
         {
-            Task.Run(() => { Runner(); });
+            _runnerTask = Task.Run(() => { Runner(); });
             ((Button)sender).IsEnabled = false;
             //ChessCom.LookForMatchResult result = _connection.Call.LookForMatch(new ChessCom.UserIdentity {UserToken =  _userToken});
             //if (result.Succes)
@@ -324,13 +334,15 @@ namespace DarkChess
                     if (_globalState.IsLegalMove(fieldGrid.Name))
                     {
                         //(var name, var extraFieldList) = _legalMoves.Find((a) => a.Item1 == fieldGrid.Name);
-                        if(_matchMoveSteam != null)
+                        if(_matchStream.RequestStream != null)
                         {
-                            _matchMoveSteam.WriteAsync(new ChessCom.MovePacket
+                            _matchStream.RequestStream.WriteAsync(new ChessCom.MovePacket
                             {
                                 AskingForDraw = false,
                                 CheatMatchEvent = ChessCom.MatchEvent.Non,
                                 DoingMove = true,
+                                MatchToken = _matchToken,
+                                UserToken = _userToken,
                                 Move = new ChessCom.Move { From = _globalState.Selected, To = fieldGrid.Name},
                                 
                             });

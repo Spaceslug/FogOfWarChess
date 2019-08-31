@@ -32,5 +32,10 @@ namespace DarkChess
             _channel.ConnectAsync(DateTime.UtcNow + TimeSpan.FromSeconds(10)).Wait();
             _client = new ChessComClient(_channel);
         }
+
+        public void ShutDownAsync()
+        {
+            _channel?.ShutdownAsync();
+        }
     }
 }
