@@ -28,6 +28,7 @@ using grpc::Status;
 struct MatchStruct{
     bool newUpdate = false;
     bool askingForDraw = false;
+    chesscom::MatchEvent matchEvent = chesscom::MatchEvent::Non;
     std::string whitePlayer;
     std::string blackPlayer;
     std::string matchToken;
@@ -181,7 +182,6 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                     }
                     std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " SentMoveResult "<< std::to_string(isUpdate) << std::endl << std::flush;
                 }
-                
                 if(!stream->Read(&movePkt))throw "premeture end of steam";
                 if(movePkt.askingfordraw())throw "draw not implemented";
                 std::shared_ptr<chesscom::Move> movePtr = std::make_shared<chesscom::Move>();
@@ -201,24 +201,7 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                 std::this_thread::sleep_for(std::chrono::milliseconds(MAX_SLEEP_MS));
             }
         }
-        
-        
-        while(stream->Read(&movePkt)){
-            
-        }/*
-        //movePkt.
-        std::vector<RouteNote> received_notes;
-        RouteNote note;
-        while (stream->Read(&note)) {
-            for (const RouteNote& n : received_notes) {
-            if (n.location().latitude() == note.location().latitude() &&
-                n.location().longitude() == note.location().longitude()) {
-                stream->Write(n);
-            }
-            }
-            received_notes.push_back(note);
-        }*/
-
+        std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Matchstream ended." << std::endl << std::flush;
         return Status::OK;
     }
 
@@ -244,8 +227,8 @@ void Run() {
 }
 
 int main(int argc, char** argv) {
-    void (*prev_handler)(int);
-    prev_handler = signal(SIGINT, SigintHandler);
+    //void (*prev_handler)(int);
+    //prev_handler = signal(SIGINT, SigintHandler);
     logFile.open ("server.log", std::ios::out | std::ios::trunc);
     logFile << "Writing this to a file.\n";
     Run();
