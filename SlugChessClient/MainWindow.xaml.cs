@@ -59,6 +59,8 @@ namespace SlugChess
         private Grpc.Core.AsyncDuplexStreamingCall<ChessCom.MovePacket, ChessCom.MoveResult> _matchStream;
         private Task _runnerTask;
         private MediaPlayer _mediaPlayer = new MediaPlayer();
+        private string _lastMoveFrom;
+        private string _lastMoveTo;
 
         public MainWindow()
         {
@@ -158,11 +160,15 @@ namespace SlugChess
                     {
                         Instance.Dispatcher.Invoke(() => {
                             messageBox.AppendText("Opponent did move!\n");
-                            //messageBox.CaretPosition.DocumentEnd;
+                            messageBox.CaretPosition = messageBox.CaretPosition.DocumentEnd;
+                            messageBox.BringIntoView();
+                            messageBox.Focus();
                             _globalState.Selected = move.Move.From;
                             Pices killedPice = _globalState.DoMoveTo(move.Move.To);
                             if (killedPice != Pices.Non) _killedPices.Add(killedPice);
                             _globalState.Selected = null;
+                            _lastMoveFrom = move.Move.From;
+                            _lastMoveTo = move.Move.To;
                             ClearBoard();
                             UpdateBoardFromGlobalState();
                             _mediaPlayer.Stop();
@@ -267,6 +273,13 @@ namespace SlugChess
                 {
                     var border = new Border();
                     border.BorderBrush = Brushes.Red;
+                    border.BorderThickness = new Thickness(3, 3, 3, 3); //You can specify here which borders do you want
+                    child.Children.Add(border);
+                }
+                else if (_lastMoveFrom == child.Name || _lastMoveTo == child.Name)
+                {
+                    var border = new Border();
+                    border.BorderBrush = Brushes.SeaGreen;
                     border.BorderThickness = new Thickness(3, 3, 3, 3); //You can specify here which borders do you want
                     child.Children.Add(border);
                 }
