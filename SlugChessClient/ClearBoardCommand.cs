@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace DarkChess
+namespace SlugChess
 {
     public class ClearBoardCommand : ICommand
     {

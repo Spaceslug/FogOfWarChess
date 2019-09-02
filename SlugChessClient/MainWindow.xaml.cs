@@ -15,14 +15,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace DarkChess
+namespace SlugChess
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
-        
+
 
 
         private static RoutedUICommand _pressMeCommand = new RoutedUICommand("Press Me", "PressMe", typeof(MainWindow));
@@ -37,12 +37,15 @@ namespace DarkChess
         public static Image BlackPawn { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/BlackPawn.png", UriKind.Absolute)) }; } }
         public static Image BlackQueen { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/BlackQueen.png", UriKind.Absolute)) }; } }
         public static Image BlackRook { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/BlackRook.png", UriKind.Absolute)) }; } }
-        public static Image WhiteBishop { get{ return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhiteBishop.png", UriKind.Absolute)) }; } }
+        public static Image WhiteBishop { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhiteBishop.png", UriKind.Absolute)) }; } }
         public static Image WhiteKing { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhiteKing.png", UriKind.Absolute)) }; } }
         public static Image WhiteKnight { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhiteKnight.png", UriKind.Absolute)) }; } }
         public static Image WhitePawn { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhitePawn.png", UriKind.Absolute)) }; } }
         public static Image WhiteQueen { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhiteQueen.png", UriKind.Absolute)) }; } }
         public static Image WhiteRook { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhiteRook.png", UriKind.Absolute)) }; } }
+
+        //
+        public static Uri MoveSoundUri { get { return new Uri(".\\sound\\move.mp3", UriKind.Relative); } }
 
 
         public static MainWindow Instance { get; private set; }
@@ -55,6 +58,7 @@ namespace DarkChess
         private string _matchToken;
         private Grpc.Core.AsyncDuplexStreamingCall<ChessCom.MovePacket, ChessCom.MoveResult> _matchStream;
         private Task _runnerTask;
+        private MediaPlayer _mediaPlayer = new MediaPlayer();
 
         public MainWindow()
         {
@@ -94,6 +98,11 @@ namespace DarkChess
             {
                 _connection.Connect();
                 messageBox.AppendText("\nConnected to SlugChessServer\n");
+                _mediaPlayer.MediaFailed += (o, args) => {
+                    int i = 5;
+                };
+                _mediaPlayer.Open(MoveSoundUri);
+
                 //var a = _connection.Call.sendRequest(new ChessCom.MathRequest { A = 3, B = 4 });
                 //connection.Call.
                 //Console.WriteLine(a);
@@ -156,6 +165,8 @@ namespace DarkChess
                             _globalState.Selected = null;
                             ClearBoard();
                             UpdateBoardFromGlobalState();
+                            _mediaPlayer.Stop();
+                            _mediaPlayer.Play();
                         });
 
                     }
