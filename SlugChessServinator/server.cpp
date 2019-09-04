@@ -52,7 +52,7 @@ static std::ofstream logFile;
 std::queue<std::string> lookingForMatchQueue;
 std::map<std::string, std::string> foundMatchReply;
 std::map<std::string, std::shared_ptr<MatchStruct>> matches;
-
+chesscom::VisionRules serverVisionRules;
 
 
 void SigintHandler (int param)
@@ -60,8 +60,8 @@ void SigintHandler (int param)
     signaled = 1;
     std::cout << "Signal interupt. Fuck yeah\n";
     logFile << "signal interut shutdown\n";
-
-    server->Shutdown();
+    auto deadline = std::chrono::system_clock::now() +   std::chrono::milliseconds(SHUTDOWN_WAIT_MS);
+    server->Shutdown(deadline);
 }
 
 std::string createMatch(std::string& player1Token, std::string& player2Token){
@@ -120,6 +120,7 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
         }
         while(loop){
             std::this_thread::sleep_for(std::chrono::milliseconds(MAX_SLEEP_MS));
+            if(context->IsCancelled()) return grpc::Status::CANCELLED;
             {
                 std::unique_lock<std::mutex> scopeLock (lock);
                 std::cout << userToken << " checking foundMatchReply " << std::flush << std::to_string(foundMatchReply.count(userToken)) << std::endl << std::flush;
@@ -141,6 +142,9 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
         response->set_succes(true);
         response->set_matchtoken(matchToken);
         response->set_iswhiteplayer(matches[matchToken]->whitePlayer == userToken);
+        chesscom::VisionRules* vrPtr = response->mutable_rules();
+        vrPtr->CopyFrom(serverVisionRules);
+        //dsa = serverVisionRules;
         return Status::OK;
     }
 
@@ -160,6 +164,7 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
         bool loop = true;
         while (loop)
         {
+            if(context->IsCancelled()) return grpc::Status::CANCELLED;
             bool isPlayersCurrentTurn;
             {
                 std::unique_lock<std::mutex> scopeLock (lock);
@@ -262,6 +267,23 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
 
 };
 
+chesscom::VisionRules ServerVisionRules(){
+    chesscom::VisionRules vr;
+    vr.set_enabled(true);
+    vr.set_viewmovefields(false);
+    vr.set_viewrange(1);
+    //std::cout << " Vision rules" << std::endl << std::flush;
+    google::protobuf::Map<int, chesscom::VisionRules>* override = vr.mutable_piceoverwriter();
+    chesscom::VisionRules special;
+    special.set_enabled(true);
+    special.set_viewmovefields(false);
+    special.set_viewrange(2);
+    //std::cout << " redy to mute" << std::endl << std::flush;
+    (*override)[chesscom::Pices::BlackKnight] = special;
+    (*override)[chesscom::Pices::WhiteKnight] = special;
+    return vr;
+}
+
 void Run() {
     std::string address("0.0.0.0:43326");
     ChessComImplementation service;
@@ -275,15 +297,19 @@ void Run() {
     std::cout << "Chess Server listening on port: " << address << std::endl;
 
     server->Wait();
-    std::cout << "After wait happened";
+    std::cout << "After wait happened" << std::endl;
     
 }
 
 int main(int argc, char** argv) {
-    //void (*prev_handler)(int);
-    //prev_handler = signal(SIGINT, SigintHandler);
+    void (*prev_handler)(int);
+    prev_handler = signal(SIGINT, SigintHandler);
     logFile.open ("server.log", std::ios::out | std::ios::trunc);
     logFile << "Writing this to a file.\n";
+    serverVisionRules = ServerVisionRules();
+    std::string vrString = serverVisionRules.SerializeAsString();
+    logFile << "---ServerRules---\n" << vrString << "\n";
+    std::cout << "---ServerRules---\n" << vrString << std::endl << std::flush;
     Run();
     logFile << "Exiting\n";
     logFile.close();

@@ -21,6 +21,29 @@ enum MatchEvent {
 	UnexpectedClosing = 4;
 }
 
+enum Pices {
+	None = 0;
+	BlackPawn = 1;
+	BlackKnight = 2;
+	BlackBishop = 3;
+	BlackRook = 4;
+	BlackQueen = 5;
+	BlackKing = 6;
+	WhitePawn = 7;
+	WhiteKnight = 8;
+	WhiteBishop = 9;
+	WhiteRook = 10;
+	WhiteQueen = 11;
+	WhiteKing = 12;
+}
+
+message VisionRules {
+	bool enabled = 1;
+	bool viewMoveFields = 2;
+	int32 viewRange = 3;
+	map<int32, VisionRules> piceOverwriter = 4; //Must be a Pices value
+}
+
 message Move {
 	string from = 2;
 	string to = 3;
@@ -43,6 +66,7 @@ message LookForMatchResult {
 	bool succes = 1;
 	string matchToken = 2;
 	bool isWhitePlayer = 3;
+	VisionRules rules = 4;
 }
 
 message MovePacket{
