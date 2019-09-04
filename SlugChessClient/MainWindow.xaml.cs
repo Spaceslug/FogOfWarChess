@@ -15,14 +15,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace DarkChess
+namespace SlugChess
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
-        
+
 
 
         private static RoutedUICommand _pressMeCommand = new RoutedUICommand("Press Me", "PressMe", typeof(MainWindow));
@@ -37,12 +37,15 @@ namespace DarkChess
         public static Image BlackPawn { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/BlackPawn.png", UriKind.Absolute)) }; } }
         public static Image BlackQueen { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/BlackQueen.png", UriKind.Absolute)) }; } }
         public static Image BlackRook { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/BlackRook.png", UriKind.Absolute)) }; } }
-        public static Image WhiteBishop { get{ return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhiteBishop.png", UriKind.Absolute)) }; } }
+        public static Image WhiteBishop { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhiteBishop.png", UriKind.Absolute)) }; } }
         public static Image WhiteKing { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhiteKing.png", UriKind.Absolute)) }; } }
         public static Image WhiteKnight { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhiteKnight.png", UriKind.Absolute)) }; } }
         public static Image WhitePawn { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhitePawn.png", UriKind.Absolute)) }; } }
         public static Image WhiteQueen { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhiteQueen.png", UriKind.Absolute)) }; } }
         public static Image WhiteRook { get { return new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/WhiteRook.png", UriKind.Absolute)) }; } }
+
+        //
+        public static Uri MoveSoundUri { get { return new Uri(".\\sound\\move.mp3", UriKind.Relative); } }
 
 
         public static MainWindow Instance { get; private set; }
@@ -55,6 +58,9 @@ namespace DarkChess
         private string _matchToken;
         private Grpc.Core.AsyncDuplexStreamingCall<ChessCom.MovePacket, ChessCom.MoveResult> _matchStream;
         private Task _runnerTask;
+        private MediaPlayer _mediaPlayer = new MediaPlayer();
+        private string _lastMoveFrom;
+        private string _lastMoveTo;
 
         public MainWindow()
         {
@@ -94,6 +100,11 @@ namespace DarkChess
             {
                 _connection.Connect();
                 messageBox.AppendText("\nConnected to SlugChessServer\n");
+                _mediaPlayer.MediaFailed += (o, args) => {
+                    int i = 5;
+                };
+                _mediaPlayer.Open(MoveSoundUri);
+
                 //var a = _connection.Call.sendRequest(new ChessCom.MathRequest { A = 3, B = 4 });
                 //connection.Call.
                 //Console.WriteLine(a);
@@ -149,13 +160,19 @@ namespace DarkChess
                     {
                         Instance.Dispatcher.Invoke(() => {
                             messageBox.AppendText("Opponent did move!\n");
-                            //messageBox.CaretPosition.DocumentEnd;
+                            messageBox.CaretPosition = messageBox.CaretPosition.DocumentEnd;
+                            messageBox.BringIntoView();
+                            messageBox.Focus();
                             _globalState.Selected = move.Move.From;
                             Pices killedPice = _globalState.DoMoveTo(move.Move.To);
                             if (killedPice != Pices.Non) _killedPices.Add(killedPice);
                             _globalState.Selected = null;
+                            _lastMoveFrom = move.Move.From;
+                            _lastMoveTo = move.Move.To;
                             ClearBoard();
                             UpdateBoardFromGlobalState();
+                            _mediaPlayer.Stop();
+                            _mediaPlayer.Play();
                         });
 
                     }
@@ -256,6 +273,13 @@ namespace DarkChess
                 {
                     var border = new Border();
                     border.BorderBrush = Brushes.Red;
+                    border.BorderThickness = new Thickness(3, 3, 3, 3); //You can specify here which borders do you want
+                    child.Children.Add(border);
+                }
+                else if (_lastMoveFrom == child.Name || _lastMoveTo == child.Name)
+                {
+                    var border = new Border();
+                    border.BorderBrush = Brushes.SeaGreen;
                     border.BorderThickness = new Thickness(3, 3, 3, 3); //You can specify here which borders do you want
                     child.Children.Add(border);
                 }

@@ -1,12 +1,13 @@
-﻿<Window x:Class="DarkChess.MainWindow"
+﻿<Window x:Class="SlugChess.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:DarkChess"
+        xmlns:local="clr-namespace:SlugChess"
         mc:Ignorable="d"
-        Title="SlugChess" Height="479.487" Width="803.846" MinWidth="803" MinHeight="479"
-        Closing="Window_Closing">
+        Title="Slug Chess v0.1.2" Height="479.487" Width="803.846" MinWidth="803" MinHeight="479"
+        Closing="Window_Closing"
+        Icon="pack://siteoforigin:,,,/img/icon.png">
     <Grid x:Name="RootGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="366*"/>
@@ -15,9 +16,9 @@
         </Grid.ColumnDefinitions>
         <Grid  HorizontalAlignment="Right" Height="329" Margin="0,93,-0.4,0"  VerticalAlignment="Top" Width="352" Grid.ColumnSpan="2" Grid.Column="1" Background="White">
             <Label x:Name="loginLabel" Content="Name:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-            <TextBox x:Name="nameTextBox" HorizontalAlignment="Left" Height="23" Margin="53,12,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+            <TextBox x:Name="nameTextBox" HorizontalAlignment="Left" Height="23" Margin="53,12,0,0" TextWrapping="Wrap" Text="noname" VerticalAlignment="Top" Width="120"/>
             <Button x:Name="loginButton" Content="Log In" Click="LoginButtonClick" HorizontalAlignment="Left" Margin="178,12,0,0" VerticalAlignment="Top" Width="75"/>
-            <Button x:Name="lookForMatchButton" Content="Look for match" Click="LookForMatchClick" IsEnabled="false" HorizontalAlignment="Left" Margin="258,12,0,0" VerticalAlignment="Top" Width="75"/>
+            <Button x:Name="lookForMatchButton" Content="Look for match" Click="LookForMatchClick" IsEnabled="false" HorizontalAlignment="Left" Margin="258,12,0,0" VerticalAlignment="Top" Width="85"/>
             <RichTextBox x:Name="messageBox" IsReadOnly="true" HorizontalAlignment="Left" Height="203" Margin="10,79,0,0" VerticalAlignment="Top" Width="332">
               <RichTextBox.Resources>
                 <Style TargetType="{x:Type Paragraph}">
@@ -30,8 +31,8 @@
                   </Paragraph>
               </FlowDocument>
             </RichTextBox>
-            <TextBox x:Name="sendTextBox" HorizontalAlignment="Left" Height="23" Margin="10,287,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="249"/>
-            <Button x:Name="sendTextButton" Content="Button" HorizontalAlignment="Left" Margin="264,288,0,0" VerticalAlignment="Top" Width="75"/>
+            <TextBox x:Name="sendTextBox" HorizontalAlignment="Left" Height="23" Margin="10,287,0,0" TextWrapping="Wrap" Text="not implemented" VerticalAlignment="Top" Width="249"/>
+            <Button x:Name="sendTextButton" Content="not impl" HorizontalAlignment="Left" Margin="264,288,0,0" VerticalAlignment="Top" Width="75"/>
         </Grid>
         <UniformGrid x:Name="BoardGrid" Margin="28,10,119,29.2" Background="Black" Grid.ColumnSpan="2" >
             <Grid x:Name="a8" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown"/>
