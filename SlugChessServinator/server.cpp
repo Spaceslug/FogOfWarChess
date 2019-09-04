@@ -181,11 +181,22 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                         if(matchPtr->matchEvent == chesscom::MatchEvent::UnexpectedClosing)
                         {
                             std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Opponent UnexpectedClosing" << std::endl << std::flush;
-                            //moveResultPkt.set
-                            //moveResultPkt.set_movehappned(true);
-                            //moveResultPkt.set_opponentaskingfordraw(false);
+                            moveResultPkt.set_movehappned(false);
+                            moveResultPkt.set_opponentaskingfordraw(false);
                             //moveResultPkt.set_allocated_move(matchPtr->moves.back().get());
-                            //stream->Write(moveResultPkt);
+                            moveResultPkt.set_matchevent(chesscom::MatchEvent::UnexpectedClosing);
+                            stream->Write(moveResultPkt);
+                            loop = false;
+                            continue;
+                        }
+                        else if(matchPtr->matchEvent == chesscom::MatchEvent::WhiteWin || matchPtr->matchEvent == chesscom::MatchEvent::BlackWin)
+                        {
+                            std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Someone won!! " << matchPtr->matchEvent << std::endl << std::flush;
+                            moveResultPkt.set_movehappned(true);
+                            moveResultPkt.set_opponentaskingfordraw(false);
+                            moveResultPkt.set_allocated_move(matchPtr->moves.back().get());
+                            moveResultPkt.set_matchevent(matchPtr->matchEvent);
+                            stream->Write(moveResultPkt);
                             loop = false;
                             continue;
                         }
@@ -195,6 +206,7 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                             moveResultPkt.set_movehappned(true);
                             moveResultPkt.set_opponentaskingfordraw(false);
                             moveResultPkt.set_allocated_move(matchPtr->moves.back().get());
+                            moveResultPkt.set_matchevent(chesscom::MatchEvent::Non);
                             stream->Write(moveResultPkt);
                             moveResultPkt.release_move();
                             std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " SentMoveResult " << std::endl << std::flush;
