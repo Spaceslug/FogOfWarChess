@@ -197,6 +197,7 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                             moveResultPkt.set_allocated_move(matchPtr->moves.back().get());
                             moveResultPkt.set_matchevent(matchPtr->matchEvent);
                             stream->Write(moveResultPkt);
+                            moveResultPkt.release_move();
                             loop = false;
                             continue;
                         }
