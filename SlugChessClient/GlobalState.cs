@@ -309,19 +309,19 @@ namespace SlugChess
 
     public enum Pices
     {
-        Non,
-        BlackPawn,
-        BlackKnight,
-        BlackBishop,
-        BlackRook,
-        BlackQueen,
-        BlackKing,
-        WhitePawn,
-        WhiteKnight,
-        WhiteBishop,
-        WhiteRook,
-        WhiteQueen,
-        WhiteKing,
+        Non = 0,
+        BlackPawn = 1,
+        BlackKnight = 2,
+        BlackBishop = 3,
+        BlackRook = 4,
+        BlackQueen = 5,
+        BlackKing = 6,
+        WhitePawn = 7,
+        WhiteKnight = 8,
+        WhiteBishop = 9,
+        WhiteRook = 10,
+        WhiteQueen = 11,
+        WhiteKing = 12
     }
     public struct FieldState
     {

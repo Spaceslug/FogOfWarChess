@@ -1,7 +1,14 @@
-version 0.2.1
+version 0.2.2
+-make autoexport to spaceslug.no
+-make service for slugChessServinator
+-show check from visible enemies
+-fixc that user that does not have current turn freezes on exit
+
+version 0.2.1 (Done)
 -message moveResult contains MatchEvents
 -Match rules on server
+-add end of game
 
-version 0.1.2
+version 0.1.2 (Done)
 -opponent move sound
--
+-probably sleep loop fail

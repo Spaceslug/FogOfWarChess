@@ -135,7 +135,7 @@ namespace SlugChess
             {
                 Instance._matchToken = result.MatchToken;
                 Instance.Dispatcher.Invoke(()=> {
-                    StartMatch(result.IsWhitePlayer, result.MatchToken);
+                    StartMatch(result.IsWhitePlayer, result.MatchToken, result.Rules);
                 });
 
                 var matchStream = _connection.Call.Match();
@@ -171,8 +171,17 @@ namespace SlugChess
                             _lastMoveTo = move.Move.To;
                             ClearBoard();
                             UpdateBoardFromGlobalState();
-                            _mediaPlayer.Stop();
-                            _mediaPlayer.Play();
+                            if(move.MatchEvent == ChessCom.MatchEvent.WhiteWin || move.MatchEvent == ChessCom.MatchEvent.WhiteWin)
+                            {
+                                EndOfMatch(move.MatchEvent);
+                                matchEnded = true;
+                            }
+                            else
+                            {
+                                _mediaPlayer.Stop();
+                                _mediaPlayer.Play();
+                            }
+
                         });
 
                     }
@@ -190,6 +199,20 @@ namespace SlugChess
                             matchEnded = true;
                         }
                     }
+                    else if (move.MatchEvent == ChessCom.MatchEvent.UnexpectedClosing)
+                    {
+                        string popupText = "UnexpextedClosing";
+                        string textBoxText = "Opponents client unexpectedly closed";
+                        messageBox.AppendText(textBoxText +"\n");
+                        MessageBoxButton button = MessageBoxButton.OK;
+                        MessageBoxImage icon = MessageBoxImage.Exclamation;
+                        var drawResult = MessageBox.Show(textBoxText, popupText, button, icon);
+                        if (drawResult == MessageBoxResult.Yes)
+                        {
+                            _matchStream.RequestStream.WriteAsync(new ChessCom.MovePacket { AskingForDraw = true });
+                            matchEnded = true;
+                        }
+                    }
                 }
                 _matchStream.RequestStream.CompleteAsync();
                 _matchStream = null;
@@ -204,25 +227,44 @@ namespace SlugChess
             }
         }
 
-        public void StartMatch(bool isWhitePlayer, string matchToken)
+        public void StartMatch(bool isWhitePlayer, string matchToken, ChessCom.VisionRules rules)
         {
             messageBox.AppendText("Starting match: " + matchToken +  ", player is " + (isWhitePlayer?"white":"black") + "\n");
             _clientIsPlayer = isWhitePlayer ? ClientIsPlayer.White : ClientIsPlayer.Black;
             ClearBoard();
-            _globalState = GlobalState.CreateStartState(new VisionRules
+            var vr = new VisionRules
             {
-                Enabled = true,
-                ViewMoveFields = false,
-                ViewRange = 2,
+                Enabled = rules.Enabled,
+                ViewMoveFields = rules.ViewMoveFields,
+                ViewRange = rules.ViewRange,
                 PiceOverwrite = new Dictionary<Pices, VisionRules>()
-                {
-                    [Pices.BlackPawn] = new VisionRules { ViewRange = 1 },
-                    [Pices.WhitePawn] = new VisionRules { ViewRange = 1 },
-                    [Pices.BlackKing] = new VisionRules { ViewRange = 1 },
-                    [Pices.WhiteKing] = new VisionRules { ViewRange = 1 },
-                }
-            });
+
+
+            };
+            foreach(var keyValOR in rules.PiceOverwriter)
+            {
+                vr.PiceOverwrite.Add((Pices)keyValOR.Key, new VisionRules {Enabled = keyValOR.Value.Enabled,ViewMoveFields = keyValOR.Value.ViewMoveFields,ViewRange = keyValOR.Value.ViewRange});
+            }
+
+            _globalState = GlobalState.CreateStartState(vr);
             UpdateBoardFromGlobalState();
+        }
+
+        private void EndOfMatch(ChessCom.MatchEvent result)
+        {
+            if(result == ChessCom.MatchEvent.Draw)
+            {
+
+            }
+            else if((result == ChessCom.MatchEvent.WhiteWin && _clientIsPlayer == ClientIsPlayer.White) || (result == ChessCom.MatchEvent.BlackWin && _clientIsPlayer == ClientIsPlayer.Black))
+            {
+                messageBox.AppendText("Congratulations you won!!" + "\n");
+            }
+            else
+            {
+                messageBox.AppendText("You lost, stupid idiot." + "\n");
+            }
+            lookForMatchButton.IsEnabled = true;
         }
 
         public void ClearBoard()
@@ -358,12 +400,18 @@ namespace SlugChess
                     if (_globalState.IsLegalMove(fieldGrid.Name))
                     {
                         //(var name, var extraFieldList) = _legalMoves.Find((a) => a.Item1 == fieldGrid.Name);
-                        if(_matchStream.RequestStream != null)
+                        Pices killedPice = _globalState.DoMoveTo(fieldGrid.Name);
+                        if (killedPice != Pices.Non) _killedPices.Add(killedPice);
+                        ChessCom.MatchEvent matchEvent = ChessCom.MatchEvent.Non;
+                        if (killedPice == Pices.WhiteKing) { matchEvent = ChessCom.MatchEvent.BlackWin; EndOfMatch(matchEvent); }
+                        if (killedPice == Pices.BlackKing) { matchEvent = ChessCom.MatchEvent.WhiteWin; EndOfMatch(matchEvent); }
+
+                        if (_matchStream?.RequestStream != null)
                         {
                             _matchStream.RequestStream.WriteAsync(new ChessCom.MovePacket
                             {
                                 AskingForDraw = false,
-                                CheatMatchEvent = ChessCom.MatchEvent.Non,
+                                CheatMatchEvent = matchEvent,
                                 DoingMove = true,
                                 MatchToken = _matchToken,
                                 UserToken = _userToken,
@@ -371,12 +419,12 @@ namespace SlugChess
                                 
                             });
                         }
-                        Pices killedPice = _globalState.DoMoveTo(fieldGrid.Name);
-                        if (killedPice != Pices.Non) _killedPices.Add(killedPice);
+                        
                         //_legalMoves.Clear();
                         _globalState.Selected = null;
                         ClearBoard();
                         UpdateBoardFromGlobalState();
+                
                     }
                     //
 
