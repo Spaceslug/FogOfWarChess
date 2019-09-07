@@ -1,3 +1,7 @@
+version 0.2.3
+-checker of version number. Server must match clients. Minor not same is fine.
+-fix no message scroll after match is done
+
 version 0.2.2
 -make autoexport to spaceslug.no
 -make service for slugChessServinator
