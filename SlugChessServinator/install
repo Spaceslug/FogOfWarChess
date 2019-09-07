@@ -1,0 +1,4 @@
+#!/bin/bash
+sudo systemctl stop slugchess
+sudo cp server /opt/slugchess/server
+sudo systemctl start slugchess

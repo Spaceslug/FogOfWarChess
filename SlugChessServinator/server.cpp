@@ -24,6 +24,10 @@ using grpc::Status;
 //using chesscom::MathReply;
 //using chesscom::ChessCom;
 
+#define MAJOR_VER "0"
+#define MINOR_VER "2"
+#define BUILD_VER "2"
+#define VERSION MAJOR_VER "." MINOR_VER "." BUILD_VER
 
 struct MatchStruct{
     bool newUpdate = false;
@@ -280,20 +284,22 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
 
 };
 
+
+
 chesscom::VisionRules ServerVisionRules(){
     chesscom::VisionRules vr;
     vr.set_enabled(true);
     vr.set_viewmovefields(false);
-    vr.set_viewrange(1);
+    vr.set_viewrange(2);
     //std::cout << " Vision rules" << std::endl << std::flush;
     google::protobuf::Map<int, chesscom::VisionRules>* override = vr.mutable_piceoverwriter();
     chesscom::VisionRules special;
     special.set_enabled(true);
     special.set_viewmovefields(false);
-    special.set_viewrange(2);
+    special.set_viewrange(1);
     //std::cout << " redy to mute" << std::endl << std::flush;
-    (*override)[chesscom::Pices::BlackKnight] = special;
-    (*override)[chesscom::Pices::WhiteKnight] = special;
+    (*override)[chesscom::Pices::BlackPawn] = special;
+    (*override)[chesscom::Pices::WhitePawn] = special;
     return vr;
 }
 
@@ -306,8 +312,9 @@ void Run() {
     builder.AddListeningPort(address, grpc::InsecureServerCredentials());
     builder.RegisterService(&service);
 
+    std::cout << "SlugChess Server version " VERSION " starting" << std::endl;
     server = builder.BuildAndStart();
-    std::cout << "Chess Server listening on port: " << address << std::endl;
+    std::cout << "SlugChess Server listening on port: " << address << std::endl;
 
     server->Wait();
     std::cout << "After wait happened" << std::endl;
@@ -318,11 +325,11 @@ int main(int argc, char** argv) {
     void (*prev_handler)(int);
     prev_handler = signal(SIGINT, SigintHandler);
     logFile.open ("server.log", std::ios::out | std::ios::trunc);
-    logFile << "Writing this to a file.\n";
+    logFile << "Writing this to a file.\n"<< std::flush;
     serverVisionRules = ServerVisionRules();
     std::string vrString = serverVisionRules.SerializeAsString();
-    logFile << "---ServerRules---\n" << vrString << "\n";
-    std::cout << "---ServerRules---\n" << vrString << std::endl << std::flush;
+    //logFile << "---ServerRules---\n" << vrString << "\n";
+    //std::cout << "---ServerRules---\n" << vrString << std::endl << std::flush;
     Run();
     logFile << "Exiting\n";
     logFile.close();
