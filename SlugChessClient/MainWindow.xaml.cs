@@ -173,8 +173,8 @@ namespace SlugChess
                             Pices killedPice = _globalState.DoMoveTo(move.Move.To);
                             if (killedPice != Pices.Non) _killedPices.Add(killedPice);
                             _globalState.Selected = null;
-                            _lastMoveFrom = move.Move.From;
-                            _lastMoveTo = move.Move.To;
+                            _lastMoveFrom = _globalState.CanSeeField(_clientIsPlayer, move.Move.From)? move.Move.From:"";
+                            _lastMoveTo = _globalState.CanSeeField(_clientIsPlayer, move.Move.To)? move.Move.To:"";
                             ClearBoard();
                             UpdateBoardFromGlobalState();
                             if(move.MatchEvent == ChessCom.MatchEvent.WhiteWin || move.MatchEvent == ChessCom.MatchEvent.WhiteWin)
@@ -193,31 +193,36 @@ namespace SlugChess
                     }
                     else if(move.OpponentAskingForDraw)
                     {
-
-                        string popupText = "Draw?";
-                        string textBoxText = "Opponent is asking for draw. Do you accept?";
-                        MessageBoxButton button = MessageBoxButton.YesNo;
-                        MessageBoxImage icon = MessageBoxImage.Error;
-                        var drawResult = MessageBox.Show(textBoxText, popupText, button, icon);
-                        if (drawResult == MessageBoxResult.Yes)
+                        Instance.Dispatcher.Invoke(() =>
                         {
-                            _matchStream.RequestStream.WriteAsync(new ChessCom.MovePacket { AskingForDraw = true});
-                            matchEnded = true;
-                        }
+                            string popupText = "Draw?";
+                            string textBoxText = "Opponent is asking for draw. Do you accept?";
+                            MessageBoxButton button = MessageBoxButton.YesNo;
+                            MessageBoxImage icon = MessageBoxImage.Error;
+                            var drawResult = MessageBox.Show(textBoxText, popupText, button, icon);
+                            if (drawResult == MessageBoxResult.Yes)
+                            {
+                                _matchStream.RequestStream.WriteAsync(new ChessCom.MovePacket { AskingForDraw = true });
+                                matchEnded = true;
+                            }
+                        });
                     }
                     else if (move.MatchEvent == ChessCom.MatchEvent.UnexpectedClosing)
                     {
-                        string popupText = "UnexpextedClosing";
-                        string textBoxText = "Opponents client unexpectedly closed";
-                        messageBox.AppendText(textBoxText +"\n");
-                        MessageBoxButton button = MessageBoxButton.OK;
-                        MessageBoxImage icon = MessageBoxImage.Exclamation;
-                        var drawResult = MessageBox.Show(textBoxText, popupText, button, icon);
-                        if (drawResult == MessageBoxResult.Yes)
+                        Instance.Dispatcher.Invoke(() =>
                         {
-                            _matchStream.RequestStream.WriteAsync(new ChessCom.MovePacket { AskingForDraw = true });
-                            matchEnded = true;
-                        }
+                            string popupText = "UnexpextedClosing";
+                            string textBoxText = "Opponents client unexpectedly closed";
+                            messageBox.AppendText(textBoxText + "\n");
+                            MessageBoxButton button = MessageBoxButton.OK;
+                            MessageBoxImage icon = MessageBoxImage.Exclamation;
+                            var drawResult = MessageBox.Show(textBoxText, popupText, button, icon);
+                            if (drawResult == MessageBoxResult.Yes)
+                            {
+                                _matchStream.RequestStream.WriteAsync(new ChessCom.MovePacket { AskingForDraw = true });
+                                matchEnded = true;
+                            }
+                        });
                     }
                 }
                 _matchStream.RequestStream.CompleteAsync();
@@ -288,7 +293,8 @@ namespace SlugChess
         public void UpdateBoardFromGlobalState()
         {
             //var vision = GameRules.GetVision(_globalState, _globalState.WhiteTurn, new VisionRules { ViewMoveFields = false, ViewRange = 1 });
-            
+            string blackKingField = _globalState.GetWhiteKingPos();
+            string whiteKingField = _globalState.GetBlackKingPos();
 
             foreach (Grid child in this.BoardGrid.Children)
             {
@@ -300,37 +306,66 @@ namespace SlugChess
                     {
                         underChiled.Visibility = Visibility.Visible;
                     }
+                    if (child.Name == _globalState.Selected)
+                    {
+                        var border = new Border();
+                        border.BorderBrush = Brushes.Red;
+                        border.BorderThickness = new Thickness(2, 2, 2, 2); //You can specify here which borders do you want
+                        child.Children.Add(border);
+                    }
+                    else if (_globalState.IsLegalMove(child.Name))
+                    {
+                        var border = new Border();
+                        border.BorderBrush = Brushes.Red;
+                        border.BorderThickness = new Thickness(3, 3, 3, 3); //You can specify here which borders do you want
+                        child.Children.Add(border);
+                    }
+                    else if (_lastMoveFrom == child.Name || _lastMoveTo == child.Name)
+                    {
+                        var border = new Border();
+                        border.BorderBrush = Brushes.SeaGreen;
+                        border.BorderThickness = new Thickness(3, 3, 3, 3); //You can specify here which borders do you want
+                        child.Children.Add(border);
+                    }
+                     
+                    if (_globalState.GetLegalMovesFromField(child.Name).Contains(whiteKingField) && _globalState.CanSeeField(_clientIsPlayer, whiteKingField))
+                    {
+                        //messageBox.AppendText("YGetLegalMovesFromField" + "\n");
+                        var border = new Border();
+                        border.BorderBrush = Brushes.Gold;
+                        border.BorderThickness = new Thickness(3, 3, 3, 3); //You can specify here which borders do you want
+                        child.Children.Add(border);
+                        Grid kingGrid = (Grid)BoardGrid.FindName(whiteKingField);
+                        border = new Border();
+                        border.BorderBrush = Brushes.Gold;
+                        border.BorderThickness = new Thickness(3, 3, 3, 3); //You can specify here which borders do you want
+                        kingGrid.Children.Add(border);
+                    }
+                    else if (_globalState.GetLegalMovesFromField(child.Name).Contains(blackKingField) && _globalState.CanSeeField(_clientIsPlayer, blackKingField))
+                    {
+                        //messageBox.AppendText("YGetLegalMovesFromField" + "\n");
+                        var border = new Border();
+                        border.BorderBrush = Brushes.Gold;
+                        border.BorderThickness = new Thickness(3, 3, 3, 3); //You can specify here which borders do you want
+                        child.Children.Add(border);
+                        Grid kingGrid = (Grid)BoardGrid.FindName(blackKingField);
+                        border = new Border();
+                        border.BorderBrush = Brushes.Gold;
+                        border.BorderThickness = new Thickness(3, 3, 3, 3); //You can specify here which borders do you want
+                        kingGrid.Children.Add(border);
+                    }
+
                 }
                 else
                 {
-                    child.Visibility = Visibility.Hidden;
+                    child.Visibility = Visibility.Visible;
                     child.Opacity = 0.2;
                     foreach (UIElement underChiled in child.Children)
                     {
                         underChiled.Visibility = Visibility.Hidden;
                     }
                 }
-                if (child.Name == _globalState.Selected)
-                {
-                    var border = new Border();
-                    border.BorderBrush = Brushes.Red;
-                    border.BorderThickness = new Thickness(2, 2, 2, 2); //You can specify here which borders do you want
-                    child.Children.Add(border);
-                }
-                else if (_globalState.IsLegalMove(child.Name))
-                {
-                    var border = new Border();
-                    border.BorderBrush = Brushes.Red;
-                    border.BorderThickness = new Thickness(3, 3, 3, 3); //You can specify here which borders do you want
-                    child.Children.Add(border);
-                }
-                else if (_lastMoveFrom == child.Name || _lastMoveTo == child.Name)
-                {
-                    var border = new Border();
-                    border.BorderBrush = Brushes.SeaGreen;
-                    border.BorderThickness = new Thickness(3, 3, 3, 3); //You can specify here which borders do you want
-                    child.Children.Add(border);
-                }
+               
             }
             _killedPices.Sort();
             foreach (var pice in _killedPices)
@@ -406,6 +441,7 @@ namespace SlugChess
                     if (_globalState.IsLegalMove(fieldGrid.Name))
                     {
                         //(var name, var extraFieldList) = _legalMoves.Find((a) => a.Item1 == fieldGrid.Name);
+                        messageBox.AppendText("I did move!\n");
                         Pices killedPice = _globalState.DoMoveTo(fieldGrid.Name);
                         if (killedPice != Pices.Non) _killedPices.Add(killedPice);
                         ChessCom.MatchEvent matchEvent = ChessCom.MatchEvent.Non;

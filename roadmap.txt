@@ -1,11 +1,18 @@
+version 0.2.4
+-(optional rule) Last captured field is visible for both players
+-chat system
+-bug: losing player can continue to play
+-bug: loser does not get message that they lost. Server does not send message
+
 version 0.2.3
 -checker of version number. Server must match clients. Minor not same is fine.
 -fix no message scroll after match is done
+-fix killed pices not cleared after new match is started 
 
 version 0.2.2
--make autoexport to spaceslug.no
--make service for slugChessServinator
--show check from visible enemies
+-(x) make autoexport to spaceslug.no
+-(x) make service for slugChessServinator
+-(x) show check from visible enemies
 -fixc that user that does not have current turn freezes on exit
 
 version 0.2.1 (Done)
