@@ -8,6 +8,7 @@ version 0.2.4
 -checker of version number. Server must match clients. Minor not same is fine.
 -fix no message scroll after match is done
 -fix killed pices not cleared after new match is started
+-add sound when match found
 
 version 0.2.3
 -fix that user that does not have current turn freezes on exit
