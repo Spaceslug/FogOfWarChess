@@ -129,7 +129,9 @@ namespace SlugChess
 
         private void Window_Closing(object sender, CancelEventArgs args)
         {
-            _matchStream?.RequestStream.WriteAsync(new ChessCom.MovePacket { CheatMatchEvent = ChessCom.MatchEvent.UnexpectedClosing, UserToken = _userToken, DoingMove=false});
+            _matchStream?.RequestStream.WriteAsync(new ChessCom.MovePacket { CheatMatchEvent = ChessCom.MatchEvent.UnexpectedClosing, UserToken = _userToken, DoingMove=false}).Wait();
+            _matchStream?.RequestStream.CompleteAsync();
+            _matchStream?.Dispose();
             _runnerTask?.Wait();
             _connection?.ShutDownAsync();
         }
