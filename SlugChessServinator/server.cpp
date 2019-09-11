@@ -26,7 +26,7 @@ using grpc::Status;
 
 #define MAJOR_VER "0"
 #define MINOR_VER "2"
-#define BUILD_VER "2"
+#define BUILD_VER "3"
 #define VERSION MAJOR_VER "." MINOR_VER "." BUILD_VER
 
 struct MatchStruct{
