@@ -32,7 +32,9 @@ namespace SlugChess
         public bool WhiteTurn { get; set; } = true;
         public VisionRules VisionRules { get; set; }
         private List<(string, List<FieldState>)> _legalMovesSelected = new List<(string, List<FieldState>)>();
+        private Dictionary<string, List<(string, List<FieldState>)>> _legalMovesAll = new Dictionary<string, List<(string, List<FieldState>)>>();
         public IEnumerable<string> GetLegalMovesFromSelected => _legalMovesSelected.Select(items => items.Item1);
+        public IEnumerable<string> GetLegalMovesFromField(string field) => (_legalMovesAll.ContainsKey(field)?_legalMovesAll[field]?.Select(items => items.Item1):new List<string>());
 
         //public void UpdateState(GlobalState oldState)
         //{
@@ -64,7 +66,11 @@ namespace SlugChess
 
         public bool IsLegalMove(string pos)
         {
-            return _legalMovesSelected.Any((a) => a.Item1 == pos);
+            if (WhiteTurn ? WhiteVision[BoardPosToIndex[pos]]: BlackVision[BoardPosToIndex[pos]])
+            {
+                return _legalMovesSelected.Any((a) => a.Item1 == pos);
+            }
+            return false;
         }
 
         public Pices DoMoveTo(string moveTo)
@@ -107,11 +113,20 @@ namespace SlugChess
 
             WhiteTurn = !WhiteTurn;
             CalculateVision();
+            _legalMovesAll = GameRules.GetLegalMoves(this);
 
             //Selected = null;
             return killedPice;
         }
 
+        public string GetWhiteKingPos()
+        {
+            return BoardPosToIndex.FirstOrDefault(s => Board[s.Value].Pice == Pices.WhiteKing).Key;
+        }
+        public string GetBlackKingPos()
+        {
+            return BoardPosToIndex.FirstOrDefault(s => Board[s.Value].Pice ==  Pices.BlackKing).Key;
+        }
         public void CalculateVision()
         {
             if (!VisionRules.Enabled)
@@ -222,6 +237,7 @@ namespace SlugChess
             globalState.Board.Add(new Field(Pices.BlackRook, false, false, true, true));
 
             globalState.CalculateVision();
+            globalState._legalMovesAll = GameRules.GetLegalMoves(globalState);
             return globalState;
         }
 
@@ -301,6 +317,7 @@ namespace SlugChess
             globalState.Board.Add(new Field(Pices.BlackRook, false, false, true, true));
 
             globalState.CalculateVision();
+            globalState._legalMovesAll = GameRules.GetLegalMoves(globalState);
             return globalState;
         }
 
@@ -309,19 +326,19 @@ namespace SlugChess
 
     public enum Pices
     {
-        Non,
-        BlackPawn,
-        BlackKnight,
-        BlackBishop,
-        BlackRook,
-        BlackQueen,
-        BlackKing,
-        WhitePawn,
-        WhiteKnight,
-        WhiteBishop,
-        WhiteRook,
-        WhiteQueen,
-        WhiteKing,
+        Non = 0,
+        BlackPawn = 1,
+        BlackKnight = 2,
+        BlackBishop = 3,
+        BlackRook = 4,
+        BlackQueen = 5,
+        BlackKing = 6,
+        WhitePawn = 7,
+        WhiteKnight = 8,
+        WhiteBishop = 9,
+        WhiteRook = 10,
+        WhiteQueen = 11,
+        WhiteKing = 12
     }
     public struct FieldState
     {

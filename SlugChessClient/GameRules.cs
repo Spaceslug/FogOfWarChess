@@ -170,6 +170,27 @@ namespace SlugChess
             return GlobalState.BoardPosToIndex[pos];
         }
 
+        public static Dictionary<string, List<(string, List<FieldState>)>> GetLegalMoves(GlobalState state)
+        {
+            Dictionary<string, List<(string, List<FieldState>)>> legalMoves = new Dictionary<string, List<(string, List<FieldState>)>>();
+            //IsColorFunction func;
+            //if (state.WhiteTurn)
+            //    func = Field.HasWhitePice;
+            //else
+            //    func = Field.HasBlackPice;
+
+            foreach (var pos in GlobalState.BoardPosToIndex.Keys)
+            {
+                FieldState fs = new FieldState(pos, state.GetFieldAt(pos));
+                //if (func(fs.Field))
+                if(fs.Field.Pice != Pices.Non)
+                {
+                    legalMoves[pos] = GetLegalMoves(state, fs);
+                }
+            }
+            return legalMoves;
+        }
+
         public static List<(string, List<FieldState>)> GetLegalMoves(GlobalState state, FieldState fromField)
         {
             List<(string, List<FieldState>)> legalMoves = new List<(string, List<FieldState>)>();
