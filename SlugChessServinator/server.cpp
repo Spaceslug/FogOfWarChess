@@ -204,15 +204,16 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                     }
                     break;
                     case chesscom::MatchEvent::ExpectedClosing:
+                    std::cout << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got UnexpectedClosing" << std::endl << std::flush;
                     keepRunning = false;
                     break;
                 case chesscom::MatchEvent::WhiteWin:
                 case chesscom::MatchEvent::BlackWin:
                     {
                         std::unique_lock<std::mutex> scopeLock (lock);
-                        std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got move " << movePkt.move().from() << " " << movePkt.move().to() << std::endl << std::flush;
+                        std::cout << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got move " << movePkt.move().from() << " " << movePkt.move().to() << std::endl << std::flush;
                         matchPtr->moves.push_back(movePtr);
-                        std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got Win" << std::endl << std::flush;
+                        std::cout << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got Win" << std::endl << std::flush;
                         matchPtr->matchEvents.push_back(movePkt.cheatmatchevent());
                         //keepRunning = false;
                         break;
