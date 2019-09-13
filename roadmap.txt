@@ -1,4 +1,7 @@
-version 0.2.5
+version 0.4.1 
+-chess clock
+
+version 0.3.1
 -(optional rule) Last captured field is visible for both players
 -chat system
 -bug: losing player can continue to play
@@ -6,9 +9,9 @@ version 0.2.5
 
 version 0.2.4
 -checker of version number. Server must match clients. Minor not same is fine.
--fix no message scroll after match is done
--fix killed pices not cleared after new match is started
--add sound when match found
+-(x)fix no message scroll after match is done
+-(x)fix killed pices not cleared after new match is started
+-(x)add sound when match found
 
 version 0.2.3
 -(x)fix that user that does not have current turn freezes on exit
