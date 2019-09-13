@@ -21,6 +21,7 @@ enum MatchEvent {
 	UnexpectedClosing = 4;
 	WhiteAskingForDraw = 5;
 	BlackAskingForDraw = 6;
+	ExpectedClosing = 7;
 	//AcceptingDraw = 6;
 }
 
