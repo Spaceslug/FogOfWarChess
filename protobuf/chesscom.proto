@@ -19,6 +19,9 @@ enum MatchEvent {
 	BlackWin = 2;
 	Draw = 3;
 	UnexpectedClosing = 4;
+	WhiteAskingForDraw = 5;
+	BlackAskingForDraw = 6;
+	//AcceptingDraw = 6;
 }
 
 enum Pices {

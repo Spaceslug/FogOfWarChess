@@ -24,11 +24,16 @@ using grpc::Status;
 //using chesscom::MathReply;
 //using chesscom::ChessCom;
 
+#define MAJOR_VER "0"
+#define MINOR_VER "2"
+#define BUILD_VER "3"
+#define VERSION MAJOR_VER "." MINOR_VER "." BUILD_VER
 
 struct MatchStruct{
-    bool newUpdate = false;
+    //bool newUpdate = false;
     bool askingForDraw = false;
-    chesscom::MatchEvent matchEvent = chesscom::MatchEvent::Non;
+    //chesscom::MatchEvent matchEvent = chesscom::MatchEvent::Non;
+    std::vector<chesscom::MatchEvent> matchEvents;
     std::string whitePlayer;
     std::string blackPlayer;
     std::string matchToken;
@@ -148,6 +153,76 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
         return Status::OK;
     }
 
+    void MatchReadLoop(ServerContext* context, std::shared_ptr<MatchStruct> matchPtr, grpc::ServerReaderWriter< chesscom::MoveResult, chesscom::MovePacket>* stream){
+        chesscom::MovePacket movePkt;
+        bool keepRunning = true;
+        while (!context->IsCancelled() && keepRunning)
+        {
+            if(!stream->Read(&movePkt)){
+                //throw "premeture end of steam"
+                std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " MatchStreamCanceled in read thread " << std::endl << std::flush;
+                break;
+            }
+            if(movePkt.askingfordraw())throw "draw not implemented";
+            std::shared_ptr<chesscom::Move> movePtr = std::make_shared<chesscom::Move>();
+            if(movePkt.doingmove()){
+                movePtr->set_from(movePkt.move().from());
+                movePtr->set_to(movePkt.move().to());
+            }
+            
+            switch (movePkt.cheatmatchevent())
+            {
+            case chesscom::MatchEvent::Non:
+                std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got move " << movePkt.move().from() << " " << movePkt.move().to() << std::endl << std::flush;
+                {
+                    std::unique_lock<std::mutex> scopeLock (lock);
+                    bool isPlayersCurrentTurn = matchPtr->moves.size()%2 == (matchPtr->whitePlayer == movePkt.usertoken()?0:1);
+                    if(isPlayersCurrentTurn){
+                        matchPtr->moves.push_back(movePtr);
+                        matchPtr->matchEvents.push_back(chesscom::MatchEvent::Non);
+                    }else{
+                        std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " ERROR: not this players turn to move" << std::endl << std::flush;
+                    }
+                   
+                }
+                break;
+            case chesscom::MatchEvent::UnexpectedClosing:
+                {
+                    std::unique_lock<std::mutex> scopeLock (lock);
+                    //if(movePkt.doingmove()){
+                    //    std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got move " << movePkt.move().from() << " " << movePkt.move().to() << std::endl << std::flush;
+                    //    matchPtr->moves.push_back(movePtr);
+                    //}else{
+                        //matchPtr->moves.push_back(std::make_shared<chesscom::Move>());
+                    //}
+                    std::cout << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got UnexpectedClosing" << std::endl << std::flush;
+                    matchPtr->matchEvents.push_back(chesscom::MatchEvent::UnexpectedClosing);
+                    //matchPtr->newUpdate = true;
+                    keepRunning = false;
+                    break;
+                }
+                break;
+            case chesscom::MatchEvent::WhiteWin:
+            case chesscom::MatchEvent::BlackWin:
+                {
+                    std::unique_lock<std::mutex> scopeLock (lock);
+                    std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got move " << movePkt.move().from() << " " << movePkt.move().to() << std::endl << std::flush;
+                    matchPtr->moves.push_back(movePtr);
+                    std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got Win" << std::endl << std::flush;
+                    matchPtr->matchEvents.push_back(movePkt.cheatmatchevent());
+                    keepRunning = false;
+                    break;
+                }
+                break;
+            default:
+                throw "fuck fwafdw";
+                break;
+            }
+            std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " ReadThread End" << std::endl << std::flush;
+        }
+        
+    }
+
     Status Match(ServerContext* context, grpc::ServerReaderWriter< chesscom::MoveResult, chesscom::MovePacket>* stream) override 
     {
         chesscom::MovePacket movePkt;
@@ -160,140 +235,94 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
         std::cout << "Opening matchstream for " << movePkt.matchtoken() << " " <<  movePkt.usertoken() << std::endl << std::flush;
         std::string userToken = movePkt.usertoken();
         std::shared_ptr<MatchStruct> matchPtr = matches[movePkt.matchtoken()];
+        std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Starting read thread " << std::endl << std::flush;
+        std::thread t1([this, context, matchPtr, stream](){
+            this->MatchReadLoop(context, matchPtr, stream);
+        });
         bool playerWhite = matchPtr->whitePlayer == userToken;
         bool loop = true;
+        int lastEventNum = 0;
         while (loop)
         {
-            if(context->IsCancelled()) return grpc::Status::CANCELLED;
-            bool isPlayersCurrentTurn;
-            {
-                std::unique_lock<std::mutex> scopeLock (lock);
-                isPlayersCurrentTurn = matchPtr->moves.size()%2 == (playerWhite?0:1); 
+            if(context->IsCancelled()) {
+                std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Matchstream cancelled " << std::endl << std::flush;
+                t1.join();
+                return grpc::Status::OK;
             }
-            std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " IsCurrentTurn "<< std::to_string(isPlayersCurrentTurn) << std::endl << std::flush;
-            if(isPlayersCurrentTurn)
-            {
-                bool isUpdate;
-                {
-                    std::unique_lock<std::mutex> scopeLock (lock);
-                    isUpdate = matchPtr->newUpdate;
-                    if(isUpdate){
-                        if(matchPtr->matchEvent == chesscom::MatchEvent::UnexpectedClosing)
-                        {
-                            std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Opponent UnexpectedClosing" << std::endl << std::flush;
-                            moveResultPkt.set_movehappned(false);
-                            moveResultPkt.set_opponentaskingfordraw(false);
-                            //moveResultPkt.set_allocated_move(matchPtr->moves.back().get());
-                            moveResultPkt.set_matchevent(chesscom::MatchEvent::UnexpectedClosing);
-                            stream->Write(moveResultPkt);
-                            loop = false;
-                            continue;
-                        }
-                        else if(matchPtr->matchEvent == chesscom::MatchEvent::WhiteWin || matchPtr->matchEvent == chesscom::MatchEvent::BlackWin)
-                        {
-                            std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Someone won!! " << matchPtr->matchEvent << std::endl << std::flush;
-                            moveResultPkt.set_movehappned(true);
-                            moveResultPkt.set_opponentaskingfordraw(false);
-                            moveResultPkt.set_allocated_move(matchPtr->moves.back().get());
-                            moveResultPkt.set_matchevent(matchPtr->matchEvent);
-                            stream->Write(moveResultPkt);
-                            moveResultPkt.release_move();
-                            loop = false;
-                            continue;
-                        }
-                        else
-                        {
-                            matchPtr->newUpdate = false;
-                            moveResultPkt.set_movehappned(true);
-                            moveResultPkt.set_opponentaskingfordraw(false);
-                            moveResultPkt.set_allocated_move(matchPtr->moves.back().get());
-                            moveResultPkt.set_matchevent(chesscom::MatchEvent::Non);
-                            stream->Write(moveResultPkt);
-                            moveResultPkt.release_move();
-                            std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " SentMoveResult " << std::endl << std::flush;
-                        }
-                        
-                    }
-                }
-                if(!stream->Read(&movePkt))throw "premeture end of steam";
-                if(movePkt.askingfordraw())throw "draw not implemented";
-                std::shared_ptr<chesscom::Move> movePtr = std::make_shared<chesscom::Move>();
-                if(movePkt.doingmove()){
-                    movePtr->set_from(movePkt.move().from());
-                    movePtr->set_to(movePkt.move().to());
-                }
-                
-                switch (movePkt.cheatmatchevent())
-                {
-                case chesscom::MatchEvent::Non:
-                    std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got move " << movePkt.move().from() << " " << movePkt.move().to() << std::endl << std::flush;
-                    {
-                        std::unique_lock<std::mutex> scopeLock (lock);
-                        matchPtr->moves.push_back(movePtr);
-                        matchPtr->newUpdate = true;
-                    }
-                    std::this_thread::sleep_for(std::chrono::milliseconds(MAX_SLEEP_MS));
-                    break;
-                case chesscom::MatchEvent::UnexpectedClosing:
-                    {
-                        std::unique_lock<std::mutex> scopeLock (lock);
-                        //if(movePkt.doingmove()){
-                        //    std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got move " << movePkt.move().from() << " " << movePkt.move().to() << std::endl << std::flush;
-                        //    matchPtr->moves.push_back(movePtr);
-                        //}else{
-                            matchPtr->moves.push_back(std::make_shared<chesscom::Move>());
-                        //}
-                        std::cout << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got UnexpectedClosing" << std::endl << std::flush;
-                        matchPtr->matchEvent = chesscom::MatchEvent::UnexpectedClosing;
-                        matchPtr->newUpdate = true;
-                        loop = false;
-                    }
-                    break;
-                case chesscom::MatchEvent::WhiteWin:
-                case chesscom::MatchEvent::BlackWin:
-                    {
-                        std::unique_lock<std::mutex> scopeLock (lock);
-                        std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got move " << movePkt.move().from() << " " << movePkt.move().to() << std::endl << std::flush;
-                        matchPtr->moves.push_back(movePtr);
-                        std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got Win" << std::endl << std::flush;
-                        matchPtr->matchEvent = movePkt.cheatmatchevent();
-                        matchPtr->newUpdate = true;
-                        loop = false;
-                    }
-                    break;
-                default:
-                    throw "fuck fwafdw";
-                    break;
-                }
-            }
-            else
+            //bool isPlayersCurrentTurn;
+            //{
+            //    std::unique_lock<std::mutex> scopeLock (lock);
+            //    isPlayersCurrentTurn = matchPtr->moves.size()%2 == (playerWhite?0:1); 
+            //}
+            //std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " IsCurrentTurn "<< std::to_string(isPlayersCurrentTurn) << std::endl << std::flush;
+            //if(isPlayersCurrentTurn)
             {
 
-                std::this_thread::sleep_for(std::chrono::milliseconds(MAX_SLEEP_MS));
             }
+            bool isUpdate;
+            {
+                std::unique_lock<std::mutex> scopeLock (lock);
+                isUpdate = matchPtr->matchEvents.size() > lastEventNum;
+                if(isUpdate){
+                    if(matchPtr->matchEvents[lastEventNum] == chesscom::MatchEvent::UnexpectedClosing)
+                    {
+                        std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Opponent UnexpectedClosing" << std::endl << std::flush;
+                        moveResultPkt.set_movehappned(false);
+                        moveResultPkt.set_opponentaskingfordraw(false);
+                        //moveResultPkt.set_allocated_move(matchPtr->moves.back().get());
+                        moveResultPkt.set_matchevent(chesscom::MatchEvent::UnexpectedClosing);
+                        stream->Write(moveResultPkt);
+                        loop = false;
+                        continue;
+                    }
+                    else if(matchPtr->matchEvents[lastEventNum] == chesscom::MatchEvent::WhiteWin || matchPtr->matchEvents[lastEventNum] == chesscom::MatchEvent::BlackWin)
+                    {
+                        std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Someone won!! " << matchPtr->matchEvents[lastEventNum] << std::endl << std::flush;
+                        moveResultPkt.set_movehappned(true);
+                        moveResultPkt.set_opponentaskingfordraw(false);
+                        moveResultPkt.set_allocated_move(matchPtr->moves.back().get());
+                        moveResultPkt.set_matchevent(matchPtr->matchEvents[lastEventNum]);
+                        stream->Write(moveResultPkt);
+                        moveResultPkt.release_move();
+                        loop = false;
+                        continue;
+                    }
+                    else
+                    {
+                        moveResultPkt.set_movehappned(true);
+                        moveResultPkt.set_opponentaskingfordraw(false);
+                        moveResultPkt.set_allocated_move(matchPtr->moves.back().get());
+                        moveResultPkt.set_matchevent(chesscom::MatchEvent::Non);
+                        stream->Write(moveResultPkt);
+                        moveResultPkt.release_move();
+                        std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " SentMoveResult " << std::endl << std::flush;
+                    }
+                    lastEventNum++;
+                }
+            }
+             std::this_thread::sleep_for(std::chrono::milliseconds(MAX_SLEEP_MS));
+
         }
+        t1.join();
         std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Matchstream ended." << std::endl << std::flush;
         return Status::OK;
     }
-
-
-
 };
 
 chesscom::VisionRules ServerVisionRules(){
     chesscom::VisionRules vr;
     vr.set_enabled(true);
     vr.set_viewmovefields(false);
-    vr.set_viewrange(1);
+    vr.set_viewrange(2);
     //std::cout << " Vision rules" << std::endl << std::flush;
     google::protobuf::Map<int, chesscom::VisionRules>* override = vr.mutable_piceoverwriter();
     chesscom::VisionRules special;
     special.set_enabled(true);
     special.set_viewmovefields(false);
-    special.set_viewrange(2);
+    special.set_viewrange(1);
     //std::cout << " redy to mute" << std::endl << std::flush;
-    (*override)[chesscom::Pices::BlackKnight] = special;
-    (*override)[chesscom::Pices::WhiteKnight] = special;
+    (*override)[chesscom::Pices::BlackPawn] = special;
+    (*override)[chesscom::Pices::WhitePawn] = special;
     return vr;
 }
 
@@ -306,8 +335,9 @@ void Run() {
     builder.AddListeningPort(address, grpc::InsecureServerCredentials());
     builder.RegisterService(&service);
 
+    std::cout << "SlugChess Server version " VERSION " starting" << std::endl;
     server = builder.BuildAndStart();
-    std::cout << "Chess Server listening on port: " << address << std::endl;
+    std::cout << "SlugChess Server listening on port: " << address << std::endl;
 
     server->Wait();
     std::cout << "After wait happened" << std::endl;
@@ -318,11 +348,11 @@ int main(int argc, char** argv) {
     void (*prev_handler)(int);
     prev_handler = signal(SIGINT, SigintHandler);
     logFile.open ("server.log", std::ios::out | std::ios::trunc);
-    logFile << "Writing this to a file.\n";
+    logFile << "Writing this to a file.\n"<< std::flush;
     serverVisionRules = ServerVisionRules();
     std::string vrString = serverVisionRules.SerializeAsString();
-    logFile << "---ServerRules---\n" << vrString << "\n";
-    std::cout << "---ServerRules---\n" << vrString << std::endl << std::flush;
+    //logFile << "---ServerRules---\n" << vrString << "\n";
+    //std::cout << "---ServerRules---\n" << vrString << std::endl << std::flush;
     Run();
     logFile << "Exiting\n";
     logFile.close();
