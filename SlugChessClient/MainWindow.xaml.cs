@@ -63,6 +63,8 @@ namespace SlugChess
         private MediaPlayer _mediaPlayer = new MediaPlayer();
         private string _lastMoveFrom;
         private string _lastMoveTo;
+        private bool _isSingelplayer = true;
+        private ChessCom.Move _myLastMove;
 
         public MainWindow()
         {
@@ -71,7 +73,7 @@ namespace SlugChess
             var ver = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
             Title = $"Slug Chess v{ver.FileMajorPart}.{ver.FileMinorPart}.{ver.FileBuildPart}";
 #if DEBUG
-            Title += " Debug";
+            Title += $" Debug";
 #endif
             //Uri pageUri = new Uri("pack://siteoforigin:,,,/SiteOfOriginFile.xaml", UriKind.Absolute);
             //this.a6.Children.Add(new Image { Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/img/BlackKing.png", UriKind.Absolute)) });
@@ -131,9 +133,9 @@ namespace SlugChess
         {
             _matchStream?.RequestStream.WriteAsync(new ChessCom.MovePacket { CheatMatchEvent = ChessCom.MatchEvent.UnexpectedClosing, UserToken = _userToken, DoingMove=false}).Wait();
             _matchStream?.RequestStream.CompleteAsync();
-            _matchStream?.Dispose();
-            _runnerTask?.Wait();
-            _connection?.ShutDownAsync();
+            //_matchStream?.Dispose();
+            //_runnerTask?.Wait();
+           // _connection?.ShutDownAsync();
         }
 
         public void Runner()
@@ -141,6 +143,7 @@ namespace SlugChess
             ChessCom.LookForMatchResult result = _connection.Call.LookForMatch(new ChessCom.UserIdentity { UserToken = _userToken });
             if (result.Succes)
             {
+                _isSingelplayer = false;
                 Instance._matchToken = result.MatchToken;
                 Instance.Dispatcher.Invoke(()=> {
                     StartMatch(result.IsWhitePlayer, result.MatchToken, result.Rules);
@@ -166,6 +169,7 @@ namespace SlugChess
                     //}
                     if (move.MoveHappned)
                     {
+                        if (move.Move.From == _myLastMove.From && move.Move.To == _myLastMove.To) continue;
                         Instance.Dispatcher.Invoke(() => {
                             messageBox.AppendText("Opponent did move!\n");
                             messageBox.CaretPosition = messageBox.CaretPosition.DocumentEnd;
@@ -244,6 +248,7 @@ namespace SlugChess
         {
             messageBox.AppendText("Starting match: " + matchToken +  ", player is " + (isWhitePlayer?"white":"black") + "\n");
             _clientIsPlayer = isWhitePlayer ? ClientIsPlayer.White : ClientIsPlayer.Black;
+            _myLastMove = new ChessCom.Move { From = "", To = "" };
             ClearBoard();
             var vr = new VisionRules
             {
@@ -276,7 +281,13 @@ namespace SlugChess
             else
             {
                 messageBox.AppendText("You lost, stupid idiot." + "\n");
+
             }
+            _clientIsPlayer = ClientIsPlayer.Both;
+            _globalState.VisionRules.Enabled = false;
+            _globalState.CalculateVision();
+            ClearBoard();
+            UpdateBoardFromGlobalState();
             lookForMatchButton.IsEnabled = true;
         }
 
@@ -289,8 +300,6 @@ namespace SlugChess
             }
             KilledPicesGrid.Children.Clear();
         }
-
-
 
         public void UpdateBoardFromGlobalState()
         {
@@ -409,14 +418,6 @@ namespace SlugChess
 
         }
 
-        //private void HandleMovesLoop(Grpc.Core.AsyncDuplexStreamingCall<ChessCom.MovePacket, ChessCom.MoveResult> match)
-        //{
-        //    while (match.ResponseStream.MoveNext().Result)
-        //    {
-
-        //    }
-        //}
-
         private void Field_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             //sender
@@ -447,11 +448,12 @@ namespace SlugChess
                         Pices killedPice = _globalState.DoMoveTo(fieldGrid.Name);
                         if (killedPice != Pices.Non) _killedPices.Add(killedPice);
                         ChessCom.MatchEvent matchEvent = ChessCom.MatchEvent.Non;
-                        if (killedPice == Pices.WhiteKing) { matchEvent = ChessCom.MatchEvent.BlackWin; EndOfMatch(matchEvent); }
-                        if (killedPice == Pices.BlackKing) { matchEvent = ChessCom.MatchEvent.WhiteWin; EndOfMatch(matchEvent); }
+                        if (killedPice == Pices.WhiteKing) { matchEvent = ChessCom.MatchEvent.BlackWin;  }
+                        if (killedPice == Pices.BlackKing) { matchEvent = ChessCom.MatchEvent.WhiteWin;  }
 
                         if (_matchStream?.RequestStream != null)
                         {
+                            _myLastMove = new ChessCom.Move { From = _globalState.Selected, To = fieldGrid.Name };
                             _matchStream.RequestStream.WriteAsync(new ChessCom.MovePacket
                             {
                                 AskingForDraw = false,
@@ -459,7 +461,7 @@ namespace SlugChess
                                 DoingMove = true,
                                 MatchToken = _matchToken,
                                 UserToken = _userToken,
-                                Move = new ChessCom.Move { From = _globalState.Selected, To = fieldGrid.Name},
+                                Move = _myLastMove,
                                 
                             });
                         }

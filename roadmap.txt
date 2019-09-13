@@ -11,8 +11,9 @@ version 0.2.4
 -add sound when match found
 
 version 0.2.3
--fix that user that does not have current turn freezes on exit
---changing to a dedicated read thread on server
+-(x)fix that user that does not have current turn freezes on exit
+--(x)changing to a dedicated read thread on server
+-(x) added autogeneration of csharp proto 
 
 version 0.2.2
 -(x) make autoexport to spaceslug.no
