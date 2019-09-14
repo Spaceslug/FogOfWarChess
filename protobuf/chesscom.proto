@@ -55,11 +55,17 @@ message Move {
 
 message LoginForm {
 	string username = 1;
+	string encryptedPassword = 5;
+	string majorVersion = 2;
+	string minorVersion = 3;
+	string buildVersion = 4;
 }
 
 message LoginResult {
 	bool successfullLogin = 1;
+	//bool versionCorrect = 3;
 	string userToken = 2;
+	string loginMessage = 4;
 }
 
 message UserIdentity {

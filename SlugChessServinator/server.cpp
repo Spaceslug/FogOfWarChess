@@ -96,9 +96,26 @@ std::string createMatch(std::string& player1Token, std::string& player2Token){
 class ChessComImplementation final : public chesscom::ChessCom::Service {
     Status Login(ServerContext* context, const chesscom::LoginForm* request, chesscom::LoginResult* response) override 
     {
-        response->set_usertoken("usertoken"+std::to_string(tokenCounter++));
-        response->set_successfulllogin(true);
-        std::cout << "User " << request->username() << " " << response->usertoken() << " logged in" << std::endl << std::flush;
+        if(request->majorversion() == MAJOR_VER && request->minorversion() == MINOR_VER)
+        {
+            if(request->buildversion() == BUILD_VER)
+            {
+                response->set_usertoken(request->username() + std::to_string(tokenCounter++));
+                response->set_successfulllogin(true);
+                std::cout << "User " << request->username() << " " << response->usertoken() << " logged in" << std::endl << std::flush;
+            }
+            else
+            {
+                response->set_successfulllogin(true);
+                response->set_loginmessage("You should upgrade to latest version. Server version " VERSION ", Client version " + request->majorversion() + "." + request->minorversion() + "." + request->buildversion()+"\n You can find the latest version at 'http://spaceslug.no/slugchess/list.html'");
+            }
+        }
+        else
+        {
+            response->set_successfulllogin(false);
+            response->set_loginmessage("Login failed because version missmatch. Server version " VERSION ", Client version " + request->majorversion() + "." + request->minorversion() + "." + request->buildversion()+"\n You can find the latest version at 'http://spaceslug.no/slugchess/list.html'");
+            
+        }
         return Status::OK;
     }
 
