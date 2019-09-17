@@ -54,6 +54,7 @@ std::mutex lock;
 std::unique_ptr<Server> server;
 static std::unordered_map<std::string, std::string> userTokens;
 static std::ofstream logFile;
+static std::ofstream cfgFile;
 std::queue<std::string> lookingForMatchQueue;
 std::map<std::string, std::string> foundMatchReply;
 std::map<std::string, std::shared_ptr<MatchStruct>> matches;
@@ -98,6 +99,7 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
     {
         if(request->majorversion() == MAJOR_VER && request->minorversion() == MINOR_VER)
         {
+            std::cout << "User " << request->majorversion() << " " << MAJOR_VER << " " << request->minorversion() << " " << MINOR_VER << " " << request->buildversion() << " " << BUILD_VER << std::endl << std::flush;
             if(request->buildversion() == BUILD_VER)
             {
                 response->set_usertoken(request->username() + std::to_string(tokenCounter++));
@@ -107,13 +109,13 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
             else
             {
                 response->set_successfulllogin(true);
-                response->set_loginmessage("You should upgrade to latest version. Server version " VERSION ", Client version " + request->majorversion() + "." + request->minorversion() + "." + request->buildversion()+"\n You can find the latest version at 'http://spaceslug.no/slugchess/list.html'");
+                response->set_loginmessage("You should upgrade to latest version. Server version " VERSION ", Client version " + request->majorversion() + "." + request->minorversion() + "." + request->buildversion()+". You can find the latest version at 'http://spaceslug.no/slugchess/list.html'");
             }
         }
         else
         {
             response->set_successfulllogin(false);
-            response->set_loginmessage("Login failed because version missmatch. Server version " VERSION ", Client version " + request->majorversion() + "." + request->minorversion() + "." + request->buildversion()+"\n You can find the latest version at 'http://spaceslug.no/slugchess/list.html'");
+            response->set_loginmessage("Login failed because version missmatch. Server version " VERSION ", Client version " + request->majorversion() + "." + request->minorversion() + "." + request->buildversion()+". You can find the latest version at 'http://spaceslug.no/slugchess/list.html'");
             
         }
         return Status::OK;
@@ -354,8 +356,8 @@ chesscom::VisionRules ServerVisionRules(){
     return vr;
 }
 
-void Run() {
-    std::string address("0.0.0.0:43326");
+void Run(std::string port) {
+    std::string address("0.0.0.0:" + port);
     ChessComImplementation service;
 
     ServerBuilder builder;
@@ -381,7 +383,12 @@ int main(int argc, char** argv) {
     std::string vrString = serverVisionRules.SerializeAsString();
     //logFile << "---ServerRules---\n" << vrString << "\n";
     //std::cout << "---ServerRules---\n" << vrString << std::endl << std::flush;
-    Run();
+    std::string port = "43326";
+    if(argc == 2){
+        port = argv[1];
+        std::cout << "Custom port '" << port << "'" << std::flush << std::endl;
+    }
+    Run(port);
     logFile << "Exiting\n";
     logFile.close();
     return 0;
