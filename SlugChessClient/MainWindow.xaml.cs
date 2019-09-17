@@ -96,15 +96,21 @@ namespace SlugChess
                 {
                     [Pices.BlackPawn] = new VisionRules { ViewRange = 1 },
                     [Pices.WhitePawn] = new VisionRules { ViewRange = 1 },
-                    [Pices.BlackKing] = new VisionRules { ViewRange = 1 },
-                    [Pices.WhiteKing] = new VisionRules { ViewRange = 1 },
+                    [Pices.BlackKing] = new VisionRules { ViewRange = 2 },
+                    [Pices.WhiteKing] = new VisionRules { ViewRange = 2 },
                 }
             });
             UpdateBoardFromGlobalState();
+            //loginButton.Visibility = Visibility.Hidden;
 
             Instance = this;
             //ServerConnection connection = new ServerConnection("hive.spaceslug.no", 43326);
-            _connection = new ServerConnection("hive.spaceslug.no", 43326);
+#if DEBUG
+            int port = 43326;
+#else
+            int port = 43327;
+#endif
+            _connection = new ServerConnection("hive.spaceslug.no", port);
             try
             {
                 _connection.Connect();
@@ -394,14 +400,22 @@ namespace SlugChess
         private void LoginButtonClick(object sender, RoutedEventArgs args)
         {
             string name = nameTextBox.Text;
-            var result = _connection.Call.Login(new ChessCom.LoginForm { Username = name });
+            var ver = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
+            Title = $"Slug Chess v{ver.FileMajorPart}.{ver.FileMinorPart}.{ver.FileBuildPart}";
+            var result = _connection.Call.Login(new ChessCom.LoginForm { Username = name, MajorVersion = ver.FileMajorPart.ToString(), MinorVersion = ver.FileMinorPart.ToString(), BuildVersion = ver.FileBuildPart.ToString() });
             if (result.SuccessfullLogin)
             {
                 messageBox.AppendText("Logged in as " + name + "\n");
+                messageBox.AppendText(result.LoginMessage+"\n");
                 _userToken = result.UserToken;
-                loginButton.Content = "U logged in";
+                //loginButton.Content = "U logged in";
                 loginButton.IsEnabled = false;
                 lookForMatchButton.IsEnabled = true;
+                tbLoginStatus.Text = $"{name}";
+            }
+            else
+            {
+                messageBox.AppendText("Login failed. " + result.LoginMessage);
             }
 
         }

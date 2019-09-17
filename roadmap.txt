@@ -8,7 +8,8 @@ version 0.3.1
 -bug: loser does not get message that they lost. Server does not send message
 
 version 0.2.4
--checker of version number. Server must match clients. Minor not same is fine.
+-(x)add debug port
+-(x)checker of version number. Server must match clients. Minor not same is fine.
 -(x)fix no message scroll after match is done
 -(x)fix killed pices not cleared after new match is started
 -(x)add sound when match found
