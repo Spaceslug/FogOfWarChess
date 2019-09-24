@@ -25,8 +25,8 @@ using grpc::Status;
 //using chesscom::ChessCom;
 
 #define MAJOR_VER "0"
-#define MINOR_VER "2"
-#define BUILD_VER "4"
+#define MINOR_VER "3"
+#define BUILD_VER "1"
 #define VERSION MAJOR_VER "." MINOR_VER "." BUILD_VER
 
 struct MatchStruct{
@@ -102,7 +102,18 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
             std::cout << "User " << request->majorversion() << " " << MAJOR_VER << " " << request->minorversion() << " " << MINOR_VER << " " << request->buildversion() << " " << BUILD_VER << std::endl << std::flush;
             if(request->buildversion() == BUILD_VER)
             {
-                response->set_usertoken(request->username() + std::to_string(tokenCounter++));
+                
+                auto it = std::find_if(userTokens.begin(), userTokens.end(),
+						[request](const std::pair<std::string, std::string> &p) {
+							return p.second == request->username();
+						});
+
+                if (it != userTokens.end()) {
+                    userTokens.erase(it);
+                }
+                std::string userToken = request->username() + std::to_string(tokenCounter++);
+                userTokens[userToken] = request->username();
+                response->set_usertoken(userToken);
                 response->set_successfulllogin(true);
                 std::cout << "User " << request->username() << " " << response->usertoken() << " logged in" << std::endl << std::flush;
             }
@@ -337,7 +348,78 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
         std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Matchstream ended." << std::endl << std::flush;
         return Status::OK;
     }
+
+    void ChatMessageStreamLoop(ServerContext* context, std::string& usertoken, grpc::ServerReaderWriter< chesscom::ChatMessage, chesscom::ChatMessage>* stream){
+        chesscom::ChatMessage chatPkt;
+        bool keepRunning = true;
+        try{
+            while (!context->IsCancelled() && keepRunning)
+            {
+                if(!stream->Read(&chatPkt)){
+                    //throw "premeture end of steam"
+
+                    std::cout << usertoken << " MatchStreamCanceled in read thread " << std::endl << std::flush;
+                    break;
+                }
+                if(chatPkt.usertoken() != usertoken)
+                {
+                    std::cout << usertoken << " Wrong usertoken in chat thread " << std::endl << std::flush;
+                }
+                else
+                {
+                    std::unique_lock<std::mutex> scopeLock (lock);
+                    for(auto matchKeyVal :  matches){
+                        if(matchKeyVal.second->whitePlayer == usertoken){
+                            
+                        }
+                        else if(matchKeyVal.second->blackPlayer == usertoken)
+                        {
+
+                        }
+                    }
+                }
+                
+            }
+            std::cout  <<  usertoken<< " ChatMessageStream End" << std::endl << std::flush;
+        }
+        catch(std::exception ex)
+        {
+            std::cout << usertoken << " Gracefully exit ChatMessageStream thread exception: " << ex.what() << std::endl << std::flush;
+        }
+    }
+
+    Status ChatMessageStream(ServerContext* context, grpc::ServerReaderWriter< chesscom::ChatMessage, chesscom::ChatMessage>* stream) override 
+    {
+        chesscom::ChatMessage chatPkt;
+        stream->Read(&chatPkt);
+        std::string userToken = chatPkt.usertoken();
+
+        std::cout << "Opening ChatMessageStream for "  <<  userToken << std::endl << std::flush;
+        std::cout <<  chatPkt.usertoken() << " Starting chat read thread " << std::endl << std::flush;
+        std::thread t1([this, context, &userToken, stream](){
+            this->ChatMessageStreamLoop(context, userToken, stream);
+        });
+        bool loop = true;
+        while (loop)
+        {
+            if(context->IsCancelled()) {
+                std::cout <<  userToken<< " ChatMessageStream cancelled " << std::endl << std::flush;
+                t1.join();
+                return grpc::Status::OK;
+            }
+            //TODO add this stream to map(usertoken, steam) for other to call
+            //next just wait for readthread to end
+            
+            std::this_thread::sleep_for(std::chrono::milliseconds(MAX_SLEEP_MS));
+
+        }
+        t1.join();
+        std::cout  <<  userToken << " ChatMessageStream ended." << std::endl << std::flush;
+        return Status::OK;
+    }
 };
+
+
 
 chesscom::VisionRules ServerVisionRules(){
     chesscom::VisionRules vr;

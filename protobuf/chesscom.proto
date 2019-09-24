@@ -11,6 +11,7 @@ service ChessCom {
 	rpc Login(LoginForm) returns (LoginResult) {}
 	rpc LookForMatch(UserIdentity) returns (LookForMatchResult) {}
 	rpc Match(stream MovePacket) returns (stream MoveResult) {}
+	rpc ChatMessageStream(stream ChatMessage) returns (stream ChatMessage) {}
 }
 
 enum MatchEvent {
@@ -103,4 +104,13 @@ message MathRequest {
 // The response message containing response
 message MathReply {
     int32 result = 1;
+}
+
+message ChatMessage {
+	//for validation
+	string userToken = 1;
+
+	string sender = 2;
+	string reciver = 3;
+	string message = 4;
 }
