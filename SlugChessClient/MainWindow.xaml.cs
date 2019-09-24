@@ -60,6 +60,7 @@ namespace SlugChess
         private string _userToken;
         private string _matchToken;
         private Grpc.Core.AsyncDuplexStreamingCall<ChessCom.MovePacket, ChessCom.MoveResult> _matchStream;
+        //private Grpc.Core.AsyncDuplexStreamingCall<ChessCom.MovePacket, ChessCom.MoveResult> _matchMessageStream;
         private Task _runnerTask;
         private MediaPlayer _mediaPlayer = new MediaPlayer();
         private string _lastMoveFrom;
@@ -102,6 +103,8 @@ namespace SlugChess
             });
             UpdateBoardFromGlobalState();
             //loginButton.Visibility = Visibility.Hidden;
+            var rand = new Random();
+            nameTextBox.Text = "default" + rand.Next(0, 99999).ToString();
 
             Instance = this;
             //ServerConnection connection = new ServerConnection("hive.spaceslug.no", 43326);
@@ -114,7 +117,7 @@ namespace SlugChess
             try
             {
                 _connection.Connect();
-                messageBox.AppendText("\nConnected to SlugChessServer\n");
+                WriteTextNonInvoke("Connected to SlugChessServer");
                 _mediaPlayer.MediaFailed += (o, args) => {
                     int i = 5;
                 };
@@ -180,10 +183,11 @@ namespace SlugChess
                         if (move.Move.From != _myLastMove.From || move.Move.To != _myLastMove.To)
                         {
                             Instance.Dispatcher.Invoke(() => {
-                                messageBox.AppendText("Opponent did move!\n");
-                                messageBox.CaretPosition = messageBox.CaretPosition.DocumentEnd;
-                                messageBox.BringIntoView();
-                                messageBox.Focus();
+                                WriteTextNonInvoke("Opponent did move!");
+                                //messageBox.AppendText("Opponent did move!\n");
+                                //messageBox.CaretPosition = messageBox.CaretPosition.DocumentEnd;
+                                //messageBox.BringIntoView();
+                                //messageBox.Focus();
                                 _globalState.Selected = move.Move.From;
                                 Pices killedPice = _globalState.DoMoveTo(move.Move.To);
                                 if (killedPice != Pices.Non) _killedPices.Add(killedPice);
@@ -223,7 +227,7 @@ namespace SlugChess
                         {
                             string popupText = "UnexpextedClosing";
                             string textBoxText = "Opponents client unexpectedly closed";
-                            messageBox.AppendText(textBoxText + "\n");
+                            WriteTextNonInvoke(textBoxText);
                             MessageBoxButton button = MessageBoxButton.OK;
                             MessageBoxImage icon = MessageBoxImage.Exclamation;
                             MessageBox.Show(textBoxText, popupText, button, icon);
@@ -257,7 +261,7 @@ namespace SlugChess
 
         public void StartMatch(bool isWhitePlayer, string matchToken, ChessCom.VisionRules rules)
         {
-            messageBox.AppendText("Starting match: " + matchToken +  ", player is " + (isWhitePlayer?"white":"black") + "\n");
+            WriteTextNonInvoke("Starting match: " + matchToken +  ", player is " + (isWhitePlayer?"white":"black"));
             _clientIsPlayer = isWhitePlayer ? ClientIsPlayer.White : ClientIsPlayer.Black;
             _myLastMove = new ChessCom.Move { From = "", To = "" };
             _killedPices.Clear();
@@ -288,12 +292,11 @@ namespace SlugChess
             }
             else if((result == ChessCom.MatchEvent.WhiteWin && _clientIsPlayer == ClientIsPlayer.White) || (result == ChessCom.MatchEvent.BlackWin && _clientIsPlayer == ClientIsPlayer.Black))
             {
-                messageBox.AppendText("Congratulations you won!!" + "\n");
+                WriteTextNonInvoke("Congratulations you won!!" + "\n");
             }
             else
             {
-                messageBox.AppendText("You lost, stupid idiot." + "\n");
-
+                WriteTextNonInvoke("You lost, stupid idiot." + "\n");
             }
             _clientIsPlayer = ClientIsPlayer.Both;
             _globalState.VisionRules.Enabled = false;
@@ -397,6 +400,20 @@ namespace SlugChess
             }
         }
 
+        public void BlackOutField(string fieldName)
+        {
+            Grid field = (Grid)this.BoardGrid.FindName(fieldName);
+            field.Visibility = Visibility.Hidden;
+        }
+
+        public void WriteTextInvoke(string text)
+        {
+            Instance.Dispatcher.Invoke(() =>
+            {
+                WriteTextNonInvoke(text);
+            });
+        }
+
         private void LoginButtonClick(object sender, RoutedEventArgs args)
         {
             string name = nameTextBox.Text;
@@ -405,8 +422,8 @@ namespace SlugChess
             var result = _connection.Call.Login(new ChessCom.LoginForm { Username = name, MajorVersion = ver.FileMajorPart.ToString(), MinorVersion = ver.FileMinorPart.ToString(), BuildVersion = ver.FileBuildPart.ToString() });
             if (result.SuccessfullLogin)
             {
-                messageBox.AppendText("Logged in as " + name + "\n");
-                messageBox.AppendText(result.LoginMessage+"\n");
+                WriteTextNonInvoke("Logged in as " + name);
+                WriteTextNonInvoke(result.LoginMessage);
                 _userToken = result.UserToken;
                 //loginButton.Content = "U logged in";
                 loginButton.IsEnabled = false;
@@ -415,9 +432,16 @@ namespace SlugChess
             }
             else
             {
-                messageBox.AppendText("Login failed. " + result.LoginMessage);
+                WriteTextNonInvoke("Login failed. " + result.LoginMessage);
             }
 
+        }
+
+        private void WriteTextNonInvoke(string text, string sender = null)
+        {
+            messageBox.AppendText($"{DateTime.Now.ToString("HH:mm:ss")} {(sender!=null?"- "+sender:"")}: {text}\n");
+            messageBox.CaretPosition = messageBox.CaretPosition.DocumentEnd;
+            messageBox.BringIntoView();
         }
 
         private void LookForMatchClick(object sender, RoutedEventArgs args)
@@ -464,7 +488,7 @@ namespace SlugChess
                     if (_globalState.IsLegalMove(fieldGrid.Name))
                     {
                         //(var name, var extraFieldList) = _legalMoves.Find((a) => a.Item1 == fieldGrid.Name);
-                        messageBox.AppendText("I did move!\n");
+                        WriteTextNonInvoke("I did move!");
                         Pices killedPice = _globalState.DoMoveTo(fieldGrid.Name);
                         if (killedPice != Pices.Non) _killedPices.Add(killedPice);
                         ChessCom.MatchEvent matchEvent = ChessCom.MatchEvent.Non;
@@ -599,11 +623,7 @@ namespace SlugChess
             }
         }
 
-        public void BlackOutField(string fieldName)
-        {
-            Grid field = (Grid)this.BoardGrid.FindName(fieldName);
-            field.Visibility = Visibility.Hidden;
-        }
+
     }
 
     public enum ClientIsPlayer
