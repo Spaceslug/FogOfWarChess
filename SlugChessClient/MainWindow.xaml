@@ -15,7 +15,7 @@
             <ColumnDefinition Width="194*"/>
             <ColumnDefinition Width="237*"/>
         </Grid.ColumnDefinitions>
-        <Grid  HorizontalAlignment="Right" Height="329" Margin="0,93,0,0"  VerticalAlignment="Top" Width="352" Grid.ColumnSpan="2" Grid.Column="2" Background="White">
+        <Grid  HorizontalAlignment="Right" Height="314" Margin="0,93,0,0"  VerticalAlignment="Top" Width="352" Grid.ColumnSpan="2" Grid.Column="2" Background="White">
             <Label x:Name="loginLabel" Content="Name:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
             <TextBox x:Name="nameTextBox" HorizontalAlignment="Left" Height="23" Margin="53,12,0,0" TextWrapping="Wrap" Text="noname" VerticalAlignment="Top" Width="120"/>
             <Button x:Name="loginButton" Content="Log In" Click="LoginButtonClick" HorizontalAlignment="Left" Margin="178,12,0,0" VerticalAlignment="Top" Width="75"/>
@@ -122,6 +122,15 @@
             <Label FontWeight="DemiBold" FontSize="18" Content="H" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
         </UniformGrid>
         <UniformGrid x:Name="KilledPicesGrid" HorizontalAlignment="Left" Height="83" Margin="80,10,-1,0" VerticalAlignment="Top" Width="352" Grid.ColumnSpan="2" Rows="4" Columns="10" Grid.Column="2" Background="#FFFAFAFA"/>
+        <StatusBar Grid.Column="2" HorizontalAlignment="Left" Height="27" Margin="90,412,0,0" VerticalAlignment="Top" Width="331" Grid.ColumnSpan="2">
+            <StatusBarItem Grid.Column="2">
+                <TextBlock x:Name ="tbLoginStatus" Text="Not logged in" />
+            </StatusBarItem>
+            <Separator Grid.Column="3" />
+            <StatusBarItem Grid.Column="4">
+                <ProgressBar Value="50" Width="90" Height="16" />
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
     <Window.InputBindings>
         <KeyBinding Command="{Binding ClearBoardCommand}" Key="C"/>
