@@ -10,12 +10,17 @@ version 0.6.1
 version 0.5.1
 -finaly implement view move field
 
+version 0.4.2 
+-remove unessesary files like x86 stuff and .xml and .pdb
+
 version 0.4.1 
 -chess clock
 
 version 0.3.2
 -bug: last move not cleared when starting a new match.
 -bug: text log only scrolles when "Opponet did move!" or opponent won
+-bug: can not connect to server when on rena hotell wifi
+-make it a only x64 program 
 
 version 0.3.1
 -(optional rule) Last captured field is visible for both players

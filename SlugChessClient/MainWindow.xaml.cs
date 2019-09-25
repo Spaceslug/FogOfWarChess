@@ -57,10 +57,11 @@ namespace SlugChess
         private List<Pices> _killedPices = new List<Pices>();
         private ClientIsPlayer _clientIsPlayer = ClientIsPlayer.Both;
         private ServerConnection _connection;
+        private string _username;
         private string _userToken;
         private string _matchToken;
         private Grpc.Core.AsyncDuplexStreamingCall<ChessCom.MovePacket, ChessCom.MoveResult> _matchStream;
-        //private Grpc.Core.AsyncDuplexStreamingCall<ChessCom.MovePacket, ChessCom.MoveResult> _matchMessageStream;
+        private Grpc.Core.AsyncDuplexStreamingCall<ChessCom.ChatMessage, ChessCom.ChatMessage> _matchMessageStream;
         private Task _runnerTask;
         private MediaPlayer _mediaPlayer = new MediaPlayer();
         private string _lastMoveFrom;
@@ -141,9 +142,15 @@ namespace SlugChess
         {
             _matchStream?.RequestStream.WriteAsync(new ChessCom.MovePacket { CheatMatchEvent = ChessCom.MatchEvent.UnexpectedClosing, UserToken = _userToken, DoingMove=false}).Wait();
             _matchStream?.RequestStream.CompleteAsync();
-            //_matchStream?.Dispose();
-            //_runnerTask?.Wait();
-           // _connection?.ShutDownAsync();
+            // -- Might need an abort message to avoid exeptions on the server
+            //_matchMessageStream?.RequestStream.WriteAsync(new ChessCom.ChatMessage
+            //{
+            //    UserToken = _userToken,
+            //    Reciver = "system",
+            //    Sender = _username,
+            //    Message = "exit"
+            //}).Wait();
+            _matchMessageStream?.RequestStream.CompleteAsync();
         }
 
         public void Runner()
@@ -406,35 +413,59 @@ namespace SlugChess
             field.Visibility = Visibility.Hidden;
         }
 
-        public void WriteTextInvoke(string text)
+        public void WriteTextInvoke(string text, string sender = null)
         {
             Instance.Dispatcher.Invoke(() =>
             {
-                WriteTextNonInvoke(text);
+                WriteTextNonInvoke(text, sender);
             });
         }
 
         private void LoginButtonClick(object sender, RoutedEventArgs args)
         {
-            string name = nameTextBox.Text;
+            _username = nameTextBox.Text;
             var ver = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
             Title = $"Slug Chess v{ver.FileMajorPart}.{ver.FileMinorPart}.{ver.FileBuildPart}";
-            var result = _connection.Call.Login(new ChessCom.LoginForm { Username = name, MajorVersion = ver.FileMajorPart.ToString(), MinorVersion = ver.FileMinorPart.ToString(), BuildVersion = ver.FileBuildPart.ToString() });
+            var result = _connection.Call.Login(new ChessCom.LoginForm { Username = _username, MajorVersion = ver.FileMajorPart.ToString(), MinorVersion = ver.FileMinorPart.ToString(), BuildVersion = ver.FileBuildPart.ToString() });
             if (result.SuccessfullLogin)
             {
-                WriteTextNonInvoke("Logged in as " + name);
+                WriteTextNonInvoke("Logged in as " + _username);
                 WriteTextNonInvoke(result.LoginMessage);
                 _userToken = result.UserToken;
                 //loginButton.Content = "U logged in";
                 loginButton.IsEnabled = false;
                 lookForMatchButton.IsEnabled = true;
-                tbLoginStatus.Text = $"{name}";
+                tbLoginStatus.Text = $"{_username}";
+
+                _matchMessageStream = _connection.Call.ChatMessageStream();
+                _matchMessageStream.RequestStream.WriteAsync(new ChessCom.ChatMessage {
+                    UserToken = _userToken,
+                    Reciver = "system",
+                    Sender = _username,
+                    Message = "init"
+                });
+                //TODO recive message callback
+                //TODO handle shutdown of message
             }
             else
             {
                 WriteTextNonInvoke("Login failed. " + result.LoginMessage);
             }
 
+        }
+
+        private void MessageCallRunner()
+        {
+            while (true)
+            {
+                if (!_matchMessageStream.ResponseStream.MoveNext().Result)
+                {
+                    break;
+                }
+                ChessCom.ChatMessage chatMessage = _matchMessageStream.ResponseStream.Current;
+
+                WriteTextInvoke(chatMessage.Message, chatMessage.Sender);
+            }
         }
 
         private void WriteTextNonInvoke(string text, string sender = null)
