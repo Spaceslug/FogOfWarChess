@@ -382,6 +382,7 @@ namespace SlugChess
     {
         public bool Enabled { get; set; } = true;
         public bool ViewMoveFields { get; set; } = false;
+        //public bool View
         public int ViewRange { get; set; } = 2;
         public Dictionary<Pices, VisionRules> PiceOverwrite { get; set; }
     }
