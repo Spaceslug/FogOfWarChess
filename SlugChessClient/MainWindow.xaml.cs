@@ -114,6 +114,7 @@ namespace SlugChess
 #else
             int port = 43327;
 #endif
+            messageBox.Document.Blocks.Clear();
             _connection = new ServerConnection("hive.spaceslug.no", port);
             try
             {
