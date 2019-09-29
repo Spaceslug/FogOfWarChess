@@ -78,6 +78,7 @@ message LookForMatchResult {
 	string matchToken = 2;
 	bool isWhitePlayer = 3;
 	VisionRules rules = 4;
+	string opponentUsername = 5;
 }
 
 message MovePacket{

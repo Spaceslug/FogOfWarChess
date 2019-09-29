@@ -167,16 +167,17 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                 }
             }
         }
+        auto matPtr = matches[matchToken];
         {
             std::unique_lock<std::mutex> scopeLock (lock);
             std::cout << userToken << " found match " <<  matchToken << std::endl << std::flush;
             std::cout << "  checing match" << std::endl << std::flush;
-            auto matPtr = matches[matchToken];
             std::cout << "  white player " <<  matPtr->whitePlayer << std::endl << std::flush;
         }
         response->set_succes(true);
         response->set_matchtoken(matchToken);
-        response->set_iswhiteplayer(matches[matchToken]->whitePlayer == userToken);
+        response->set_iswhiteplayer(matPtr->whitePlayer == userToken);
+        response->set_opponentusername(userTokens[response->iswhiteplayer()?matPtr->whitePlayer:matPtr->blackPlayer]);
         chesscom::VisionRules* vrPtr = response->mutable_rules();
         vrPtr->CopyFrom(serverVisionRules);
         //dsa = serverVisionRules;
