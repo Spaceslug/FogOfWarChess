@@ -60,6 +60,7 @@ namespace SlugChess
         private string _username;
         private string _userToken;
         private string _matchToken;
+        private string _opponentUsername;
         private Grpc.Core.AsyncDuplexStreamingCall<ChessCom.MovePacket, ChessCom.MoveResult> _matchStream;
         private Grpc.Core.AsyncDuplexStreamingCall<ChessCom.ChatMessage, ChessCom.ChatMessage> _matchMessageStream;
         private Task _runnerTask;
@@ -119,7 +120,7 @@ namespace SlugChess
             try
             {
                 _connection.Connect();
-                WriteTextNonInvoke("Connected to SlugChessServer");
+                WriteTextNonInvoke("Connected to SlugChessServer\n");
                 _mediaPlayer.MediaFailed += (o, args) => {
                     int i = 5;
                 };
@@ -161,6 +162,7 @@ namespace SlugChess
             {
                 _isSingelplayer = false;
                 Instance._matchToken = result.MatchToken;
+                Instance._opponentUsername = result.OpponentUsername;
                 Instance.Dispatcher.Invoke(()=> {
                     _mediaPlayer.Stop();
                     _mediaPlayer.Open(MatchStartSoundUri);
@@ -269,7 +271,8 @@ namespace SlugChess
 
         public void StartMatch(bool isWhitePlayer, string matchToken, ChessCom.VisionRules rules)
         {
-            WriteTextNonInvoke("Starting match: " + matchToken +  ", player is " + (isWhitePlayer?"white":"black"));
+            WriteTextNonInvoke("Starting match: " + matchToken +  ", you are " + (isWhitePlayer?"white":"black"));
+            WriteTextNonInvoke("Opponent username: " + _opponentUsername);
             _clientIsPlayer = isWhitePlayer ? ClientIsPlayer.White : ClientIsPlayer.Black;
             _myLastMove = new ChessCom.Move { From = "", To = "" };
             _killedPices.Clear();
@@ -431,7 +434,7 @@ namespace SlugChess
             if (result.SuccessfullLogin)
             {
                 WriteTextNonInvoke("Logged in as " + _username);
-                WriteTextNonInvoke(result.LoginMessage);
+                if(result.LoginMessage != "") WriteTextNonInvoke(result.LoginMessage);
                 _userToken = result.UserToken;
                 //loginButton.Content = "U logged in";
                 loginButton.IsEnabled = false;
@@ -445,6 +448,7 @@ namespace SlugChess
                     Sender = _username,
                     Message = "init"
                 });
+                Task.Run(() => MessageCallRunner());
                 //TODO recive message callback
                 //TODO handle shutdown of message
             }
@@ -471,7 +475,7 @@ namespace SlugChess
 
         private void WriteTextNonInvoke(string text, string sender = null)
         {
-            messageBox.AppendText($"{DateTime.Now.ToString("HH:mm:ss")} {(sender!=null?"- "+sender:"")}: {text}\n");
+            messageBox.AppendText($"{DateTime.Now.ToString("HH:mm:ss")} {(sender!=null?"- "+sender:"")}: {text}\r\n");
             messageBox.CaretPosition = messageBox.CaretPosition.DocumentEnd;
             messageBox.BringIntoView();
         }
@@ -491,6 +495,15 @@ namespace SlugChess
             //    StartMatch(result.IsWhitePlayer, result.MatchToken);
             //    HandleMovesLoop(match);
             //}
+
+        }
+
+        private void SendMessageClick(object sender, RoutedEventArgs args)
+        {
+            if (_opponentUsername == null) return;
+            _matchMessageStream?.RequestStream.WriteAsync(new ChessCom.ChatMessage { Sender=_username, UserToken=_userToken, Reciver=_opponentUsername, Message= sendTextBox.Text});
+            WriteTextNonInvoke(sendTextBox.Text, _username);
+            sendTextBox.Text = "";
 
         }
 
@@ -655,7 +668,13 @@ namespace SlugChess
             }
         }
 
-
+        private void SendTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if(e.Key == Key.Enter)
+            {
+                SendMessageClick(sender, null);
+            }
+        }
     }
 
     public enum ClientIsPlayer
