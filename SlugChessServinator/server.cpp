@@ -60,6 +60,10 @@ std::map<std::string, std::string> foundMatchReply;
 std::map<std::string, std::shared_ptr<MatchStruct>> matches;
 chesscom::VisionRules serverVisionRules;
 
+std::mutex _messageStreamsMutex;
+//string is userToken
+std::map<std::string, grpc::ServerReaderWriter< chesscom::ChatMessage, chesscom::ChatMessage>*> _messageStreams;
+
 
 void SigintHandler (int param)
 {
@@ -111,7 +115,7 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                 if (it != userTokens.end()) {
                     userTokens.erase(it);
                 }
-                std::string userToken = request->username() + std::to_string(tokenCounter++);
+                std::string userToken = request->username() + "-" + std::to_string(tokenCounter++);
                 userTokens[userToken] = request->username();
                 response->set_usertoken(userToken);
                 response->set_successfulllogin(true);
@@ -177,7 +181,7 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
         response->set_succes(true);
         response->set_matchtoken(matchToken);
         response->set_iswhiteplayer(matPtr->whitePlayer == userToken);
-        response->set_opponentusername(userTokens[response->iswhiteplayer()?matPtr->whitePlayer:matPtr->blackPlayer]);
+        response->set_opponentusername(userTokens[response->iswhiteplayer()?matPtr->blackPlayer:matPtr->whitePlayer]);
         chesscom::VisionRules* vrPtr = response->mutable_rules();
         vrPtr->CopyFrom(serverVisionRules);
         //dsa = serverVisionRules;
@@ -350,16 +354,29 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
         return Status::OK;
     }
 
+    void SendChatMessage(std::string& senderUsername, std::string& reciverUsertoken, std::string& message){
+        std::unique_lock<std::mutex> scopeLock (_messageStreamsMutex);
+        chesscom::ChatMessage msg;
+        msg.set_allocated_message(&message);
+        msg.set_allocated_reciver(&reciverUsertoken);
+        msg.set_allocated_sender(&senderUsername);
+        _messageStreams[reciverUsertoken]->Write(msg);
+        msg.release_message();
+        msg.release_reciver();
+        msg.release_sender();
+    }
+
     void ChatMessageStreamLoop(ServerContext* context, std::string& usertoken, grpc::ServerReaderWriter< chesscom::ChatMessage, chesscom::ChatMessage>* stream){
         chesscom::ChatMessage chatPkt;
         bool keepRunning = true;
         try{
+            //std::cout <<  usertoken << " Starting chat read thread " << std::endl << std::flush;
             while (!context->IsCancelled() && keepRunning)
             {
                 if(!stream->Read(&chatPkt)){
                     //throw "premeture end of steam"
 
-                    std::cout << usertoken << " MatchStreamCanceled in read thread " << std::endl << std::flush;
+                    std::cout << usertoken << " ChatStreamCanceled in read thread " << std::endl << std::flush;
                     break;
                 }
                 if(chatPkt.usertoken() != usertoken)
@@ -368,16 +385,20 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                 }
                 else
                 {
+                    std::cout << usertoken << " Prossesing massage to " << chatPkt.reciver() << std::endl << std::flush;
                     std::unique_lock<std::mutex> scopeLock (lock);
-                    for(auto matchKeyVal :  matches){
-                        if(matchKeyVal.second->whitePlayer == usertoken){
-                            
-                        }
-                        else if(matchKeyVal.second->blackPlayer == usertoken)
+                    for(auto matchKeyVal : matches){
+                        if(matchKeyVal.second->whitePlayer == usertoken && userTokens[matchKeyVal.second->blackPlayer] == chatPkt.reciver())
                         {
-
+                            std::cout << usertoken << " Sending message to  " << matchKeyVal.second->blackPlayer << std::endl << std::flush;
+                            SendChatMessage(*chatPkt.mutable_sender(), matchKeyVal.second->blackPlayer, *chatPkt.mutable_message());
                         }
-                    }
+                        else if(matchKeyVal.second->blackPlayer == usertoken&& userTokens[matchKeyVal.second->whitePlayer] == chatPkt.reciver())
+                        {
+                            std::cout << usertoken << " Sending message to  " << matchKeyVal.second->whitePlayer << std::endl << std::flush;
+                            SendChatMessage(*chatPkt.mutable_sender(), matchKeyVal.second->whitePlayer, *chatPkt.mutable_message());
+                        }
+                    }   
                 }
                 
             }
@@ -396,7 +417,6 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
         std::string userToken = chatPkt.usertoken();
 
         std::cout << "Opening ChatMessageStream for "  <<  userToken << std::endl << std::flush;
-        std::cout <<  chatPkt.usertoken() << " Starting chat read thread " << std::endl << std::flush;
         std::thread t1([this, context, &userToken, stream](){
             this->ChatMessageStreamLoop(context, userToken, stream);
         });
@@ -408,13 +428,20 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                 t1.join();
                 return grpc::Status::OK;
             }
-            //TODO add this stream to map(usertoken, steam) for other to call
-            //next just wait for readthread to end
+
+            {
+                std::unique_lock<std::mutex> scopeLock (_messageStreamsMutex);
+                _messageStreams[userToken] = stream;
+            }
             
             std::this_thread::sleep_for(std::chrono::milliseconds(MAX_SLEEP_MS));
 
         }
         t1.join();
+        {
+            std::unique_lock<std::mutex> scopeLock (_messageStreamsMutex);
+            _messageStreams.erase(userToken);
+        }
         std::cout  <<  userToken << " ChatMessageStream ended." << std::endl << std::flush;
         return Status::OK;
     }
