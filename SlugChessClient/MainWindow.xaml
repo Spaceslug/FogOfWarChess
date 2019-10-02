@@ -155,7 +155,4 @@
             </StatusBarItem>
         </StatusBar>
     </Grid>
-    <Window.InputBindings>
-        <KeyBinding Command="{Binding ClearBoardCommand}" Key="C"/>
-    </Window.InputBindings>
 </Window>

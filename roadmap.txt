@@ -10,6 +10,9 @@ version 0.6.1
 version 0.5.1
 -finaly implement view move field
 
+version 0.4.3 
+-can click on opponents pices to see moves
+
 version 0.4.2 
 -remove unessesary files like x86 stuff and .xml and .pdb
 
@@ -24,7 +27,7 @@ version 0.3.2
 
 version 0.3.1
 -(optional rule) Last captured field is visible for both players
--chat system
+-(x)chat system
 -(x)bug: losing player can continue to play
 -(x)bug: loser does not get message that they lost. Server does not send message
 
