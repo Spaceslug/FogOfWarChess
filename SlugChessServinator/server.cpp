@@ -454,6 +454,7 @@ chesscom::VisionRules ServerVisionRules(){
     vr.set_enabled(true);
     vr.set_viewmovefields(false);
     vr.set_viewrange(2);
+    vr.set_viewcapturefield(true);
     //std::cout << " Vision rules" << std::endl << std::flush;
     google::protobuf::Map<int, chesscom::VisionRules>* override = vr.mutable_piceoverwriter();
     chesscom::VisionRules special;
