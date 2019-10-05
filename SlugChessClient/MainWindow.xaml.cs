@@ -282,6 +282,7 @@ namespace SlugChess
                 Enabled = rules.Enabled,
                 ViewMoveFields = rules.ViewMoveFields,
                 ViewRange = rules.ViewRange,
+                ViewCaptureField = rules.ViewCaptureField,
                 PiceOverwrite = new Dictionary<Pices, VisionRules>()
 
 

@@ -4,6 +4,9 @@ version 0.x.1
 version 0.x.1
 -propper user login system (Make Loggin call a lifetime call)
 
+version 0.x.1
+-a way to see where and when pices died
+
 version 0.6.1
 -move validation on server
 
@@ -18,15 +21,18 @@ version 0.4.2
 
 version 0.4.1 
 -chess clock
+-prevent move through hidden fields
 
-version 0.3.2
+version 0.3.3
 -bug: last move not cleared when starting a new match.
 -bug: text log only scrolles when "Opponet did move!" or opponent won
 -bug: can not connect to server when on rena hotell wifi
+
+version 0.3.2
 -make it a only x64 program 
 
 version 0.3.1
--(optional rule) Last captured field is visible for both players
+-( )(optional rule) Last captured field is visible for both players
 -(x)chat system
 -(x)bug: losing player can continue to play
 -(x)bug: loser does not get message that they lost. Server does not send message

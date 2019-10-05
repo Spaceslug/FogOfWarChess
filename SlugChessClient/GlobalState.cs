@@ -54,6 +54,17 @@ namespace SlugChess
             }
         }
 
+        public void CleanLastCapturedField()
+        {
+            int i = Board.FindIndex(field => field.PiceCapturedLastMove);
+            if (i > -1)
+            {
+                Field f = Board[i];
+                f.PiceCapturedLastMove = false;
+                Board[i] = f;
+            }
+        }
+
         public Field GetFieldAt(string pos)
         {
             return Board[BoardPosToIndex[pos]];
@@ -77,8 +88,9 @@ namespace SlugChess
         {
             Pices killedPice = Pices.Non;
             (var name, var extraFieldList) = _legalMovesSelected.Find((a) => a.Item1 == moveTo);
-            //Must clean an passants
+            //Must clean an passants and last captured field
             CleanAnPassants();
+            CleanLastCapturedField();
             //
             Field fromField = GetFieldAt(_selected);
             Field toField = GetFieldAt(moveTo);
@@ -87,6 +99,7 @@ namespace SlugChess
                 (Field from, Field to, Pices killed) = GameRules.Move(fromField, toField);
                 if (to.Pice == Pices.WhitePawn && moveTo[1] == '8') to.Pice = Pices.WhiteQueen;
                 if (to.Pice == Pices.BlackPawn && moveTo[1] == '1') to.Pice = Pices.BlackQueen;
+                if (killed != Pices.Non) to.PiceCapturedLastMove = true;
                 Board[BoardPosToIndex[_selected]] = from;
                 Board[BoardPosToIndex[moveTo]] = to;
                 killedPice = killed;
@@ -141,6 +154,11 @@ namespace SlugChess
             {
                 if (Board[i].Pice == Pices.Non) continue;
                 GameRules.AddPiceVision(Board, i, VisionRules.PiceOverwrite.ContainsKey(Board[i].Pice)? VisionRules.PiceOverwrite[Board[i].Pice] : VisionRules, Board[i].HasWhitePice()? WhiteVision:BlackVision);
+                if(VisionRules.ViewCaptureField && Board[i].PiceCapturedLastMove)
+                {
+                    WhiteVision[i] = true;
+                    BlackVision[i] = true;
+                }
             }
         }
 
@@ -164,32 +182,23 @@ namespace SlugChess
             var globalState = new GlobalState {
                 VisionRules = visionRules
             };
-            globalState.Board.Add(new Field(Pices.WhiteRook, false, false, true, true));
-            globalState.Board.Add(new Field(Pices.WhiteKnight, false, false, false, true));
-            globalState.Board.Add(new Field(Pices.WhiteBishop, false, false, false, true));
-            globalState.Board.Add(new Field(Pices.WhiteQueen, false, false, false, true));
-            globalState.Board.Add(new Field(Pices.WhiteKing, false, false, true, true));
-            globalState.Board.Add(new Field(Pices.WhiteBishop, false, false, false, true));
-            globalState.Board.Add(new Field(Pices.WhiteKnight, false, false, false, true));
-            globalState.Board.Add(new Field(Pices.WhiteRook, false, false, true, true));
+            globalState.Board.Add(new Field(Pices.WhiteRook, false, false, true, true, false));
+            globalState.Board.Add(new Field(Pices.WhiteKnight, false, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.WhiteBishop, false, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.WhiteQueen, false, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.WhiteKing, false, false, true, true, false));
+            globalState.Board.Add(new Field(Pices.WhiteBishop, false, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.WhiteKnight, false, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.WhiteRook, false, false, true, true, false));
             //
-            globalState.Board.Add(new Field(Pices.WhitePawn, true, false, false, true));
-            globalState.Board.Add(new Field(Pices.WhitePawn, true, false, false, true));
-            globalState.Board.Add(new Field(Pices.WhitePawn, true, false, false, true));
-            globalState.Board.Add(new Field(Pices.WhitePawn, true, false, false, true));
-            globalState.Board.Add(new Field(Pices.WhitePawn, true, false, false, true));
-            globalState.Board.Add(new Field(Pices.WhitePawn, true, false, false, true));
-            globalState.Board.Add(new Field(Pices.WhitePawn, true, false, false, true));
-            globalState.Board.Add(new Field(Pices.WhitePawn, true, false, false, true));
-            //
-            globalState.Board.Add(new Field(Pices.Non));
-            globalState.Board.Add(new Field(Pices.Non));
-            globalState.Board.Add(new Field(Pices.Non));
-            globalState.Board.Add(new Field(Pices.Non));
-            globalState.Board.Add(new Field(Pices.Non));
-            globalState.Board.Add(new Field(Pices.Non));
-            globalState.Board.Add(new Field(Pices.Non));
-            globalState.Board.Add(new Field(Pices.Non));
+            globalState.Board.Add(new Field(Pices.WhitePawn, true, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.WhitePawn, true, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.WhitePawn, true, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.WhitePawn, true, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.WhitePawn, true, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.WhitePawn, true, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.WhitePawn, true, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.WhitePawn, true, false, false, true, false));
             //
             globalState.Board.Add(new Field(Pices.Non));
             globalState.Board.Add(new Field(Pices.Non));
@@ -218,23 +227,32 @@ namespace SlugChess
             globalState.Board.Add(new Field(Pices.Non));
             globalState.Board.Add(new Field(Pices.Non));
             //
-            globalState.Board.Add(new Field(Pices.BlackPawn, true, false, false, true));
-            globalState.Board.Add(new Field(Pices.BlackPawn, true, false, false, true));
-            globalState.Board.Add(new Field(Pices.BlackPawn, true, false, false, true));
-            globalState.Board.Add(new Field(Pices.BlackPawn, true, false, false, true));
-            globalState.Board.Add(new Field(Pices.BlackPawn, true, false, false, true));
-            globalState.Board.Add(new Field(Pices.BlackPawn, true, false, false, true));
-            globalState.Board.Add(new Field(Pices.BlackPawn, true, false, false, true));
-            globalState.Board.Add(new Field(Pices.BlackPawn, true, false, false, true));
+            globalState.Board.Add(new Field(Pices.Non));
+            globalState.Board.Add(new Field(Pices.Non));
+            globalState.Board.Add(new Field(Pices.Non));
+            globalState.Board.Add(new Field(Pices.Non));
+            globalState.Board.Add(new Field(Pices.Non));
+            globalState.Board.Add(new Field(Pices.Non));
+            globalState.Board.Add(new Field(Pices.Non));
+            globalState.Board.Add(new Field(Pices.Non));
             //
-            globalState.Board.Add(new Field(Pices.BlackRook, false, false, true, true));
-            globalState.Board.Add(new Field(Pices.BlackKnight, false, false, false, true));
-            globalState.Board.Add(new Field(Pices.BlackBishop, false, false, false, true));
-            globalState.Board.Add(new Field(Pices.BlackQueen, false, false, false, true));
-            globalState.Board.Add(new Field(Pices.BlackKing, false, false, true, true));
-            globalState.Board.Add(new Field(Pices.BlackBishop, false, false, false, true));
-            globalState.Board.Add(new Field(Pices.BlackKnight, false, false, false, true));
-            globalState.Board.Add(new Field(Pices.BlackRook, false, false, true, true));
+            globalState.Board.Add(new Field(Pices.BlackPawn, true, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.BlackPawn, true, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.BlackPawn, true, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.BlackPawn, true, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.BlackPawn, true, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.BlackPawn, true, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.BlackPawn, true, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.BlackPawn, true, false, false, true, false));
+            //
+            globalState.Board.Add(new Field(Pices.BlackRook, false, false, true, true, false));
+            globalState.Board.Add(new Field(Pices.BlackKnight, false, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.BlackBishop, false, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.BlackQueen, false, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.BlackKing, false, false, true, true, false));
+            globalState.Board.Add(new Field(Pices.BlackBishop, false, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.BlackKnight, false, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.BlackRook, false, false, true, true, false));
 
             globalState.CalculateVision();
             globalState._legalMovesAll = GameRules.GetLegalMoves(globalState);
@@ -244,14 +262,14 @@ namespace SlugChess
         public static GlobalState CreateStartStateNoPawns()
         {
             var globalState = new GlobalState();
-            globalState.Board.Add(new Field(Pices.WhiteRook, false, false, true, true));
-            globalState.Board.Add(new Field(Pices.WhiteKnight, false, false, false, true));
-            globalState.Board.Add(new Field(Pices.WhiteBishop, false, false, false, true));
-            globalState.Board.Add(new Field(Pices.WhiteQueen, false, false, false, true));
-            globalState.Board.Add(new Field(Pices.WhiteKing, false, false, true, true));
-            globalState.Board.Add(new Field(Pices.WhiteBishop, false, false, false, true));
-            globalState.Board.Add(new Field(Pices.WhiteKnight, false, false, false, true));
-            globalState.Board.Add(new Field(Pices.WhiteRook, false, false, true, true));
+            globalState.Board.Add(new Field(Pices.WhiteRook, false, false, true, true, false));
+            globalState.Board.Add(new Field(Pices.WhiteKnight, false, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.WhiteBishop, false, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.WhiteQueen, false, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.WhiteKing, false, false, true, true, false));
+            globalState.Board.Add(new Field(Pices.WhiteBishop, false, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.WhiteKnight, false, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.WhiteRook, false, false, true, true, false));
             //
             globalState.Board.Add(new Field(Pices.Non));
             globalState.Board.Add(new Field(Pices.Non));
@@ -307,14 +325,14 @@ namespace SlugChess
             globalState.Board.Add(new Field(Pices.Non));
             globalState.Board.Add(new Field(Pices.Non));
             //
-            globalState.Board.Add(new Field(Pices.BlackRook, false, false, true, true));
-            globalState.Board.Add(new Field(Pices.BlackKnight, false, false, false, true));
-            globalState.Board.Add(new Field(Pices.BlackBishop, false, false, false, true));
-            globalState.Board.Add(new Field(Pices.BlackQueen, false, false, false, true));
-            globalState.Board.Add(new Field(Pices.BlackKing, false, false, true, true));
-            globalState.Board.Add(new Field(Pices.BlackBishop, false, false, false, true));
-            globalState.Board.Add(new Field(Pices.BlackKnight, false, false, false, true));
-            globalState.Board.Add(new Field(Pices.BlackRook, false, false, true, true));
+            globalState.Board.Add(new Field(Pices.BlackRook, false, false, true, true, false));
+            globalState.Board.Add(new Field(Pices.BlackKnight, false, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.BlackBishop, false, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.BlackQueen, false, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.BlackKing, false, false, true, true, false));
+            globalState.Board.Add(new Field(Pices.BlackBishop, false, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.BlackKnight, false, false, false, true, false));
+            globalState.Board.Add(new Field(Pices.BlackRook, false, false, true, true, false));
 
             globalState.CalculateVision();
             globalState._legalMovesAll = GameRules.GetLegalMoves(globalState);
@@ -356,18 +374,20 @@ namespace SlugChess
         public bool AnPassan_able;
         public bool Rokade_able;
         public bool FirstMove;
+        public bool PiceCapturedLastMove;
         public Pices Pice;
 
-        public Field(Pices pice, bool anPassanCreating, bool anPassanAble, bool rokadeAble, bool firstMove)
+        public Field(Pices pice, bool anPassanCreating, bool anPassanAble, bool rokadeAble, bool firstMove, bool piceCapturedLastMove)
         {
             Pice = pice;
             AnPassan_creating = anPassanCreating;
             AnPassan_able = anPassanAble;
             Rokade_able = rokadeAble;
             FirstMove = firstMove;
+            PiceCapturedLastMove = piceCapturedLastMove;
         }
 
-        public Field(Pices pice) : this(pice, false, false, false, false)
+        public Field(Pices pice) : this(pice, false, false, false, false, false)
         {
 
         }
