@@ -47,6 +47,7 @@ message VisionRules {
 	bool viewMoveFields = 2;
 	int32 viewRange = 3;
 	map<int32, VisionRules> piceOverwriter = 4; //Must be a Pices value
+	bool viewCaptureField = 5;
 }
 
 message Move {
