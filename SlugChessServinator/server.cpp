@@ -26,7 +26,7 @@ using grpc::Status;
 
 #define MAJOR_VER "0"
 #define MINOR_VER "3"
-#define BUILD_VER "2"
+#define BUILD_VER "3"
 #define VERSION MAJOR_VER "." MINOR_VER "." BUILD_VER
 
 struct MatchStruct{
@@ -104,28 +104,28 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
         if(request->majorversion() == MAJOR_VER && request->minorversion() == MINOR_VER)
         {
             std::cout << "User " << request->majorversion() << " " << MAJOR_VER << " " << request->minorversion() << " " << MINOR_VER << " " << request->buildversion() << " " << BUILD_VER << std::endl << std::flush;
-            if(request->buildversion() == BUILD_VER)
+            if(request->buildversion() >= BUILD_VER)
             {
-                
-                auto it = std::find_if(userTokens.begin(), userTokens.end(),
-						[request](const std::pair<std::string, std::string> &p) {
-							return p.second == request->username();
-						});
-
-                if (it != userTokens.end()) {
-                    userTokens.erase(it);
-                }
-                std::string userToken = request->username() + "-" + std::to_string(tokenCounter++);
-                userTokens[userToken] = request->username();
-                response->set_usertoken(userToken);
-                response->set_successfulllogin(true);
-                std::cout << "User " << request->username() << " " << response->usertoken() << " logged in" << std::endl << std::flush;
+               
             }
             else
             {
-                response->set_successfulllogin(true);
                 response->set_loginmessage("You should upgrade to latest version. Server version " VERSION ", Client version " + request->majorversion() + "." + request->minorversion() + "." + request->buildversion()+". You can find the latest version at 'http://spaceslug.no/slugchess/list.html'");
             }
+            auto it = std::find_if(userTokens.begin(), userTokens.end(),
+                    [request](const std::pair<std::string, std::string> &p) {
+                        return p.second == request->username();
+                    });
+
+            if (it != userTokens.end()) {
+                userTokens.erase(it);
+            }
+            std::string userToken = request->username() + "-" + std::to_string(tokenCounter++);
+            userTokens[userToken] = request->username();
+
+            std::cout << "User " << request->username() << " " << response->usertoken() << " logged in" << std::endl << std::flush;
+            response->set_usertoken(userToken);
+            response->set_successfulllogin(true);
         }
         else
         {
@@ -350,6 +350,10 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
 
         }
         t1.join();
+        {
+            std::unique_lock<std::mutex> scopeLock (lock);
+            matches.erase(movePkt.matchtoken());
+        }
         std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Matchstream ended." << std::endl << std::flush;
         return Status::OK;
     }
