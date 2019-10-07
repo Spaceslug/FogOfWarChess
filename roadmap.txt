@@ -7,25 +7,28 @@ version 0.x.1
 version 0.x.1
 -a way to see where and when pices died
 
-version 0.6.1
+version 0.7.1
 -move validation on server
 
-version 0.5.1
+version 0.6.1
 -finaly implement view move field
 
-version 0.4.3 
+version 0.5.2 
 -can click on opponents pices to see moves
+
+version 0.5.1
+-prevent move through hidden fields
 
 version 0.4.2 
 -remove unessesary files like x86 stuff and .xml and .pdb
 
 version 0.4.1 
 -chess clock
--prevent move through hidden fields
+
 
 version 0.3.3
--bug: last move not cleared when starting a new match.
--bug: text log only scrolles when "Opponet did move!" or opponent won
+-(x)bug: last move not cleared when starting a new match.
+-(x)bug: text log only scrolles when "Opponet did move!" or opponent won
 
 
 version 0.3.2

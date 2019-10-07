@@ -275,6 +275,8 @@ namespace SlugChess
             WriteTextNonInvoke("Opponent username: " + _opponentUsername);
             _clientIsPlayer = isWhitePlayer ? ClientIsPlayer.White : ClientIsPlayer.Black;
             _myLastMove = new ChessCom.Move { From = "", To = "" };
+            _lastMoveFrom = null;
+            _lastMoveTo = null;
             _killedPices.Clear();
             ClearBoard();
             var vr = new VisionRules
@@ -284,7 +286,6 @@ namespace SlugChess
                 ViewRange = rules.ViewRange,
                 ViewCaptureField = rules.ViewCaptureField,
                 PiceOverwrite = new Dictionary<Pices, VisionRules>()
-
 
             };
             foreach(var keyValOR in rules.PiceOverwriter)
@@ -476,9 +477,12 @@ namespace SlugChess
 
         private void WriteTextNonInvoke(string text, string sender = null)
         {
-            messageBox.AppendText($"{DateTime.Now.ToString("HH:mm:ss")} {(sender!=null?"- "+sender:"")}: {text}\r\n");
-            messageBox.CaretPosition = messageBox.CaretPosition.DocumentEnd;
-            messageBox.BringIntoView();
+            messageBox.AppendText($"\r\n{DateTime.Now.ToString("HH:mm:ss")} {(sender!=null?"- "+sender:"")}: {text}");
+            //messageBox.Focus();
+            //messageBox.CaretPosition = messageBox.CaretPosition.DocumentEnd;
+            //messageBox.BringIntoView();
+            messageBox.ScrollToEnd();
+            //messageBox.PageDown()
         }
 
         private void LookForMatchClick(object sender, RoutedEventArgs args)
