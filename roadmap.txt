@@ -26,13 +26,13 @@ version 0.4.1
 version 0.3.3
 -bug: last move not cleared when starting a new match.
 -bug: text log only scrolles when "Opponet did move!" or opponent won
--bug: can not connect to server when on rena hotell wifi
+
 
 version 0.3.2
--make it a only x64 program 
+-(x)make it a only x64 program 
 
 version 0.3.1
--( )(optional rule) Last captured field is visible for both players
+-(x)(optional rule) Last captured field is visible for both players
 -(x)chat system
 -(x)bug: losing player can continue to play
 -(x)bug: loser does not get message that they lost. Server does not send message
