@@ -10,6 +10,8 @@
 #include <random>
 #include <chrono>
 #include <thread>
+#include <google/protobuf/util/time_util.h>
+
 
 #include <grpcpp/grpcpp.h>
 #include "chesscom.grpc.pb.h"
@@ -204,6 +206,7 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                 if(movePkt.doingmove()){
                     movePtr->set_from(movePkt.move().from());
                     movePtr->set_to(movePkt.move().to());
+                    movePkt.mutable_move()->mutable_timestamp()->Swap(movePkt.mutable_move()->mutable_timestamp());
                 }
                 
                 switch (movePkt.cheatmatchevent())
@@ -216,6 +219,7 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                         if(isPlayersCurrentTurn){
                             matchPtr->moves.push_back(movePtr);
                             matchPtr->matchEvents.push_back(chesscom::MatchEvent::Non);
+                            std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken() << " MoveDebugString: " << movePtr->timestamp().DebugString();
                         }else{
                             std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " ERROR: not this players turn to move" << std::endl << std::flush;
                         }

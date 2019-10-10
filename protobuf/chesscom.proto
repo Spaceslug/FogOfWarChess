@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "google/protobuf/timestamp.proto";
+
 option csharp_namespace = "ChessCom";
 
 package chesscom;
@@ -50,9 +52,16 @@ message VisionRules {
 	bool viewCaptureField = 5;
 }
 
+message TimeRules {
+	int32 minutes = 1;
+	int32 seconds = 2;
+	int32 secondsPerMove = 3;
+}
+
 message Move {
 	string from = 2;
 	string to = 3;
+	google.protobuf.Timestamp timestamp = 4;
 }
 
 message LoginForm {
