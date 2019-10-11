@@ -547,7 +547,7 @@ namespace SlugChess
 
                         if (_matchStream?.RequestStream != null)
                         {
-                            _myLastMove = new ChessCom.Move { From = _globalState.Selected, To = fieldGrid.Name };
+                            _myLastMove = new ChessCom.Move { From = _globalState.Selected, To = fieldGrid.Name, Timestamp=Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(DateTime.UtcNow) };
                             _matchStream.RequestStream.WriteAsync(new ChessCom.MovePacket
                             {
                                 AskingForDraw = false,

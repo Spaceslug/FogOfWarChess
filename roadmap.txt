@@ -25,11 +25,9 @@ version 0.4.2
 version 0.4.1 
 -chess clock
 
-
 version 0.3.3
 -(x)bug: last move not cleared when starting a new match.
 -(x)bug: text log only scrolles when "Opponet did move!" or opponent won
-
 
 version 0.3.2
 -(x)make it a only x64 program 

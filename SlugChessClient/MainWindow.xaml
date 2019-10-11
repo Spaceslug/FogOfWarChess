@@ -20,7 +20,7 @@
             <TextBox x:Name="nameTextBox" HorizontalAlignment="Left" Height="23" Margin="53,12,0,0" TextWrapping="Wrap" Text="noname" VerticalAlignment="Top" Width="120"/>
             <Button x:Name="loginButton" Content="Log In" Click="LoginButtonClick" HorizontalAlignment="Left" Margin="178,12,0,0" VerticalAlignment="Top" Width="75"/>
             <Button x:Name="lookForMatchButton" Content="Look for match" Click="LookForMatchClick" IsEnabled="false" HorizontalAlignment="Left" Margin="258,12,0,0" VerticalAlignment="Top" Width="85"/>
-            <RichTextBox x:Name="messageBox" IsReadOnly="true" HorizontalAlignment="Left" Height="203" Margin="10,79,0,0" VerticalAlignment="Top" Width="332">
+            <RichTextBox x:Name="messageBox" IsReadOnly="true" HorizontalAlignment="Left" Height="179" Margin="10,103,0,0" VerticalAlignment="Top" Width="332">
                 <RichTextBox.Resources>
                     <Style TargetType="{x:Type Paragraph}">
                         <Setter Property="Margin" Value="0" />
@@ -57,6 +57,14 @@
                 </TextBox.Style>
             </TextBox>
             <Button x:Name="sendTextButton"  Click="SendMessageClick" Content="Send" HorizontalAlignment="Left" Margin="264,288,0,0" VerticalAlignment="Top" Width="75"/>
+            <Grid HorizontalAlignment="Left" Height="58" Margin="10,40,0,0" VerticalAlignment="Top" Width="329">
+                <Label x:Name="lbWhiteTimeLeft" Content="00:00" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  Margin="101,0,162,0" VerticalAlignment="Center" VerticalContentAlignment="Center" Height="58" Width="68" FontWeight="Bold" FontSize="22"/>
+                <Label x:Name="lbBlackTimeLeft" Content="00:00" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  Margin="162,0,101,0" VerticalAlignment="Center" VerticalContentAlignment="Center" Height="58" Width="66" FontWeight="Bold" FontSize="22" />
+                <Label x:Name="lbBlackTimePerMove" Content="+00s" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  Margin="221,4,70,-4" VerticalAlignment="Center" VerticalContentAlignment="Center" Height="58" Width="38" FontWeight="Bold" FontSize="12" />
+                <Label x:Name="lbWhiteTimePerMove" Content="+00s" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  Margin="70,4,221,-4" VerticalAlignment="Center" VerticalContentAlignment="Center" Height="58" Width="38" FontWeight="Bold" FontSize="12" />
+                <Image x:Name="imgWhiteKing" Source="pack://siteoforigin:,,,/img/whiteKing.png" HorizontalAlignment="Left" Height="58" Margin="0,0,0,0" VerticalAlignment="Stretch" Width="80"/>
+                <Image x:Name="imgBlackKing" Source="pack://siteoforigin:,,,/img/blackKing.png" HorizontalAlignment="Right" Height="58" Margin="0,0,0,0" VerticalAlignment="Stretch" Width="80"/>
+            </Grid>
         </Grid>
         <UniformGrid x:Name="BoardGrid" Margin="28,10,119,29" Background="Black" Grid.ColumnSpan="3" >
             <Grid x:Name="a8" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown"/>
