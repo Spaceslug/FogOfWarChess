@@ -90,6 +90,7 @@ message LookForMatchResult {
 	bool isWhitePlayer = 3;
 	VisionRules rules = 4;
 	string opponentUsername = 5;
+	TimeRules timerules = 6;
 }
 
 message MovePacket{
