@@ -27,8 +27,8 @@ using grpc::Status;
 //using chesscom::ChessCom;
 
 #define MAJOR_VER "0"
-#define MINOR_VER "3"
-#define BUILD_VER "3"
+#define MINOR_VER "4"
+#define BUILD_VER "1"
 #define VERSION MAJOR_VER "." MINOR_VER "." BUILD_VER
 
 struct MatchStruct{
@@ -207,6 +207,7 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                     movePtr->set_from(movePkt.move().from());
                     movePtr->set_to(movePkt.move().to());
                     movePtr->mutable_timestamp()->Swap(movePkt.mutable_move()->mutable_timestamp());
+                    movePtr->set_secspent(movePkt.move().secspent());
                 }
                 
                 switch (movePkt.cheatmatchevent())

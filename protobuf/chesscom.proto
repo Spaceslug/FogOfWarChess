@@ -62,6 +62,7 @@ message Move {
 	string from = 2;
 	string to = 3;
 	google.protobuf.Timestamp timestamp = 4;
+	int32 secSpent = 5;
 }
 
 message LoginForm {
