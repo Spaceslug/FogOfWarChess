@@ -61,6 +61,7 @@ std::queue<std::string> lookingForMatchQueue;
 std::map<std::string, std::string> foundMatchReply;
 std::map<std::string, std::shared_ptr<MatchStruct>> matches;
 chesscom::VisionRules serverVisionRules;
+chesscom::TimeRules serverTimeRules;
 
 std::mutex _messageStreamsMutex;
 //string is userToken
@@ -186,6 +187,8 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
         response->set_opponentusername(userTokens[response->iswhiteplayer()?matPtr->blackPlayer:matPtr->whitePlayer]);
         chesscom::VisionRules* vrPtr = response->mutable_rules();
         vrPtr->CopyFrom(serverVisionRules);
+        chesscom::TimeRules* trPtr = response->mutable_timerules();
+        trPtr->CopyFrom(serverTimeRules);
         //dsa = serverVisionRules;
         return Status::OK;
     }
@@ -476,6 +479,15 @@ chesscom::VisionRules ServerVisionRules(){
     return vr;
 }
 
+chesscom::TimeRules ServerTimeRules(){
+    chesscom::TimeRules tr;
+    tr.set_minutes(5);
+    tr.set_seconds(0);
+    tr.set_secondspermove(6);
+
+    return tr;
+}
+
 void Run(std::string port) {
     std::string address("0.0.0.0:" + port);
     ChessComImplementation service;
@@ -501,6 +513,7 @@ int main(int argc, char** argv) {
     logFile << "Writing this to a file.\n"<< std::flush;
     serverVisionRules = ServerVisionRules();
     std::string vrString = serverVisionRules.SerializeAsString();
+    serverTimeRules = ServerTimeRules();
     //logFile << "---ServerRules---\n" << vrString << "\n";
     //std::cout << "---ServerRules---\n" << vrString << std::endl << std::flush;
     std::string port = "43326";
