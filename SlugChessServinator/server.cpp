@@ -27,8 +27,8 @@ using grpc::Status;
 //using chesscom::ChessCom;
 
 #define MAJOR_VER "0"
-#define MINOR_VER "3"
-#define BUILD_VER "3"
+#define MINOR_VER "4"
+#define BUILD_VER "1"
 #define VERSION MAJOR_VER "." MINOR_VER "." BUILD_VER
 
 struct MatchStruct{
@@ -206,20 +206,21 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                 if(movePkt.doingmove()){
                     movePtr->set_from(movePkt.move().from());
                     movePtr->set_to(movePkt.move().to());
-                    movePkt.mutable_move()->mutable_timestamp()->Swap(movePkt.mutable_move()->mutable_timestamp());
+                    movePtr->mutable_timestamp()->Swap(movePkt.mutable_move()->mutable_timestamp());
+                    movePtr->set_secspent(movePkt.move().secspent());
                 }
                 
                 switch (movePkt.cheatmatchevent())
                 {
                 case chesscom::MatchEvent::Non:
-                    std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got move " << movePkt.move().from() << " " << movePkt.move().to() << std::endl << std::flush;
+                    std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got move " << movePkt.move().from() << " " << movePkt.move().to() << " " << movePtr->timestamp().DebugString() << std::endl << std::flush;
                     {
                         std::unique_lock<std::mutex> scopeLock (lock);
                         bool isPlayersCurrentTurn = matchPtr->moves.size()%2 == (matchPtr->whitePlayer == movePkt.usertoken()?0:1);
                         if(isPlayersCurrentTurn){
                             matchPtr->moves.push_back(movePtr);
-                            matchPtr->matchEvents.push_back(chesscom::MatchEvent::Non);
-                            std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken() << " MoveDebugString: " << movePtr->timestamp().DebugString();
+                            matchPtr->matchEvents.push_back(chesscom::MatchEvent::Non); 
+                            //std::string output;google::protobuf::util::MessageToJsonString(*movePtr, &output);
                         }else{
                             std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " ERROR: not this players turn to move" << std::endl << std::flush;
                         }
