@@ -53,9 +53,13 @@ message VisionRules {
 }
 
 message TimeRules {
+	Time playerTime = 2;
+	int32 secondsPerMove = 3;
+}
+
+message Time {
 	int32 minutes = 1;
 	int32 seconds = 2;
-	int32 secondsPerMove = 3;
 }
 
 message Move {
@@ -106,6 +110,7 @@ message MoveResult{
 	Move move = 2;
 	bool opponentAskingForDraw = 4;
 	MatchEvent matchEvent = 5;
+	int32 secsLeft = 6;
 }
 
 // The request message containing requested numbers
