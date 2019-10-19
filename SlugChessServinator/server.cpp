@@ -31,6 +31,11 @@ using grpc::Status;
 #define BUILD_VER "1"
 #define VERSION MAJOR_VER "." MINOR_VER "." BUILD_VER
 
+struct ChessClock {
+    int blackSecLeft;
+    int whiteSecLeft;
+};
+
 struct MatchStruct{
     //bool newUpdate = false;
     bool askingForDraw = false;
@@ -43,7 +48,7 @@ struct MatchStruct{
     std::string& getWhitePlayer(){return whitePlayer;}
     std::string& getBlackPlayer(){return blackPlayer;}
     std::string& getMatchToken(){return matchToken;}
-    
+    std::shared_ptr<ChessClock> clock;
 };
 
 static const int MAX_SLEEP_MS = 1000;
@@ -94,8 +99,11 @@ std::string createMatch(std::string& player1Token, std::string& player2Token){
         match->whitePlayer = player2Token;
         match->blackPlayer = player1Token;
     }
+    match->clock = std::make_shared<ChessClock>();
+    match->clock->blackSecLeft = serverTimeRules.playertime().minutes() * 60 + serverTimeRules.playertime().seconds();
+    match->clock->whiteSecLeft = match->clock->blackSecLeft;
     matches[matchToken] = match;
-    std::cout << "  checing match" << std::endl << std::flush;
+    std::cout << "  checing match " << " black sec left " << std::to_string(match->clock->blackSecLeft) << std::endl << std::flush;
     auto matPtr = matches[matchToken];
     std::cout << "  white player " <<  matPtr->whitePlayer << std::endl << std::flush;
     return matchToken;
@@ -216,14 +224,23 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                 switch (movePkt.cheatmatchevent())
                 {
                 case chesscom::MatchEvent::Non:
-                    std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got move " << movePkt.move().from() << " " << movePkt.move().to() << " " << movePtr->timestamp().DebugString() << std::endl << std::flush;
+                    std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got move " << movePkt.move().from() << " " << movePkt.move().to() << " secspent " << std::to_string(movePtr->secspent()) << std::endl << std::flush;
                     {
                         std::unique_lock<std::mutex> scopeLock (lock);
-                        bool isPlayersCurrentTurn = matchPtr->moves.size()%2 == (matchPtr->whitePlayer == movePkt.usertoken()?0:1);
+                        bool isWhitePlayer = matchPtr->whitePlayer == movePkt.usertoken();
+                        bool isPlayersCurrentTurn = matchPtr->moves.size()%2 == (isWhitePlayer?0:1);
                         if(isPlayersCurrentTurn){
                             matchPtr->moves.push_back(movePtr);
                             matchPtr->matchEvents.push_back(chesscom::MatchEvent::Non); 
+                            if(isWhitePlayer){
+                                matchPtr->clock->whiteSecLeft = matchPtr->clock->whiteSecLeft - movePtr->secspent();
+                            }
+                            else
+                            {
+                                matchPtr->clock->blackSecLeft = matchPtr->clock->blackSecLeft - movePtr->secspent();
+                            }
                             //std::string output;google::protobuf::util::MessageToJsonString(*movePtr, &output);
+                            //matchPtr->
                         }else{
                             std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " ERROR: not this players turn to move" << std::endl << std::flush;
                         }
@@ -334,6 +351,9 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                         moveResultPkt.set_opponentaskingfordraw(false);
                         moveResultPkt.set_allocated_move(matchPtr->moves.back().get());
                         moveResultPkt.set_matchevent(matchPtr->matchEvents[lastEventNum]);
+                        bool whiteCurretMove = matchPtr->moves.size()%2 == 0;
+                        //true means last move was from black
+                        moveResultPkt.set_secsleft(whiteCurretMove?matchPtr->clock->blackSecLeft:matchPtr->clock->whiteSecLeft);
                         //grpc::WriteOptions options;
                         //std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " IsBufferedHint " << options.get_buffer_hint() << std::endl << std::flush;
                         stream->Write(moveResultPkt);
@@ -347,6 +367,9 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                         moveResultPkt.set_opponentaskingfordraw(false);
                         moveResultPkt.set_allocated_move(matchPtr->moves.back().get());
                         moveResultPkt.set_matchevent(chesscom::MatchEvent::Non);
+                        bool whiteCurretMove = matchPtr->moves.size()%2 == 0;
+                        //true means last move was from black
+                        moveResultPkt.set_secsleft(whiteCurretMove?matchPtr->clock->blackSecLeft:matchPtr->clock->whiteSecLeft);
                         stream->Write(moveResultPkt);
                         moveResultPkt.release_move();
                         std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " SentMoveResult " << std::endl << std::flush;
@@ -481,8 +504,8 @@ chesscom::VisionRules ServerVisionRules(){
 
 chesscom::TimeRules ServerTimeRules(){
     chesscom::TimeRules tr;
-    tr.set_minutes(5);
-    tr.set_seconds(0);
+    tr.mutable_playertime()->set_minutes(5);
+    tr.mutable_playertime()->set_seconds(0);
     tr.set_secondspermove(6);
 
     return tr;
