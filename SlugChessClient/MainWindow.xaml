@@ -58,12 +58,12 @@
             </TextBox>
             <Button x:Name="sendTextButton"  Click="SendMessageClick" Content="Send" HorizontalAlignment="Left" Margin="264,288,0,0" VerticalAlignment="Top" Width="75"/>
             <Grid HorizontalAlignment="Left" Height="58" Margin="10,40,0,0" VerticalAlignment="Top" Width="329">
-                <Label x:Name="lbWhiteTimeLeft" Content="00:00" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  Margin="101,0,162,0" VerticalAlignment="Center" VerticalContentAlignment="Center" Height="58" Width="68" FontWeight="Bold" FontSize="22"/>
-                <Label x:Name="lbBlackTimeLeft" Content="00:00" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  Margin="162,0,101,0" VerticalAlignment="Center" VerticalContentAlignment="Center" Height="58" Width="66" FontWeight="Bold" FontSize="22" />
-                <Label x:Name="lbBlackTimePerMove" Content="+00s" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  Margin="221,4,70,-4" VerticalAlignment="Center" VerticalContentAlignment="Center" Height="58" Width="38" FontWeight="Bold" FontSize="12" />
-                <Label x:Name="lbWhiteTimePerMove" Content="+00s" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  Margin="70,4,221,-4" VerticalAlignment="Center" VerticalContentAlignment="Center" Height="58" Width="38" FontWeight="Bold" FontSize="12" />
-                <Image x:Name="imgWhiteKing" Source="pack://siteoforigin:,,,/img/whiteKing.png" HorizontalAlignment="Left" Height="58" Margin="0,0,0,0" VerticalAlignment="Stretch" Width="80"/>
-                <Image x:Name="imgBlackKing" Source="pack://siteoforigin:,,,/img/blackKing.png" HorizontalAlignment="Right" Height="58" Margin="0,0,0,0" VerticalAlignment="Stretch" Width="80"/>
+                <Label x:Name="lbWhiteTimeLeft" Content="00:00" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  Margin="94,0,167,0" VerticalAlignment="Center" VerticalContentAlignment="Center" Height="58" Width="68" FontWeight="Bold" FontSize="22"/>
+                <Label x:Name="lbBlackTimeLeft" Content="00:00" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  Margin="167,0,94,0" VerticalAlignment="Center" VerticalContentAlignment="Center" Height="58" Width="66" FontWeight="Bold" FontSize="22" />
+                <Label x:Name="lbBlackTimePerMove" Content="+00s" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  Margin="227,4,64,-4" VerticalAlignment="Center" VerticalContentAlignment="Center" Height="58" Width="38" FontWeight="Bold" FontSize="12" />
+                <Label x:Name="lbWhiteTimePerMove" Content="+00s" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  Margin="64,4,227,-4" VerticalAlignment="Center" VerticalContentAlignment="Center" Height="58" Width="38" FontWeight="Bold" FontSize="12" />
+                <Image x:Name="imgWhiteKing" Source="pack://siteoforigin:,,,/img/whiteKing.png" HorizontalAlignment="Left" Height="58" Margin="0,0,0,0" VerticalAlignment="Stretch" Width="64"/>
+                <Image x:Name="imgBlackKing" Source="pack://siteoforigin:,,,/img/blackKing.png" HorizontalAlignment="Right" Height="58" Margin="0,0,0,0" VerticalAlignment="Stretch" Width="64"/>
             </Grid>
         </Grid>
         <UniformGrid x:Name="BoardGrid" Margin="28,10,119,29" Background="Black" Grid.ColumnSpan="3" >

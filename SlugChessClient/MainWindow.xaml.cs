@@ -16,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace SlugChess
 {
@@ -69,6 +70,13 @@ namespace SlugChess
         private string _lastMoveTo;
         private bool _isSingelplayer = true;
         private ChessCom.Move _myLastMove;
+        private DispatcherTimer _timer;
+        private TimeSpan _whiteTimeSpan;
+        private TimeSpan _blackTimeSpan;
+        private TimeSpan _whiteStaticTimeLeft;
+        private TimeSpan _blackStaticTimeLeft;
+        private ChessCom.TimeRules _timeRules;
+
 
         public MainWindow()
         {
@@ -167,7 +175,7 @@ namespace SlugChess
                     _mediaPlayer.Stop();
                     _mediaPlayer.Open(MatchStartSoundUri);
                     _mediaPlayer.Play();
-                    StartMatch(result.IsWhitePlayer, result.MatchToken, result.Rules);
+                    StartMatch(result.IsWhitePlayer, result.MatchToken, result.Rules, result.Timerules);
                 });
 
                 var matchStream = _connection.Call.Match();
@@ -213,7 +221,47 @@ namespace SlugChess
 
 
                             });
-                        } 
+                        }
+                        if (_globalState.WhiteTurn)
+                        {
+                            _timer?.Stop();
+                            //WriteTextInvoke("Black time before: " + _blackStaticTimeLeft.ToString(@"mm\:ss") + $" secSpent {move.Move.SecSpent} secs left {move.SecsLeft}" );
+                            _blackStaticTimeLeft = TimeSpan.FromSeconds(move.SecsLeft);
+                            _blackTimeSpan = _blackStaticTimeLeft;
+                            //WriteTextInvoke("Black time after: " + _blackStaticTimeLeft.ToString(@"mm\:ss"));
+                            Instance.Dispatcher.Invoke(() => { lbBlackTimeLeft.Content = _blackTimeSpan.ToString(@"mm\:ss"); });
+                            _timer = new DispatcherTimer(new TimeSpan(0, 0, 1), DispatcherPriority.Normal, delegate
+                            {
+                                lbWhiteTimeLeft.Content = _whiteTimeSpan.ToString(@"mm\:ss");
+                                if (_whiteTimeSpan == TimeSpan.Zero)
+                                {
+                                    _timer.Stop();
+                                    InvokedRanoutOfTime();
+                                }
+                                _whiteTimeSpan = _whiteTimeSpan.Add(TimeSpan.FromSeconds(-1));
+                            }, Application.Current.Dispatcher);
+
+                            _timer.Start();
+                        }
+                        else
+                        {
+                            _timer?.Stop();
+                            _whiteStaticTimeLeft = TimeSpan.FromSeconds(move.SecsLeft);
+                            _whiteTimeSpan = _whiteStaticTimeLeft;
+                            Instance.Dispatcher.Invoke(() => { lbWhiteTimeLeft.Content = _whiteTimeSpan.ToString(@"mm\:ss"); });
+                            _timer = new DispatcherTimer(new TimeSpan(0, 0, 1), DispatcherPriority.Normal, delegate
+                            {
+                                lbBlackTimeLeft.Content = _blackTimeSpan.ToString(@"mm\:ss");
+                                if (_blackTimeSpan == TimeSpan.Zero)
+                                {
+                                    _timer.Stop();
+                                    InvokedRanoutOfTime();
+                                }
+                                _blackTimeSpan = _blackTimeSpan.Add(TimeSpan.FromSeconds(-1));
+                            }, Application.Current.Dispatcher);
+
+                            _timer.Start();
+                        }
                     }
                     if(move.OpponentAskingForDraw)
                     {
@@ -269,7 +317,7 @@ namespace SlugChess
             }
         }
 
-        public void StartMatch(bool isWhitePlayer, string matchToken, ChessCom.VisionRules rules)
+        public void StartMatch(bool isWhitePlayer, string matchToken, ChessCom.VisionRules rules, ChessCom.TimeRules timeRules)
         {
             WriteTextNonInvoke("Starting match: " + matchToken +  ", you are " + (isWhitePlayer?"white":"black"));
             WriteTextNonInvoke("Opponent username: " + _opponentUsername);
@@ -292,6 +340,15 @@ namespace SlugChess
             {
                 vr.PiceOverwrite.Add((Pices)keyValOR.Key, new VisionRules {Enabled = keyValOR.Value.Enabled,ViewMoveFields = keyValOR.Value.ViewMoveFields,ViewRange = keyValOR.Value.ViewRange});
             }
+            _whiteStaticTimeLeft = new TimeSpan(0,timeRules.PlayerTime.Minutes, timeRules.PlayerTime.Seconds);
+            _whiteTimeSpan = _whiteStaticTimeLeft;
+            lbWhiteTimeLeft.Content = _whiteTimeSpan.ToString(@"mm\:ss");
+            lbWhiteTimePerMove.Content = $"+{timeRules.SecondsPerMove}s";
+            _blackStaticTimeLeft = new TimeSpan(0, timeRules.PlayerTime.Minutes, timeRules.PlayerTime.Seconds);
+            _blackTimeSpan = _whiteStaticTimeLeft;
+            lbBlackTimeLeft.Content = _whiteTimeSpan.ToString(@"mm\:ss");
+            lbBlackTimePerMove.Content =  $"+{timeRules.SecondsPerMove}s";
+            _timeRules = timeRules;
 
             _globalState = GlobalState.CreateStartState(vr);
             UpdateBoardFromGlobalState();
@@ -299,7 +356,8 @@ namespace SlugChess
 
         private void EndOfMatch(ChessCom.MatchEvent result)
         {
-            if(result == ChessCom.MatchEvent.Draw)
+            _timer?.Stop();
+            if (result == ChessCom.MatchEvent.Draw)
             {
 
             }
@@ -427,6 +485,11 @@ namespace SlugChess
             });
         }
 
+        private void InvokedRanoutOfTime()
+        {
+            WriteTextNonInvoke("implemnet out of time");
+        }
+
         private void LoginButtonClick(object sender, RoutedEventArgs args)
         {
             _username = nameTextBox.Text;
@@ -547,7 +610,17 @@ namespace SlugChess
 
                         if (_matchStream?.RequestStream != null)
                         {
-                            _myLastMove = new ChessCom.Move { From = _globalState.Selected, To = fieldGrid.Name, Timestamp=Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(DateTime.UtcNow) };
+                            int timespan;
+                            if (!_globalState.WhiteTurn) //This is reversed. Allready did move
+                            {
+                                timespan = (_whiteStaticTimeLeft - _whiteTimeSpan).Seconds;
+                            }
+                            else
+                            {
+                                //WriteTextInvoke($"_blackTimeSpan {_blackTimeSpan.TotalSeconds}, _blackStaticTimeLeft {_blackStaticTimeLeft.TotalSeconds}, diff sec {(_blackStaticTimeLeft + _blackTimeSpan).Seconds}");
+                                timespan = (_blackStaticTimeLeft - _blackTimeSpan).Seconds;
+                            }
+                            _myLastMove = new ChessCom.Move { From = _globalState.Selected, To = fieldGrid.Name, Timestamp=Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(DateTime.UtcNow), SecSpent = timespan};
                             _matchStream.RequestStream.WriteAsync(new ChessCom.MovePacket
                             {
                                 AskingForDraw = false,

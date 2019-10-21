@@ -1,8 +1,14 @@
 version 0.x.1
--go back and forwards in the move while playing a match
+-propper user login system (Make Loggin call a lifetime call)
 
 version 0.x.1
--propper user login system (Make Loggin call a lifetime call)
+- rework some thread to use conditional varible instead of thread sleep. This to improve speed
+
+version 0.x.1
+- a check to evaluate the validity of time spent on move. Change the value if it seams wrong. 
+
+version 0.x.1
+-go back and forwards in the move while playing a match
 
 version 0.x.1
 -a way to see where and when pices died
@@ -23,7 +29,7 @@ version 0.4.2
 -remove unessesary files like x86 stuff and .xml and .pdb
 
 version 0.4.1 
--chess clock
+-(x)chess clock
 
 version 0.3.3
 -(x)bug: last move not cleared when starting a new match.
