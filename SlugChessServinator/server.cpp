@@ -103,7 +103,7 @@ std::string createMatch(std::string& player1Token, std::string& player2Token){
     match->clock->blackSecLeft = serverTimeRules.playertime().minutes() * 60 + serverTimeRules.playertime().seconds();
     match->clock->whiteSecLeft = match->clock->blackSecLeft;
     matches[matchToken] = match;
-    std::cout << "  checing match " << " black sec left " << std::to_string(match->clock->blackSecLeft) << std::endl << std::flush;
+    std::cout << "  checing match " << " black sec left " << std::to_string(match->clock->blackSecLeft) << " white sec left " << std::to_string(match->clock->whiteSecLeft) << std::endl << std::flush;
     auto matPtr = matches[matchToken];
     std::cout << "  white player " <<  matPtr->whitePlayer << std::endl << std::flush;
     return matchToken;
@@ -231,14 +231,28 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                         bool isPlayersCurrentTurn = matchPtr->moves.size()%2 == (isWhitePlayer?0:1);
                         if(isPlayersCurrentTurn){
                             matchPtr->moves.push_back(movePtr);
-                            matchPtr->matchEvents.push_back(chesscom::MatchEvent::Non); 
+                            //matchPtr->matchEvents.push_back(chesscom::MatchEvent::Non); 
                             if(isWhitePlayer){
-                                matchPtr->clock->whiteSecLeft = matchPtr->clock->whiteSecLeft - movePtr->secspent();
+                                matchPtr->clock->whiteSecLeft -= movePtr->secspent();
+                                if(matchPtr->clock->whiteSecLeft <= 0) {
+                                    matchPtr->matchEvents.push_back(chesscom::MatchEvent::BlackWin);
+                                }else{
+                                    matchPtr->matchEvents.push_back(chesscom::MatchEvent::Non); 
+                                    matchPtr->clock->whiteSecLeft += (matchPtr->moves.size()==1?0:serverTimeRules.secondspermove());
+                                }
                             }
                             else
                             {
-                                matchPtr->clock->blackSecLeft = matchPtr->clock->blackSecLeft - movePtr->secspent();
+                                matchPtr->clock->blackSecLeft -= movePtr->secspent();
+                                if(matchPtr->clock->blackSecLeft <= 0) {
+                                    matchPtr->matchEvents.push_back(chesscom::MatchEvent::WhiteWin);        
+                                }else{
+                                    matchPtr->matchEvents.push_back(chesscom::MatchEvent::Non); 
+                                    matchPtr->clock->blackSecLeft += serverTimeRules.secondspermove();
+                                }
                             }
+                            
+                            //std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " whitesecs left " << std::to_string(matchPtr->clock->whiteSecLeft) << " blacksecs left " << std::to_string(matchPtr->clock->blackSecLeft) << std::endl << std::flush;
                             //std::string output;google::protobuf::util::MessageToJsonString(*movePtr, &output);
                             //matchPtr->
                         }else{
