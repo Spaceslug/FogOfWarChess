@@ -177,6 +177,16 @@ namespace SlugChess
             }
         }
 
+        public bool CanWhiteSeeField(string fieldName)
+        {
+            return WhiteVision[GameRules.BPToIndx(fieldName)];
+        }
+
+        public bool CanBlackSeeField(string fieldName)
+        {
+            return BlackVision[GameRules.BPToIndx(fieldName)];
+        }
+
         public static GlobalState CreateStartState(VisionRules visionRules)
         {
             var globalState = new GlobalState {
