@@ -110,13 +110,15 @@ namespace SlugChess
                 if (!LegalPos(currentFieldName)) break;
                 Field currentField = state.GetFieldAt(currentFieldName);
                 validMove = !(moveIsWhite?Field.HasWhitePice(currentField):Field.HasBlackPice(currentField));
-                bool canSeeField = true;
-                if (state.VisionRules.Enabled)
-                {
-                    canSeeField = moveIsWhite ? state.CanWhiteSeeField(currentFieldName) : state.CanBlackSeeField(currentFieldName);
-                }
+
                 if (validMove)
                 {
+                    bool canSeeField = true;
+                    if (state.VisionRules.Enabled)
+                    {
+                        canSeeField = moveIsWhite ? state.CanWhiteSeeField(currentFieldName) : state.CanBlackSeeField(currentFieldName);
+                    }
+                    if (!canSeeField) break;
                     moveList.Add((currentFieldName, null));
                     if ((moveIsWhite ? Field.HasBlackPice(currentField) : Field.HasWhitePice(currentField)))
                     {
