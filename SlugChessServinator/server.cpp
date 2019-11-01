@@ -27,7 +27,7 @@ using grpc::Status;
 //using chesscom::ChessCom;
 
 #define MAJOR_VER "0"
-#define MINOR_VER "4"
+#define MINOR_VER "5"
 #define BUILD_VER "1"
 #define VERSION MAJOR_VER "." MINOR_VER "." BUILD_VER
 
