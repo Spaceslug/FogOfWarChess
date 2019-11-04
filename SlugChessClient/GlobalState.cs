@@ -21,6 +21,17 @@ namespace SlugChess
             { "a7", 48 },{ "b7", 49 },{ "c7", 50 },{ "d7", 51 },{ "e7", 52 },{ "f7", 53 },{ "g7", 54 },{ "h7", 55 },
             { "a8", 56 },{ "b8", 57 },{ "c8", 58 },{ "d8", 59 },{ "e8", 60 },{ "f8", 61 },{ "g8", 62 },{ "h8", 63 }
         };
+        public static readonly List<string> BoardPos = new List<string>
+        {
+            "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1", 
+            "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
+            "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3", 
+            "a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4", 
+            "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5", 
+            "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6", 
+            "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7", 
+            "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8"
+        };
         /// <summary>
         /// a1 = 0, a8 = 7, b1 = 8, h8 = 63
         /// </summary>
@@ -43,6 +54,22 @@ namespace SlugChess
         //    Selected = oldState.Selected;
 
         //}
+        public GlobalState ShallowCopy()
+        {
+            GlobalState newState = new GlobalState();
+            newState.Board = this.Board;
+            newState.WhiteVision = this.WhiteVision;
+            newState.BlackVision = this.BlackVision;
+            newState._selected = this._selected;
+            newState.WhiteTurn = this.WhiteTurn;
+            newState.VisionRules = this.VisionRules;
+            newState.WhiteVision = this.WhiteVision;
+            newState._legalMovesSelected = this._legalMovesSelected;
+            newState._legalMovesAll = this._legalMovesAll;
+
+            return newState;
+        } 
+
         public void CleanAnPassants()
         {
             int i = Board.FindIndex(field => field.AnPassan_able);
@@ -154,6 +181,17 @@ namespace SlugChess
             {
                 if (Board[i].Pice == Pices.Non) continue;
                 GameRules.AddPiceVision(Board, i, VisionRules.PiceOverwrite.ContainsKey(Board[i].Pice)? VisionRules.PiceOverwrite[Board[i].Pice] : VisionRules, Board[i].HasWhitePice()? WhiteVision:BlackVision);
+                if (VisionRules.ViewMoveFields)
+                {
+                    GlobalState otherState = this.ShallowCopy();
+                    otherState.VisionRules.Enabled = false;
+                    var legalMoves = GameRules.GetLegalMoves(this, new FieldState(BoardPos[i], Board[i]));
+                    foreach (var endPosTuple in legalMoves)
+                    {
+                        var visionBoard = Board[i].HasWhitePice() ? WhiteVision : BlackVision;
+                        visionBoard[BoardPosToIndex[endPosTuple.Item1]] = true;
+                    }
+                }
                 if(VisionRules.ViewCaptureField && Board[i].PiceCapturedLastMove)
                 {
                     WhiteVision[i] = true;
