@@ -184,8 +184,13 @@ namespace SlugChess
                 if (VisionRules.ViewMoveFields)
                 {
                     GlobalState otherState = this.ShallowCopy();
-                    otherState.VisionRules.Enabled = false;
-                    var legalMoves = GameRules.GetLegalMoves(this, new FieldState(BoardPos[i], Board[i]));
+                    otherState.VisionRules = new VisionRules { Enabled = false };
+                    if (BoardPos[i] == "e2" && Board[i].Pice == Pices.WhiteBishop)
+                    {
+
+                    }
+                    var legalMoves = GameRules.GetLegalMoves(otherState, new FieldState(BoardPos[i], Board[i]));
+
                     foreach (var endPosTuple in legalMoves)
                     {
                         var visionBoard = Board[i].HasWhitePice() ? WhiteVision : BlackVision;

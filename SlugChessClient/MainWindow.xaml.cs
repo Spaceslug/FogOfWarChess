@@ -395,6 +395,16 @@ namespace SlugChess
 
             foreach (Grid child in this.BoardGrid.Children)
             {
+                bool a = PosIsWhiteBoardField(child.Name);
+                if (a)
+                {
+                    child.Background = new SolidColorBrush(Color.FromArgb(0xFF, 0x8F, 0xFF, 0xFF));
+                }
+                else
+                {
+                    //child.Background = new Brush("#FF6F6F6F");
+                    child.Background = new SolidColorBrush(Color.FromArgb(0xFF, 0x6F, 0x8F, 0x8F));
+                }
                 ApplyFieldStateToGrid(child, _globalState.GetFieldAt(child.Name));
                 if (_globalState.CanSeeField(_clientIsPlayer, child.Name))
                 {
@@ -456,7 +466,7 @@ namespace SlugChess
                 else
                 {
                     child.Visibility = Visibility.Visible;
-                    child.Opacity = 0.2;
+                    child.Opacity = 0.15;
                     foreach (UIElement underChiled in child.Children)
                     {
                         underChiled.Visibility = Visibility.Hidden;
@@ -488,6 +498,13 @@ namespace SlugChess
         private void InvokedRanoutOfTime()
         {
             WriteTextNonInvoke("implemnet out of time");
+        }
+
+        private bool PosIsWhiteBoardField(string pos)
+        {
+            int index = GlobalState.BoardPosToIndex[pos];
+            bool startWithBlack = (index / 8) % 2 == 0;
+            return index % 8 % 2  == (startWithBlack ? 1:0);
         }
 
         private void LoginButtonClick(object sender, RoutedEventArgs args)

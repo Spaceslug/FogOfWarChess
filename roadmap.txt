@@ -22,13 +22,14 @@ version 0.7.x
 -move all move validation to server
 
 version 0.6.1
--finaly implement view move field (have vision on all tiles where your pices can move to)
+-(x)finaly implement view move field (have vision on all tiles where your pices can move to)
+    -calling this Sea rules
 
 version 0.5.2 
 -can click on opponents pices to see moves
 
 version 0.5.1
--prevent move through hidden fields
+-(X)prevent move through hidden fields
 
 version 0.4.2 
 -(x)remove unessesary files like x86 stuff and .xml and .pdb

@@ -31,7 +31,7 @@ namespace SlugChess
         }
         private static int IndexFromColRow(int column, int row)
         {
-            return column+(8*row);
+            return column + (8 * row);
         }
         private static string UpOne(string startPos)
         {
@@ -64,7 +64,7 @@ namespace SlugChess
         }
         private static int RightOne(int startPos)
         {
-            if(startPos%8 == 7) return -1;
+            if (startPos % 8 == 7) return -1;
             return startPos + 1;
         }
 
@@ -84,17 +84,17 @@ namespace SlugChess
             bool moveIsWhite = Field.HasWhitePice(fromField.Field);
             if (!LegalPos(endPos)) return;
             Field currentField = state.GetFieldAt(endPos);
-            if ((moveIsWhite ?Field.HasBlackPice(currentField) : Field.HasWhitePice(currentField)))
+            if ((moveIsWhite ? Field.HasBlackPice(currentField) : Field.HasWhitePice(currentField)))
             {
                 moveList.Add((endPos, null));
             }
-            else if(currentField.AnPassan_able)
+            else if (currentField.AnPassan_able)
             {
                 string anPs = (moveIsWhite ? DownOne(endPos) : UpOne(endPos));
                 Field anPsField = BPToFi(state, anPs);
-                if((moveIsWhite? anPsField.HasBlackPice() : anPsField.HasWhitePice()))
+                if ((moveIsWhite ? anPsField.HasBlackPice() : anPsField.HasWhitePice()))
                 {
-                    moveList.Add((endPos, new List<FieldState> { new FieldState(anPs, anPsField)}));
+                    moveList.Add((endPos, new List<FieldState> { new FieldState(anPs, anPsField) }));
                 }
             }
         }
@@ -109,7 +109,7 @@ namespace SlugChess
                 currentFieldName = moveFunc(currentFieldName);
                 if (!LegalPos(currentFieldName)) break;
                 Field currentField = state.GetFieldAt(currentFieldName);
-                validMove = !(moveIsWhite?Field.HasWhitePice(currentField):Field.HasBlackPice(currentField));
+                validMove = !(moveIsWhite ? Field.HasWhitePice(currentField) : Field.HasBlackPice(currentField));
 
                 if (validMove)
                 {
@@ -156,9 +156,9 @@ namespace SlugChess
                         break;
                     }
                 }
-                else if(currentField.Pice == (moveIsWhite ? Pices.WhiteRook:Pices.BlackRook) && currentField.Rokade_able)
+                else if (currentField.Pice == (moveIsWhite ? Pices.WhiteRook : Pices.BlackRook) && currentField.Rokade_able)
                 {
-                    moveList.Add((lastField.Item1, new List<FieldState> { new FieldState(currentFieldName, currentField), new FieldState(lastLastField.Item1, lastLastField.Item2)}));
+                    moveList.Add((lastField.Item1, new List<FieldState> { new FieldState(currentFieldName, currentField), new FieldState(lastLastField.Item1, lastLastField.Item2) }));
                     break;
                 }
                 else
@@ -190,7 +190,7 @@ namespace SlugChess
             {
                 FieldState fs = new FieldState(pos, state.GetFieldAt(pos));
                 //if (func(fs.Field))
-                if(fs.Field.Pice != Pices.Non)
+                if (fs.Field.Pice != Pices.Non)
                 {
                     legalMoves[pos] = GetLegalMoves(state, fs);
                 }
@@ -219,7 +219,7 @@ namespace SlugChess
 
                         string bpDown2 = DownOne(bpDown);
                         Field bpDown2Field = BPToFi(state, bpDown2);
-                        bool bpDown2Legal =  LegalPos(bpDown2) && bpDown2Field.Pice == Pices.Non;
+                        bool bpDown2Legal = LegalPos(bpDown2) && bpDown2Field.Pice == Pices.Non;
                         if (bpDown2Legal) legalMoves.Add((bpDown2, new List<FieldState> { new FieldState(bpDown, BPToFi(state, bpDown)) }));
                     }
                     break;
@@ -287,7 +287,7 @@ namespace SlugChess
 
                         string wpUp2 = UpOne(wpUp);
                         Field wpUp2Field = BPToFi(state, wpUp2);
-                        bool wpUp2Legal =  LegalPos(wpUp2) && wpUp2Field.Pice == Pices.Non;
+                        bool wpUp2Legal = LegalPos(wpUp2) && wpUp2Field.Pice == Pices.Non;
                         if (wpUp2Legal) legalMoves.Add((wpUp2, new List<FieldState> { new FieldState(wpUp, BPToFi(state, wpUp)) }));
                     }
                     break;
@@ -297,6 +297,7 @@ namespace SlugChess
             return legalMoves;
         }
 
+        [Obsolete]
         public static SortedSet<string> GetVision(GlobalState state, bool whiteVision, VisionRules rules)
         {
             SortedSet<string> visionSet = new SortedSet<string>();
