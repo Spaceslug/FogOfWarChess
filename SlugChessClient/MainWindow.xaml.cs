@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -50,6 +51,7 @@ namespace SlugChess
         //
         public static Uri MoveSoundUri { get { return new Uri(".\\sound\\move.wav", UriKind.Relative); } }
         public static Uri MatchStartSoundUri { get { return new Uri(".\\sound\\match_start.wav", UriKind.Relative); } }
+        public static Uri TimeRunningOutSoundUri { get { return new Uri(".\\sound\\time_running_out.wav", UriKind.Relative); } }
 
 
         public static MainWindow Instance { get; private set; }
@@ -66,6 +68,7 @@ namespace SlugChess
         private Grpc.Core.AsyncDuplexStreamingCall<ChessCom.ChatMessage, ChessCom.ChatMessage> _matchMessageStream;
         private Task _runnerTask;
         private MediaPlayer _mediaPlayer = new MediaPlayer();
+        private MediaPlayer _mediaPlayerTimeRunningOut = new MediaPlayer();
         private string _lastMoveFrom;
         private string _lastMoveTo;
         private bool _isSingelplayer = true;
@@ -132,6 +135,10 @@ namespace SlugChess
                 _mediaPlayer.MediaFailed += (o, args) => {
                     int i = 5;
                 };
+                _mediaPlayerTimeRunningOut.MediaFailed += (o, args) => {
+                    int i = 5;
+                };
+                _mediaPlayerTimeRunningOut.Open(TimeRunningOutSoundUri);
                 //var a = _connection.Call.sendRequest(new ChessCom.MathRequest { A = 3, B = 4 });
                 //connection.Call.
                 //Console.WriteLine(a);
@@ -238,6 +245,11 @@ namespace SlugChess
                                     _timer.Stop();
                                     InvokedRanoutOfTime();
                                 }
+                                else if(_whiteTimeSpan < TimeSpan.FromSeconds(10))
+                                {
+                                    _mediaPlayerTimeRunningOut.Stop();
+                                    _mediaPlayerTimeRunningOut.Play();
+                                }
                                 _whiteTimeSpan = _whiteTimeSpan.Add(TimeSpan.FromSeconds(-1));
                             }, Application.Current.Dispatcher);
 
@@ -256,6 +268,11 @@ namespace SlugChess
                                 {
                                     _timer.Stop();
                                     InvokedRanoutOfTime();
+                                }
+                                else if (_blackTimeSpan < TimeSpan.FromSeconds(10))
+                                {
+                                    _mediaPlayerTimeRunningOut.Stop();
+                                    _mediaPlayerTimeRunningOut.Play();
                                 }
                                 _blackTimeSpan = _blackTimeSpan.Add(TimeSpan.FromSeconds(-1));
                             }, Application.Current.Dispatcher);
@@ -630,12 +647,12 @@ namespace SlugChess
                             int timespan;
                             if (!_globalState.WhiteTurn) //This is reversed. Allready did move
                             {
-                                timespan = (_whiteStaticTimeLeft - _whiteTimeSpan).Seconds;
+                                timespan = (int)(_whiteStaticTimeLeft - _whiteTimeSpan).TotalSeconds;
                             }
                             else
                             {
                                 //WriteTextInvoke($"_blackTimeSpan {_blackTimeSpan.TotalSeconds}, _blackStaticTimeLeft {_blackStaticTimeLeft.TotalSeconds}, diff sec {(_blackStaticTimeLeft + _blackTimeSpan).Seconds}");
-                                timespan = (_blackStaticTimeLeft - _blackTimeSpan).Seconds;
+                                timespan = (int)(_blackStaticTimeLeft - _blackTimeSpan).TotalSeconds;
                             }
                             _myLastMove = new ChessCom.Move { From = _globalState.Selected, To = fieldGrid.Name, Timestamp=Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(DateTime.UtcNow), SecSpent = timespan};
                             _matchStream.RequestStream.WriteAsync(new ChessCom.MovePacket

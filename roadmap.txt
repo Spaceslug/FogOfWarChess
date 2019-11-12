@@ -14,12 +14,23 @@ version 0.x.1
 version 0.x.1
 -a way to see where and when pices died
 
+version 0.x.1
+-Create custom games with custom rules
+-rules not on server
+
+version 0.x.1
+-implement double fisher random
+
 version 0.7.x
 -chose new IDE to work with on linux
 -learn how to debug in the IDE
 -create a new object orientet structure to the server code
   - rework some thread to use conditional varible instead of thread sleep. This to improve speed
 -move all move validation to server
+
+version 0.6.2
+-(x)sound when running out of time
+-() bug - time over minutes of time used are ignored
 
 version 0.6.1
 -(x)finaly implement view move field (have vision on all tiles where your pices can move to)
