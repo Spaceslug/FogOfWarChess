@@ -27,8 +27,8 @@ using grpc::Status;
 //using chesscom::ChessCom;
 
 #define MAJOR_VER "0"
-#define MINOR_VER "5"
-#define BUILD_VER "1"
+#define MINOR_VER "6"
+#define BUILD_VER "2"
 #define VERSION MAJOR_VER "." MINOR_VER "." BUILD_VER
 
 struct ChessClock {
@@ -501,18 +501,20 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
 chesscom::VisionRules ServerVisionRules(){
     chesscom::VisionRules vr;
     vr.set_enabled(true);
-    vr.set_viewmovefields(false);
-    vr.set_viewrange(2);
+    vr.set_viewmovefields(true);
+    vr.set_viewrange(0);
     vr.set_viewcapturefield(true);
     //std::cout << " Vision rules" << std::endl << std::flush;
     google::protobuf::Map<int, chesscom::VisionRules>* override = vr.mutable_piceoverwriter();
     chesscom::VisionRules special;
     special.set_enabled(true);
-    special.set_viewmovefields(false);
+    special.set_viewmovefields(true);
     special.set_viewrange(1);
     //std::cout << " redy to mute" << std::endl << std::flush;
-    (*override)[chesscom::Pices::BlackPawn] = special;
-    (*override)[chesscom::Pices::WhitePawn] = special;
+    //(*override)[chesscom::Pices::BlackPawn] = special;
+    //(*override)[chesscom::Pices::WhitePawn] = special;
+    (*override) [chesscom::Pices::WhiteKnight] = special;
+    (*override) [chesscom::Pices::BlackKnight] = special;
     return vr;
 }
 
