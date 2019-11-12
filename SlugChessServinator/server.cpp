@@ -28,7 +28,7 @@ using grpc::Status;
 
 #define MAJOR_VER "0"
 #define MINOR_VER "6"
-#define BUILD_VER "1"
+#define BUILD_VER "2"
 #define VERSION MAJOR_VER "." MINOR_VER "." BUILD_VER
 
 struct ChessClock {
@@ -509,10 +509,12 @@ chesscom::VisionRules ServerVisionRules(){
     chesscom::VisionRules special;
     special.set_enabled(true);
     special.set_viewmovefields(true);
-    special.set_viewrange(0);
+    special.set_viewrange(1);
     //std::cout << " redy to mute" << std::endl << std::flush;
-    (*override)[chesscom::Pices::BlackPawn] = special;
-    (*override)[chesscom::Pices::WhitePawn] = special;
+    //(*override)[chesscom::Pices::BlackPawn] = special;
+    //(*override)[chesscom::Pices::WhitePawn] = special;
+    (*override) [chesscom::Pices::WhiteKnight] = special;
+    (*override) [chesscom::Pices::BlackKnight] = special;
     return vr;
 }
 
