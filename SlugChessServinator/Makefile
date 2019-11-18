@@ -12,13 +12,20 @@ GRPC_CPP_PLUGIN_PATH ?= `which $(GRPC_CPP_PLUGIN)`
 PROTOS_PATH = ../protobuf
 vpath %.proto $(PROTOS_PATH)
 
-all: client server
+SOURCES := $(wildcard *.cpp)
+OBJECTS := $(patsubst %.cpp,%.o,$(SOURCES))
+DEPENDS := $(patsubst %.cpp,%.d,$(SOURCES))
 
-client: chesscom.pb.o chesscom.grpc.pb.o client.o
+# .PHONY means these rules get executed even if
+# files of those names exist.
+.PHONY: all clean
+
+all: server 
+
+server: chesscom.pb.o chesscom.grpc.pb.o field.o slugchess.o server.o 
 	$(CXX) $^ $(LDFLAGS) -o $@
 
-server: chesscom.pb.o chesscom.grpc.pb.o server.o
-	$(CXX) $^ $(LDFLAGS) -o $@
+-include $(DEPENDS)
 
 .PRECIOUS: %.grpc.pb.cc
 %.grpc.pb.cc: %.proto
@@ -29,4 +36,7 @@ server: chesscom.pb.o chesscom.grpc.pb.o server.o
 	protoc -I $(PROTOS_PATH)  --cpp_out=. $<
 
 clean:
-	rm -f *.o *.pb.cc *.pb.h client server
+	rm -f *.o *.pb.cc *.pb.h $(DEPENDS) server
+	
+%.o: %.cpp Makefile
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -MMD -MP -c $< -o $@
