@@ -6,7 +6,7 @@ LIBFLAGS=/LD
 
 INSTALLPATH=.
 
-all: build
+all: copy build
 
 slugchess.dll: slugchess.lib
 
@@ -18,3 +18,7 @@ build: slugchess.dll
 
 clean: 
 	del *.dll *.lib *.exp 2>nul
+	
+copy:
+	xcopy ..\*.cpp /d /i /y
+	xcopy ..\*.h /d /i /y

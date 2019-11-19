@@ -20,6 +20,7 @@ version 0.x.1
 
 version 0.x.1
 -implement double fisher random
+-save moves of match so they can be replayed
 
 version 0.7.x
 -chose new IDE to work with on linux
@@ -30,7 +31,7 @@ version 0.7.x
 
 version 0.6.2
 -(x)sound when running out of time
--() bug - time over minutes of time used are ignored
+-(x) bug - time over minutes of time used are ignored
 
 version 0.6.1
 -(x)finaly implement view move field (have vision on all tiles where your pices can move to)
