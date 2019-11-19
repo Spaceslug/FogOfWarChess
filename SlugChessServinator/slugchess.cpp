@@ -24,6 +24,13 @@ const std::vector<std::string> SlugChess::BoardPos ({
 });
 
 
+SlugChess::SlugChess(const std::string& sfenString){
+    // rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1
+    // normal startingpoint shredder-fen
+    _board = std::vector<Field>(64);
+    Sfen::WriteSfenPicesToBoard(_board, sfenString);
+}
+
 int32_t SlugChess::GetLegalMove(std::string s){
     return stoi(s);
 }
