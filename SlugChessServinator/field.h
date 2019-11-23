@@ -30,14 +30,18 @@ struct Field {
     Field(ChessPice pice, bool anPassanCreating, bool anPassanAble, bool rokadeAble, bool firstMove, bool piceCapturedLastMove)
     {
         Pice = pice;
-        AnPassan_creating = anPassanCreating;
         AnPassan_able = anPassanAble;
         Rokade_able = rokadeAble;
-        FirstMove = firstMove;
+        FirstMove = firstMove; //first move means an passant creating if pawn and castleable if rook or king
         PiceCapturedLastMove = piceCapturedLastMove;
     }
 
     Field(ChessPice pice) : Field(pice, false, false, false, false, false)
+    {
+
+    }
+
+    Field() : Field(ChessPice::Non)
     {
 
     }

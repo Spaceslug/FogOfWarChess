@@ -555,7 +555,8 @@ int main(int argc, char** argv) {
     std::string vrString = serverVisionRules.SerializeAsString();
     serverTimeRules = ServerTimeRules();
 
-    //std::cout << "Slugchess boardpos b3 " << std::to_string(SlugChess::BoardPosToIndex.at("b3")) << "" << std::flush << std::endl;
+    std::cout << "Slugchess boardpos b3 " << std::to_string(SlugChess::BoardPosToIndex.at("b3")) << "" << std::flush << std::endl;
+    std::cout << "Slugchess  3 right one" << std::to_string(GameRules::RightOne(3)) << "" << std::flush << std::endl;
     //logFile << "---ServerRules---\n" << vrString << "\n";
     //std::cout << "---ServerRules---\n" << vrString << std::endl << std::flush;
     std::string port = "43326";
