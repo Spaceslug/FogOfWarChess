@@ -332,7 +332,7 @@ namespace SlugChess
                 }
             }
         }
-
+        [Obsolete]
         private static void AddFromWithRange(SortedSet<string> vision, string from, int range)
         {
             string start = from;
