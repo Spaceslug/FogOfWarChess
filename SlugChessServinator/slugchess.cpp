@@ -1,36 +1,141 @@
 #include "slugchess.h"
+#include <sstream>
+#include <iterator>
 
 
-const std::map<std::string, int32_t> SlugChess::BoardPosToIndex ({ 
-        { "a1", 0 }, { "b1", 1 }, { "c1", 2 }, { "d1", 3 }, { "e1", 4 }, { "f1", 5 }, { "g1", 6 }, { "h1", 7 },
-        { "a2", 8 }, { "b2", 9 }, { "c2", 10 },{ "d2", 11 },{ "e2", 12 },{ "f2", 13 },{ "g2", 14 },{ "h2", 15 },
-        { "a3", 16 },{ "b3", 17 },{ "c3", 18 },{ "d3", 19 },{ "e3", 20 },{ "f3", 21 },{ "g3", 22 },{ "h3", 23 },
-        { "a4", 24 },{ "b4", 25 },{ "c4", 26 },{ "d4", 27 },{ "e4", 28 },{ "f4", 29 },{ "g4", 30 },{ "h4", 31 },
-        { "a5", 32 },{ "b5", 33 },{ "c5", 34 },{ "d5", 35 },{ "e5", 36 },{ "f5", 37 },{ "g5", 38 },{ "h5", 39 },
-        { "a6", 40 },{ "b6", 41 },{ "c6", 42 },{ "d6", 43 },{ "e6", 44 },{ "f6", 45 },{ "g6", 46 },{ "h6", 47 },
-        { "a7", 48 },{ "b7", 49 },{ "c7", 50 },{ "d7", 51 },{ "e7", 52 },{ "f7", 53 },{ "g7", 54 },{ "h7", 55 },
-        { "a8", 56 },{ "b8", 57 },{ "c8", 58 },{ "d8", 59 },{ "e8", 60 },{ "f8", 61 },{ "g8", 62 },{ "h8", 63 }
-});
-
-const std::vector<std::string> SlugChess::BoardPos ({
-        "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1", 
-        "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
-        "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3", 
-        "a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4", 
-        "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5", 
-        "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6", 
-        "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7", 
-        "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8"
-});
 
 
-SlugChess::SlugChess(const std::string& sfenString){
+SlugChess::SlugChess(const std::string& sfenString, const VisionRules& visionRules){
     // rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1
     // normal startingpoint shredder-fen
     _board = std::vector<Field>(64);
+    _rules = visionRules;
     Sfen::WriteSfenPicesToBoard(_board, sfenString);
+    CalculateVision();
 }
 
 int32_t SlugChess::GetLegalMove(std::string s){
     return stoi(s);
+}
+
+const std::string SlugChess::ToFenString(){
+
+}
+
+void SlugChess::PrintBoard(std::stringstream& ss){
+    for(int row = 7; row >= 0;row--){
+        for(int col = 0; col <= 7;col++){
+            int index = GameRules::IndexFromColRow(col, row);
+            ss << "[ " << Field::PiceChar(_board[index].Pice) << " ]";
+        }
+        ss << std::endl;
+    }
+    ss << "Castling ";
+    for (auto field : _board)
+    {
+        if(field.Pice == ChessPice::WhiteKing && field.FirstMove){
+            ss << "White ";
+            for (auto field2 : _board)
+            {
+                if(field2.Pice == ChessPice::WhiteRook && field.FirstMove){
+                    ss << *field2.fieldname << " ";
+                }
+            }
+        }
+        if(field.Pice == ChessPice::BlackKing && field.FirstMove){
+            ss << "Black ";
+            for (auto field2 : _board)
+            {
+                if(field2.Pice == ChessPice::BlackRook && field.FirstMove){
+                    ss << *(field2.fieldname) << " ";
+                }
+            }
+        }
+    }
+    ss << std::endl;
+    std::string anPass = "-";
+    for (auto&& field : _board)
+    {
+        if(field.AnPassan_able){
+            anPass = *field.fieldname;
+            break;
+        }
+    }
+    ss << "An Passant: " << anPass << std::endl;
+
+    
+}
+
+void SlugChess::PrintWhiteVision(std::stringstream& ss){
+    for(int row = 7; row >= 0;row--){   
+        for(int col = 0; col <= 7;col++){
+            int index = GameRules::IndexFromColRow(col, row);
+            if(_whiteVision[index]){
+                ss << "[ " << Field::PiceChar(_board[index].Pice) << " ]";
+            }else{
+                ss << "[ " << "#"<< " ]";
+            }
+        }
+        ss << std::endl;
+    }
+}
+
+void SlugChess::PrintBlackVision(std::stringstream& ss){
+    PrintVisionBoard(ss, _blackVision);
+}
+
+void SlugChess::PrintVisionBoard(std::stringstream& ss, bool visionBoard[]){
+    for(int row = 7; row >= 0;row--){   
+        for(int col = 0; col <= 7;col++){
+            int index = GameRules::IndexFromColRow(col, row);
+            if(visionBoard[index]){
+                ss << "[ " << Field::PiceChar(_board[index].Pice) << " ]";
+            }else{
+                ss << "[ " << "#"<< " ]";
+            }
+        }
+        ss << std::endl;
+    }
+}
+
+void SlugChess::CalculateVision(){
+    if (!_rules.enabled)
+    {
+        std::fill(std::begin(_whiteVision), std::end(_whiteVision), true);
+        std::fill(std::begin(_blackVision), std::end(_blackVision), true);
+        return;
+    }
+    std::fill(std::begin(_whiteVision), std::end(_whiteVision), false);
+    std::fill(std::begin(_blackVision), std::end(_blackVision), false);
+    for (int i = 0; i < 64; i++)
+    {
+        if (_board[i].Pice == ChessPice::Non) continue;
+        GameRules::AddPiceVision(_board, 
+                                    i, 
+                                    _rules.overWriteRules.count(_board[i].Pice)>0? _rules.overWriteRules[_board[i].Pice] : _rules.globalRules
+                                    , _board[i].HasWhitePice()? _whiteVision:_blackVision);
+        if (_rules.globalRules.ViewMoveFields)
+        {
+            // GlobalState otherState = this.ShallowCopy();
+            // otherState.VisionRules = new VisionRules { Enabled = false };
+            // if (BoardPos[i] == "e2" && Board[i].Pice == Pices.WhiteBishop)
+            // {
+
+            // }
+            // var legalMoves = GameRules.GetLegalMoves(otherState, new FieldState(BoardPos[i], Board[i]));
+
+            // foreach (var endPosTuple in legalMoves)
+            // {
+            //     var visionBoard = Board[i].HasWhitePice() ? WhiteVision : BlackVision;
+            //     visionBoard[BoardPosToIndex[endPosTuple.Item1]] = true;
+            // }
+        }
+        
+    }
+    if (_rules.globalRules.ViewCaptureField && _lastCaptureField != "-")
+    {
+        _whiteVision[GameRules::BoardPosToIndex(_lastCaptureField)] = true;
+        _blackVision[GameRules::BoardPosToIndex(_lastCaptureField)] = true;
+    }
+    
 }

@@ -7,21 +7,24 @@
 
 class SlugChess {
     public:
-    static const std::map<std::string, int32_t> BoardPosToIndex;
 
-    static const std::vector<std::string> BoardPos;
 
-    SlugChess(int temp);
-    SlugChess(const std::string& sfenString);
+    //SlugChess(int temp);
+    SlugChess(const std::string& sfenString, const VisionRules& visionRules);
 
 
     
     int32_t GetLegalMove(std::string s);
 
-    static int32_t BPToIndx(std::string& pos)
-    {
-        return BoardPosToIndex.at(pos);
-    }
+    const std::string ToFenString();
+    void PrintBoard(std::stringstream& ss);
+    void PrintWhiteVision(std::stringstream& ss);
+    void PrintBlackVision(std::stringstream& ss);
+
+    void PrintVisionBoard(std::stringstream& ss, bool visionBoard[]);
+
+    void CalculateVision();
+
     void CleanAnPassants()
     {
         //with test
@@ -38,15 +41,20 @@ class SlugChess {
         if(index < 63 && _board[index].AnPassan_able){
             std::cout << "Clearing an passant failed" << std::flush << std::endl;
         }
-        
+    }
+
+    static const int32_t BPToIndx(std::string& pos)
+    {
+        return GameRules::BoardPosToIndex(pos);
     }
     private:
 
-    int halfturn;
-    bool whiteTurn;
-    VisionRules rules; 
+    int _halfturn;
+    bool _whiteTurn;
+    VisionRules _rules; 
     std::vector<Field> _board;
     bool _whiteVision [64];
     bool _blackVision [64];
+    std::string _lastCaptureField = "-";
 
 };

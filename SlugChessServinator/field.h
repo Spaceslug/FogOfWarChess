@@ -19,24 +19,21 @@ enum ChessPice {
 
 struct Field {
     public:
-    std::string* fieldname; //pointer to string in BoardPos
-    bool AnPassan_creating;
+    const std::string* fieldname; //pointer to string in BoardPos
     bool AnPassan_able;
-    bool Rokade_able;
     bool FirstMove;
     bool PiceCapturedLastMove;
     ChessPice Pice;
 
-    Field(ChessPice pice, bool anPassanCreating, bool anPassanAble, bool rokadeAble, bool firstMove, bool piceCapturedLastMove)
+    Field(ChessPice pice, bool anPassanAble, bool firstMove, bool piceCapturedLastMove)
     {
         Pice = pice;
         AnPassan_able = anPassanAble;
-        Rokade_able = rokadeAble;
         FirstMove = firstMove; //first move means an passant creating if pawn and castleable if rook or king
         PiceCapturedLastMove = piceCapturedLastMove;
     }
 
-    Field(ChessPice pice) : Field(pice, false, false, false, false, false)
+    Field(ChessPice pice) : Field(pice, false, false, false)
     {
 
     }
@@ -107,6 +104,41 @@ struct Field {
                 return true;
             default:
                 return false;
+        }
+    }
+
+    static char PiceChar(ChessPice pice)
+    {
+        switch (pice)
+        {
+            case WhiteKing:
+                return 'K';
+            case WhiteQueen:
+                return 'Q';
+            case WhiteBishop:
+                return 'B';
+            case WhiteKnight:
+                return 'N';
+            case WhiteRook:
+                return 'R';
+            case WhitePawn:
+                return 'P';
+            case BlackKing:
+                return 'k';
+            case BlackQueen:
+                return 'q';
+            case BlackBishop:
+                return 'b';
+            case BlackKnight:
+                return 'n';
+            case BlackRook:
+                return 'r';
+            case BlackPawn:
+                return 'p';
+            case Non:
+                return ' ';
+            default:
+                return 'E';
         }
     }
 };

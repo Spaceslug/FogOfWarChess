@@ -22,8 +22,12 @@ DEPENDS := $(patsubst %.cpp,%.d,$(SOURCES))
 
 all: server 
 
-server: chesscom.pb.o chesscom.grpc.pb.o field.o slugchess.o server.o 
+server: chesscom.pb.o chesscom.grpc.pb.o field.o gamerules.o slugchess.o server.o 
 	$(CXX) $^ $(LDFLAGS) -o $@
+
+slugchesstest: field.o gamerules.o slugchess.o slugchesstest.o
+	$(CXX) $^ $(LDFLAGS) -o $@
+	./slugchesstest
 
 -include $(DEPENDS)
 
@@ -36,7 +40,7 @@ server: chesscom.pb.o chesscom.grpc.pb.o field.o slugchess.o server.o
 	protoc -I $(PROTOS_PATH)  --cpp_out=. $<
 
 clean:
-	rm -f *.o *.pb.cc *.pb.h $(DEPENDS) server
+	rm -f *.o *.pb.cc *.pb.h $(DEPENDS) server slugChessTest
 	
 %.o: %.cpp Makefile
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -MMD -MP -c $< -o $@

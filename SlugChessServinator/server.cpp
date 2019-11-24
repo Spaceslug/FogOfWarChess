@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <queue>
 #include <vector>
 #include <mutex>
@@ -555,8 +556,19 @@ int main(int argc, char** argv) {
     std::string vrString = serverVisionRules.SerializeAsString();
     serverTimeRules = ServerTimeRules();
 
-    std::cout << "Slugchess boardpos b3 " << std::to_string(SlugChess::BoardPosToIndex.at("b3")) << "" << std::flush << std::endl;
+    std::cout << "Slugchess boardpos b3 " << std::to_string(GameRules::BoardPosToIndex("b3")) << "" << std::flush << std::endl;
+    //std::cout << "Slugchess boardpos b3 " << std::to_string(SlugChess::BPToIndx("b3")) << "" << std::flush << std::endl;
     std::cout << "Slugchess  3 right one" << std::to_string(GameRules::RightOne(3)) << "" << std::flush << std::endl;
+    std::stringstream ss;
+    VisionRules rules;
+    rules.globalRules = Rules(false, true, 2);
+    rules.enabled = true;
+    rules.overWriteRules[ChessPice::WhitePawn] = Rules(false,true, 1);
+    rules.overWriteRules[ChessPice::BlackPawn] = Rules(false,true, 1);
+    SlugChess slugChess("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1", rules);
+    slugChess.PrintBoard(ss);
+    std::cout << ss.str();
+    
     //logFile << "---ServerRules---\n" << vrString << "\n";
     //std::cout << "---ServerRules---\n" << vrString << std::endl << std::flush;
     std::string port = "43326";
