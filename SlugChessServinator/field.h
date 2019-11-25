@@ -43,68 +43,24 @@ struct Field {
 
     }
 
-    bool HasBlackPice()
+    bool inline HasBlackPice()
     {
-       switch (Pice)
-        {
-            case BlackKing:
-            case BlackQueen:
-            case BlackBishop:
-            case BlackKnight:
-            case BlackRook:
-            case BlackPawn:
-                return true;
-            default:
-                return false;
-        }
+       return Pice > Non && !HasWhitePice();
     }
 
-    bool HasWhitePice()
+    bool inline HasWhitePice()
     {
-        switch (Pice)
-        {
-            case WhiteKing:
-            case WhiteQueen:
-            case WhiteBishop:
-            case WhiteKnight:
-            case WhiteRook:
-            case WhitePawn:
-                return true;
-            default:
-                return false;
-        }
+        return Pice > BlackKing;
     }
 
     static bool BlackPice(ChessPice pice)
     {
-        switch (pice)
-        {
-            case BlackKing:
-            case BlackQueen:
-            case BlackBishop:
-            case BlackKnight:
-            case BlackRook:
-            case BlackPawn:
-                return true;
-            default:
-                return false;
-        }
+        return pice > Non && !WhitePice(pice);
     }
 
     static bool WhitePice(ChessPice pice)
     {
-        switch (pice)
-        {
-            case WhiteKing:
-            case WhiteQueen:
-            case WhiteBishop:
-            case WhiteKnight:
-            case WhiteRook:
-            case WhitePawn:
-                return true;
-            default:
-                return false;
-        }
+        return pice > BlackKing;
     }
 
     static char PiceChar(ChessPice pice)

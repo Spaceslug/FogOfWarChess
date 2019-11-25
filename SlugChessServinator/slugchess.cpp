@@ -12,6 +12,7 @@ SlugChess::SlugChess(const std::string& sfenString, const VisionRules& visionRul
     _rules = visionRules;
     Sfen::WriteSfenPicesToBoard(_board, sfenString);
     CalculateVision();
+    CalculateLegalMoves();
 }
 
 int32_t SlugChess::GetLegalMove(std::string s){
@@ -132,10 +133,22 @@ void SlugChess::CalculateVision(){
         }
         
     }
-    if (_rules.globalRules.ViewCaptureField && _lastCaptureField != "-")
+    if (_rules.globalRules.ViewCaptureField && _lastCaptureField != -1)
     {
-        _whiteVision[GameRules::BoardPosToIndex(_lastCaptureField)] = true;
-        _blackVision[GameRules::BoardPosToIndex(_lastCaptureField)] = true;
+        _whiteVision[_lastCaptureField] = true;
+        _blackVision[_lastCaptureField] = true;
     }
     
+}
+
+
+void SlugChess::CalculateLegalMoves(){
+    _legalMoves.clear();
+    bool* visionBoard  = _whiteTurn?_whiteVision:_blackVision;
+    for(int i = 0; i < 64;i++){
+        if(_board[i].Pice != ChessPice::Non){
+            _legalMoves[i];
+            GameRules::GetLegalMoves(_legalMoves[i], _board, i, visionBoard);
+        }
+    }
 }

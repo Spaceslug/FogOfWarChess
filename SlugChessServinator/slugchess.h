@@ -24,6 +24,7 @@ class SlugChess {
     void PrintVisionBoard(std::stringstream& ss, bool visionBoard[]);
 
     void CalculateVision();
+    void CalculateLegalMoves();
 
     void CleanAnPassants()
     {
@@ -55,6 +56,8 @@ class SlugChess {
     std::vector<Field> _board;
     bool _whiteVision [64];
     bool _blackVision [64];
-    std::string _lastCaptureField = "-";
+    int _lastCaptureField = -1;
+    std::map<int, std::vector<int>> _legalMoves;
+    std::map<int, std::vector<int>> _legalShadowMoves;
 
 };
