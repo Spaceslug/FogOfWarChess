@@ -100,116 +100,166 @@ class GameRules {
         switch (board[from].Pice)
         {
             case ChessPice::Non:
+            {
                 return;
+            }
             case ChessPice::BlackPawn:
+            {
                 std::function<int(int)> moveDir = board[from].HasWhitePice()?UpOne:DownOne;
-                AddPwnAttack(legalMoves, board, LeftOne(DownOne(from)), visionBoard);
-                AddPwnAttack(legalMoves, board, RightOne(DownOne(from)), visionBoard);
+                AddPwnAttack(legalMoves, board, from, LeftOne(DownOne(from)), visionBoard);
+                AddPwnAttack(legalMoves, board, from, RightOne(DownOne(from)), visionBoard);
                 
-                string bpDown = DownOne(fromField.FieldName);
-                bool bpDownLegal = LegalPos(bpDown) && BPToFi(state, bpDown).Pice == ChessPice::Non;
-                if (bpDownLegal)
-                {
-                    legalMoves.Add((bpDown, null));
-                    if (!fromField.Field.FirstMove) break;
+                AddPawnMove(legalMoves, board, from, DownOne, visionBoard);
 
-                    string bpDown2 = DownOne(bpDown);
-                    Field bpDown2Field = BPToFi(state, bpDown2);
-                    bool bpDown2Legal = LegalPos(bpDown2) && bpDown2Field.Pice == ChessPice::Non;
-                    if (bpDown2Legal) legalMoves.Add((bpDown2, new List<FieldState> { new FieldState(bpDown, BPToFi(state, bpDown)) }));
-                }
                 break;
+            }
             case ChessPice::BlackKing:
             case ChessPice::WhiteKing:
-                AddMove(state, fromField, legalMoves, UpOne(fromField.FieldName));
-                AddMove(state, fromField, legalMoves, DownOne(fromField.FieldName));
-                AddMove(state, fromField, legalMoves, LeftOne(fromField.FieldName));
-                AddMove(state, fromField, legalMoves, RightOne(fromField.FieldName));
+            {
+                AddAttackMove(legalMoves, board, from, UpOne(from), visionBoard);
+                AddAttackMove(legalMoves, board, from, DownOne(from), visionBoard);
+                AddAttackMove(legalMoves, board, from, LeftOne(from), visionBoard);
+                AddAttackMove(legalMoves, board, from, RightOne(from), visionBoard);
 
-                AddMove(state, fromField, legalMoves, UpOne(LeftOne(fromField.FieldName)));
-                AddMove(state, fromField, legalMoves, LeftOne(DownOne(fromField.FieldName)));
-                AddMove(state, fromField, legalMoves, DownOne(RightOne(fromField.FieldName)));
-                AddMove(state, fromField, legalMoves, RightOne(UpOne(fromField.FieldName)));
+                AddAttackMove(legalMoves, board, from, UpOne(LeftOne(from)), visionBoard);
+                AddAttackMove(legalMoves, board, from, LeftOne(DownOne(from)), visionBoard);
+                AddAttackMove(legalMoves, board, from, DownOne(RightOne(from)), visionBoard);
+                AddAttackMove(legalMoves, board, from, RightOne(UpOne(from)), visionBoard);
 
-                AddCastelling(state, fromField, legalMoves, RightOne);
-                AddCastelling(state, fromField, legalMoves, LeftOne);
+                //AddCastelling(state, fromField, legalMoves, RightOne);
+                //AddCastelling(state, fromField, legalMoves, LeftOne);
                 break;
+            }
             case ChessPice::BlackQueen:
             case ChessPice::WhiteQueen:
-                AddMovesTillEnd(state, fromField, legalMoves, pos => UpOne(LeftOne(pos)));
-                AddMovesTillEnd(state, fromField, legalMoves, pos => UpOne(RightOne(pos)));
-                AddMovesTillEnd(state, fromField, legalMoves, pos => DownOne(LeftOne(pos)));
-                AddMovesTillEnd(state, fromField, legalMoves, pos => DownOne(RightOne(pos)));
-                AddMovesTillEnd(state, fromField, legalMoves, UpOne);
-                AddMovesTillEnd(state, fromField, legalMoves, DownOne);
-                AddMovesTillEnd(state, fromField, legalMoves, LeftOne);
-                AddMovesTillEnd(state, fromField, legalMoves, RightOne);
+            {
+                AddAttackMovesTillEnd(legalMoves, board, from, [](int pos){return UpOne(LeftOne(pos));}, visionBoard);
+                AddAttackMovesTillEnd(legalMoves, board, from, [](int pos){return UpOne(RightOne(pos));}, visionBoard);
+                AddAttackMovesTillEnd(legalMoves, board, from, [](int pos){return DownOne(LeftOne(pos));}, visionBoard);
+                AddAttackMovesTillEnd(legalMoves, board, from, [](int pos){return DownOne(RightOne(pos));}, visionBoard);
+
+                AddAttackMovesTillEnd(legalMoves, board, from, UpOne, visionBoard);
+                AddAttackMovesTillEnd(legalMoves, board, from, DownOne, visionBoard);
+                AddAttackMovesTillEnd(legalMoves, board, from, LeftOne, visionBoard);
+                AddAttackMovesTillEnd(legalMoves, board, from, RightOne, visionBoard);
                 break;
+            }
             case ChessPice::BlackBishop:
             case ChessPice::WhiteBishop:
-                AddMovesTillEnd(state, fromField, legalMoves, pos => UpOne(LeftOne(pos)));
-                AddMovesTillEnd(state, fromField, legalMoves, pos => UpOne(RightOne(pos)));
-                AddMovesTillEnd(state, fromField, legalMoves, pos => DownOne(LeftOne(pos)));
-                AddMovesTillEnd(state, fromField, legalMoves, pos => DownOne(RightOne(pos)));
+            {
+                AddAttackMovesTillEnd(legalMoves, board, from, [](int pos){return UpOne(LeftOne(pos));}, visionBoard);
+                AddAttackMovesTillEnd(legalMoves, board, from, [](int pos){return UpOne(RightOne(pos));}, visionBoard);
+                AddAttackMovesTillEnd(legalMoves, board, from, [](int pos){return DownOne(LeftOne(pos));}, visionBoard);
+                AddAttackMovesTillEnd(legalMoves, board, from, [](int pos){return DownOne(RightOne(pos));}, visionBoard);
                 break;
+            }
             case ChessPice::BlackKnight:
             case ChessPice::WhiteKnight:
-                AddMove(state, fromField, legalMoves, UpOne(UpOne(LeftOne(fromField.FieldName))));
-                AddMove(state, fromField, legalMoves, UpOne(UpOne(RightOne(fromField.FieldName))));
-                AddMove(state, fromField, legalMoves, LeftOne(LeftOne(UpOne(fromField.FieldName))));
-                AddMove(state, fromField, legalMoves, LeftOne(LeftOne(DownOne(fromField.FieldName))));
-                AddMove(state, fromField, legalMoves, RightOne(RightOne(UpOne(fromField.FieldName))));
-                AddMove(state, fromField, legalMoves, RightOne(RightOne(DownOne(fromField.FieldName))));
-                AddMove(state, fromField, legalMoves, DownOne(DownOne(LeftOne(fromField.FieldName))));
-                AddMove(state, fromField, legalMoves, DownOne(DownOne(RightOne(fromField.FieldName))));
+            {
+                AddAttackMove(legalMoves, board, from, UpOne(UpOne(LeftOne(from))), visionBoard);
+                AddAttackMove(legalMoves, board, from, UpOne(UpOne(RightOne(from))), visionBoard);
+                AddAttackMove(legalMoves, board, from, LeftOne(LeftOne(UpOne(from))), visionBoard);
+                AddAttackMove(legalMoves, board, from, LeftOne(LeftOne(DownOne(from))), visionBoard);
+                AddAttackMove(legalMoves, board, from, RightOne(RightOne(UpOne(from))), visionBoard);
+                AddAttackMove(legalMoves, board, from, RightOne(RightOne(DownOne(from))), visionBoard);
+                AddAttackMove(legalMoves, board, from, DownOne(DownOne(LeftOne(from))), visionBoard);
+                AddAttackMove(legalMoves, board, from, DownOne(DownOne(RightOne(from))), visionBoard);
                 break;
+            }
             case ChessPice::BlackRook:
             case ChessPice::WhiteRook:
-                AddMovesTillEnd(state, fromField, legalMoves, UpOne);
-                AddMovesTillEnd(state, fromField, legalMoves, DownOne);
-                AddMovesTillEnd(state, fromField, legalMoves, LeftOne);
-                AddMovesTillEnd(state, fromField, legalMoves, RightOne);
+            {
+                AddAttackMovesTillEnd(legalMoves, board, from, UpOne, visionBoard);
+                AddAttackMovesTillEnd(legalMoves, board, from, DownOne, visionBoard);
+                AddAttackMovesTillEnd(legalMoves, board, from, LeftOne, visionBoard);
+                AddAttackMovesTillEnd(legalMoves, board, from, RightOne, visionBoard);
                 break;
+            }
             case ChessPice::WhitePawn:
-                AddPwnAttack(state, fromField, legalMoves, LeftOne(UpOne(fromField.FieldName)));
-                AddPwnAttack(state, fromField, legalMoves, RightOne(UpOne(fromField.FieldName)));
+            {
+                AddPwnAttack(legalMoves, board, from, LeftOne(UpOne(from)), visionBoard);
+                AddPwnAttack(legalMoves, board, from, RightOne(UpOne(from)), visionBoard);
 
-                string wpUp = UpOne(fromField.FieldName);
-                bool wpUpLegal = LegalPos(wpUp) && BPToFi(state, wpUp).Pice == ChessPice::Non;
-                if (wpUpLegal)
-                {
-                    legalMoves.Add((wpUp, null));
-                    if (!fromField.Field.FirstMove) break;
-
-                    string wpUp2 = UpOne(wpUp);
-                    Field wpUp2Field = BPToFi(state, wpUp2);
-                    bool wpUp2Legal = LegalPos(wpUp2) && wpUp2Field.Pice == ChessPice::Non;
-                    if (wpUp2Legal) legalMoves.Add((wpUp2, new List<FieldState> { new FieldState(wpUp, BPToFi(state, wpUp)) }));
-                }
+                AddPawnMove(legalMoves, board, from, UpOne, visionBoard);
                 break;
+            }
             default:
-                return legalMoves;
+            {
+                return;
+            }
         }
-        return legalMoves;
+        return;
     }
 
-    static void AddPwnAttack(std::vector<int>& legalMoves, std::vector<Field>& board, int to, bool visionBoard[])
-        {
-            bool moveIsWhite = board[from].HasWhitePice();
-            if (!LegalPos(endPos)) return;
-            Field currentField = state.GetFieldAt(endPos);
-            if ((moveIsWhite ? Field.HasBlackPice(currentField) : Field.HasWhitePice(currentField)))
-            {
-                moveList.Add((endPos, null));
+    static void AddPwnAttack(std::vector<int>& legalMoves, std::vector<Field>& board, int from, int to, bool visionBoard[])
+    {
+        if (LegalPos(to) && visionBoard[to]){
+            if(board[to].AnPassan_able) {
+                legalMoves.push_back(to);
+                return;
             }
-            else if (currentField.AnPassan_able)
-            {
-                string anPs = (moveIsWhite ? DownOne(endPos) : UpOne(endPos));
-                Field anPsField = BPToFi(state, anPs);
-                if ((moveIsWhite ? anPsField.HasBlackPice() : anPsField.HasWhitePice()))
-                {
-                    moveList.Add((endPos, new List<FieldState> { new FieldState(anPs, anPsField) }));
-                }
+            if(board[to].Pice == Non){
+                return;
+            }
+            if(board[from].HasWhitePice() != board[to].HasWhitePice()){
+                legalMoves.push_back(to);
             }
         }
+    }
+
+    
+
+    static void AddPawnMove(std::vector<int>& legalMoves, std::vector<Field>& board, int from, std::function<int(int)> moveDir,  bool visionBoard[])
+    {
+        int to = moveDir(from);
+        if(LegalPos(to) && visionBoard[to] && board[to].Pice == Non){
+            legalMoves.push_back(to);
+            if(board[from].FirstMove){
+                int toto = moveDir(to);
+                if(LegalPos(toto) && visionBoard[toto] && board[toto].Pice == Non){
+                    legalMoves.push_back(toto);
+                }
+            }
+
+        }
+    }
+
+    static void AddAttackMove(std::vector<int>& legalMoves, std::vector<Field>& board, int from, int to, bool visionBoard[])
+    {
+        if (LegalPos(to) && visionBoard[to]){
+            if(board[to].Pice == Non){
+                legalMoves.push_back(to);
+                return;
+            }
+            if(board[from].HasWhitePice() != board[to].HasWhitePice()){
+                legalMoves.push_back(to);
+            }
+        }
+    }
+
+    static void AddAttackMovesTillEnd(std::vector<int>& legalMoves, std::vector<Field>& board, int from, std::function<int(int)> moveFunc, bool visionBoard[])
+    {
+        bool validMove = true;
+        int currentField = from;
+        bool moveIsWhite = board[from].HasWhitePice();
+        while (true)
+        {
+            currentField = moveFunc(currentField);
+            if (!LegalPos(currentField)) break;
+            validMove = !(moveIsWhite ? board[currentField].HasWhitePice() : board[currentField].HasBlackPice());
+
+            if (validMove && visionBoard[currentField])
+            {
+                legalMoves.push_back(currentField);
+                if ((moveIsWhite ? board[currentField].HasBlackPice() : board[currentField].HasWhitePice()))
+                {
+                    break;
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
 };

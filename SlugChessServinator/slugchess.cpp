@@ -117,19 +117,36 @@ void SlugChess::CalculateVision(){
                                     , _board[i].HasWhitePice()? _whiteVision:_blackVision);
         if (_rules.globalRules.ViewMoveFields)
         {
-            // GlobalState otherState = this.ShallowCopy();
-            // otherState.VisionRules = new VisionRules { Enabled = false };
-            // if (BoardPos[i] == "e2" && Board[i].Pice == Pices.WhiteBishop)
-            // {
-
-            // }
-            // var legalMoves = GameRules.GetLegalMoves(otherState, new FieldState(BoardPos[i], Board[i]));
-
-            // foreach (var endPosTuple in legalMoves)
-            // {
-            //     var visionBoard = Board[i].HasWhitePice() ? WhiteVision : BlackVision;
-            //     visionBoard[BoardPosToIndex[endPosTuple.Item1]] = true;
-            // }
+            //_legalMoves.clear();
+            std::map<int, std::vector<int>> visionMoves;
+            bool visionBoard [64];
+            std::fill(std::begin(visionBoard), std::end(visionBoard), true);
+            
+            for(int i = 0; i < 64;i++){
+                if(_board[i].HasWhitePice()){
+                    visionMoves[i];
+                    GameRules::GetLegalMoves(visionMoves[i], _board, i, visionBoard);
+                }
+            }
+            for (auto &&keyVal : visionMoves)
+            {
+                for (auto &&to : keyVal.second){
+                    _whiteVision[to] = true;
+                }
+            }
+            visionMoves.clear();
+            for(int i = 0; i < 64;i++){
+                if(_board[i].HasBlackPice()){
+                    visionMoves[i];
+                    GameRules::GetLegalMoves(visionMoves[i], _board, i, visionBoard);
+                }
+            }
+            for (auto &&keyVal : visionMoves)
+            {
+                for (auto &&to : keyVal.second){
+                    _blackVision[to] = true;
+                }
+            }
         }
         
     }
@@ -146,9 +163,18 @@ void SlugChess::CalculateLegalMoves(){
     _legalMoves.clear();
     bool* visionBoard  = _whiteTurn?_whiteVision:_blackVision;
     for(int i = 0; i < 64;i++){
-        if(_board[i].Pice != ChessPice::Non){
+        if(_board[i].Pice != ChessPice::Non && (_whiteTurn == _board[i].HasWhitePice())){
             _legalMoves[i];
             GameRules::GetLegalMoves(_legalMoves[i], _board, i, visionBoard);
         }
     }
 }
+
+// void SlugChess::CalculateLegalMoves(std::vector<Field>& board, bool visionBoard[]){
+//     for(int i = 0; i < 64;i++){
+//         if(board[i].Pice != ChessPice::Non){
+//             _legalMoves[i];
+//             GameRules::GetLegalMoves(_legalMoves[i], _board, i, visionBoard);
+//         }
+//     }
+// }

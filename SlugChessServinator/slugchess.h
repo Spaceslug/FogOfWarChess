@@ -48,6 +48,7 @@ class SlugChess {
     {
         return GameRules::BoardPosToIndex(pos);
     }
+    static void CalculateLegalMoves(std::vector<Field>& board, bool visionBoard[]);
     private:
 
     int _halfturn;
