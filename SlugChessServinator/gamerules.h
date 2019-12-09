@@ -126,8 +126,11 @@ class GameRules {
                 AddAttackMove(legalMoves, board, from, DownOne(RightOne(from)), visionBoard);
                 AddAttackMove(legalMoves, board, from, RightOne(UpOne(from)), visionBoard);
 
-                //AddCastelling(state, fromField, legalMoves, RightOne);
-                //AddCastelling(state, fromField, legalMoves, LeftOne);
+                if(board[from].FirstMove){
+                    AddCastelling(legalMoves, board, from, RightOne, visionBoard);
+                    AddCastelling(legalMoves, board, from, LeftOne, visionBoard);
+                }
+                
                 break;
             }
             case ChessPice::BlackQueen:
@@ -255,6 +258,37 @@ class GameRules {
                 {
                     break;
                 }
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+
+    static void AddCastelling(std::vector<int>& legalMoves, std::vector<Field>& board, int from, std::function<int(int)> moveFunc, bool visionBoard[])
+    {
+        bool validMove = true;
+        int currentField = from;
+        bool moveIsWhite = board[currentField].HasWhitePice();
+        while (true)
+        {
+            currentField = moveFunc(currentField);
+            if (!LegalPos(currentField)) break;
+            if(!visionBoard[currentField]) break;
+
+            validMove = !(moveIsWhite ? board[currentField].HasWhitePice() : board[currentField].HasBlackPice());
+            if (validMove)
+            {
+                if ((moveIsWhite ? board[currentField].HasBlackPice() : board[currentField].HasWhitePice()))
+                {
+                    break;
+                }
+            }
+            else if (board[currentField].Pice == (moveIsWhite ? ChessPice::WhiteRook : ChessPice::BlackRook) && board[currentField].FirstMove)
+            {
+                legalMoves.push_back(currentField);
+                break;
             }
             else
             {

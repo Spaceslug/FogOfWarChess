@@ -53,6 +53,16 @@ struct Field {
         return Pice > BlackKing;
     }
 
+    static int IndexRow(int pos)
+    {
+        return (pos/8);
+    }
+
+    static int IndexColumn(int pos)
+    {
+        return (pos%8);
+    }
+
     static bool BlackPice(ChessPice pice)
     {
         return pice > Non && !WhitePice(pice);

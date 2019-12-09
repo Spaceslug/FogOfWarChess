@@ -503,20 +503,20 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
 chesscom::VisionRules ServerVisionRules(){
     chesscom::VisionRules vr;
     vr.set_enabled(true);
-    vr.set_viewmovefields(true);
-    vr.set_viewrange(0);
+    vr.set_viewmovefields(false);
+    vr.set_viewrange(2);
     vr.set_viewcapturefield(true);
     //std::cout << " Vision rules" << std::endl << std::flush;
     google::protobuf::Map<int, chesscom::VisionRules>* override = vr.mutable_piceoverwriter();
     chesscom::VisionRules special;
     special.set_enabled(true);
-    special.set_viewmovefields(true);
+    special.set_viewmovefields(false);
     special.set_viewrange(1);
     //std::cout << " redy to mute" << std::endl << std::flush;
-    //(*override)[chesscom::Pices::BlackPawn] = special;
-    //(*override)[chesscom::Pices::WhitePawn] = special;
-    (*override) [chesscom::Pices::WhiteKnight] = special;
-    (*override) [chesscom::Pices::BlackKnight] = special;
+    (*override)[chesscom::Pices::BlackPawn] = special;
+    (*override)[chesscom::Pices::WhitePawn] = special;
+    //(*override) [chesscom::Pices::WhiteKnight] = special;
+    //(*override) [chesscom::Pices::BlackKnight] = special;
     return vr;
 }
 
@@ -555,19 +555,6 @@ int main(int argc, char** argv) {
     serverVisionRules = ServerVisionRules();
     std::string vrString = serverVisionRules.SerializeAsString();
     serverTimeRules = ServerTimeRules();
-
-    std::cout << "Slugchess boardpos b3 " << std::to_string(GameRules::BoardPosToIndex("b3")) << "" << std::flush << std::endl;
-    //std::cout << "Slugchess boardpos b3 " << std::to_string(SlugChess::BPToIndx("b3")) << "" << std::flush << std::endl;
-    std::cout << "Slugchess  3 right one" << std::to_string(GameRules::RightOne(3)) << "" << std::flush << std::endl;
-    std::stringstream ss;
-    VisionRules rules;
-    rules.globalRules = Rules(false, true, 2);
-    rules.enabled = true;
-    rules.overWriteRules[ChessPice::WhitePawn] = Rules(false,true, 1);
-    rules.overWriteRules[ChessPice::BlackPawn] = Rules(false,true, 1);
-    SlugChess slugChess("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1", rules);
-    slugChess.PrintBoard(ss);
-    std::cout << ss.str();
     
     //logFile << "---ServerRules---\n" << vrString << "\n";
     //std::cout << "---ServerRules---\n" << vrString << std::endl << std::flush;

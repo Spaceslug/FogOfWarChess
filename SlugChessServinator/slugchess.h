@@ -1,6 +1,7 @@
 #pragma once
 #include <map>
 #include <vector>
+#include <list>
 #include <iostream>
 #include "visionrules.h"
 #include "sfen.h"
@@ -14,7 +15,8 @@ class SlugChess {
 
 
     
-    int32_t GetLegalMove(std::string s);
+    bool DoMove(const std::string from, const std::string to);
+    bool DoMove(int from, int to);
 
     const std::string ToFenString();
     void PrintBoard(std::stringstream& ss);
@@ -25,6 +27,8 @@ class SlugChess {
 
     void CalculateVision();
     void CalculateLegalMoves();
+
+    void CalPossibleCastles();
 
     void CleanAnPassants()
     {
@@ -60,5 +64,8 @@ class SlugChess {
     int _lastCaptureField = -1;
     std::map<int, std::vector<int>> _legalMoves;
     std::map<int, std::vector<int>> _legalShadowMoves;
+    // Starts with king and ends with rook
+    std::list<int> _possibleCastles;
+    std::list<std::tuple<ChessPice,int>> _killedPices; //chesspice and postion it died in
 
 };
