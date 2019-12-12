@@ -43,6 +43,11 @@ struct Field {
 
     }
 
+    Field(ChessPice newPice, const std::string* samefieldname) : Field(newPice)
+    {
+        fieldname = samefieldname;
+    }
+
     bool inline HasBlackPice()
     {
        return Pice > Non && !HasWhitePice();

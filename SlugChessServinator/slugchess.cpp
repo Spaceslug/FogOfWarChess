@@ -22,10 +22,32 @@ const std::string SlugChess::ToFenString(){
 
 }
 
-void SlugChess::PrintBoard(std::stringstream& ss){
+void SlugChess::PrintBoard(std::stringstream& ss, bool whiteplayer){
+    PrintBoard(ss, whiteplayer?_whiteVision:_blackVision);
+}
+
+void SlugChess::PrintBoard(std::stringstream& ss, bool visionboard[]){
     for(int row = 7; row >= 0;row--){
         for(int col = 0; col <= 7;col++){
             int index = GameRules::IndexFromColRow(col, row);
+            if(!visionboard[index]) continue;
+            ss << "[ " << Field::PiceChar(_board[index].Pice) << " ]";
+        }
+        ss << std::endl;
+    }   
+}
+
+void SlugChess::PrintDebugBoard(std::stringstream& ss){
+    bool vision [64];
+    std::fill(std::begin(vision), std::end(vision), true);
+    PrintDebugBoard(ss, vision);
+}
+
+void SlugChess::PrintDebugBoard(std::stringstream& ss, bool visionboard[]){
+    for(int row = 7; row >= 0;row--){
+        for(int col = 0; col <= 7;col++){
+            int index = GameRules::IndexFromColRow(col, row);
+            if(!visionboard[index]) continue;
             ss << "[ " << Field::PiceChar(_board[index].Pice) << " ]";
         }
         ss << std::endl;
@@ -62,8 +84,6 @@ void SlugChess::PrintBoard(std::stringstream& ss){
         }
     }
     ss << "An Passant: " << anPass << std::endl;
-
-    
 }
 
 void SlugChess::PrintWhiteVision(std::stringstream& ss){
@@ -190,67 +210,71 @@ void SlugChess::CalPossibleCastles(){
     }
 }
 
-bool SlugChess::DoMove(const std::string from, const std::string to){
-    return DoMove(GameRules::BoardPosToIndex(from), GameRules::BoardPosToIndex(from));
+Field SlugChess::ExecuteMove(const std::string from, const std::string to){
+    return ExecuteMove(GameRules::BoardPosToIndex(from), GameRules::BoardPosToIndex(from));
 }
 
-bool SlugChess::DoMove(int from, int to){
-    ChessPice killedPice = ChessPice::Non;
+Field SlugChess::ExecuteMove(int from, int to){
+    Field tofield = _board[to];
     int killedPos = -1;
-    if(_board[from].Pice == ChessPice::WhiteKing || _board[from].Pice == ChessPice::BlackKing){
+    int modTo = to%8;
+    int modFrom = from%8;
+    if(_board[from].FirstMove && (_board[from].Pice == ChessPice::WhiteKing || _board[from].Pice == ChessPice::BlackKing) && (modTo == modFrom-2 || modTo == modFrom+2)){
         //test casteling
+        int newto;
+        int otherto;
+        ChessPice rook = _board[to].HasWhitePice()?ChessPice::WhiteRook:ChessPice::BlackRook;
+        if(modTo == modFrom+2){
+            newto = GameRules::RightOne(to);
+            while(_board[newto].Pice != rook){
+                newto = GameRules::RightOne(newto);
+            }
+            otherto = GameRules::LeftOne(to);
+        }
+        else if(modTo == modFrom-2)
+        {
+            newto = GameRules::LeftOne(to);
+            while(_board[newto].Pice != rook){
+                newto = GameRules::LeftOne(newto);
+            }
+            otherto = GameRules::RightOne(to);
+        }
+        _board[otherto] = Field(_board[newto].Pice, _board[otherto].fieldname);
+        _board[newto] = Field(ChessPice::Non, _board[newto].fieldname);
+        _board[to] = Field(_board[from].Pice, _board[to].fieldname);
+        _board[from] = Field(ChessPice::Non, _board[from].fieldname);
+
     }
     else if(_board[to].AnPassan_able){
         //preform an passant
+        auto moveFunc = _board[from].HasWhitePice()?GameRules::UpOne:GameRules::DownOne;
+        int killedTo = moveFunc(to);
+        tofield = _board[killedTo];
+        _board[to] = Field(_board[from].Pice, _board[to].fieldname);
+        _board[from] = Field(ChessPice::Non, _board[from].fieldname);
     }
     else
     {
-        killedPice = _board[to].Pice;
-        killedPos = to;
-        _board[to] = Field(_board[from].Pice);
+        _board[to] = Field(_board[from].Pice, _board[to].fieldname);
         if(_board[to].Pice == ChessPice::WhitePawn && Field::IndexRow(to) == 7)_board[to].Pice == ChessPice::WhiteQueen;
         if(_board[to].Pice == ChessPice::BlackPawn && Field::IndexRow(to) == 0)_board[to].Pice == ChessPice::BlackQueen;
         if(_board[to].Pice == ChessPice::WhitePawn && GameRules::DownOne(GameRules::DownOne(to)) == from)_board[GameRules::DownOne(to)].AnPassan_able = true;
         if(_board[to].Pice == ChessPice::BlackPawn && GameRules::UpOne(GameRules::UpOne(to)) == from)_board[GameRules::UpOne(to)].AnPassan_able = true;
-        _board[from] = Field(ChessPice::Non);
+        _board[from] = Field(ChessPice::Non, _board[from].fieldname);
     }
     
-    // if (extraFieldList == null || extraFieldList.Count == 0)
-    // {
-    //     (Field from, Field to, Pices killed) = GameRules.Move(fromField, toField);
-    //     if (to.Pice == Pices.WhitePawn && moveTo[1] == '8') to.Pice = Pices.WhiteQueen;
-    //     if (to.Pice == Pices.BlackPawn && moveTo[1] == '1') to.Pice = Pices.BlackQueen;
-    //     if (killed != Pices.Non) to.PiceCapturedLastMove = true;
-    //     Board[BoardPosToIndex[_selected]] = from;
-    //     Board[BoardPosToIndex[moveTo]] = to;
-    //     killedPice = killed;
-    // }
-    // else if (extraFieldList.Count == 1)
-    // {
-    //     (Field from, Field to, Field anPs, Pices killed) = GameRules.Move(fromField, toField, extraFieldList[0].Field);
-    //     Board[BoardPosToIndex[_selected]] = from;
-    //     Board[BoardPosToIndex[moveTo]] = to;
-    //     Board[BoardPosToIndex[extraFieldList[0].FieldName]] = anPs;
-    // }
-    // else if (extraFieldList.Count == 2)
-    // {
-    //     (Field fromK, Field toK, Field fromR, Field toR, Pices killed) = GameRules.Move(fromField, toField, extraFieldList[0].Field, extraFieldList[1].Field);
-    //     Board[BoardPosToIndex[_selected]] = fromK;
-    //     Board[BoardPosToIndex[moveTo]] = toK;
-    //     Board[BoardPosToIndex[extraFieldList[0].FieldName]] = fromR;
-    //     Board[BoardPosToIndex[extraFieldList[1].FieldName]] = toR;
-    // }
-    // else
-    // {
-    //     throw new NotImplementedException("what tha fuck man");
-    // }
+   
+    //Selected = null;
+    return tofield;
+}
 
+void SlugChess::DoMove(const std::string& from, const std::string& to){
+    
+    Field attackedField = ExecuteMove(from, to);
     _whiteTurn = !_whiteTurn;
     CalculateVision();
     CalculateLegalMoves();
-    if(killedPice != ChessPice::Non){
-        _killedPices.push_back(std::tuple<ChessPice,int>(killedPice, killedPos));
+    if(attackedField.Pice != ChessPice::Non){
+        _killedPices.push_back(std::tuple<ChessPice,int>(attackedField.Pice, GameRules::BoardPosToIndex(*attackedField.fieldname)));
     }
-    //Selected = null;
-    return true;
 }

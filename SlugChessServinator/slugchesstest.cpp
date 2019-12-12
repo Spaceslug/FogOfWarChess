@@ -2,6 +2,32 @@
 
 #include "slugchess.h"
 
+SlugChess* game;
+
+void GameLoop(){
+    std::string s;
+    while(s != "exit"){
+        std::cout << "Enter commands to play" << std::endl;
+        std::cin >> s;
+        if(s == "play"){
+            if(game != nullptr) delete game;   
+            VisionRules rules;
+            rules.globalRules = Rules();
+            rules.globalRules.ViewCaptureField = true;
+            rules.globalRules.ViewMoveFields = false;
+            rules.globalRules.ViewRange = 2;
+            rules.enabled = true;
+            rules.overWriteRules[ChessPice::WhitePawn] = Rules(false,true, 1);
+            rules.overWriteRules[ChessPice::BlackPawn] = Rules(false,true, 1);     
+            game = new SlugChess("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1", rules);
+        }else if(s[0] == 'm'){
+            
+        }
+    }
+    if(game != nullptr) delete game;
+
+}
+
 int main(int argc, char** argv) {
     void (*prev_handler)(int);
 
@@ -19,7 +45,7 @@ int main(int argc, char** argv) {
     rules.overWriteRules[ChessPice::BlackPawn] = Rules(false,true, 1);
     //SlugChess slugChess("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1", rules);
     SlugChess slugChess("rnbqkbnr/1ppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w AHah - 0 1", rules);
-    slugChess.PrintBoard(ss);
+    slugChess.PrintDebugBoard(ss);
     slugChess.PrintWhiteVision(ss);
     ss << std::endl;
     slugChess.PrintBlackVision(ss);
@@ -27,5 +53,6 @@ int main(int argc, char** argv) {
     int postest = 54;
     std::cout << "Pos " << std::to_string(postest) << ": row " << std::to_string(Field::IndexRow(postest)) << " col " << std::to_string(Field::IndexColumn(postest));
     std::cout << " colrow " << std::to_string(GameRules::IndexFromColRow(Field::IndexColumn(postest), (Field::IndexRow(postest)))) << std::endl;   
+    GameLoop();
     return 0;
 }

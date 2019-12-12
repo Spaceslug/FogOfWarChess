@@ -14,19 +14,20 @@ class SlugChess {
     SlugChess(const std::string& sfenString, const VisionRules& visionRules);
 
 
-    
-    bool DoMove(const std::string from, const std::string to);
-    bool DoMove(int from, int to);
+    void DoMove(const std::string& from, const std::string& to);
+
 
     const std::string ToFenString();
-    void PrintBoard(std::stringstream& ss);
+    void PrintBoard(std::stringstream& ss, bool whitePlayer);
+    void PrintDebugBoard(std::stringstream& ss);
     void PrintWhiteVision(std::stringstream& ss);
     void PrintBlackVision(std::stringstream& ss);
-
     void PrintVisionBoard(std::stringstream& ss, bool visionBoard[]);
 
     void CalculateVision();
     void CalculateLegalMoves();
+
+    char CurrentPlayer(){ return _whiteTurn?'w':'b'; };
 
     void CalPossibleCastles();
 
@@ -54,6 +55,11 @@ class SlugChess {
     }
     static void CalculateLegalMoves(std::vector<Field>& board, bool visionBoard[]);
     private:
+
+    Field ExecuteMove(const std::string from, const std::string to);
+    Field ExecuteMove(int from, int to);
+    void PrintBoard(std::stringstream& ss, bool visionBoard[]);
+    void PrintDebugBoard(std::stringstream& ss, bool visionboard[]);
 
     int _halfturn;
     bool _whiteTurn;
