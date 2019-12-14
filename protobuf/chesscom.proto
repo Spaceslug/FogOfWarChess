@@ -62,11 +62,20 @@ message Time {
 	int32 seconds = 2;
 }
 
+message FieldMoves{
+	repeated string list = 1;
+}
+
 message Move {
 	string from = 2;
 	string to = 3;
 	google.protobuf.Timestamp timestamp = 4;
 	int32 secSpent = 5;
+	repeated bool whiteVision = 6;
+	repeated bool blackVision = 7;
+	repeated Pices pices = 8;
+	map<string, FieldMoves> availableMoves = 9;
+	Pices capturedPice = 10;
 }
 
 message LoginForm {

@@ -39,7 +39,7 @@ namespace SlugChess
         private bool[] WhiteVision { get; set; } = new bool[64];
         private bool[] BlackVision { get; set; } = new bool[64];
         private string _selected = null;
-        public string Selected { get { return _selected; } set { _legalMovesSelected = (value != null?GameRules.GetLegalMoves(this, new FieldState(value, GetFieldAt(value))):new List<(string, List<FieldState>)>()); _selected = value; } } 
+        public string Selected { get { return _selected; } set { _legalMovesSelected = (value != null?_legalMovesAll[value]:new List<(string, List<FieldState>)>()); _selected = value; } } 
         public bool WhiteTurn { get; set; } = true;
         public VisionRules VisionRules { get; set; }
         private List<(string, List<FieldState>)> _legalMovesSelected = new List<(string, List<FieldState>)>();
@@ -109,6 +109,18 @@ namespace SlugChess
                 return _legalMovesSelected.Any((a) => a.Item1 == pos);
             }
             return false;
+        }
+
+        public void UpdateFromMove(ChessCom.Move move)
+        {
+
+            WhiteTurn = !WhiteTurn;
+            WhiteVision = move.WhiteVision.ToArray();
+            BlackVision = move.BlackVision.ToArray();
+            
+            _legalMovesAll = move.AvailableMoves.ToDictionary(keyVal => keyVal.Key, keyVal => keyVal.Value.List.Select(from => (from, new List<FieldState>())).ToList());
+            //ToDictionary<string, string>(from => from, to => to );
+
         }
 
         public Pices DoMoveTo(string moveTo)

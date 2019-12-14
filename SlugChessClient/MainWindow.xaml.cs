@@ -203,32 +203,61 @@ namespace SlugChess
                     //{
 
                     //}
+                    
                     if (move.MoveHappned)
                     {
-                        if (move.Move.From != _myLastMove.From || move.Move.To != _myLastMove.To)
+                        if (move.Move.AvailableMoves.Count > 0) //Prossess board from server
                         {
-                            Instance.Dispatcher.Invoke(() => {
-                                WriteTextNonInvoke("Opponent did move!");
-                                //messageBox.AppendText("Opponent did move!\n");
-                                //messageBox.CaretPosition = messageBox.CaretPosition.DocumentEnd;
-                                //messageBox.BringIntoView();
-                                //messageBox.Focus();
-                                _globalState.Selected = move.Move.From;
-                                Pices killedPice = _globalState.DoMoveTo(move.Move.To);
-                                if (killedPice != Pices.Non) _killedPices.Add(killedPice);
-                                _globalState.Selected = null;
-                                _lastMoveFrom = _globalState.CanSeeField(_clientIsPlayer, move.Move.From) ? move.Move.From : "";
-                                _lastMoveTo = _globalState.CanSeeField(_clientIsPlayer, move.Move.To) ? move.Move.To : "";
-                                ClearBoard();
-                                UpdateBoardFromGlobalState();
+                            
 
-                                _mediaPlayer.Stop();
-                                _mediaPlayer.Open(MoveSoundUri);
-                                _mediaPlayer.Play();
+                                Instance.Dispatcher.Invoke(() => {
+                                    if (move.Move.From != _myLastMove.From || move.Move.To != _myLastMove.To)
+                                    {
+                                        WriteTextNonInvoke("Opponent did move!");
+                                    }
+                                    //Pices killedPice = _globalState.DoMoveTo(move.Move.To);
+                                    if ((Pices)move.Move.CapturedPice != Pices.Non) _killedPices.Add((Pices)move.Move.CapturedPice);
+                                    _lastMoveFrom = _globalState.CanSeeField(_clientIsPlayer, move.Move.From) ? move.Move.From : "";
+                                    _lastMoveTo = _globalState.CanSeeField(_clientIsPlayer, move.Move.To) ? move.Move.To : "";
+                                    ClearBoard();
+                                    UpdateBoardFromGlobalState();
+
+                                    _mediaPlayer.Stop();
+                                    _mediaPlayer.Open(MoveSoundUri);
+                                    _mediaPlayer.Play();
 
 
-                            });
+                                });
                         }
+                        else //Prossess board self
+                        {
+                            if (move.Move.From != _myLastMove.From || move.Move.To != _myLastMove.To)
+                            {
+
+                                Instance.Dispatcher.Invoke(() => {
+                                    WriteTextNonInvoke("Opponent did move!");
+                                    //messageBox.AppendText("Opponent did move!\n");
+                                    //messageBox.CaretPosition = messageBox.CaretPosition.DocumentEnd;
+                                    //messageBox.BringIntoView();
+                                    //messageBox.Focus();
+                                    _globalState.Selected = move.Move.From;
+                                    Pices killedPice = _globalState.DoMoveTo(move.Move.To);
+                                    if (killedPice != Pices.Non) _killedPices.Add(killedPice);
+                                    _globalState.Selected = null;
+                                    _lastMoveFrom = _globalState.CanSeeField(_clientIsPlayer, move.Move.From) ? move.Move.From : "";
+                                    _lastMoveTo = _globalState.CanSeeField(_clientIsPlayer, move.Move.To) ? move.Move.To : "";
+                                    ClearBoard();
+                                    UpdateBoardFromGlobalState();
+
+                                    _mediaPlayer.Stop();
+                                    _mediaPlayer.Open(MoveSoundUri);
+                                    _mediaPlayer.Play();
+
+
+                                });
+                            }
+                        }
+                        
                         if (_globalState.WhiteTurn)
                         {
                             _timer?.Stop();
