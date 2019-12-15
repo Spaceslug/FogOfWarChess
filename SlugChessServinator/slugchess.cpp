@@ -274,7 +274,9 @@ void SlugChess::DoMove(const std::string& from, const std::string& to){
     _whiteTurn = !_whiteTurn;
     CalculateVision();
     CalculateLegalMoves();
+    _lastCaptured = attackedField.Pice;
     if(attackedField.Pice != ChessPice::Non){
+        _lastCaptureField = GameRules::BoardPosToIndex(*attackedField.fieldname);
         _killedPices.push_back(std::tuple<ChessPice,int>(attackedField.Pice, GameRules::BoardPosToIndex(*attackedField.fieldname)));
     }
 }

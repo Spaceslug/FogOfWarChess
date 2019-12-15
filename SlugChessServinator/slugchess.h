@@ -27,6 +27,21 @@ class SlugChess {
     void CalculateVision();
     void CalculateLegalMoves();
 
+    std::vector<bool> GetWhiteVision(){ return std::vector<bool>(std::begin(_whiteVision), std::end(_whiteVision)); }
+    std::vector<bool> GetBlackVision(){ return std::vector<bool>(std::begin(_blackVision), std::end(_blackVision)); }
+    std::vector<ChessPice> GetPices(){ 
+        std::vector<ChessPice> pices(64);
+        for (int i = 0; i < 64; i++)
+        {
+            pices[i] = _board[i].Pice;
+        }
+        
+        return pices;
+    }
+
+    std::map<int, std::vector<int>>* LegalMovesRef(){ return &_legalMoves; }
+
+
     char CurrentPlayer(){ return _whiteTurn?'w':'b'; };
 
     void CalPossibleCastles();
@@ -53,6 +68,10 @@ class SlugChess {
     {
         return GameRules::BoardPosToIndex(pos);
     }
+    static std::string BP(int index)
+    {
+        return GameRules::BoardPos(index);
+    }
     static void CalculateLegalMoves(std::vector<Field>& board, bool visionBoard[]);
     private:
 
@@ -73,5 +92,6 @@ class SlugChess {
     // Starts with king and ends with rook
     std::list<int> _possibleCastles;
     std::list<std::tuple<ChessPice,int>> _killedPices; //chesspice and postion it died in
+    ChessPice _lastCaptured = ChessPice::Non;
 
 };

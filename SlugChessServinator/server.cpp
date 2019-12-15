@@ -29,8 +29,8 @@ using grpc::Status;
 //using chesscom::ChessCom;
 
 #define MAJOR_VER "0"
-#define MINOR_VER "6"
-#define BUILD_VER "2"
+#define MINOR_VER "7"
+#define BUILD_VER "0"
 #define VERSION MAJOR_VER "." MINOR_VER "." BUILD_VER
 
 struct ChessClock {
@@ -51,6 +51,7 @@ struct MatchStruct{
     std::string& getBlackPlayer(){return blackPlayer;}
     std::string& getMatchToken(){return matchToken;}
     std::shared_ptr<ChessClock> clock;
+    std::shared_ptr<SlugChess> game;
 };
 
 static const int MAX_SLEEP_MS = 1000;
@@ -67,7 +68,7 @@ static std::ofstream cfgFile;
 std::queue<std::string> lookingForMatchQueue;
 std::map<std::string, std::string> foundMatchReply;
 std::map<std::string, std::shared_ptr<MatchStruct>> matches;
-chesscom::VisionRules serverVisionRules;
+VisionRules serverVisionRules;
 chesscom::TimeRules serverTimeRules;
 
 std::mutex _messageStreamsMutex;
@@ -102,6 +103,7 @@ std::string createMatch(std::string& player1Token, std::string& player2Token){
         match->blackPlayer = player1Token;
     }
     match->clock = std::make_shared<ChessClock>();
+    match->game = std::make_shared<SlugChess>("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1", serverVisionRules);
     match->clock->blackSecLeft = serverTimeRules.playertime().minutes() * 60 + serverTimeRules.playertime().seconds();
     match->clock->whiteSecLeft = match->clock->blackSecLeft;
     matches[matchToken] = match;
@@ -119,7 +121,7 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
             std::cout << "User " << request->majorversion() << " " << MAJOR_VER << " " << request->minorversion() << " " << MINOR_VER << " " << request->buildversion() << " " << BUILD_VER << std::endl << std::flush;
             if(request->buildversion() >= BUILD_VER)
             {
-               
+                
             }
             else
             {
@@ -195,8 +197,22 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
         response->set_matchtoken(matchToken);
         response->set_iswhiteplayer(matPtr->whitePlayer == userToken);
         response->set_opponentusername(userTokens[response->iswhiteplayer()?matPtr->blackPlayer:matPtr->whitePlayer]);
+        
         chesscom::VisionRules* vrPtr = response->mutable_rules();
-        vrPtr->CopyFrom(serverVisionRules);
+        vrPtr->set_enabled(serverVisionRules.enabled);
+        vrPtr->set_viewmovefields(serverVisionRules.globalRules.ViewMoveFields);
+        vrPtr->set_viewrange(serverVisionRules.globalRules.ViewRange);
+        vrPtr->set_viewcapturefield(serverVisionRules.globalRules.ViewCaptureField);
+        //std::cout << " Vision rules" << std::endl << std::flush;
+        google::protobuf::Map<int, chesscom::VisionRules>* override = vrPtr->mutable_piceoverwriter();
+        
+        chesscom::VisionRules special;
+        special.set_enabled(true);
+        for (auto&& piceRulesPar : serverVisionRules.overWriteRules) {
+            special.set_viewrange(piceRulesPar.second.ViewRange);
+            special.set_viewmovefields(piceRulesPar.second.ViewMoveFields);
+            (*override)[piceRulesPar.first] = special;
+        }
         chesscom::TimeRules* trPtr = response->mutable_timerules();
         trPtr->CopyFrom(serverTimeRules);
         //dsa = serverVisionRules;
@@ -232,8 +248,28 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                         bool isWhitePlayer = matchPtr->whitePlayer == movePkt.usertoken();
                         bool isPlayersCurrentTurn = matchPtr->moves.size()%2 == (isWhitePlayer?0:1);
                         if(isPlayersCurrentTurn){
+                            matchPtr->game->DoMove(movePtr->from(), movePtr->to());
+                            auto ww = matchPtr->game->GetWhiteVision(); 
+                            auto bw = matchPtr->game->GetBlackVision(); 
+                            auto pices = matchPtr->game->GetPices(); 
+                            *movePtr->mutable_whitevision() = {ww.begin(), ww.end()};
+                            *movePtr->mutable_blackvision() = {bw.begin(), bw.end()};
+                            *movePtr->mutable_pices() = {pices.begin(), pices.end()};
+                            //MOves
+                            auto avMoves = movePtr->mutable_availablemoves();
+                            chesscom::FieldMoves fm;
+                            auto fmRF = fm.mutable_list();
+                            for (auto &&keyVal : *matchPtr->game->LegalMovesRef())
+                            {
+                                for (auto &&pos : keyVal.second)
+                                {
+                                    fmRF->Add(SlugChess::BP(keyVal.first));
+                                }
+                                (*avMoves)[SlugChess::BP(keyVal.first)].CopyFrom(fm);
+                                fmRF->Clear();
+                            }
+                            
                             matchPtr->moves.push_back(movePtr);
-                            //matchPtr->matchEvents.push_back(chesscom::MatchEvent::Non); 
                             if(isWhitePlayer){
                                 matchPtr->clock->whiteSecLeft -= movePtr->secspent();
                                 if(matchPtr->clock->whiteSecLeft <= 0) {
@@ -288,6 +324,26 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                     {
                         std::unique_lock<std::mutex> scopeLock (lock);
                         std::cout << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got move " << movePkt.move().from() << " " << movePkt.move().to() << std::endl << std::flush;
+                        matchPtr->game->DoMove(movePtr->from(), movePtr->to());
+                        auto ww = matchPtr->game->GetWhiteVision(); 
+                        auto bw = matchPtr->game->GetBlackVision(); 
+                        auto pices = matchPtr->game->GetPices(); 
+                        *movePtr->mutable_whitevision() = {ww.begin(), ww.end()};
+                        *movePtr->mutable_blackvision() = {bw.begin(), bw.end()};
+                        *movePtr->mutable_pices() = {pices.begin(), pices.end()};
+                        //MOves
+                        auto avMoves = movePtr->mutable_availablemoves();
+                        chesscom::FieldMoves fm;
+                        auto fmRF = fm.mutable_list();
+                        for (auto &&keyVal : *matchPtr->game->LegalMovesRef())
+                        {
+                            for (auto &&pos : keyVal.second)
+                            {
+                                fmRF->Add(SlugChess::BP(keyVal.first));
+                            }
+                            (*avMoves)[SlugChess::BP(keyVal.first)].CopyFrom(fm);
+                            fmRF->Clear();
+                        }
                         matchPtr->moves.push_back(movePtr);
                         std::cout << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got Win" << std::endl << std::flush;
                         matchPtr->matchEvents.push_back(movePkt.cheatmatchevent());
@@ -486,7 +542,6 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
             }
             
             std::this_thread::sleep_for(std::chrono::milliseconds(MAX_SLEEP_MS));
-
         }
         t1.join();
         {
@@ -500,24 +555,33 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
 
 
 
-chesscom::VisionRules ServerVisionRules(){
-    chesscom::VisionRules vr;
-    vr.set_enabled(true);
-    vr.set_viewmovefields(false);
-    vr.set_viewrange(2);
-    vr.set_viewcapturefield(true);
+VisionRules ServerVisionRules(){
+     VisionRules rules;
+     rules.globalRules = Rules();
+     rules.globalRules.ViewCaptureField = true;
+     rules.globalRules.ViewMoveFields = false;
+     rules.globalRules.ViewRange = 2;
+     rules.enabled = true;
+     rules.overWriteRules[ChessPice::WhitePawn] = Rules(false, true, 1);
+     rules.overWriteRules[ChessPice::BlackPawn] = Rules(false, true, 1);
+
+    //chesscom::VisionRules vr;
+    //vr.set_enabled(true);
+    //vr.set_viewmovefields(false);
+    //vr.set_viewrange(2);
+    //vr.set_viewcapturefield(true);
     //std::cout << " Vision rules" << std::endl << std::flush;
-    google::protobuf::Map<int, chesscom::VisionRules>* override = vr.mutable_piceoverwriter();
-    chesscom::VisionRules special;
-    special.set_enabled(true);
-    special.set_viewmovefields(false);
-    special.set_viewrange(1);
+    //google::protobuf::Map<int, chesscom::VisionRules>* override = vr.mutable_piceoverwriter();
+    //chesscom::VisionRules special;
+    //special.set_enabled(true);
+    //special.set_viewmovefields(false);
+    //special.set_viewrange(1);
     //std::cout << " redy to mute" << std::endl << std::flush;
-    (*override)[chesscom::Pices::BlackPawn] = special;
-    (*override)[chesscom::Pices::WhitePawn] = special;
+    //(*override)[chesscom::Pices::BlackPawn] = special;
+    //(*override)[chesscom::Pices::WhitePawn] = special;
     //(*override) [chesscom::Pices::WhiteKnight] = special;
     //(*override) [chesscom::Pices::BlackKnight] = special;
-    return vr;
+    return rules;
 }
 
 chesscom::TimeRules ServerTimeRules(){
@@ -553,7 +617,7 @@ int main(int argc, char** argv) {
     logFile.open ("server.log", std::ios::out | std::ios::trunc);
     logFile << "Writing this to a file.\n"<< std::flush;
     serverVisionRules = ServerVisionRules();
-    std::string vrString = serverVisionRules.SerializeAsString();
+    //std::string vrString = serverVisionRules.SerializeAsString();
     serverTimeRules = ServerTimeRules();
     
     //logFile << "---ServerRules---\n" << vrString << "\n";

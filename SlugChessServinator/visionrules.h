@@ -16,7 +16,7 @@ struct Rules{
         
     }
 
-    Rules() : Rules(false, true, 2){
+    Rules() : Rules(false, false, 0){
         
     }
 };
