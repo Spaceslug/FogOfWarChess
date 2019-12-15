@@ -117,6 +117,11 @@ namespace SlugChess
             WhiteTurn = !WhiteTurn;
             WhiteVision = move.WhiteVision.ToArray();
             BlackVision = move.BlackVision.ToArray();
+            for (int i = 0; i < move.Pices.Count; i++){
+                Field f = Board[i];
+                f.Pice = (Pices)move.Pices[i];
+                Board[i] = f;
+            }
             
             _legalMovesAll = move.AvailableMoves.ToDictionary(keyVal => keyVal.Key, keyVal => keyVal.Value.List.Select(from => (from, new List<FieldState>())).ToList());
             //ToDictionary<string, string>(from => from, to => to );
