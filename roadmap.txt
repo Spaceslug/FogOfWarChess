@@ -1,33 +1,29 @@
 version 0.x.1
 -propper user login system (Make Loggin call a lifetime call)
-
-version 0.x.1
 - sign the assembly with a certificate to make windows happy
   - seams i have to pay money to get this
-
-version 0.x.1
+-learn how to debug in the IDE
 - a check to evaluate the validity of time spent on move. Change the value if it seams wrong. 
-
-version 0.x.1
 -go back and forwards in the move while playing a match
-
-version 0.x.1
 -a way to see where and when pices died
 
-version 0.x.1
--Create custom games with custom rules
--rules not on server
 
-version 0.x.1
+
+version 0.9.0
 -implement double fisher random
 -save moves of match so they can be replayed
 
-version 0.7.x
--chose new IDE to work with on linux
--learn how to debug in the IDE
+version 0.8.0
+-Create custom games with custom rules
+
+version 0.7.1
 -create a new object orientet structure to the server code
   - rework some thread to use conditional varible instead of thread sleep. This to improve speed
--move all move validation to server
+
+version 0.7.0
+-(x)chose new IDE to work with on linux
+-move all move validation to server/rules not on server
+  -slugchess on server (missing end of game)
 
 version 0.6.2
 -(x)sound when running out of time
