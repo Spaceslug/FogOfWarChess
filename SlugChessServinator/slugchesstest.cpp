@@ -6,9 +6,10 @@ SlugChess* game;
 
 void GameLoop(){
     std::string s;
+    std::cout << "Enter commands to play" << std::endl;
     while(s != "exit"){
-        std::cout << "Enter commands to play" << std::endl;
         std::cin >> s;
+        std::cout << "-" << s << std::endl;
         if(s == "play"){
             if(game != nullptr) delete game;   
             VisionRules rules;
@@ -20,8 +21,45 @@ void GameLoop(){
             rules.overWriteRules[ChessPice::WhitePawn] = Rules(false,true, 1);
             rules.overWriteRules[ChessPice::BlackPawn] = Rules(false,true, 1);     
             game = new SlugChess("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1", rules);
-        }else if(s[0] == 'm'){
+            std::stringstream ss;
+            game->PrintBoard(ss, game->WhitesTurn());        
+            std::cout << ss.str() << std::endl;
+        }else if(s[0] == '-' && s.size() == 5){
             
+            std::string from = s.substr(1, 2);
+            std::string to = s.substr(3, 2);
+            std::cout << "Move " << from << "-" << to << std::endl;
+            if(game->LegalMove(from, to)){
+                game->DoMove(from, to);    
+                std::stringstream ss;
+                game->PrintBoard(ss, game->WhitesTurn());        
+                std::cout << ss.str() << std::endl;
+            }else{
+                std::cout << "Not a legal move!  " << from << "-" << to << std::endl;
+            }
+            
+
+        }else if(s == "moves"){
+            auto moves = *game->LegalMovesRef();
+            for (auto &&keyVal : moves)
+            {
+                std::string from = game->BP(keyVal.first);
+                std::cout << "(" << from << "):" << std::flush;
+                for (auto &&toPos : keyVal.second)
+                {
+                    std::cout << "(" << from << "-" << game->BP(toPos) << ")";
+                }
+                
+            }
+            std::cout << std::endl;
+            
+        }else if(s == "board"){
+            std::stringstream ss;
+            std::cout << "Printing board" << std::endl;
+            bool whiteplayer = game->WhitesTurn();
+            std::cout << "white player " << std::to_string(whiteplayer) << std::endl;
+            game->PrintBoard(ss, whiteplayer);        
+            std::cout << ss.str() << std::endl;
         }
     }
     if(game != nullptr) delete game;

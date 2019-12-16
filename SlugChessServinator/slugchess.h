@@ -3,6 +3,7 @@
 #include <vector>
 #include <list>
 #include <iostream>
+#include <algorithm>
 #include "visionrules.h"
 #include "sfen.h"
 
@@ -39,10 +40,18 @@ class SlugChess {
         return pices;
     }
 
+    bool LegalMove(std::string& from,std::string& to){ 
+        if(_legalMoves.count(BPToIndx(from)) > 0){
+            std::vector<int> vector = _legalMoves[BPToIndx(from)];
+            return std::find(vector.begin(), vector.end(), BPToIndx(to)) != vector.end();
+        }
+        return false; 
+    }
+
     std::map<int, std::vector<int>>* LegalMovesRef(){ return &_legalMoves; }
 
 
-    char CurrentPlayer(){ return _whiteTurn?'w':'b'; };
+    bool WhitesTurn(){return _whiteTurn; }
 
     void CalPossibleCastles();
 
