@@ -12,6 +12,7 @@ SlugChess::SlugChess(const std::string& sfenString, const VisionRules& visionRul
     _rules = visionRules;
     _killedPices.clear();
     _whiteTurn = true;
+    _gameEnd = EndResult::StillPlaying;
     Sfen::WriteSfenPicesToBoard(_board, sfenString);
     CalculateVision();
     CalculateLegalMoves();
@@ -278,7 +279,6 @@ Field SlugChess::ExecuteMove(int from, int to){
 }
 
 void SlugChess::DoMove(const std::string& from, const std::string& to){
-    
     Field attackedField = ExecuteMove(from, to);
     _whiteTurn = !_whiteTurn;
     CalculateVision();
@@ -287,5 +287,18 @@ void SlugChess::DoMove(const std::string& from, const std::string& to){
     if(attackedField.Pice != ChessPice::Non){
         _lastCaptureField = GameRules::BoardPosToIndex(*attackedField.fieldname);
         _killedPices.push_back(std::tuple<ChessPice,int>(attackedField.Pice, GameRules::BoardPosToIndex(*attackedField.fieldname)));
+    }else{
+        _lastCaptureField = -1;
+    }
+    if(_lastCaptured == ChessPice::WhiteKing){
+        _gameEnd = EndResult::WhiteWin;
+    }
+    if(_lastCaptured == ChessPice::BlackKing){
+        _gameEnd = EndResult::BlackWin;
     }
 }
+
+
+
+
+

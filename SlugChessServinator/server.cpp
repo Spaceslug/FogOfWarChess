@@ -255,27 +255,48 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                             *movePtr->mutable_whitevision() = {ww.begin(), ww.end()};
                             *movePtr->mutable_blackvision() = {bw.begin(), bw.end()};
                             *movePtr->mutable_pices() = {pices.begin(), pices.end()};
+                            std::stringstream ss;
+                            matchPtr->game->PrintWhiteVision(ss);
+                            std::cout << ss.str();
                             //MOves
                             auto avMoves = movePtr->mutable_availablemoves();
                             chesscom::FieldMoves fm;
                             auto fmRF = fm.mutable_list();
                             for (auto &&keyVal : *matchPtr->game->LegalMovesRef())
                             {
+                                //std::cout << keyVal.first << " < ";
                                 for (auto &&pos : keyVal.second)
                                 {
-                                    fmRF->Add(SlugChess::BP(keyVal.first));
+                                    //std::cout << SlugChess::BP(pos) << " - ";
+                                    fmRF->Add(SlugChess::BP(pos));
                                 }
+                                //std::cout << std::endl;
                                 (*avMoves)[SlugChess::BP(keyVal.first)].CopyFrom(fm);
                                 fmRF->Clear();
                             }
-                            
-                            matchPtr->moves.push_back(movePtr);
+                            chesscom::MatchEvent expectedMatchEvent = chesscom::MatchEvent::Non;
+                            if(matchPtr->game->Result() != SlugChess::EndResult::StillPlaying){
+                                switch (matchPtr->game->Result())
+                                {
+                                case SlugChess::EndResult::Draw:
+                                    expectedMatchEvent = chesscom::MatchEvent::Draw;
+                                    break;
+                                case SlugChess::EndResult::WhiteWin:
+                                    expectedMatchEvent = chesscom::MatchEvent::WhiteWin;
+                                    break;
+                                case SlugChess::EndResult::BlackWin:
+                                    expectedMatchEvent = chesscom::MatchEvent::BlackWin;
+                                    break;
+                                default:
+                                    break;
+                                }
+                            }
                             if(isWhitePlayer){
                                 matchPtr->clock->whiteSecLeft -= movePtr->secspent();
                                 if(matchPtr->clock->whiteSecLeft <= 0) {
-                                    matchPtr->matchEvents.push_back(chesscom::MatchEvent::BlackWin);
+                                    expectedMatchEvent = chesscom::MatchEvent::BlackWin;
                                 }else{
-                                    matchPtr->matchEvents.push_back(chesscom::MatchEvent::Non); 
+                                    //matchPtr->matchEvents.push_back(chesscom::MatchEvent::Non); 
                                     matchPtr->clock->whiteSecLeft += (matchPtr->moves.size()==1?0:serverTimeRules.secondspermove());
                                 }
                             }
@@ -283,13 +304,14 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                             {
                                 matchPtr->clock->blackSecLeft -= movePtr->secspent();
                                 if(matchPtr->clock->blackSecLeft <= 0) {
-                                    matchPtr->matchEvents.push_back(chesscom::MatchEvent::WhiteWin);        
+                                    expectedMatchEvent = chesscom::MatchEvent::WhiteWin;
                                 }else{
-                                    matchPtr->matchEvents.push_back(chesscom::MatchEvent::Non); 
+                                    //matchPtr->matchEvents.push_back(chesscom::MatchEvent::Non); 
                                     matchPtr->clock->blackSecLeft += serverTimeRules.secondspermove();
                                 }
                             }
-                            
+                            matchPtr->matchEvents.push_back(expectedMatchEvent);
+                            matchPtr->moves.push_back(movePtr);
                             //std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " whitesecs left " << std::to_string(matchPtr->clock->whiteSecLeft) << " blacksecs left " << std::to_string(matchPtr->clock->blackSecLeft) << std::endl << std::flush;
                             //std::string output;google::protobuf::util::MessageToJsonString(*movePtr, &output);
                             //matchPtr->
@@ -337,10 +359,13 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                         auto fmRF = fm.mutable_list();
                         for (auto &&keyVal : *matchPtr->game->LegalMovesRef())
                         {
+                            //std::cout << keyVal.first << " < ";
                             for (auto &&pos : keyVal.second)
                             {
-                                fmRF->Add(SlugChess::BP(keyVal.first));
+                                //std::cout << SlugChess::BP(pos) << " - ";
+                                fmRF->Add(SlugChess::BP(pos));
                             }
+                            std::cout << std::endl;
                             (*avMoves)[SlugChess::BP(keyVal.first)].CopyFrom(fm);
                             fmRF->Clear();
                         }

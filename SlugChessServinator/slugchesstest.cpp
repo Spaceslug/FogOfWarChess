@@ -30,9 +30,35 @@ void GameLoop(){
             std::string to = s.substr(3, 2);
             std::cout << "Move " << from << "-" << to << std::endl;
             if(game->LegalMove(from, to)){
-                game->DoMove(from, to);    
+                game->DoMove(from, to);
+
                 std::stringstream ss;
-                game->PrintBoard(ss, game->WhitesTurn());        
+                switch (game->Result())
+                {
+                case SlugChess::EndResult::Draw:
+                    ss << "Game ended: Draw " << std::endl;
+                    game->PrintDebugBoard(ss);
+                    ss << "Game ended: Draw " << std::endl;
+                    delete game;
+                    break;
+                case SlugChess::EndResult::WhiteWin:
+                    ss << "Game ended: White won!" << std::endl;
+                    game->PrintDebugBoard(ss);
+                    ss << "Game ended: White won!" << std::endl;
+                    delete game;
+                    break;
+                case SlugChess::EndResult::BlackWin:
+                    ss << "Game ended: Black won!" << std::endl;
+                    game->PrintDebugBoard(ss);
+                    ss << "Game ended: Black won!" << std::endl;
+                    delete game;
+                    break;
+                case SlugChess::EndResult::StillPlaying:
+                    game->PrintBoard(ss, game->WhitesTurn());
+                    break;
+                default:
+                    break;
+                }    
                 std::cout << ss.str() << std::endl;
             }else{
                 std::cout << "Not a legal move!  " << from << "-" << to << std::endl;

@@ -10,6 +10,12 @@
 class SlugChess {
     public:
 
+    enum EndResult{
+        StillPlaying = 0,
+        Draw = 1,
+        WhiteWin = 2,
+        BlackWin = 3,
+    };
 
     //SlugChess(int temp);
     SlugChess(const std::string& sfenString, const VisionRules& visionRules);
@@ -40,7 +46,14 @@ class SlugChess {
         return pices;
     }
 
-    bool LegalMove(std::string& from,std::string& to){ 
+    void SetEnd(EndResult endResult){
+        _gameEnd = endResult;
+    }
+    EndResult Result(){
+        return _gameEnd;
+    }
+
+    bool LegalMove(std::string& from, std::string& to){ 
         if(_legalMoves.count(BPToIndx(from)) > 0){
             std::vector<int> vector = _legalMoves[BPToIndx(from)];
             return std::find(vector.begin(), vector.end(), BPToIndx(to)) != vector.end();
@@ -89,6 +102,7 @@ class SlugChess {
     void PrintBoard(std::stringstream& ss, bool visionBoard[]);
     void PrintDebugBoard(std::stringstream& ss, bool visionboard[]);
 
+    EndResult _gameEnd;
     int _halfturn;
     bool _whiteTurn;
     VisionRules _rules; 
