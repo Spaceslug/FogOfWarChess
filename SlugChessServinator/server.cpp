@@ -255,9 +255,10 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                             *movePtr->mutable_whitevision() = {ww.begin(), ww.end()};
                             *movePtr->mutable_blackvision() = {bw.begin(), bw.end()};
                             *movePtr->mutable_pices() = {pices.begin(), pices.end()};
-                            std::stringstream ss;
-                            matchPtr->game->PrintWhiteVision(ss);
-                            std::cout << ss.str();
+                            movePtr->set_capturedpice((chesscom::Pices)matchPtr->game->LastCaptured());
+                            //std::stringstream ss;
+                            //matchPtr->game->PrintWhiteVision(ss);
+                            //std::cout << ss.str();
                             //MOves
                             auto avMoves = movePtr->mutable_availablemoves();
                             chesscom::FieldMoves fm;
@@ -353,6 +354,7 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                         *movePtr->mutable_whitevision() = {ww.begin(), ww.end()};
                         *movePtr->mutable_blackvision() = {bw.begin(), bw.end()};
                         *movePtr->mutable_pices() = {pices.begin(), pices.end()};
+                        movePtr->set_capturedpice((chesscom::Pices)matchPtr->game->LastCaptured());
                         //MOves
                         auto avMoves = movePtr->mutable_availablemoves();
                         chesscom::FieldMoves fm;

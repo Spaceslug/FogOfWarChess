@@ -8,6 +8,7 @@
 SlugChess::SlugChess(const std::string& sfenString, const VisionRules& visionRules){
     // rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1
     // normal startingpoint shredder-fen
+    _fenString = sfenString;
     _board = std::vector<Field>(64);
     _rules = visionRules;
     _killedPices.clear();
@@ -225,31 +226,29 @@ Field SlugChess::ExecuteMove(int from, int to){
     int killedPos = -1;
     int modTo = to%8;
     int modFrom = from%8;
-    if(_board[from].FirstMove && (_board[from].Pice == ChessPice::WhiteKing || _board[from].Pice == ChessPice::BlackKing) && (modTo == modFrom-2 || modTo == modFrom+2)){
-        //test casteling
-        int newto;
-        int otherto;
+    //std::cout << "!!! Board modTo" << std::to_string(modTo) << "modFrom " << std::to_string(modFrom) << std::endl;
+    //std::cout << "!!! Board from first move " << std::to_string(_board[from].FirstMove) << std::endl;
+    //std::cout << "!!! Board from is king " << std::to_string(_board[from].Pice == ChessPice::WhiteKing || _board[from].Pice == ChessPice::BlackKing) << std::endl;
+    //std::cout << "!!! Board mod diff 2 " << std::to_string(modTo == modFrom-2 || modTo == modFrom+2) << std::endl;
+    if(_board[from].FirstMove && (_board[from].Pice == ChessPice::WhiteKing || _board[from].Pice == ChessPice::BlackKing) && (modTo > modFrom+1 || modTo < modFrom-1)){
+        //std::cout << "!!!Dooing Castling" << std::endl;
+        int kingEnd;
+        int rookEnd;
         ChessPice rook = _board[to].HasWhitePice()?ChessPice::WhiteRook:ChessPice::BlackRook;
-        if(modTo == modFrom+2){
-            newto = GameRules::RightOne(to);
-            while(_board[newto].Pice != rook){
-                newto = GameRules::RightOne(newto);
-            }
-            otherto = GameRules::LeftOne(to);
+        if(modTo > modFrom+1){
+            kingEnd = GameRules::RightOne(GameRules::RightOne(from));
+            rookEnd = GameRules::RightOne(from);
         }
-        else if(modTo == modFrom-2)
+        else if(modTo < modFrom-1)
         {
-            newto = GameRules::LeftOne(to);
-            while(_board[newto].Pice != rook){
-                newto = GameRules::LeftOne(newto);
-            }
-            otherto = GameRules::RightOne(to);
+            kingEnd = GameRules::LeftOne(GameRules::LeftOne(from));
+            rookEnd = GameRules::LeftOne(from);
         }
-        _board[otherto] = Field(_board[newto].Pice, _board[otherto].fieldname);
-        _board[newto] = Field(ChessPice::Non, _board[newto].fieldname);
-        _board[to] = Field(_board[from].Pice, _board[to].fieldname);
+        _board[rookEnd] = Field(_board[to].Pice, _board[rookEnd].fieldname);
+        _board[kingEnd] = Field(_board[from].Pice, _board[kingEnd].fieldname);
+        _board[to] = Field(ChessPice::Non, _board[to].fieldname);
         _board[from] = Field(ChessPice::Non, _board[from].fieldname);
-
+        tofield = _board[to];
     }
     else if(_board[to].AnPassan_able){
         //preform an passant
@@ -273,12 +272,13 @@ Field SlugChess::ExecuteMove(int from, int to){
         //std::cout << *_board[to].fieldname << " is now " << Field::PiceChar(_board[to].Pice) << std::endl; 
     }
     
-   
+    _moves.push_back(std::tuple<int, int>(from, to));
     //Selected = null;
     return tofield;
 }
 
 void SlugChess::DoMove(const std::string& from, const std::string& to){
+    //WriteLan(from,to);
     Field attackedField = ExecuteMove(from, to);
     _whiteTurn = !_whiteTurn;
     CalculateVision();

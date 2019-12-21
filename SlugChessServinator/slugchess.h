@@ -66,6 +66,8 @@ class SlugChess {
 
     bool WhitesTurn(){return _whiteTurn; }
 
+    ChessPice LastCaptured(){ return _lastCaptured; }
+
     void CalPossibleCastles();
 
     void CleanAnPassants()
@@ -99,9 +101,13 @@ class SlugChess {
 
     Field ExecuteMove(const std::string from, const std::string to);
     Field ExecuteMove(int from, int to);
+    //void WriteLan(const std::string& from, const std::string& to);
     void PrintBoard(std::stringstream& ss, bool visionBoard[]);
     void PrintDebugBoard(std::stringstream& ss, bool visionboard[]);
 
+    std::string _fenString;
+    std::list<std::tuple<int, int>> _moves;
+    //std::stringstream _lan;
     EndResult _gameEnd;
     int _halfturn;
     bool _whiteTurn;

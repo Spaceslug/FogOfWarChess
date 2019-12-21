@@ -10,7 +10,9 @@ void GameLoop(){
     while(s != "exit"){
         std::cin >> s;
         std::cout << "-" << s << std::endl;
-        if(s == "play"){
+        if(s == "exit"){
+            continue;
+        }else if(s == "play"){
             if(game != nullptr) delete game;   
             VisionRules rules;
             rules.globalRules = Rules();
@@ -24,10 +26,31 @@ void GameLoop(){
             std::stringstream ss;
             game->PrintBoard(ss, game->WhitesTurn());        
             std::cout << ss.str() << std::endl;
-        }else if(s[0] == '-' && s.size() == 5){
+        }else if(s == "moves"){
+            auto moves = *game->LegalMovesRef();
+            for (auto &&keyVal : moves)
+            {
+                std::string from = game->BP(keyVal.first);
+                std::cout << "(" << from << "):" << std::flush;
+                for (auto &&toPos : keyVal.second)
+                {
+                    std::cout << "(" << from << "-" << game->BP(toPos) << ")";
+                }
+                
+            }
+            std::cout << std::endl;
             
-            std::string from = s.substr(1, 2);
-            std::string to = s.substr(3, 2);
+        }else if(s == "board"){
+            std::stringstream ss;
+            std::cout << "Printing board" << std::endl;
+            bool whiteplayer = game->WhitesTurn();
+            std::cout << "white player " << std::to_string(whiteplayer) << std::endl;
+            game->PrintBoard(ss, whiteplayer);        
+            std::cout << ss.str() << std::endl;
+        }else if( s.size() == 4){
+            
+            std::string from = s.substr(0, 2);
+            std::string to = s.substr(2, 2);
             std::cout << "Move " << from << "-" << to << std::endl;
             if(game->LegalMove(from, to)){
                 game->DoMove(from, to);
@@ -54,6 +77,8 @@ void GameLoop(){
                     delete game;
                     break;
                 case SlugChess::EndResult::StillPlaying:
+                    game->PrintBoard(ss, !game->WhitesTurn());
+                    ss << std::endl;
                     game->PrintBoard(ss, game->WhitesTurn());
                     break;
                 default:
@@ -65,27 +90,6 @@ void GameLoop(){
             }
             
 
-        }else if(s == "moves"){
-            auto moves = *game->LegalMovesRef();
-            for (auto &&keyVal : moves)
-            {
-                std::string from = game->BP(keyVal.first);
-                std::cout << "(" << from << "):" << std::flush;
-                for (auto &&toPos : keyVal.second)
-                {
-                    std::cout << "(" << from << "-" << game->BP(toPos) << ")";
-                }
-                
-            }
-            std::cout << std::endl;
-            
-        }else if(s == "board"){
-            std::stringstream ss;
-            std::cout << "Printing board" << std::endl;
-            bool whiteplayer = game->WhitesTurn();
-            std::cout << "white player " << std::to_string(whiteplayer) << std::endl;
-            game->PrintBoard(ss, whiteplayer);        
-            std::cout << ss.str() << std::endl;
         }
     }
     if(game != nullptr) delete game;
