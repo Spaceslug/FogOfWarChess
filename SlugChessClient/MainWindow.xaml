@@ -5,162 +5,178 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SlugChess"
         mc:Ignorable="d"
-        Title="Slug Chess v0.2.1" Height="479.487" Width="803.846" MinWidth="803" MinHeight="479"
+        Title="Slug Chess v0.2.1" Height="500" Width="800" MinWidth="800" MinHeight="500"
         Closing="Window_Closing"
         Icon="pack://siteoforigin:,,,/img/icon.png">
-    <Grid x:Name="RootGrid">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="95*"/>
-            <ColumnDefinition Width="270*"/>
-            <ColumnDefinition Width="194*"/>
-            <ColumnDefinition Width="237*"/>
-        </Grid.ColumnDefinitions>
-        <Grid  HorizontalAlignment="Right" Height="314" Margin="0,93,0,0"  VerticalAlignment="Top" Width="352" Grid.ColumnSpan="2" Grid.Column="2" Background="White">
-            <Label x:Name="loginLabel" Content="Name:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-            <TextBox x:Name="nameTextBox" HorizontalAlignment="Left" Height="23" Margin="53,12,0,0" TextWrapping="Wrap" Text="noname" VerticalAlignment="Top" Width="120"/>
-            <Button x:Name="loginButton" Content="Log In" Click="LoginButtonClick" HorizontalAlignment="Left" Margin="178,12,0,0" VerticalAlignment="Top" Width="75"/>
-            <Button x:Name="lookForMatchButton" Content="Look for match" Click="LookForMatchClick" IsEnabled="false" HorizontalAlignment="Left" Margin="258,12,0,0" VerticalAlignment="Top" Width="85"/>
-            <RichTextBox x:Name="messageBox" IsReadOnly="true" HorizontalAlignment="Left" Height="179" Margin="10,103,0,0" VerticalAlignment="Top" Width="332">
-                <RichTextBox.Resources>
-                    <Style TargetType="{x:Type Paragraph}">
-                        <Setter Property="Margin" Value="0" />
-                    </Style>
-                </RichTextBox.Resources>
-                <FlowDocument>
-                    <Paragraph>
-                        <Run Text="Welcome to Slug Chess"/>
-                    </Paragraph>
-                </FlowDocument>
-            </RichTextBox>
-            <TextBox x:Name="sendTextBox" HorizontalAlignment="Left" Height="23" Margin="10,287,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="249" KeyDown="SendTextBox_KeyDown">
-                <TextBox.Style>
-                    <Style TargetType="TextBox" xmlns:sys="clr-namespace:System;assembly=mscorlib">
-                        <Style.Resources>
-                            <VisualBrush x:Key="CueBannerBrush" AlignmentX="Left" AlignmentY="Center" Stretch="None">
-                                <VisualBrush.Visual>
-                                    <Label Content="Write message" Foreground="LightGray" />
-                                </VisualBrush.Visual>
-                            </VisualBrush>
-                        </Style.Resources>
-                        <Style.Triggers>
-                            <Trigger Property="Text" Value="{x:Static sys:String.Empty}">
-                                <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
-                            </Trigger>
-                            <Trigger Property="Text" Value="{x:Null}">
-                                <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
-                            </Trigger>
-                            <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter Property="Background" Value="White" />
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </TextBox.Style>
-            </TextBox>
-            <Button x:Name="sendTextButton"  Click="SendMessageClick" Content="Send" HorizontalAlignment="Left" Margin="264,288,0,0" VerticalAlignment="Top" Width="75"/>
-            <Grid HorizontalAlignment="Left" Height="58" Margin="10,40,0,0" VerticalAlignment="Top" Width="329">
-                <Label x:Name="lbWhiteTimeLeft" Content="00:00" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  Margin="94,0,167,0" VerticalAlignment="Center" VerticalContentAlignment="Center" Height="58" Width="68" FontWeight="Bold" FontSize="22"/>
-                <Label x:Name="lbBlackTimeLeft" Content="00:00" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  Margin="167,0,94,0" VerticalAlignment="Center" VerticalContentAlignment="Center" Height="58" Width="66" FontWeight="Bold" FontSize="22" />
-                <Label x:Name="lbBlackTimePerMove" Content="+00s" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  Margin="227,4,64,-4" VerticalAlignment="Center" VerticalContentAlignment="Center" Height="58" Width="38" FontWeight="Bold" FontSize="12" />
-                <Label x:Name="lbWhiteTimePerMove" Content="+00s" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  Margin="64,4,227,-4" VerticalAlignment="Center" VerticalContentAlignment="Center" Height="58" Width="38" FontWeight="Bold" FontSize="12" />
-                <Image x:Name="imgWhiteKing" Source="pack://siteoforigin:,,,/img/whiteKing.png" HorizontalAlignment="Left" Height="58" Margin="0,0,0,0" VerticalAlignment="Stretch" Width="64"/>
-                <Image x:Name="imgBlackKing" Source="pack://siteoforigin:,,,/img/blackKing.png" HorizontalAlignment="Right" Height="58" Margin="0,0,0,0" VerticalAlignment="Stretch" Width="64"/>
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_Game">
+                <MenuItem Header="_Host" />
+                <MenuItem Header="_Connect" />
+                <MenuItem Header="_Nothing" />
+                <Separator />
+                <MenuItem Header="_Exit" Click="CloseClick"/>
+            </MenuItem>
+        </Menu>
+        <Grid x:Name="RootGrid">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="95*"/>
+                <ColumnDefinition Width="268*"/>
+                <ColumnDefinition Width="193*"/>
+                <ColumnDefinition Width="36*"/>
+                <ColumnDefinition Width="201*"/>
+            </Grid.ColumnDefinitions>
+
+
+            <Grid  HorizontalAlignment="Right" Height="314" Margin="0,93,-0.477,0"  VerticalAlignment="Top" Width="352" Grid.ColumnSpan="3" Grid.Column="2" Background="White">
+                <Label x:Name="loginLabel" Content="Name:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="nameTextBox" HorizontalAlignment="Left" Height="23" Margin="53,12,0,0" TextWrapping="Wrap" Text="noname" VerticalAlignment="Top" Width="120"/>
+                <Button x:Name="loginButton" Content="Log In" Click="LoginButtonClick" HorizontalAlignment="Left" Margin="178,12,0,0" VerticalAlignment="Top" Width="75"/>
+                <Button x:Name="lookForMatchButton" Content="Look for match" Click="LookForMatchClick" IsEnabled="false" HorizontalAlignment="Left" Margin="258,12,0,0" VerticalAlignment="Top" Width="85"/>
+                <RichTextBox x:Name="messageBox" IsReadOnly="true" HorizontalAlignment="Left" Height="179" Margin="10,103,0,0" VerticalAlignment="Top" Width="332">
+                    <RichTextBox.Resources>
+                        <Style TargetType="{x:Type Paragraph}">
+                            <Setter Property="Margin" Value="0" />
+                        </Style>
+                    </RichTextBox.Resources>
+                    <FlowDocument>
+                        <Paragraph>
+                            <Run Text="Welcome to Slug Chess"/>
+                        </Paragraph>
+                    </FlowDocument>
+                </RichTextBox>
+                <TextBox x:Name="sendTextBox" HorizontalAlignment="Left" Height="23" Margin="10,287,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="249" KeyDown="SendTextBox_KeyDown">
+                    <TextBox.Style>
+                        <Style TargetType="TextBox" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                            <Style.Resources>
+                                <VisualBrush x:Key="CueBannerBrush" AlignmentX="Left" AlignmentY="Center" Stretch="None">
+                                    <VisualBrush.Visual>
+                                        <Label Content="Write message" Foreground="LightGray" />
+                                    </VisualBrush.Visual>
+                                </VisualBrush>
+                            </Style.Resources>
+                            <Style.Triggers>
+                                <Trigger Property="Text" Value="{x:Static sys:String.Empty}">
+                                    <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                                </Trigger>
+                                <Trigger Property="Text" Value="{x:Null}">
+                                    <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                                </Trigger>
+                                <Trigger Property="IsKeyboardFocused" Value="True">
+                                    <Setter Property="Background" Value="White" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+                <Button x:Name="sendTextButton"  Click="SendMessageClick" Content="Send" HorizontalAlignment="Left" Margin="264,288,0,0" VerticalAlignment="Top" Width="75"/>
+                <Grid HorizontalAlignment="Left" Height="58" Margin="10,40,0,0" VerticalAlignment="Top" Width="329">
+                    <Label x:Name="lbWhiteTimeLeft" Content="00:00" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  Margin="94,0,167,0" VerticalAlignment="Center" VerticalContentAlignment="Center" Height="58" Width="68" FontWeight="Bold" FontSize="22"/>
+                    <Label x:Name="lbBlackTimeLeft" Content="00:00" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  Margin="167,0,94,0" VerticalAlignment="Center" VerticalContentAlignment="Center" Height="58" Width="66" FontWeight="Bold" FontSize="22" />
+                    <Label x:Name="lbBlackTimePerMove" Content="+00s" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  Margin="227,4,64,-4" VerticalAlignment="Center" VerticalContentAlignment="Center" Height="58" Width="38" FontWeight="Bold" FontSize="12" />
+                    <Label x:Name="lbWhiteTimePerMove" Content="+00s" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  Margin="64,4,227,-4" VerticalAlignment="Center" VerticalContentAlignment="Center" Height="58" Width="38" FontWeight="Bold" FontSize="12" />
+                    <Image x:Name="imgWhiteKing" Source="pack://siteoforigin:,,,/img/whiteKing.png" HorizontalAlignment="Left" Height="58" Margin="0,0,0,0" VerticalAlignment="Stretch" Width="64"/>
+                    <Image x:Name="imgBlackKing" Source="pack://siteoforigin:,,,/img/blackKing.png" HorizontalAlignment="Right" Height="58" Margin="0,0,0,0" VerticalAlignment="Stretch" Width="64"/>
+                </Grid>
             </Grid>
+            <UniformGrid x:Name="BoardGrid" Margin="28,10,118.523,29" Background="Black" Grid.ColumnSpan="3" >
+                <Grid x:Name="a8" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown"/>
+                <Grid x:Name="b8" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="c8" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="d8" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="e8" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="f8" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="g8" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="h8" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="a7" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="b7" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="c7" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="d7" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="e7" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="f7" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="g7" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="h7" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="a6" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="b6" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="c6" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="d6" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="e6" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="f6" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="g6" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="h6" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="a5" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="b5" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="c5" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="d5" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="e5" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="f5" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="g5" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="h5" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="a4" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="b4" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="c4" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="d4" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="e4" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="f4" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="g4" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="h4" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="a3" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="b3" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="c3" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="d3" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="e3" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="f3" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="g3" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="h3" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="a2" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="b2" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="c2" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="d2" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="e2" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="f2" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="g2" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="h2" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="a1" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="b1" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="c1" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="d1" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="e1" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="f1" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="g1" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+                <Grid x:Name="h1" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
+            </UniformGrid>
+            <UniformGrid HorizontalAlignment="Left" Margin="0,10,0,10" Width="30" MaxWidth="30" Rows="8" Columns="1">
+                <Label FontWeight="DemiBold" FontSize="18" Content="8" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"/>
+                <Label FontWeight="DemiBold" FontSize="18" Content="7" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" />
+                <Label FontWeight="DemiBold" FontSize="18" Content="6" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"/>
+                <Label FontWeight="DemiBold" FontSize="18" Content="5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"/>
+                <Label FontWeight="DemiBold" FontSize="18" Content="4" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"/>
+                <Label FontWeight="DemiBold" FontSize="18" Content="3" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"/>
+                <Label FontWeight="DemiBold" FontSize="18" Content="2" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"/>
+                <Label FontWeight="DemiBold" FontSize="18" Content="1" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"/>
+            </UniformGrid>
+            <UniformGrid Height="30" Margin="30,0,118.523,-1" VerticalAlignment="Bottom" Rows="1" Columns="8" MinHeight="30" Grid.ColumnSpan="3">
+                <Label FontWeight="DemiBold" FontSize="18" Content="A" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
+                <Label FontWeight="DemiBold" FontSize="18" Content="B" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
+                <Label FontWeight="DemiBold" FontSize="18" Content="C" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
+                <Label FontWeight="DemiBold" FontSize="18" Content="D" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
+                <Label FontWeight="DemiBold" FontSize="18" Content="E" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
+                <Label FontWeight="DemiBold" FontSize="18" Content="F" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
+                <Label FontWeight="DemiBold" FontSize="18" Content="G" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
+                <Label FontWeight="DemiBold" FontSize="18" Content="H" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
+            </UniformGrid>
+            <UniformGrid x:Name="KilledPicesGrid" HorizontalAlignment="Right" Height="83" Margin="80.477,10,-2.477,0" VerticalAlignment="Top" Width="352" Grid.ColumnSpan="3" Rows="4" Columns="10" Grid.Column="2" Background="#FFFAFAFA"/>
+            <StatusBar Grid.Column="2" HorizontalAlignment="Right" Height="27" Margin="90.477,412,0,0" VerticalAlignment="Bottom" Width="331" Grid.ColumnSpan="3">
+                <StatusBarItem Grid.Column="2">
+                    <TextBlock x:Name ="tbLoginStatus" Text="Not logged in" />
+                </StatusBarItem>
+                <Separator Grid.Column="3" />
+                <StatusBarItem Grid.Column="4">
+                    <ProgressBar Value="50" Width="90" Height="16" />
+                </StatusBarItem>
+            </StatusBar>
         </Grid>
-        <UniformGrid x:Name="BoardGrid" Margin="28,10,119,29" Background="Black" Grid.ColumnSpan="3" >
-            <Grid x:Name="a8" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown"/>
-            <Grid x:Name="b8" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="c8" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="d8" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="e8" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="f8" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="g8" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="h8" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="a7" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="b7" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="c7" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="d7" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="e7" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="f7" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="g7" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="h7" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="a6" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="b6" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="c6" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="d6" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="e6" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="f6" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="g6" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="h6" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="a5" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="b5" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="c5" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="d5" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="e5" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="f5" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="g5" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="h5" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="a4" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="b4" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="c4" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="d4" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="e4" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="f4" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="g4" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="h4" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="a3" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="b3" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="c3" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="d3" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="e3" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="f3" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="g3" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="h3" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="a2" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="b2" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="c2" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="d2" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="e2" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="f2" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="g2" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="h2" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="a1" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="b1" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="c1" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="d1" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="e1" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="f1" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="g1" Background="#FF6F6F6F" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-            <Grid x:Name="h1" Background="#FFFFFFFF" UIElement.PreviewMouseDown="Field_PreviewMouseDown" />
-        </UniformGrid>
-        <UniformGrid HorizontalAlignment="Left" Margin="0,10,0,9" Width="30" MaxWidth="30" Rows="8" Columns="1">
-            <Label FontWeight="DemiBold" FontSize="18" Content="8" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"/>
-            <Label FontWeight="DemiBold" FontSize="18" Content="7" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" />
-            <Label FontWeight="DemiBold" FontSize="18" Content="6" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"/>
-            <Label FontWeight="DemiBold" FontSize="18" Content="5" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"/>
-            <Label FontWeight="DemiBold" FontSize="18" Content="4" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"/>
-            <Label FontWeight="DemiBold" FontSize="18" Content="3" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"/>
-            <Label FontWeight="DemiBold" FontSize="18" Content="2" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"/>
-            <Label FontWeight="DemiBold" FontSize="18" Content="1" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top"/>
-        </UniformGrid>
-        <UniformGrid Height="30" Margin="30,0,119,-1" VerticalAlignment="Bottom" Rows="1" Columns="8" MinHeight="30" Grid.ColumnSpan="3">
-            <Label FontWeight="DemiBold" FontSize="18" Content="A" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
-            <Label FontWeight="DemiBold" FontSize="18" Content="B" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
-            <Label FontWeight="DemiBold" FontSize="18" Content="C" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
-            <Label FontWeight="DemiBold" FontSize="18" Content="D" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
-            <Label FontWeight="DemiBold" FontSize="18" Content="E" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
-            <Label FontWeight="DemiBold" FontSize="18" Content="F" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
-            <Label FontWeight="DemiBold" FontSize="18" Content="G" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
-            <Label FontWeight="DemiBold" FontSize="18" Content="H" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
-        </UniformGrid>
-        <UniformGrid x:Name="KilledPicesGrid" HorizontalAlignment="Left" Height="83" Margin="80,10,-1,0" VerticalAlignment="Top" Width="352" Grid.ColumnSpan="2" Rows="4" Columns="10" Grid.Column="2" Background="#FFFAFAFA"/>
-        <StatusBar Grid.Column="2" HorizontalAlignment="Left" Height="27" Margin="90,412,0,0" VerticalAlignment="Top" Width="331" Grid.ColumnSpan="2">
-            <StatusBarItem Grid.Column="2">
-                <TextBlock x:Name ="tbLoginStatus" Text="Not logged in" />
-            </StatusBarItem>
-            <Separator Grid.Column="3" />
-            <StatusBarItem Grid.Column="4">
-                <ProgressBar Value="50" Width="90" Height="16" />
-            </StatusBarItem>
-        </StatusBar>
-    </Grid>
+    </DockPanel>
+    
 </Window>

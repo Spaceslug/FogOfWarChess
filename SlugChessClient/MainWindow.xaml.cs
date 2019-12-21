@@ -637,6 +637,13 @@ namespace SlugChess
 
         }
 
+        private void CloseClick(object sender, RoutedEventArgs args)
+        {
+            Window_Closing(sender, null);
+            Application.Current.Shutdown();
+
+        }
+
         private void Field_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             //sender
