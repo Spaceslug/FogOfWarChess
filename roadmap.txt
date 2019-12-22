@@ -9,6 +9,7 @@ version 0.x.1
 -print the Rules of a SlugChess game to text
 -print the VisionRules of a SlugChess game to text
 -add commands to the server in the message box
+-reenable signal handling on server
 
 BUGS:
 -fix captured field visible bug
@@ -31,6 +32,7 @@ version 0.7.0
 -(x)move all move validation to server/rules not on server
   -(x)slugchess on server (missing end of game)
 -critical game breaking bug. Server stops excepting massages and computer crashes
+-timer is fucked
 
 version 0.6.2 (Done)
 -(x)sound when running out of time
