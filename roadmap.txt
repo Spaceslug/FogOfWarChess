@@ -6,8 +6,13 @@ version 0.x.1
 - a check to evaluate the validity of time spent on move. Change the value if it seams wrong. 
 -go back and forwards in the move while playing a match
 -a way to see where and when pices died
+-print the Rules of a SlugChess game to text
+-print the VisionRules of a SlugChess game to text
+-add commands to the server in the message box
 
-
+BUGS:
+-fix captured field visible bug
+-fix captured pices wrong bug
 
 version 0.9.0
 -implement double fisher random
@@ -19,58 +24,60 @@ version 0.8.0
 version 0.7.1
 -create a new object orientet structure to the server code
   - rework some thread to use conditional varible instead of thread sleep. This to improve speed
+-Print PGN at end of game
 
-version 0.7.0
+version 0.7.0 
 -(x)chose new IDE to work with on linux
--move all move validation to server/rules not on server
-  -slugchess on server (missing end of game)
+-(x)move all move validation to server/rules not on server
+  -(x)slugchess on server (missing end of game)
+-critical game breaking bug. Server stops excepting massages and computer crashes
 
-version 0.6.2
+version 0.6.2 (Done)
 -(x)sound when running out of time
 -(x) bug - time over minutes of time used are ignored
 
-version 0.6.1
+version 0.6.1 (Done)
 -(x)finaly implement view move field (have vision on all tiles where your pices can move to)
     -calling this Sea rules
 
-version 0.5.2 
+version 0.5.2 (Done)
 -can click on opponents pices to see moves
 
-version 0.5.1
+version 0.5.1 (Done)
 -(X)prevent move through hidden fields
 
-version 0.4.2 
+version 0.4.2 (Done)
 -(x)remove unessesary files like x86 stuff and .xml and .pdb
 
-version 0.4.1 
+version 0.4.1 (Done)
 -(x)chess clock
 
-version 0.3.3
+version 0.3.3 (Done)
 -(x)bug: last move not cleared when starting a new match.
 -(x)bug: text log only scrolles when "Opponet did move!" or opponent won
 
-version 0.3.2
+version 0.3.2 (Done)
 -(x)make it a only x64 program 
 
-version 0.3.1
+version 0.3.1 (Done)
 -(x)(optional rule) Last captured field is visible for both players
 -(x)chat system
 -(x)bug: losing player can continue to play
 -(x)bug: loser does not get message that they lost. Server does not send message
 
-version 0.2.4
+version 0.2.4 (Done)
 -(x)add debug port
 -(x)checker of version number. Server must match clients. Minor not same is fine.
 -(x)fix no message scroll after match is done
 -(x)fix killed pices not cleared after new match is started
 -(x)add sound when match found
 
-version 0.2.3
+version 0.2.3 (Done)
 -(x)fix that user that does not have current turn freezes on exit
 --(x)changing to a dedicated read thread on server
 -(x) added autogeneration of csharp proto 
 
-version 0.2.2
+version 0.2.2 (Done)
 -(x) make autoexport to spaceslug.no
 -(x) make service for slugChessServinator
 -(x) show check from visible enemies
