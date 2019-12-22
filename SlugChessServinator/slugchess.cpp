@@ -222,7 +222,7 @@ Field SlugChess::ExecuteMove(const std::string from, const std::string to){
 }
 
 Field SlugChess::ExecuteMove(int from, int to){
-    Field tofield = _board[to];
+    Field tofield = Field(_board[to].Pice, _board[to].fieldname);
     int killedPos = -1;
     int modTo = to%8;
     int modFrom = from%8;
@@ -248,15 +248,16 @@ Field SlugChess::ExecuteMove(int from, int to){
         _board[kingEnd] = Field(_board[from].Pice, _board[kingEnd].fieldname);
         _board[to] = Field(ChessPice::Non, _board[to].fieldname);
         _board[from] = Field(ChessPice::Non, _board[from].fieldname);
-        tofield = _board[to];
+        tofield = Field(_board[to].Pice, _board[to].fieldname);
     }
-    else if(_board[to].AnPassan_able){
+    else if((_board[from].Pice == ChessPice::WhitePawn || _board[from].Pice == ChessPice::BlackPawn) && modFrom != modTo && _board[to].Pice == ChessPice::Non){
         //preform an passant
-        auto moveFunc = _board[from].HasWhitePice()?GameRules::UpOne:GameRules::DownOne;
+        auto moveFunc = _board[from].HasWhitePice()?GameRules::DownOne:GameRules::UpOne;
         int killedTo = moveFunc(to);
-        tofield = _board[killedTo];
+        tofield = Field(_board[killedTo].Pice, _board[killedTo].fieldname);
         _board[to] = Field(_board[from].Pice, _board[to].fieldname);
         _board[from] = Field(ChessPice::Non, _board[from].fieldname);
+        _board[killedTo] = Field(ChessPice::Non, _board[killedTo].fieldname);
     }
     else
     {
@@ -279,12 +280,13 @@ Field SlugChess::ExecuteMove(int from, int to){
 
 void SlugChess::DoMove(const std::string& from, const std::string& to){
     //WriteLan(from,to);
+    CleanAnPassants();
     Field attackedField = ExecuteMove(from, to);
     _whiteTurn = !_whiteTurn;
-    CalculateVision();
-    CalculateLegalMoves();
+
     _lastCaptured = attackedField.Pice;
     if(attackedField.Pice != ChessPice::Non){
+        //std::cout << "Killed pice " << Field::PiceChar(attackedField.Pice) << " at " << *attackedField.fieldname << std::endl;
         _lastCaptureField = GameRules::BoardPosToIndex(*attackedField.fieldname);
         _killedPices.push_back(std::tuple<ChessPice,int>(attackedField.Pice, GameRules::BoardPosToIndex(*attackedField.fieldname)));
     }else{
@@ -296,6 +298,8 @@ void SlugChess::DoMove(const std::string& from, const std::string& to){
     if(_lastCaptured == ChessPice::BlackKing){
         _gameEnd = EndResult::BlackWin;
     }
+    CalculateVision();
+    CalculateLegalMoves();
 }
 
 

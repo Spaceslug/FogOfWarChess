@@ -54,6 +54,10 @@ class SlugChess {
     }
 
     bool LegalMove(std::string& from, std::string& to){ 
+        if(from[0] < 'a' || from[0] > 'h' 
+            ||from[1] < '1' || from[1] > '8'
+            ||to[0] < 'a' || to[0] > 'h'
+            ||to[1] < '1' || to[1] > '8' ) return false;
         if(_legalMoves.count(BPToIndx(from)) > 0){
             std::vector<int> vector = _legalMoves[BPToIndx(from)];
             return std::find(vector.begin(), vector.end(), BPToIndx(to)) != vector.end();

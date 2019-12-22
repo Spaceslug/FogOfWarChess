@@ -257,7 +257,7 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                             *movePtr->mutable_pices() = {pices.begin(), pices.end()};
                             movePtr->set_capturedpice((chesscom::Pices)matchPtr->game->LastCaptured());
                             //std::stringstream ss;
-                            //matchPtr->game->PrintWhiteVision(ss);
+                            //matchPtr->game->PrintBlackVision(ss);
                             //std::cout << ss.str();
                             //MOves
                             auto avMoves = movePtr->mutable_availablemoves();
@@ -639,8 +639,9 @@ void Run(std::string port) {
 }
 
 int main(int argc, char** argv) {
-    void (*prev_handler)(int);
-    prev_handler = signal(SIGINT, SigintHandler);
+    //TODO: reenable signal handling
+    //void (*prev_handler)(int);
+    //prev_handler = signal(SIGINT, SigintHandler);
     logFile.open ("server.log", std::ios::out | std::ios::trunc);
     logFile << "Writing this to a file.\n"<< std::flush;
     serverVisionRules = ServerVisionRules();
