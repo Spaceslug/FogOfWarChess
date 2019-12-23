@@ -1,5 +1,6 @@
 #pragma once
 #include <functional>
+#include <iostream>
 #include "visionrules.h"
 
 class GameRules {
@@ -64,7 +65,7 @@ class GameRules {
     // }
     static int LeftOne(int startPos)
     {
-        if (startPos % 8 == 0) return -1;
+        if (startPos % 8 == 0) return -99;
         return startPos - 1;
     }
     // static const std::string RightOne(const std::string& startPos)
@@ -73,7 +74,7 @@ class GameRules {
     // }
     static int RightOne(int startPos)
     {
-        if (startPos % 8 == 7) return -1;
+        if (startPos % 8 == 7) return -99;
         return startPos + 1;
     }
 
@@ -97,6 +98,7 @@ class GameRules {
 
     static void GetLegalMoves(std::vector<int>& legalMoves, std::vector<Field>& board, int from, bool visionBoard[]){
         
+        //std::cout << "Getting legal moves from " << std::to_string(from) << std::endl;
         switch (board[from].Pice)
         {
             case ChessPice::Non:
@@ -150,9 +152,13 @@ class GameRules {
             case ChessPice::BlackBishop:
             case ChessPice::WhiteBishop:
             {
+                //std::cout << "Bsiop Left then Up -";
                 AddAttackMovesTillEnd(legalMoves, board, from, [](int pos){return UpOne(LeftOne(pos));}, visionBoard);
+                //std::cout << "Bsiop Right then Up -";
                 AddAttackMovesTillEnd(legalMoves, board, from, [](int pos){return UpOne(RightOne(pos));}, visionBoard);
+                //std::cout << "Bsiop Left then Down -";
                 AddAttackMovesTillEnd(legalMoves, board, from, [](int pos){return DownOne(LeftOne(pos));}, visionBoard);
+                //std::cout << "Bsiop Right then Up -" << std::endl;
                 AddAttackMovesTillEnd(legalMoves, board, from, [](int pos){return DownOne(RightOne(pos));}, visionBoard);
                 break;
             }
