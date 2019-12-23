@@ -680,7 +680,7 @@ namespace SlugChess
                         if (_matchStream?.RequestStream != null)
                         {
                             int timespan;
-                            if (!_globalState.WhiteTurn) //This is reversed. Allready did move
+                            if (_globalState.WhiteTurn) 
                             {
                                 timespan = (int)(_whiteStaticTimeLeft - _whiteTimeSpan).TotalSeconds;
                             }

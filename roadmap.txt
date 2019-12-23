@@ -31,8 +31,8 @@ version 0.7.0
 -(x)chose new IDE to work with on linux
 -(x)move all move validation to server/rules not on server
   -(x)slugchess on server (missing end of game)
--critical game breaking bug. Server stops excepting massages and computer crashes
--timer is fucked
+-(x)critical game breaking bug. Server stops excepting massages and computer crashes
+-timer is fucked no time is removed
 
 version 0.6.2 (Done)
 -(x)sound when running out of time

@@ -15,14 +15,10 @@ c6d4
 c3d4 
 h7h6
 d4d5
-c7d5 
+b7d5 
 h3g5
-h6g5 (crash)
-
-
-(notes: castle, an passant, 2 pawn)
+h6g5 
 
 
 
 
-dubke move white pawn death?
