@@ -1,0 +1,28 @@
+g1h3
+b8c6
+g2g3
+b7b5
+f1g2
+b5b4
+O-O (e1h1)
+g7g6
+d2d3
+c8b7
+c2c4
+b4c3
+b2c3 
+c6d4
+c3d4 
+h7h6
+d4d5
+c7d5 
+h3g5
+h6g5 (crash)
+
+
+(notes: castle, an passant, 2 pawn)
+
+
+
+
+dubke move white pawn death?
