@@ -298,7 +298,7 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                                     expectedMatchEvent = chesscom::MatchEvent::BlackWin;
                                 }else{
                                     //matchPtr->matchEvents.push_back(chesscom::MatchEvent::Non); 
-                                    matchPtr->clock->whiteSecLeft += (matchPtr->moves.size()==1?0:serverTimeRules.secondspermove());
+                                    matchPtr->clock->whiteSecLeft += (matchPtr->moves.size()==0?0:serverTimeRules.secondspermove());
                                 }
                             }
                             else
