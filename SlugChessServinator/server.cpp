@@ -11,6 +11,7 @@
 #include <random>
 #include <chrono>
 #include <thread>
+#include <condition_variable>
 #include <google/protobuf/util/time_util.h>
 
 
@@ -30,7 +31,7 @@ using grpc::Status;
 
 #define MAJOR_VER "0"
 #define MINOR_VER "7"
-#define BUILD_VER "0"
+#define BUILD_VER "1"
 #define VERSION MAJOR_VER "." MINOR_VER "." BUILD_VER
 
 struct ChessClock {
@@ -52,6 +53,8 @@ struct MatchStruct{
     std::string& getMatchToken(){return matchToken;}
     std::shared_ptr<ChessClock> clock;
     std::shared_ptr<SlugChess> game;
+    std::mutex mutex;
+    std::condition_variable cv;
 };
 
 static const int MAX_SLEEP_MS = 1000;
@@ -313,6 +316,7 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                             }
                             matchPtr->matchEvents.push_back(expectedMatchEvent);
                             matchPtr->moves.push_back(movePtr);
+                            matchPtr->cv.notify_all();
                             //std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " whitesecs left " << std::to_string(matchPtr->clock->whiteSecLeft) << " blacksecs left " << std::to_string(matchPtr->clock->blackSecLeft) << std::endl << std::flush;
                             //std::string output;google::protobuf::util::MessageToJsonString(*movePtr, &output);
                             //matchPtr->
@@ -374,6 +378,7 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                         matchPtr->moves.push_back(movePtr);
                         std::cout << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got Win" << std::endl << std::flush;
                         matchPtr->matchEvents.push_back(movePkt.cheatmatchevent());
+                        matchPtr->cv.notify_all();
                         //keepRunning = false;
                         break;
                     }
@@ -410,6 +415,7 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
         bool playerWhite = matchPtr->whitePlayer == userToken;
         bool loop = true;
         int lastEventNum = 0;
+        std::unique_lock<std::mutex> lk(matchPtr->mutex);
         while (loop)
         {
             if(context->IsCancelled()) {
@@ -476,7 +482,8 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                     lastEventNum++;
                 }
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(MAX_SLEEP_MS));
+            //std::this_thread::sleep_for(std::chrono::milliseconds(MAX_SLEEP_MS));
+            matchPtr->cv.wait(lk);
 
         }
         t1.join();
@@ -562,7 +569,6 @@ class ChessComImplementation final : public chesscom::ChessCom::Service {
                 t1.join();
                 return grpc::Status::OK;
             }
-
             {
                 std::unique_lock<std::mutex> scopeLock (_messageStreamsMutex);
                 _messageStreams[userToken] = stream;
