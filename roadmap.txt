@@ -21,10 +21,10 @@ version 0.9.0
 
 version 0.8.0
 -Create custom games with custom rules
+-create a new object orientet structure to the server code
 
 version 0.7.1
--create a new object orientet structure to the server code
-  - rework some thread to use conditional varible instead of thread sleep. This to improve speed
+-(x)rework some thread to use conditional varible instead of thread sleep. This to improve speed
 -Print PGN at end of game
 
 version 0.7.0 
@@ -32,7 +32,7 @@ version 0.7.0
 -(x)move all move validation to server/rules not on server
   -(x)slugchess on server (missing end of game)
 -(x)critical game breaking bug. Server stops excepting massages and computer crashes
--timer is fucked no time is removed
+-(x)timer is fucked no time is removed
 
 version 0.6.2 (Done)
 -(x)sound when running out of time
