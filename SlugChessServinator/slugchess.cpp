@@ -1,5 +1,5 @@
 #include "slugchess.h"
-#include <sstream>
+
 #include <iterator>
 
 
@@ -14,6 +14,8 @@ SlugChess::SlugChess(const std::string& sfenString, const VisionRules& visionRul
     _killedPices.clear();
     _whiteTurn = true;
     _gameEnd = EndResult::StillPlaying;
+    _turn = 1;
+    _halfTurnSinceCapture = 0;
     Sfen::WriteSfenPicesToBoard(_board, sfenString);
     CalculateVision();
     CalculateLegalMoves();
@@ -281,9 +283,10 @@ Field SlugChess::ExecuteMove(int from, int to){
 void SlugChess::DoMove(const std::string& from, const std::string& to){
     //WriteLan(from,to);
     CleanAnPassants();
+    WriteMoveSan(from, to);
     Field attackedField = ExecuteMove(from, to);
     _whiteTurn = !_whiteTurn;
-
+    if(_whiteTurn) _turn++;
     _lastCaptured = attackedField.Pice;
     if(attackedField.Pice != ChessPice::Non){
         //std::cout << "Killed pice " << Field::PiceChar(attackedField.Pice) << " at " << *attackedField.fieldname << std::endl;
@@ -302,7 +305,20 @@ void SlugChess::DoMove(const std::string& from, const std::string& to){
     CalculateLegalMoves();
 }
 
-
+void SlugChess::WriteMoveSan(const std::string& fromStr, const std::string& toStr){
+    int from = GameRules::BoardPosToIndex(fromStr);
+    int to = GameRules::BoardPosToIndex(toStr);
+    if(_whiteTurn) _sanMoves << std::to_string(_turn) << ". ";
+    //_sanMoves << " ";
+    if(Field::IsPawn(_board[from]))
+    {
+        if(Field::IndexColumn(from) == Field::IndexColumn(to))
+        {
+            _sanMoves << GameRules::BoardPos(to);
+        }
+    } 
+    _sanMoves << " ";
+}
 
 
 

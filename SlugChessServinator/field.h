@@ -78,6 +78,11 @@ struct Field {
         return pice > BlackKing;
     }
 
+    static bool IsPawn(Field field)
+    {
+        return field.Pice == ChessPice::WhitePawn || field.Pice == ChessPice::BlackPawn;
+    }
+
     static char PiceChar(ChessPice pice)
     {
         switch (pice)

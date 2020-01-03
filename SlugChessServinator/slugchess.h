@@ -3,6 +3,7 @@
 #include <vector>
 #include <list>
 #include <iostream>
+#include <sstream>
 #include <algorithm>
 #include "visionrules.h"
 #include "sfen.h"
@@ -108,12 +109,14 @@ class SlugChess {
     //void WriteLan(const std::string& from, const std::string& to);
     void PrintBoard(std::stringstream& ss, bool visionBoard[]);
     void PrintDebugBoard(std::stringstream& ss, bool visionboard[]);
+    void WriteMoveSan(const std::string& from, const std::string& to);
 
     std::string _fenString;
     std::list<std::tuple<int, int>> _moves;
-    //std::stringstream _lan;
+    std::stringstream _sanMoves;
     EndResult _gameEnd;
-    int _halfturn;
+    int _halfTurnSinceCapture = 0;
+    int _turn = 1;
     bool _whiteTurn;
     VisionRules _rules; 
     std::vector<Field> _board;
