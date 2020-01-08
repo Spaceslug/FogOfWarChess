@@ -308,6 +308,8 @@ void SlugChess::DoMove(const std::string& from, const std::string& to){
 void SlugChess::WriteMoveSan(const std::string& fromStr, const std::string& toStr){
     int from = GameRules::BoardPosToIndex(fromStr);
     int to = GameRules::BoardPosToIndex(toStr);
+    int modTo = to%8;
+    int modFrom = from%8;
     if(_whiteTurn) _sanMoves << std::to_string(_turn) << ". ";
     //_sanMoves << " ";
     if(Field::IsPawn(_board[from]))
@@ -315,10 +317,33 @@ void SlugChess::WriteMoveSan(const std::string& fromStr, const std::string& toSt
         if(Field::IndexColumn(from) == Field::IndexColumn(to))
         {
             _sanMoves << GameRules::BoardPos(to);
+        }else{
+            _sanMoves << GameRules::BoardPos(from) << "x" << GameRules::BoardPos(to);
         }
-    } 
+        if((_whiteTurn && Field::IndexRow(to) == 7) ||(!_whiteTurn && Field::IndexRow(to) == 0)){
+            _sanMoves << "=Q";
+        }
+    }
+    else if(Field::IsKing(_board[from]) && _board[from].FirstMove && (modTo > modFrom+1 || modTo < modFrom-1))
+    {
+        if(modTo > modFrom+1){
+            _sanMoves << "O-O";
+        }
+        else if(modTo < modFrom-1)
+        {
+            _sanMoves << "O-O-O";
+        }
+    }
+    else
+    {
+        _sanMoves << Field::PiceCharCapital(_board[from].Pice);
+        _sanMoves << GameRules::BoardPos(from) << (_board[to].Pice != ChessPice::Non?"x":"") << GameRules::BoardPos(to);
+    }
+    
     _sanMoves << " ";
 }
 
-
-
+void SlugChess::PrintSanMoves(std::stringstream& ss)
+{
+    ss << _sanMoves.str();
+}
