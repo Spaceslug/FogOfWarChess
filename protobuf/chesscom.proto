@@ -9,12 +9,16 @@ package chesscom;
 // Defines the service
 service ChessCom {
     // Function invoked to send the request
-    rpc sendRequest (MathRequest) returns (MathReply) {}
 	rpc Login(LoginForm) returns (LoginResult) {}
 	rpc LookForMatch(UserIdentity) returns (LookForMatchResult) {}
 	rpc Match(stream MovePacket) returns (stream MoveResult) {}
 	rpc ChatMessageStream(stream ChatMessage) returns (stream ChatMessage) {}
+	rpc HostGame(HostedGame) returns (LookForMatchResult) {}
+	rpc AvailableGames(Void) returns (HostedGamesMap) {} //TODO need another metod when list becomes to long
+	rpc JoinGame(JoinGameRequest) returns (LookForMatchResult) {}
 }
+
+message Void{}
 
 enum MatchEvent {
 	Non = 0;
@@ -44,6 +48,20 @@ enum Pices {
 	WhiteKing = 12;
 }
 
+enum ChessType
+{
+	Classic = 0;
+	FisherRandom = 1;
+	SlugRandom = 2;
+}
+
+enum SideType
+{
+	HostIsWhite = 0;
+	HostIsBlack = 1;
+	Random = 2;
+}
+
 message VisionRules {
 	bool enabled = 1;
 	bool viewMoveFields = 2;
@@ -55,6 +73,33 @@ message VisionRules {
 message TimeRules {
 	Time playerTime = 2;
 	int32 secondsPerMove = 3;
+}
+
+message GameRules
+{
+	VisionRules visionRules = 1;
+	TimeRules timeRules = 2;
+	ChessType chessType = 3;
+	SideType sideType = 4;
+}
+
+message HostedGame 
+{
+	GameRules gameRules = 1;
+    string hostUsertoken = 2;
+    string joinerUsertoken = 3;
+    int32 id = 4;
+}
+
+message HostedGamesMap
+{
+	map<int32, HostedGame> hostedGames = 1;
+}
+
+message HostedGameResult
+{
+	bool foundUpponent = 1;
+
 }
 
 message Time {
@@ -101,9 +146,10 @@ message LookForMatchResult {
 	bool succes = 1;
 	string matchToken = 2;
 	bool isWhitePlayer = 3;
-	VisionRules rules = 4;
+	VisionRules rules = 4;    //TODO deprocate
 	string opponentUsername = 5;
-	TimeRules timerules = 6;
+	TimeRules timerules = 6;  //TODO deprocate
+	GameRules gameRules = 7;  // this hold both
 }
 
 message MovePacket{
@@ -122,15 +168,9 @@ message MoveResult{
 	int32 secsLeft = 6;
 }
 
-// The request message containing requested numbers
-message MathRequest {
-    int32 a = 1;
-    int32 b = 2;
-}
-
-// The response message containing response
-message MathReply {
-    int32 result = 1;
+message JoinGameRequest 
+{
+	int32 id = 1;
 }
 
 message ChatMessage {

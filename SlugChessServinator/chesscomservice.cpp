@@ -435,7 +435,7 @@ void ChessComService::ChatMessageStreamLoop(ServerContext* context, std::string&
     }
 }
 
-Status ChessComService::ChatMessageStream(ServerContext* context, grpc::ServerReaderWriter< chesscom::ChatMessage, chesscom::ChatMessage>* stream)
+Status ChessComService::ChatMessageStream(ServerContext* context, grpc::ServerReaderWriter< chesscom::ChatMessage, chesscom::ChatMessage>* stream) 
 {
     chesscom::ChatMessage chatPkt;
     stream->Read(&chatPkt);
@@ -463,5 +463,33 @@ Status ChessComService::ChatMessageStream(ServerContext* context, grpc::ServerRe
     return Status::OK;
 }
 
+grpc::Status ChessComService::HostGame(grpc::ServerContext *context, const chesscom::HostedGame *request, chesscom::LookForMatchResult *response)
+{
+    //TODO: check if the useroken set by host acctually exitst. Make user manager
+    std::mutex mutex;
+    std::condition_variable cv;
+    std::unique_lock<std::mutex> lk(mutex);
+    bool finished = false;
+    int id = gameBrowser.HostGame(*request, response, &cv, &finished);
+    while (!context->IsCancelled())
+    {
+        if(finished){
+            return grpc::Status::OK;
+        }
 
+        cv.wait_for(lk, std::chrono::milliseconds(MAX_SLEEP_MS));
+    }
+    gameBrowser.CancelHostGame(id);
+    return grpc::Status::OK;
+}
 
+grpc::Status ChessComService::AvailableGames(grpc::ServerContext *context, const chesscom::Void *request, chesscom::HostedGamesMap *response) 
+{
+    gameBrowser.WriteAvailableGames(*response);
+    return grpc::Status::OK;
+}
+
+grpc::Status ChessComService::JoinGame(grpc::ServerContext *context, const chesscom::JoinGameRequest *request, chesscom::LookForMatchResult *response) 
+{
+    return grpc::Status::CANCELLED;
+}

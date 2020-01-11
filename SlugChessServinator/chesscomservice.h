@@ -22,6 +22,7 @@
 #include "version.h"
 #include "match.h"
 #include "messenger.h"
+#include "gamebrowser.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;
@@ -45,6 +46,7 @@ public:
     VisionRules serverVisionRules;
     chesscom::TimeRules serverTimeRules;
     Messenger messenger;
+    GameBrowser gameBrowser;
 
     chesscom::TimeRules ServerTimeRules()
     {
@@ -104,4 +106,7 @@ std::string createMatch(std::string& player1Token, std::string& player2Token){
     Status Match(ServerContext* context, grpc::ServerReaderWriter< chesscom::MoveResult, chesscom::MovePacket>* stream) override;
     void ChatMessageStreamLoop(ServerContext* context, std::string& usertoken, grpc::ServerReaderWriter< chesscom::ChatMessage, chesscom::ChatMessage>* stream);
     Status ChatMessageStream(ServerContext* context, grpc::ServerReaderWriter< chesscom::ChatMessage, chesscom::ChatMessage>* stream) override;
+    grpc::Status HostGame(grpc::ServerContext *context, const chesscom::HostedGame *request, chesscom::LookForMatchResult *response) override;
+    grpc::Status AvailableGames(grpc::ServerContext *context, const chesscom::Void *request, chesscom::HostedGamesMap *response) override;
+    grpc::Status JoinGame(grpc::ServerContext *context, const chesscom::JoinGameRequest *request, chesscom::LookForMatchResult *response) override;
 };
