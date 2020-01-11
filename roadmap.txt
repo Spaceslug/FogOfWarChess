@@ -12,8 +12,7 @@ version 0.x.1
 -reenable signal handling on server
 
 BUGS:
--fix captured field visible bug
--fix captured pices wrong bug
+-check helper does not work for player getting checked
 
 version 0.9.0
 -implement double fisher random
@@ -23,16 +22,16 @@ version 0.8.0
 -Create custom games with custom rules
 
 version 0.7.1
--create a new object orientet structure to the server code
-  - rework some thread to use conditional varible instead of thread sleep. This to improve speed
--Print PGN at end of game
+-(x)create a new object orientet structure to the server code
+  - (x)rework some thread to use conditional varible instead of thread sleep. This to improve speed
+-(x)Print SAN at end of game
 
 version 0.7.0 
 -(x)chose new IDE to work with on linux
 -(x)move all move validation to server/rules not on server
   -(x)slugchess on server (missing end of game)
 -(x)critical game breaking bug. Server stops excepting massages and computer crashes
--timer is fucked no time is removed
+-(x)timer is fucked no time is removed
 
 version 0.6.2 (Done)
 -(x)sound when running out of time
