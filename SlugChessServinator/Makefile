@@ -31,6 +31,9 @@ slugchesstest: field.o gamerules.o slugchess.o slugchesstest.o
 runtest: slugchesstest
 	./slugchesstest
 
+runserver: server
+	./server
+
 -include $(DEPENDS)
 
 .PRECIOUS: %.grpc.pb.cc

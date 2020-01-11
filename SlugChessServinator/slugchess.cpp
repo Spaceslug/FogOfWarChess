@@ -266,12 +266,12 @@ Field SlugChess::ExecuteMove(int from, int to){
         //std::cout << *_board[from].fieldname << " is from " << *_board[to].fieldname << " is to " << std::endl; 
         _board[to] = Field(_board[from].Pice, _board[to].fieldname);
         //std::cout << *_board[to].fieldname << " should now have " << Field::PiceChar(_board[from].Pice) << std::endl; 
-        if(_board[to].Pice == ChessPice::WhitePawn && Field::IndexRow(to) == 7)_board[to].Pice == ChessPice::WhiteQueen;
-        if(_board[to].Pice == ChessPice::BlackPawn && Field::IndexRow(to) == 0)_board[to].Pice == ChessPice::BlackQueen;
+        if(_board[to].Pice == ChessPice::WhitePawn && Field::IndexRow(to) == 7)_board[to].Pice = ChessPice::WhiteQueen;
+        if(_board[to].Pice == ChessPice::BlackPawn && Field::IndexRow(to) == 0)_board[to].Pice = ChessPice::BlackQueen;
         if(_board[to].Pice == ChessPice::WhitePawn && GameRules::DownOne(GameRules::DownOne(to)) == from)_board[GameRules::DownOne(to)].AnPassan_able = true;
         if(_board[to].Pice == ChessPice::BlackPawn && GameRules::UpOne(GameRules::UpOne(to)) == from)_board[GameRules::UpOne(to)].AnPassan_able = true;
         _board[from] = Field(ChessPice::Non, _board[from].fieldname);
-        //std::cout << *_board[from].fieldname << " is the from " << std::endl; 
+        //std::cout << Field::PiceChar(_board[to].Pice) << " is on row " << std::to_string(Field::IndexRow(to)) << std::endl; 
         //std::cout << *_board[to].fieldname << " is now " << Field::PiceChar(_board[to].Pice) << std::endl; 
     }
     

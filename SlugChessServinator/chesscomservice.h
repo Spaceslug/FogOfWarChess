@@ -20,7 +20,8 @@
 #include "chesscom.grpc.pb.h"
 #include "slugchess.h"
 #include "version.h"
-#include "match.h"	
+#include "match.h"
+#include "messenger.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;
@@ -33,9 +34,8 @@ public:
     static const int MAX_SLEEP_MS;
     static const int SHUTDOWN_WAIT_MS;
     
-    std::mutex _messageStreamsMutex;
     //string is userToken
-    std::map<std::string, grpc::ServerReaderWriter< chesscom::ChatMessage, chesscom::ChatMessage>*> _messageStreams;
+    
     std::mutex lock;
     std::atomic<int> tokenCounter;
     std::unordered_map<std::string, std::string> userTokens;
@@ -44,6 +44,7 @@ public:
     std::map<std::string, std::shared_ptr<::Match>> matches;
     VisionRules serverVisionRules;
     chesscom::TimeRules serverTimeRules;
+    Messenger messenger;
 
     chesscom::TimeRules ServerTimeRules()
     {
@@ -101,7 +102,6 @@ std::string createMatch(std::string& player1Token, std::string& player2Token){
     Status LookForMatch(ServerContext* context, const chesscom::UserIdentity* request, chesscom::LookForMatchResult* response) override;
     void MatchReadLoop(ServerContext* context, std::shared_ptr<::Match> matchPtr, grpc::ServerReaderWriter< chesscom::MoveResult, chesscom::MovePacket>* stream);
     Status Match(ServerContext* context, grpc::ServerReaderWriter< chesscom::MoveResult, chesscom::MovePacket>* stream) override;
-    void SendChatMessage(std::string& senderUsername, std::string& reciverUsertoken, std::string& message);
     void ChatMessageStreamLoop(ServerContext* context, std::string& usertoken, grpc::ServerReaderWriter< chesscom::ChatMessage, chesscom::ChatMessage>* stream);
     Status ChatMessageStream(ServerContext* context, grpc::ServerReaderWriter< chesscom::ChatMessage, chesscom::ChatMessage>* stream) override;
 };
