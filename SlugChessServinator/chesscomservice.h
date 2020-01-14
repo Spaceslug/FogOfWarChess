@@ -9,7 +9,6 @@
 #include <queue>
 #include <vector>
 #include <mutex>
-#include <random>
 #include <chrono>
 #include <thread>
 #include <condition_variable>
@@ -23,6 +22,7 @@
 #include "match.h"
 #include "messenger.h"
 #include "gamebrowser.h"
+#include "matchmanager.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;
@@ -42,63 +42,11 @@ public:
     std::unordered_map<std::string, std::string> userTokens;
     std::queue<std::string> lookingForMatchQueue;
     std::map<std::string, std::string> foundMatchReply;
-    std::map<std::string, std::shared_ptr<::Match>> matches;
-    VisionRules serverVisionRules;
-    chesscom::TimeRules serverTimeRules;
+    //std::map<std::string, std::shared_ptr<::Match>> matches;
     Messenger messenger;
     GameBrowser gameBrowser;
+    MatchManager matchManager;
 
-    chesscom::TimeRules ServerTimeRules()
-    {
-        chesscom::TimeRules tr;
-        tr.mutable_playertime()->set_minutes(5);
-        tr.mutable_playertime()->set_seconds(0);
-        tr.set_secondspermove(6);
-
-        return tr;
-    }
-
-    VisionRules ServerVisionRules() 
-    {
-        VisionRules rules;
-        rules.globalRules = Rules();
-        rules.globalRules.ViewCaptureField = true;
-        rules.globalRules.ViewMoveFields = false;
-        rules.globalRules.ViewRange = 2;
-        rules.enabled = true;
-        rules.overWriteRules[ChessPice::WhitePawn] = Rules(false, true, 1);
-        rules.overWriteRules[ChessPice::BlackPawn] = Rules(false, true, 1);
-	
-        return rules;
-    }
-std::string createMatch(std::string& player1Token, std::string& player2Token){
-    std::string matchToken = "match"+ std::to_string(tokenCounter++);
-    std::random_device rd;
-    std::mt19937 mt(rd());
-    std::uniform_int_distribution<int> dist(0, 1);
-    std::string white;
-    std::string black; 
-    if(dist(mt) == 1)
-    {
-        white = player1Token;
-        black = player2Token;
-    }
-    else
-    {
-        white = player2Token;
-        black = player1Token;
-    }
-    std::shared_ptr<::Match> match = std::make_shared<::Match>(matchToken, white, black,	 
-        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1", serverVisionRules);
-
-    match->clock->blackSecLeft = serverTimeRules.playertime().minutes() * 60 + serverTimeRules.playertime().seconds();
-    match->clock->whiteSecLeft = match->clock->blackSecLeft;
-    matches[matchToken] = match;
-    std::cout << "  checing match " << " black sec left " << std::to_string(match->clock->blackSecLeft) << " white sec left " << std::to_string(match->clock->whiteSecLeft) << std::endl << std::flush;
-    auto matPtr = matches[matchToken];
-    std::cout << "  white player " <<  matPtr->whitePlayer << std::endl << std::flush;
-    return matchToken;
-}
     ChessComService();
     Status Login(ServerContext* context, const chesscom::LoginForm* request, chesscom::LoginResult* response) override;
     Status LookForMatch(ServerContext* context, const chesscom::UserIdentity* request, chesscom::LookForMatchResult* response) override;

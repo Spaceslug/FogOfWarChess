@@ -1,4 +1,5 @@
 #pragma once
+#include <condition_variable>
 #include "slugchess.h"
 
 struct ChessClock {
@@ -9,7 +10,7 @@ struct ChessClock {
 class Match {
 public:
 
-    Match(const std::string& token, const std::string& whitePlayerToken, const std::string& blackPlayerToken, const std::string& fenString, VisionRules visionRules)
+    Match(const std::string& token, const std::string& whitePlayerToken, const std::string& blackPlayerToken, const std::string& fenString, VisionRules& visionRules)
     {
         matchToken = token;
         whitePlayer = whitePlayerToken;

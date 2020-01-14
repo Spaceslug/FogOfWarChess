@@ -22,7 +22,7 @@ DEPENDS := $(patsubst %.cpp,%.d,$(SOURCES))
 
 all: server 
 
-server: chesscom.pb.o chesscom.grpc.pb.o field.o gamerules.o slugchess.o chesscomservice.o server.o gamebrowser.o
+server: chesscom.pb.o chesscom.grpc.pb.o field.o gamerules.o slugchess.o chesscomservice.o server.o gamebrowser.o matchmanager.o
 	$(CXX) $^ $(LDFLAGS) -o $@
 
 slugchesstest: field.o gamerules.o slugchess.o slugchesstest.o

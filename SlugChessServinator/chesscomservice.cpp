@@ -5,8 +5,6 @@ const int ChessComService::SHUTDOWN_WAIT_MS = ChessComService::MAX_SLEEP_MS*2.5;
 ChessComService::ChessComService()
 {
     tokenCounter = 1;
-    serverVisionRules = ServerVisionRules();
-    serverTimeRules = ServerTimeRules();
 }
 Status ChessComService::Login(ServerContext* context, const chesscom::LoginForm* request, chesscom::LoginResult* response) 
 {
@@ -56,7 +54,7 @@ Status ChessComService::LookForMatch(ServerContext* context, const chesscom::Use
         if(!lookingForMatchQueue.empty()){
             std::string opponent = lookingForMatchQueue.front();
             lookingForMatchQueue.pop();
-            matchToken = createMatch(userToken, opponent);
+            matchToken = matchManager.CreateMatch(userToken, opponent);
             foundMatchReply[opponent] = matchToken;
             loop = false;
         }
@@ -93,6 +91,7 @@ Status ChessComService::LookForMatch(ServerContext* context, const chesscom::Use
     response->set_opponentusername(userTokens[response->iswhiteplayer()?matPtr->blackPlayer:matPtr->whitePlayer]);
     
     chesscom::VisionRules* vrPtr = response->mutable_rules();
+    auto serverVisionRules = matchManager.ServerVisionRules();
     vrPtr->set_enabled(serverVisionRules.enabled);
     vrPtr->set_viewmovefields(serverVisionRules.globalRules.ViewMoveFields);
     vrPtr->set_viewrange(serverVisionRules.globalRules.ViewRange);
@@ -108,7 +107,7 @@ Status ChessComService::LookForMatch(ServerContext* context, const chesscom::Use
         (*override)[piceRulesPar.first] = special;
     }
     chesscom::TimeRules* trPtr = response->mutable_timerules();
-    trPtr->CopyFrom(serverTimeRules);
+    trPtr->CopyFrom(matchManager.ServerTimeRules());
     //dsa = serverVisionRules;
     return Status::OK;
 }
@@ -192,7 +191,7 @@ void ChessComService::MatchReadLoop(ServerContext* context, std::shared_ptr<::Ma
                                 expectedMatchEvent = chesscom::MatchEvent::BlackWin;
                             }else{
                                 //matchPtr->matchEvents.push_back(chesscom::MatchEvent::Non); 
-                                matchPtr->clock->whiteSecLeft += (matchPtr->moves.size()==0?0:serverTimeRules.secondspermove());
+                                matchPtr->clock->whiteSecLeft += (matchPtr->moves.size()==0?0:matchManager.ServerTimeRules().secondspermove());
                             }
                         }
                         else
@@ -202,7 +201,7 @@ void ChessComService::MatchReadLoop(ServerContext* context, std::shared_ptr<::Ma
                                 expectedMatchEvent = chesscom::MatchEvent::WhiteWin;
                             }else{
                                 //matchPtr->matchEvents.push_back(chesscom::MatchEvent::Non); 
-                                matchPtr->clock->blackSecLeft += serverTimeRules.secondspermove();
+                                matchPtr->clock->blackSecLeft += matchManager.ServerTimeRules().secondspermove();
                             }
                         }
                         matchPtr->matchEvents.push_back(expectedMatchEvent);
@@ -491,5 +490,6 @@ grpc::Status ChessComService::AvailableGames(grpc::ServerContext *context, const
 
 grpc::Status ChessComService::JoinGame(grpc::ServerContext *context, const chesscom::JoinGameRequest *request, chesscom::LookForMatchResult *response) 
 {
-    return grpc::Status::CANCELLED;
+    gameBrowser.JoinGame(request->id(), response);
+    return grpc::Status::OK;
 }
