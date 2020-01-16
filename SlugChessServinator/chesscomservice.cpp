@@ -78,7 +78,7 @@ Status ChessComService::LookForMatch(ServerContext* context, const chesscom::Use
             }
         }
     }
-    auto matPtr = matches[matchToken];
+    auto matPtr = matchManager.GetMatch(matchToken);
     {
         std::unique_lock<std::mutex> scopeLock (lock);
         std::cout << userToken << " found match " <<  matchToken << std::endl << std::flush;
@@ -297,7 +297,7 @@ Status ChessComService::Match(ServerContext* context, grpc::ServerReaderWriter< 
     }
     std::cout << "Opening matchstream for " << movePkt.matchtoken() << " " <<  movePkt.usertoken() << std::endl << std::flush;
     std::string userToken = movePkt.usertoken();
-    std::shared_ptr<::Match> matchPtr = matches[movePkt.matchtoken()];
+    std::shared_ptr<::Match> matchPtr = matchManager.GetMatch(movePkt.matchtoken());
     std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Starting read thread " << std::endl << std::flush;
     std::thread t1([this, context, matchPtr, stream](){
         this->MatchReadLoop(context, matchPtr, stream);
@@ -384,7 +384,7 @@ Status ChessComService::Match(ServerContext* context, grpc::ServerReaderWriter< 
     t1.join();
     {
         std::unique_lock<std::mutex> scopeLock (lock);
-        matches.erase(movePkt.matchtoken());
+        matchManager.EraseMatch(movePkt.matchtoken());
     }
     std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Matchstream ended." << std::endl << std::flush;
     return Status::OK;
@@ -411,18 +411,18 @@ void ChessComService::ChatMessageStreamLoop(ServerContext* context, std::string&
             {
                 std::cout << usertoken << " Prossesing massage to " << chatPkt.reciver() << std::endl << std::flush;
                 std::unique_lock<std::mutex> scopeLock (lock);
-                for(auto matchKeyVal : matches){
-                    if(matchKeyVal.second->whitePlayer == usertoken && userTokens[matchKeyVal.second->blackPlayer] == chatPkt.reciver())
-                    {
-                        std::cout << usertoken << " Sending message to  " << matchKeyVal.second->blackPlayer << std::endl << std::flush;
-                        messenger.SendMessage(*chatPkt.mutable_sender(), matchKeyVal.second->blackPlayer, *chatPkt.mutable_message());
-                    }
-                    else if(matchKeyVal.second->blackPlayer == usertoken&& userTokens[matchKeyVal.second->whitePlayer] == chatPkt.reciver())
-                    {
-                        std::cout << usertoken << " Sending message to  " << matchKeyVal.second->whitePlayer << std::endl << std::flush;
-                        messenger.SendMessage(*chatPkt.mutable_sender(), matchKeyVal.second->whitePlayer, *chatPkt.mutable_message());
-                    }
-                }   
+                // for(auto matchKeyVal : matches){ TODO temperaraly disabled
+                //     if(matchKeyVal.second->whitePlayer == usertoken && userTokens[matchKeyVal.second->blackPlayer] == chatPkt.reciver())
+                //     {
+                //         std::cout << usertoken << " Sending message to  " << matchKeyVal.second->blackPlayer << std::endl << std::flush;
+                //         messenger.SendMessage(*chatPkt.mutable_sender(), matchKeyVal.second->blackPlayer, *chatPkt.mutable_message());
+                //     }
+                //     else if(matchKeyVal.second->blackPlayer == usertoken&& userTokens[matchKeyVal.second->whitePlayer] == chatPkt.reciver())
+                //     {
+                //         std::cout << usertoken << " Sending message to  " << matchKeyVal.second->whitePlayer << std::endl << std::flush;
+                //         messenger.SendMessage(*chatPkt.mutable_sender(), matchKeyVal.second->whitePlayer, *chatPkt.mutable_message());
+                //     }
+                // }   
             }
             
         }
