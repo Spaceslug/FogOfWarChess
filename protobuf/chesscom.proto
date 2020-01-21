@@ -91,6 +91,7 @@ message HostedGame
 	int32 id = 4;
 	string hostUsername = 5;
 	string joinerUsername = 6;
+	int32 hostElo = 7;
 }
 
 message HostedGamesMap
@@ -142,6 +143,12 @@ message LoginResult {
 
 message UserIdentity {
 	string userToken = 1;
+}
+
+message UserData {
+	string username = 1;
+	string usertoken = 2;
+	int32 elo = 3;
 }
 
 message LookForMatchResult {

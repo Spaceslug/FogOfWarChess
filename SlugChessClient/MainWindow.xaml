@@ -11,7 +11,7 @@
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_Game">
-                <MenuItem Header="_Host" />
+                <MenuItem Header="_Host" Click="HostClick"/>
                 <MenuItem Header="_Connect" />
                 <MenuItem Header="_Nothing" />
                 <Separator />

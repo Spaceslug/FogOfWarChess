@@ -10,6 +10,7 @@ version 0.x.1
 -print the VisionRules of a SlugChess game to text
 -add commands to the server in the message box
 -reenable signal handling on server
+-updator of slugchessclient
 
 BUGS:
 -check helper does not work for player getting checked
