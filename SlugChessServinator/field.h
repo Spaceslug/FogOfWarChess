@@ -83,6 +83,11 @@ struct Field {
         return field.Pice == ChessPice::WhitePawn || field.Pice == ChessPice::BlackPawn;
     }
 
+    static bool IsKing(Field field)
+    {
+        return field.Pice == ChessPice::WhiteKing || field.Pice == ChessPice::BlackKing;
+    }
+
     static char PiceChar(ChessPice pice)
     {
         switch (pice)
@@ -111,6 +116,41 @@ struct Field {
                 return 'r';
             case BlackPawn:
                 return 'p';
+            case Non:
+                return ' ';
+            default:
+                return 'E';
+        }
+    }
+
+    static char PiceCharCapital(ChessPice pice)
+    {
+        switch (pice)
+        {
+            case WhiteKing:
+                return 'K';
+            case WhiteQueen:
+                return 'Q';
+            case WhiteBishop:
+                return 'B';
+            case WhiteKnight:
+                return 'N';
+            case WhiteRook:
+                return 'R';
+            case WhitePawn:
+                return 'P';
+            case BlackKing:
+                return 'K';
+            case BlackQueen:
+                return 'Q';
+            case BlackBishop:
+                return 'B';
+            case BlackKnight:
+                return 'N';
+            case BlackRook:
+                return 'R';
+            case BlackPawn:
+                return 'P';
             case Non:
                 return ' ';
             default:

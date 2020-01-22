@@ -60,8 +60,7 @@ namespace SlugChess
         private List<Pices> _killedPices = new List<Pices>();
         private ClientIsPlayer _clientIsPlayer = ClientIsPlayer.Both;
         private ServerConnection _connection;
-        private string _username;
-        private string _userToken;
+        private ChessCom.UserData _userdata;
         private string _matchToken;
         private string _opponentUsername;
         private Grpc.Core.AsyncDuplexStreamingCall<ChessCom.MovePacket, ChessCom.MoveResult> _matchStream;
@@ -79,6 +78,7 @@ namespace SlugChess
         private TimeSpan _whiteStaticTimeLeft;
         private TimeSpan _blackStaticTimeLeft;
         private ChessCom.TimeRules _timeRules;
+        private CreateGame _createGameWindow;
 
 
         public MainWindow()
@@ -153,11 +153,12 @@ namespace SlugChess
                 var result = MessageBox.Show(textBoxText, popupText, button, icon);
                 if(result == MessageBoxResult.No) Application.Current.Shutdown();
             }
+
         }
 
         private void Window_Closing(object sender, CancelEventArgs args)
         {
-            _matchStream?.RequestStream.WriteAsync(new ChessCom.MovePacket { CheatMatchEvent = ChessCom.MatchEvent.UnexpectedClosing, UserToken = _userToken, DoingMove=false}).Wait();
+            _matchStream?.RequestStream.WriteAsync(new ChessCom.MovePacket { CheatMatchEvent = ChessCom.MatchEvent.UnexpectedClosing, UserToken = _userdata.Usertoken, DoingMove=false}).Wait();
             _matchStream?.RequestStream.CompleteAsync();
             // -- Might need an abort message to avoid exeptions on the server
             //_matchMessageStream?.RequestStream.WriteAsync(new ChessCom.ChatMessage
@@ -172,7 +173,7 @@ namespace SlugChess
 
         public void Runner()
         {
-            ChessCom.LookForMatchResult result = _connection.Call.LookForMatch(new ChessCom.UserIdentity { UserToken = _userToken });
+            ChessCom.LookForMatchResult result = _connection.Call.LookForMatch(new ChessCom.UserIdentity { UserToken = _userdata.Usertoken });
             if (result.Succes)
             {
                 _isSingelplayer = false;
@@ -188,7 +189,7 @@ namespace SlugChess
                 var matchStream = _connection.Call.Match();
                 _matchStream = matchStream;
                 //Open match stream call
-                _matchStream.RequestStream.WriteAsync(new ChessCom.MovePacket { AskingForDraw = false, DoingMove = false, MatchToken = _matchToken, UserToken = _userToken });
+                _matchStream.RequestStream.WriteAsync(new ChessCom.MovePacket { AskingForDraw = false, DoingMove = false, MatchToken = _matchToken, UserToken = _userdata.Usertoken });
                 bool matchEnded = false;
                 while (!matchEnded)
                 {
@@ -345,7 +346,7 @@ namespace SlugChess
                             EndOfMatch(move.MatchEvent);
                             matchEnded = true;
                         });
-                        _matchStream.RequestStream.WriteAsync(new ChessCom.MovePacket { CheatMatchEvent = ChessCom.MatchEvent.ExpectedClosing, AskingForDraw = false, DoingMove = false, MatchToken = _matchToken, UserToken = _userToken }).Wait();
+                        _matchStream.RequestStream.WriteAsync(new ChessCom.MovePacket { CheatMatchEvent = ChessCom.MatchEvent.ExpectedClosing, AskingForDraw = false, DoingMove = false, MatchToken = _matchToken, UserToken = _userdata.Usertoken }).Wait();
                         _matchStream.RequestStream.CompleteAsync();
 
                     }
@@ -554,25 +555,31 @@ namespace SlugChess
 
         private void LoginButtonClick(object sender, RoutedEventArgs args)
         {
-            _username = nameTextBox.Text;
+            string username = nameTextBox.Text;
             var ver = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
             Title = $"Slug Chess v{ver.FileMajorPart}.{ver.FileMinorPart}.{ver.FileBuildPart}";
-            var result = _connection.Call.Login(new ChessCom.LoginForm { Username = _username, MajorVersion = ver.FileMajorPart.ToString(), MinorVersion = ver.FileMinorPart.ToString(), BuildVersion = ver.FileBuildPart.ToString() });
+            var result = _connection.Call.Login(new ChessCom.LoginForm { Username = username, MajorVersion = ver.FileMajorPart.ToString(), MinorVersion = ver.FileMinorPart.ToString(), BuildVersion = ver.FileBuildPart.ToString() });
             if (result.SuccessfullLogin)
             {
-                WriteTextNonInvoke("Logged in as " + _username);
+                _userdata = new ChessCom.UserData
+                {
+                    Username = username,
+                    Usertoken = result.UserToken,
+                    Elo = 9999
+                };
+                WriteTextNonInvoke("Logged in as " + username);
                 if(result.LoginMessage != "") WriteTextNonInvoke(result.LoginMessage);
-                _userToken = result.UserToken;
+                //_userToken = result.UserToken;
                 //loginButton.Content = "U logged in";
                 loginButton.IsEnabled = false;
                 lookForMatchButton.IsEnabled = true;
-                tbLoginStatus.Text = $"{_username}";
+                tbLoginStatus.Text = $"{_userdata.Username}";
 
                 _matchMessageStream = _connection.Call.ChatMessageStream();
                 _matchMessageStream.RequestStream.WriteAsync(new ChessCom.ChatMessage {
-                    UserToken = _userToken,
+                    UserToken = _userdata.Usertoken,
                     Reciver = "system",
-                    Sender = _username,
+                    Sender = _userdata.Username,
                     Message = "init"
                 });
                 Task.Run(() => MessageCallRunner());
@@ -631,8 +638,8 @@ namespace SlugChess
         private void SendMessageClick(object sender, RoutedEventArgs args)
         {
             if (_opponentUsername == null) return;
-            _matchMessageStream?.RequestStream.WriteAsync(new ChessCom.ChatMessage { Sender=_username, UserToken=_userToken, Reciver=_opponentUsername, Message= sendTextBox.Text});
-            WriteTextNonInvoke(sendTextBox.Text, _username);
+            _matchMessageStream?.RequestStream.WriteAsync(new ChessCom.ChatMessage { Sender= _userdata.Username, UserToken= _userdata.Usertoken, Reciver=_opponentUsername, Message= sendTextBox.Text});
+            WriteTextNonInvoke(sendTextBox.Text, _userdata.Username);
             sendTextBox.Text = "";
 
         }
@@ -642,6 +649,21 @@ namespace SlugChess
             Window_Closing(sender, null);
             Application.Current.Shutdown();
 
+        }
+
+        private void HostClick(object sender, RoutedEventArgs args)
+        {
+            if (_connection == null || _userdata == null) return;
+            _createGameWindow = new CreateGame(_connection, _userdata);
+            _createGameWindow.Closing += new CancelEventHandler(delegate (object o, CancelEventArgs a)
+            {
+                if(_createGameWindow.MatchResult != null)
+                {
+                    //TODO Create match thing
+                }
+                _createGameWindow = null;
+            });
+            _createGameWindow.Show();
         }
 
         private void Field_PreviewMouseDown(object sender, MouseButtonEventArgs e)
@@ -696,7 +718,7 @@ namespace SlugChess
                                 CheatMatchEvent = matchEvent,
                                 DoingMove = true,
                                 MatchToken = _matchToken,
-                                UserToken = _userToken,
+                                UserToken = _userdata.Usertoken,
                                 Move = _myLastMove,
                                 
                             });

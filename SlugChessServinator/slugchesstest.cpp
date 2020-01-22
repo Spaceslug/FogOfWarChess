@@ -47,6 +47,12 @@ void GameLoop(){
             std::cout << "white player " << std::to_string(whiteplayer) << std::endl;
             game->PrintBoard(ss, whiteplayer);        
             std::cout << ss.str() << std::endl;
+        }else if(s == "san"){
+            std::stringstream ss;
+            std::cout << "Printing moves" << std::endl;
+
+            game->PrintSanMoves(ss);        
+            std::cout << ss.str() << std::endl;
         }else if( s.size() == 4){
             
             std::string from = s.substr(0, 2);

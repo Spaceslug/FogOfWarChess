@@ -4,7 +4,7 @@ LDFLAGS = -L/usr/local/lib `pkg-config --libs protobuf grpc++`\
 
 CXX = g++
 CPPFLAGS += `pkg-config --cflags protobuf grpc`
-CXXFLAGS += -std=c++11
+CXXFLAGS += -std=c++1z
 
 GRPC_CPP_PLUGIN = grpc_cpp_plugin
 GRPC_CPP_PLUGIN_PATH ?= `which $(GRPC_CPP_PLUGIN)`
@@ -22,7 +22,7 @@ DEPENDS := $(patsubst %.cpp,%.d,$(SOURCES))
 
 all: server 
 
-server: chesscom.pb.o chesscom.grpc.pb.o field.o gamerules.o slugchess.o chesscomservice.o server.o
+server: chesscom.pb.o chesscom.grpc.pb.o field.o gamerules.o slugchess.o chesscomservice.o server.o gamebrowser.o matchmanager.o
 	$(CXX) $^ $(LDFLAGS) -o $@
 
 slugchesstest: field.o gamerules.o slugchess.o slugchesstest.o
@@ -30,6 +30,9 @@ slugchesstest: field.o gamerules.o slugchess.o slugchesstest.o
 	
 runtest: slugchesstest
 	./slugchesstest
+
+runserver: server
+	./server
 
 -include $(DEPENDS)
 

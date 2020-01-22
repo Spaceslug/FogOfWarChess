@@ -34,6 +34,7 @@ class SlugChess {
 
     void CalculateVision();
     void CalculateLegalMoves();
+    void PrintSanMoves(std::stringstream& ss);
 
     std::vector<bool> GetWhiteVision(){ return std::vector<bool>(std::begin(_whiteVision), std::end(_whiteVision)); }
     std::vector<bool> GetBlackVision(){ return std::vector<bool>(std::begin(_blackVision), std::end(_blackVision)); }
