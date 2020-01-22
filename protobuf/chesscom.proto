@@ -86,12 +86,14 @@ message GameRules
 message HostedGame 
 {
 	GameRules gameRules = 1;
-    string hostUsertoken = 2;
-    string joinerUsertoken = 3;
+    //string hostUsertoken = 2;
+    //string joinerUsertoken = 3;
 	int32 id = 4;
-	string hostUsername = 5;
-	string joinerUsername = 6;
-	int32 hostElo = 7;
+	//string hostUsername = 5;
+	//string joinerUsername = 6;
+	//int32 hostElo = 7;
+	UserData host = 8;
+	UserData joiner = 9;
 }
 
 message HostedGamesMap

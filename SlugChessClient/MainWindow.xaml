@@ -12,6 +12,7 @@
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_Game">
                 <MenuItem Header="_Host" Click="HostClick"/>
+                <MenuItem Header="_Browse Games" Click="BrowseGamesClick"/>
                 <MenuItem Header="_Connect" />
                 <MenuItem Header="_Nothing" />
                 <Separator />

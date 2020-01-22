@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SlugChess"
         mc:Ignorable="d"
-        Title="CreateGame" Height="450" Width="373.611">
+        Title="CreateGame" Height="450" Width="373.611"
+        Closing="Window_Closing"  >
     <Grid Margin="0,0,3,0">
         <ComboBox x:Name="cbChesType" HorizontalAlignment="Left" Margin="84,21,0,0" VerticalAlignment="Top" Width="120" RenderTransformOrigin="-0.313,0.119">
             <ComboBoxItem IsSelected="True">Classic</ComboBoxItem>

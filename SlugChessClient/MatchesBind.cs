@@ -29,9 +29,9 @@ namespace SlugChess
                 var match = new MatchesBind
                 {
                     _matchId = keyVal.Value.Id,
-                    Host = keyVal.Value.HostUsername,
-                    _hostUsertoken = keyVal.Value.HostUsertoken,
-                    HostElo = keyVal.Value.HostElo,
+                    Host = keyVal.Value.Host.Username,
+                    _hostUsertoken = keyVal.Value.Host.Usertoken,
+                    HostElo = keyVal.Value.Host.Elo,
                     ChessType = keyVal.Value.GameRules.ChessType.ToString(),
                     SideType = keyVal.Value.GameRules.SideType.ToString(),
                     Time = TimeRulesToString(keyVal.Value.GameRules.TimeRules),
@@ -45,6 +45,7 @@ namespace SlugChess
 
         public static string TimeRulesToString(TimeRules timeRules)
         {
+            if (timeRules == null) return "<null>";
             return $"{timeRules.PlayerTime}min + {timeRules.SecondsPerMove}s";
         }
     }

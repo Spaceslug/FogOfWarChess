@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,12 +26,18 @@ namespace SlugChess
 
         private ServerConnection _connection;
         private ChessCom.UserData _userdata;
+        private CancellationTokenSource _hostGameTokenSource = new CancellationTokenSource();
 
         public CreateGame(ServerConnection connection, ChessCom.UserData userdata)
         {
             _connection = connection;
             _userdata = userdata;
             InitializeComponent();
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs args)
+        {
+            _hostGameTokenSource.Cancel();
         }
 
         private void BtHostGame_Click(object sender, RoutedEventArgs e)
@@ -92,19 +100,31 @@ namespace SlugChess
                 tbStarttime.IsEnabled = false;
                 tbMovetime.IsEnabled = false;
                 tbHostingMatchText.Visibility = Visibility.Visible;
-
+                //TODO save the call and cancel it when window is closed. Add onClose event
                 Task.Run(() => {
-                    _connection.Call.HostGame(new ChessCom.HostedGame
+                    var token = _hostGameTokenSource.Token;
+                    try
                     {
-                        HostUsername = _userdata.Username,
-                        HostUsertoken = _userdata.Usertoken,
-                        GameRules = new ChessCom.GameRules
-                    {
-                        ChessType = chessType,
-                        SideType = sideType,
-                        VisionRules = vr
+                        _connection.Call.HostGame(new ChessCom.HostedGame
+                        {
+                            Host = _userdata,
+                            GameRules = new ChessCom.GameRules
+                            {
+                                ChessType = chessType,
+                                SideType = sideType,
+                                VisionRules = vr
+                            }
+                        }, null, null, _hostGameTokenSource.Token);
+                        //});
                     }
-                    });
+                    catch (Grpc.Core.RpcException ex)
+                    {
+                        if (!token.IsCancellationRequested)
+                        {
+                            throw ex;
+                        }
+                    }
+
 
                 });
 

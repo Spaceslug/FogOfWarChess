@@ -19,10 +19,22 @@ namespace SlugChess
     /// </summary>
     public partial class GameBrowser : Window
     {
-        public GameBrowser()
+
+        public ChessCom.LookForMatchResult MatchResult { get; set; } = null;
+
+        private ChessCom.UserData _userdata;
+        private ServerConnection _connection;
+
+        public GameBrowser(ServerConnection connection, ChessCom.UserData userdata)
         {
+            _connection = connection;
+            _userdata = userdata;
             InitializeComponent();
-            ///this.matchesDataGrid.ItemsSource = 
+            Task.Run(()=> {
+                var matches = MatchesBind.FromChesscom(_connection.Call.AvailableGames(new ChessCom.Void()));
+                Dispatcher.Invoke(() => this.matchesDataGrid.ItemsSource = matches);
+             });
+            
         }
     }
 }

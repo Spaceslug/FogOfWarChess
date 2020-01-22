@@ -79,6 +79,7 @@ namespace SlugChess
         private TimeSpan _blackStaticTimeLeft;
         private ChessCom.TimeRules _timeRules;
         private CreateGame _createGameWindow;
+        private GameBrowser _gameBrowserWindow;
 
 
         public MainWindow()
@@ -655,6 +656,10 @@ namespace SlugChess
         {
             if (_connection == null || _userdata == null) return;
             _createGameWindow = new CreateGame(_connection, _userdata);
+            _createGameWindow.WindowStartupLocation = WindowStartupLocation.Manual;
+            _createGameWindow.Top = this.Top;
+            _createGameWindow.Left = this.Left;
+            _createGameWindow.Owner = this;
             _createGameWindow.Closing += new CancelEventHandler(delegate (object o, CancelEventArgs a)
             {
                 if(_createGameWindow.MatchResult != null)
@@ -664,6 +669,25 @@ namespace SlugChess
                 _createGameWindow = null;
             });
             _createGameWindow.Show();
+        }
+
+        private void BrowseGamesClick(object sender, RoutedEventArgs args)
+        {
+            if (_connection == null || _userdata == null) return;
+            _gameBrowserWindow = new GameBrowser(_connection, _userdata);
+            _gameBrowserWindow.WindowStartupLocation = WindowStartupLocation.Manual;
+            _gameBrowserWindow.Top = this.Top;
+            _gameBrowserWindow.Left = this.Left;
+            _gameBrowserWindow.Owner = this;
+            _gameBrowserWindow.Closing += new CancelEventHandler(delegate (object o, CancelEventArgs a)
+            {
+                if (_gameBrowserWindow.MatchResult != null)
+                {
+                    //TODO Create match thing
+                }
+                _gameBrowserWindow = null;
+            });
+            _gameBrowserWindow.Show();
         }
 
         private void Field_PreviewMouseDown(object sender, MouseButtonEventArgs e)
