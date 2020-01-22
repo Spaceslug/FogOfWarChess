@@ -4,6 +4,7 @@ const int ChessComService::SHUTDOWN_WAIT_MS = ChessComService::MAX_SLEEP_MS*2.5;
 
 ChessComService::ChessComService()
 {
+    gameBrowser._matchManager = &matchManager;
     tokenCounter = 1;
 }
 Status ChessComService::Login(ServerContext* context, const chesscom::LoginForm* request, chesscom::LoginResult* response) 
@@ -89,8 +90,11 @@ Status ChessComService::LookForMatch(ServerContext* context, const chesscom::Use
     response->set_matchtoken(matchToken);
     response->set_iswhiteplayer(matPtr->whitePlayer == userToken);
     response->set_opponentusername(userTokens[response->iswhiteplayer()?matPtr->blackPlayer:matPtr->whitePlayer]);
+    response->mutable_gamerules()->set_chesstype(chesscom::ChessType::Classic);
+    response->mutable_gamerules()->set_sidetype(chesscom::SideType::Random);
     
-    chesscom::VisionRules* vrPtr = response->mutable_rules();
+    
+    chesscom::VisionRules* vrPtr = response->mutable_gamerules()->mutable_visionrules();
     auto serverVisionRules = matchManager.ServerVisionRules();
     vrPtr->set_enabled(serverVisionRules.enabled);
     vrPtr->set_viewmovefields(serverVisionRules.globalRules.ViewMoveFields);
@@ -106,7 +110,7 @@ Status ChessComService::LookForMatch(ServerContext* context, const chesscom::Use
         special.set_viewmovefields(piceRulesPar.second.ViewMoveFields);
         (*override)[piceRulesPar.first] = special;
     }
-    chesscom::TimeRules* trPtr = response->mutable_timerules();
+    chesscom::TimeRules* trPtr = response->mutable_gamerules()->mutable_timerules();
     trPtr->CopyFrom(matchManager.ServerTimeRules());
     //dsa = serverVisionRules;
     return Status::OK;
@@ -465,6 +469,7 @@ Status ChessComService::ChatMessageStream(ServerContext* context, grpc::ServerRe
 grpc::Status ChessComService::HostGame(grpc::ServerContext *context, const chesscom::HostedGame *request, chesscom::LookForMatchResult *response)
 {
     //TODO: check if the useroken set by host acctually exitst. Make user manager
+    std::cout << " hosting game enter:"<< std::endl << std::flush;
     std::mutex mutex;
     std::condition_variable cv;
     std::unique_lock<std::mutex> lk(mutex);
@@ -478,6 +483,7 @@ grpc::Status ChessComService::HostGame(grpc::ServerContext *context, const chess
 
         cv.wait_for(lk, std::chrono::milliseconds(MAX_SLEEP_MS));
     }
+    std::cout << "Stopped hosting game id:" << std::to_string(id)<< std::endl << std::flush;
     gameBrowser.CancelHostGame(id);
     return grpc::Status::OK;
 }
@@ -490,6 +496,6 @@ grpc::Status ChessComService::AvailableGames(grpc::ServerContext *context, const
 
 grpc::Status ChessComService::JoinGame(grpc::ServerContext *context, const chesscom::JoinGameRequest *request, chesscom::LookForMatchResult *response) 
 {
-    gameBrowser.JoinGame(request->id(), response);
+    gameBrowser.JoinGame(request->id(), request->joiner(), response);
     return grpc::Status::OK;
 }

@@ -26,15 +26,15 @@ std::string MatchManager::CreateMatch(chesscom::HostedGame& hostedGame)
     std::string black;
     if(hostedGame.gamerules().sidetype() == chesscom::SideType::HostIsWhite)
     {
-        white = hostedGame.hostusertoken();black = hostedGame.joinerusertoken();
+        white = hostedGame.host().usertoken();black = hostedGame.joiner().usertoken();
     }
     else if(hostedGame.gamerules().sidetype() == chesscom::SideType::HostIsBlack)
     {
-        black = hostedGame.hostusertoken();white = hostedGame.joinerusertoken();
+        black = hostedGame.host().usertoken();white = hostedGame.joiner().usertoken();
     }
     else
     {
-        std::tie(white, black) = RandomSort(hostedGame.hostusertoken(), hostedGame.joinerusertoken());
+        std::tie(white, black) = RandomSort(hostedGame.host().usertoken(), hostedGame.joiner().usertoken());
     }
     std::string fenString;
     if(hostedGame.gamerules().chesstype() == chesscom::ChessType::Classic)

@@ -12,6 +12,7 @@ int GameBrowser::HostGame(const chesscom::HostedGame& hostGame, chesscom::LookFo
         std::unique_lock<std::mutex> scopeLock (_waitingHostsMutex);
         _waitingHosts[id] = std::tuple<std::condition_variable*, chesscom::LookForMatchResult*, bool*>(hostCV, matchResult, finished);
     }
+    std::cout << "Hosting game id:" << std::to_string(id) << "host:" << hostGame.host().usertoken()<< std::endl << std::flush;
     return id;
 }
 
@@ -21,10 +22,14 @@ void GameBrowser::WriteAvailableGames(chesscom::HostedGamesMap& gamesList)
     *gamesList.mutable_hostedgames() = {_availableGames.begin(), _availableGames.end()};
 }
 
-void GameBrowser::JoinGame(int32_t id, chesscom::LookForMatchResult* joinerMatchResult)
+void GameBrowser::JoinGame(int32_t id, const chesscom::UserData& joinerData, chesscom::LookForMatchResult* joinerMatchResult)
 {
     chesscom::HostedGame hostedGame;
-    std::tuple<std::condition_variable*, chesscom::LookForMatchResult*, bool*> hostTuple;
+    std::condition_variable* hostCV;
+    chesscom::LookForMatchResult* hostMatchResult;
+    bool* hostFinished;
+
+    //std::tuple<std::condition_variable*, chesscom::LookForMatchResult*, bool*> hostTuple;
     bool successExtracted = false;
     {
         std::unique_lock<std::mutex> scopeLock1 (_waitingHostsMutex);
@@ -34,17 +39,31 @@ void GameBrowser::JoinGame(int32_t id, chesscom::LookForMatchResult* joinerMatch
             successExtracted = true;
             hostedGame = _availableGames[id];
             _availableGames.erase(id);
-            hostTuple = _waitingHosts[id];
+            std::tie(hostCV, hostMatchResult, hostFinished) = _waitingHosts[id];
             _waitingHosts.erase(id);
         }
     }
     if(successExtracted)
     {
-
+        hostedGame.mutable_joiner()->CopyFrom(joinerData);
+        joinerMatchResult->set_succes(true);
+        hostMatchResult->set_succes(true);
+        joinerMatchResult->mutable_gamerules()->CopyFrom(hostedGame.gamerules());
+        hostMatchResult->mutable_gamerules()->CopyFrom(hostedGame.gamerules());
+        joinerMatchResult->set_opponentusername(hostedGame.host().username());
+        hostMatchResult->set_opponentusername(hostedGame.joiner().username());
+        std::string matchId = _matchManager->CreateMatch(hostedGame);
+        bool hostWhite = _matchManager->GetMatch(matchId)->getWhitePlayer() == hostedGame.host().usertoken();
+        joinerMatchResult->set_matchtoken(matchId);
+        hostMatchResult->set_matchtoken(matchId);
+        joinerMatchResult->set_iswhiteplayer(!hostWhite);
+        hostMatchResult->set_iswhiteplayer(hostWhite);
+        *hostFinished = true;
+        hostCV->notify_all();
     }
     else
     {
-        
+        joinerMatchResult->set_succes(false);
     }
     
     

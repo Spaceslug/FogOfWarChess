@@ -157,9 +157,9 @@ message LookForMatchResult {
 	bool succes = 1;
 	string matchToken = 2;
 	bool isWhitePlayer = 3;
-	VisionRules rules = 4;    //TODO deprocate
+	//VisionRules rules = 4;    //TODO deprocate
 	string opponentUsername = 5;
-	TimeRules timerules = 6;  //TODO deprocate
+	//TimeRules timerules = 6;  //TODO deprocate
 	GameRules gameRules = 7;  // this hold both
 }
 
@@ -182,6 +182,7 @@ message MoveResult{
 message JoinGameRequest 
 {
 	int32 id = 1;
+	UserData joiner = 2;
 }
 
 message ChatMessage {

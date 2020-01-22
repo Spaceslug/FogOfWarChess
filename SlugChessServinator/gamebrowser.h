@@ -4,14 +4,16 @@
 #include "tuple"
 
 #include "slugchess.h"
+#include "matchmanager.h"
 #include "chesscom.pb.h"
 
 
 class GameBrowser{
     public:
+    MatchManager* _matchManager;
     int HostGame(const chesscom::HostedGame& hostGame, chesscom::LookForMatchResult* matchResult, std::condition_variable* hostCV, bool* finished);
     void WriteAvailableGames(chesscom::HostedGamesMap& gamesList);
-    void JoinGame(int32_t id, chesscom::LookForMatchResult* joinerMatchResult);
+    void JoinGame(int32_t id, const chesscom::UserData& joinerData, chesscom::LookForMatchResult* joinerMatchResult);
     void CancelHostGame(int id);
     private:
     std::atomic<int> _idCounter;
