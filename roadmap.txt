@@ -15,20 +15,29 @@ version 0.x.1
 BUGS:
 -check helper does not work for player getting checked
 
+version 1.0.0
+-make this a stable version
+-full PGN support
+-back and forward in match( clients are sendt state so should be easy)
+
 version 0.9.0
 -implement double fisher random
 -save moves of match so they can be replayed
 
-version 0.8.0
--Create custom games with custom rules
--create a new object orientet structure to the server code
+version 0.8.1 
+-fix check helper bug
+-Make less cases of invalid state on client. Only enable things when logged in
 
-version 0.7.1
+version 0.8.0 (Done)
+-(x)Create custom games with custom rules
+-(x)create a new object orientet structure to the server code
+
+version 0.7.1 (Done)
 -(x)create a new object orientet structure to the server code
   - (x)rework some thread to use conditional varible instead of thread sleep. This to improve speed
 -(x)Print SAN at end of game
 
-version 0.7.0 
+version 0.7.0 (Done)
 -(x)chose new IDE to work with on linux
 -(x)move all move validation to server/rules not on server
   -(x)slugchess on server (missing end of game)

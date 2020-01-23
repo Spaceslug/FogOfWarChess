@@ -172,9 +172,9 @@ namespace SlugChess
             _matchMessageStream?.RequestStream.CompleteAsync();
         }
 
-        public void Runner()
+        public void Runner(ChessCom.LookForMatchResult result)
         {
-            ChessCom.LookForMatchResult result = _connection.Call.LookForMatch(new ChessCom.UserIdentity { UserToken = _userdata.Usertoken });
+            
             if (result.Succes)
             {
                 _isSingelplayer = false;
@@ -184,7 +184,7 @@ namespace SlugChess
                     _mediaPlayer.Stop();
                     _mediaPlayer.Open(MatchStartSoundUri);
                     _mediaPlayer.Play();
-                    StartMatch(result.IsWhitePlayer, result.MatchToken, result.Rules, result.Timerules);
+                    StartMatch(result.IsWhitePlayer, result.MatchToken, result.GameRules.VisionRules, result.GameRules.TimeRules);
                 });
 
                 var matchStream = _connection.Call.Match();
@@ -620,7 +620,7 @@ namespace SlugChess
 
         private void LookForMatchClick(object sender, RoutedEventArgs args)
         {
-            _runnerTask = Task.Run(() => { Runner(); });
+            _runnerTask = Task.Run(() => { Runner(_connection.Call.LookForMatch(new ChessCom.UserIdentity { UserToken = _userdata.Usertoken })); });
             ((Button)sender).IsEnabled = false;
             //ChessCom.LookForMatchResult result = _connection.Call.LookForMatch(new ChessCom.UserIdentity {UserToken =  _userToken});
             //if (result.Succes)
@@ -664,7 +664,8 @@ namespace SlugChess
             {
                 if(_createGameWindow.MatchResult != null)
                 {
-                    //TODO Create match thing
+                    var matchResult = _createGameWindow.MatchResult;
+                    _runnerTask = Task.Run(() => Runner(matchResult));
                 }
                 _createGameWindow = null;
             });
@@ -683,7 +684,8 @@ namespace SlugChess
             {
                 if (_gameBrowserWindow.MatchResult != null)
                 {
-                    //TODO Create match thing
+                    var matchResult = _gameBrowserWindow.MatchResult;
+                    _runnerTask = Task.Run(() => Runner(matchResult));
                 }
                 _gameBrowserWindow = null;
             });

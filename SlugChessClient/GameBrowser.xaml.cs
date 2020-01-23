@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,6 +25,7 @@ namespace SlugChess
 
         private ChessCom.UserData _userdata;
         private ServerConnection _connection;
+        private CancellationTokenSource _joinGameTokenSource = new CancellationTokenSource();
 
         public GameBrowser(ServerConnection connection, ChessCom.UserData userdata)
         {
@@ -32,9 +34,48 @@ namespace SlugChess
             InitializeComponent();
             Task.Run(()=> {
                 var matches = MatchesBind.FromChesscom(_connection.Call.AvailableGames(new ChessCom.Void()));
-                Dispatcher.Invoke(() => this.matchesDataGrid.ItemsSource = matches);
+                Dispatcher.Invoke(() => this.dgMatchesDataGrid.ItemsSource = matches);
              });
             
+        }
+
+        private void JoinGame_Click(object sender, RoutedEventArgs e)
+        {
+            int selectedId = ((MatchesBind)dgMatchesDataGrid.Items[dgMatchesDataGrid.SelectedIndex]).GetMatchId();
+            Task.Run(() => {
+                var token = _joinGameTokenSource.Token;
+                try
+                {
+                    MatchResult = _connection.Call.JoinGame(new ChessCom.JoinGameRequest
+                    {
+                        Id = selectedId,
+                        Joiner = _userdata
+                    }, null, null, _joinGameTokenSource.Token);
+                    Dispatcher.Invoke(() => Close());
+                }
+                catch (Grpc.Core.RpcException ex)
+                {
+                    if (!token.IsCancellationRequested)
+                    {
+                        throw ex;
+                    }
+                }
+
+
+            });
+        }
+
+        private void dgMatchesDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var dataGrid = sender as DataGrid;
+            if(dataGrid.SelectedIndex == -1)
+            {
+                btJoinGame.IsEnabled = false;
+            }
+            else
+            {
+                btJoinGame.IsEnabled = true;
+            }
         }
     }
 }

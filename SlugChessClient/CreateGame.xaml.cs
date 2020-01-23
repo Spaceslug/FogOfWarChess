@@ -100,22 +100,23 @@ namespace SlugChess
                 tbStarttime.IsEnabled = false;
                 tbMovetime.IsEnabled = false;
                 tbHostingMatchText.Visibility = Visibility.Visible;
-                //TODO save the call and cancel it when window is closed. Add onClose event
+                
                 Task.Run(() => {
                     var token = _hostGameTokenSource.Token;
                     try
                     {
-                        _connection.Call.HostGame(new ChessCom.HostedGame
+                        MatchResult = _connection.Call.HostGame(new ChessCom.HostedGame
                         {
                             Host = _userdata,
                             GameRules = new ChessCom.GameRules
                             {
                                 ChessType = chessType,
                                 SideType = sideType,
-                                VisionRules = vr
+                                VisionRules = vr,
+                                TimeRules = new ChessCom.TimeRules { PlayerTime = new ChessCom.Time { Minutes = starttime}, SecondsPerMove = movetime}
                             }
                         }, null, null, _hostGameTokenSource.Token);
-                        //});
+                        Dispatcher.Invoke(() => Close());
                     }
                     catch (Grpc.Core.RpcException ex)
                     {
