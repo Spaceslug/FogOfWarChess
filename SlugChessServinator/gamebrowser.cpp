@@ -19,7 +19,16 @@ int GameBrowser::HostGame(const chesscom::HostedGame& hostGame, chesscom::LookFo
 void GameBrowser::WriteAvailableGames(chesscom::HostedGamesMap& gamesList)
 {
     std::unique_lock<std::mutex> scopeLock (_availableGamesMutex);
+    // for (auto &&game : _availableGames)
+    // {
+    //     std::cout << "Hosting game " << std::to_string(game.first) << " " << game.second.host().usertoken() << std::endl << std::flush;
+    // }
     *gamesList.mutable_hostedgames() = {_availableGames.begin(), _availableGames.end()};
+    // for (auto &&game : gamesList.hostedgames())
+    // {
+    //     std::cout << "Hosting game " << std::to_string(game.first) << " " << game.second.host().usertoken() << std::endl << std::flush;
+    // }
+    
 }
 
 void GameBrowser::JoinGame(int32_t id, const chesscom::UserData& joinerData, chesscom::LookForMatchResult* joinerMatchResult)

@@ -16,7 +16,7 @@ class GameBrowser{
     void JoinGame(int32_t id, const chesscom::UserData& joinerData, chesscom::LookForMatchResult* joinerMatchResult);
     void CancelHostGame(int id);
     private:
-    std::atomic<int> _idCounter;
+    std::atomic<int> _idCounter = 1000;
     std::mutex _availableGamesMutex;
     std::mutex _waitingHostsMutex;
     
