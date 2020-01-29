@@ -125,6 +125,7 @@ message Move {
 	repeated bool blackVision = 7;
 	repeated Pices pices = 8;
 	map<string, FieldMoves> availableMoves = 9;
+	map<string, FieldMoves> availableShadowMoves = 11;
 	Pices capturedPice = 10;
 }
 
