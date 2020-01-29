@@ -34,6 +34,7 @@ class SlugChess {
 
     void CalculateVision();
     void CalculateLegalMoves();
+    void CalculateLegalShadowMoves();
     void PrintSanMoves(std::stringstream& ss);
 
     std::vector<bool> GetWhiteVision(){ return std::vector<bool>(std::begin(_whiteVision), std::end(_whiteVision)); }
@@ -68,6 +69,7 @@ class SlugChess {
     }
 
     std::map<int, std::vector<int>>* LegalMovesRef(){ return &_legalMoves; }
+    std::map<int, std::vector<int>>* LegalShadowMovesRef(){ return &_legalShadowMoves; }
 
 
     bool WhitesTurn(){return _whiteTurn; }

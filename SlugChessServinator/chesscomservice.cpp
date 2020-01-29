@@ -269,6 +269,22 @@ void ChessComService::MatchReadLoop(ServerContext* context, std::shared_ptr<::Ma
                         (*avMoves)[SlugChess::BP(keyVal.first)].CopyFrom(fm);
                         fmRF->Clear();
                     }
+                    //Shadow MOves
+                    auto avShadowMoves = movePtr->mutable_availableshadowmoves();
+                    chesscom::FieldMoves fmShadow;
+                    auto fmShadowRF = fmShadow.mutable_list();
+                    for (auto &&keyVal : *matchPtr->game->LegalMovesRef())
+                    {
+                        //std::cout << keyVal.first << " < ";
+                        for (auto &&pos : keyVal.second)
+                        {
+                            //std::cout << SlugChess::BP(pos) << " - ";
+                            fmShadowRF->Add(SlugChess::BP(pos));
+                        }
+                        std::cout << std::endl;
+                        (*avShadowMoves)[SlugChess::BP(keyVal.first)].CopyFrom(fmShadow);
+                        fmShadowRF->Clear();
+                    }
                     matchPtr->moves.push_back(movePtr);
                     std::cout << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got Win" << std::endl << std::flush;
                     matchPtr->matchEvents.push_back(movePkt.cheatmatchevent());

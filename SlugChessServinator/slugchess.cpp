@@ -195,6 +195,17 @@ void SlugChess::CalculateLegalMoves(){
     }
 }
 
+void SlugChess::CalculateLegalShadowMoves(){
+    _legalShadowMoves.clear();
+    bool* visionBoard  = _whiteTurn?_blackVision:_whiteVision;
+    for(int i = 0; i < 64;i++){
+        if(_board[i].Pice != ChessPice::Non && (_whiteTurn != _board[i].HasWhitePice())){
+            _legalShadowMoves[i];
+            GameRules::GetLegalMoves(_legalShadowMoves[i], _board, i, visionBoard);
+        }
+    }
+}
+
 void SlugChess::CalPossibleCastles(){
     _possibleCastles.clear();
     for(int i = 0; i < 64;i++){
