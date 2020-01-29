@@ -16,6 +16,15 @@ service ChessCom {
 	rpc HostGame(HostedGame) returns (LookForMatchResult) {}
 	rpc AvailableGames(Void) returns (HostedGamesMap) {} //TODO need another metod when list becomes to long
 	rpc JoinGame(JoinGameRequest) returns (LookForMatchResult) {}
+
+	rpc Alive(Heartbeat) returns (Heartbeat) {} //This exist to make sure both client and server still exists and is working.
+												//If server has not recived an Alive Heartbeat from a logged in user in
+												//2 minutes the user will be force logged out. Clients are recomendet to send
+												//Alive Heartbeat every 1 minute
+	rpc MatchEventListener(MatchId) returns (stream MovePacket) {}
+	rpc SendMove(MovePacket) returns (Void) {}
+	rpc ChatMessageListenter(UserData) returns (stream ChatMessage) {}
+	rpc SendChatMessage(ChatMessage) returns (Void) {}
 }
 
 message Void{}
@@ -60,6 +69,16 @@ enum SideType
 	HostIsWhite = 0;
 	HostIsBlack = 1;
 	Random = 2;
+}
+
+message Heartbeat
+{
+	bool alive = 1;
+}
+
+message MatchId
+{
+	string matchId = 1;
 }
 
 message VisionRules {

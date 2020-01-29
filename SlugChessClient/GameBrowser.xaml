@@ -7,7 +7,17 @@
         mc:Ignorable="d"
         Title="GameBrowser" Height="570.833" Width="637.5">
     <Grid>
-        <DataGrid Name ="matchesDataGrid" AutoGenerateColumns="True"/>
+        <Grid HorizontalAlignment="Left" Height="63" Margin="10,10,0,0" VerticalAlignment="Top" Width="610">
+            <Button x:Name="btJoinGame" Click="JoinGame_Click" Margin="10,10,504,28">Join Game</Button>
+        </Grid>
+        <Grid HorizontalAlignment="Left" Height="452" Margin="10,78,0,0" VerticalAlignment="Top" Width="610">
+            <DataGrid x:Name ="dgMatchesDataGrid" 
+                      AutoGenerateColumns="True" 
+                      SelectionMode="Single" SelectionUnit="FullRow" 
+                      SelectionChanged="dgMatchesDataGrid_SelectionChanged" 
+                      CanUserReorderColumns="False" CanUserResizeColumns="True" 
+                      CanUserResizeRows="False" CanUserSortColumns="True" IsReadOnly="True"/>
+        </Grid>
 
     </Grid>
 </Window>

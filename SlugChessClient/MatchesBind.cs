@@ -26,6 +26,7 @@ namespace SlugChess
             var matches = new List<MatchesBind>();
             foreach(var keyVal in hostedGamesMap.HostedGames)
             {
+                var vr = keyVal.Value.GameRules.VisionRules;
                 var match = new MatchesBind
                 {
                     _matchId = keyVal.Value.Id,
@@ -35,9 +36,9 @@ namespace SlugChess
                     ChessType = keyVal.Value.GameRules.ChessType.ToString(),
                     SideType = keyVal.Value.GameRules.SideType.ToString(),
                     Time = TimeRulesToString(keyVal.Value.GameRules.TimeRules),
-                    VisionRules = "SlugChess"
+                    VisionRules = !vr.Enabled?"No Vision Rules":vr.ViewMoveFields?"SlugChess Sea":"SlugChess Standard"
                 };
-                //matches.Add();
+                matches.Add(match);
             }
 
             return matches;
@@ -46,7 +47,7 @@ namespace SlugChess
         public static string TimeRulesToString(TimeRules timeRules)
         {
             if (timeRules == null) return "<null>";
-            return $"{timeRules.PlayerTime}min + {timeRules.SecondsPerMove}s";
+            return $"{timeRules.PlayerTime.Minutes}min + {timeRules.SecondsPerMove}s";
         }
     }
 }
