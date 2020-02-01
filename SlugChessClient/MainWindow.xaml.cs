@@ -437,8 +437,8 @@ namespace SlugChess
         public void UpdateBoardFromGlobalState()
         {
             //var vision = GameRules.GetVision(_globalState, _globalState.WhiteTurn, new VisionRules { ViewMoveFields = false, ViewRange = 1 });
-            string blackKingField = _globalState.GetWhiteKingPos();
-            string whiteKingField = _globalState.GetBlackKingPos();
+            string whiteKingField = _globalState.GetWhiteKingPos();
+            string blackKingField = _globalState.GetBlackKingPos();
 
             foreach (Grid child in this.BoardGrid.Children)
             {
@@ -456,6 +456,8 @@ namespace SlugChess
                 if (_globalState.CanSeeField(_clientIsPlayer, child.Name))
                 {
                     child.Opacity = 1;
+                    var currentColorKingField = _globalState.WhiteTurn ? whiteKingField : blackKingField;
+                    var shadowColorKingField = _globalState.WhiteTurn ? blackKingField : whiteKingField;
                     foreach (UIElement underChiled in child.Children)
                     {
                         underChiled.Visibility = Visibility.Visible;
@@ -482,27 +484,27 @@ namespace SlugChess
                         child.Children.Add(border);
                     }
                      
-                    if (_globalState.GetLegalMovesFromField(child.Name).Contains(whiteKingField) && _globalState.CanSeeField(_clientIsPlayer, whiteKingField))
+                    if (_globalState.GetLegalShadowMovesFromField(child.Name).Contains(currentColorKingField) && _globalState.CanSeeField(_clientIsPlayer, currentColorKingField))
                     {
                         //messageBox.AppendText("YGetLegalMovesFromField" + "\n");
                         var border = new Border();
                         border.BorderBrush = Brushes.Gold;
                         border.BorderThickness = new Thickness(3, 3, 3, 3); //You can specify here which borders do you want
                         child.Children.Add(border);
-                        Grid kingGrid = (Grid)BoardGrid.FindName(whiteKingField);
+                        Grid kingGrid = (Grid)BoardGrid.FindName(currentColorKingField);
                         border = new Border();
                         border.BorderBrush = Brushes.Gold;
                         border.BorderThickness = new Thickness(3, 3, 3, 3); //You can specify here which borders do you want
                         kingGrid.Children.Add(border);
                     }
-                    else if (_globalState.GetLegalMovesFromField(child.Name).Contains(blackKingField) && _globalState.CanSeeField(_clientIsPlayer, blackKingField))
+                    else if (_globalState.GetLegalMovesFromField(child.Name).Contains(shadowColorKingField) && _globalState.CanSeeField(_clientIsPlayer, shadowColorKingField))
                     {
                         //messageBox.AppendText("YGetLegalMovesFromField" + "\n");
                         var border = new Border();
                         border.BorderBrush = Brushes.Gold;
                         border.BorderThickness = new Thickness(3, 3, 3, 3); //You can specify here which borders do you want
                         child.Children.Add(border);
-                        Grid kingGrid = (Grid)BoardGrid.FindName(blackKingField);
+                        Grid kingGrid = (Grid)BoardGrid.FindName(shadowColorKingField);
                         border = new Border();
                         border.BorderBrush = Brushes.Gold;
                         border.BorderThickness = new Thickness(3, 3, 3, 3); //You can specify here which borders do you want

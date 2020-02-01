@@ -44,8 +44,10 @@ namespace SlugChess
         public VisionRules VisionRules { get; set; }
         private List<(string, List<FieldState>)> _legalMovesSelected = new List<(string, List<FieldState>)>();
         private Dictionary<string, List<(string, List<FieldState>)>> _legalMovesAll = new Dictionary<string, List<(string, List<FieldState>)>>();
+        private Dictionary<string, List<(string, List<FieldState>)>> _legalShadowMovesAll = new Dictionary<string, List<(string, List<FieldState>)>>();
         public IEnumerable<string> GetLegalMovesFromSelected => _legalMovesSelected.Select(items => items.Item1);
         public IEnumerable<string> GetLegalMovesFromField(string field) => (_legalMovesAll.ContainsKey(field)?_legalMovesAll[field]?.Select(items => items.Item1):new List<string>());
+        public IEnumerable<string> GetLegalShadowMovesFromField(string field) => (_legalShadowMovesAll.ContainsKey(field) ? _legalShadowMovesAll[field]?.Select(items => items.Item1) : new List<string>());
 
         //public void UpdateState(GlobalState oldState)
         //{
@@ -124,6 +126,7 @@ namespace SlugChess
             }
             
             _legalMovesAll = move.AvailableMoves.ToDictionary(keyVal => keyVal.Key, keyVal => keyVal.Value.List.Select(from => (from, new List<FieldState>())).ToList());
+            _legalShadowMovesAll = move.AvailableShadowMoves.ToDictionary(keyVal => keyVal.Key, keyVal => keyVal.Value.List.Select(from => (from, new List<FieldState>())).ToList());
             //ToDictionary<string, string>(from => from, to => to );
 
         }

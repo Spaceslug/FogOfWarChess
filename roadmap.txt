@@ -29,7 +29,7 @@ version 0.9.0
 
 
 version 0.8.1 
--fix check helper bug
+-fix check helper bug, (check mus be handled inside slugchess. shadowmoves is not good enough)
 -Make less cases of invalid state on client. Only enable things when logged in
 -implement Alive Hearbeat (Clients must send heartbeat every 1 min)
 

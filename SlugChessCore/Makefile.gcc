@@ -1,0 +1,55 @@
+
+INSTALLPATH=c:\temp
+
+
+CCX=g++
+DEPS=src/libWers.h src/json.hpp
+CFLAGS =  -O2 -Wall
+
+OUT = output
+OBJ  = obj
+SRC  = src
+
+$(shell md $(OUT) 2>nul)
+$(shell md $(OBJ) 2>nul)
+
+all: libWers testWers validateDatabase validateDatabaseC
+
+build: libWers
+
+install: libWers
+	copy @(OUT)/libWers.dll $(INSTALLPATH)
+	
+clean:
+	del /q $(OUT) $(OBJ)
+
+libWers:  		$(OUT)/libWers.dll
+testWers: 		$(OUT)/testWers.exe
+validateDatabase: 	$(OUT)/validateDatabase.exe
+validateDatabaseC: 	$(OUT)/validateDatabaseC.exe
+validateDatabaseVC:	$(OUT)/validateDatabaseVC.exe
+testWersVC: 		$(OUT)/testWersVC.exe
+
+$(OBJ)/%VC.obj: $(SRC)/%.cpp $(DEPS)
+	cl.exe /c /EHcs /O2 /W4 /wd4996 $< /Fo:$@
+
+$(OUT)/%VC.exe: $(OBJ)/%VC.obj $(OUT)/libWers.lib
+	link.exe $< $(OUT)/libWers.a /OUT:$@
+
+$(OBJ)/%.c.o: $(SRC)/%.c $(DEPS)
+	$(CC) -c $(CFLAGS) $< -o $@
+
+$(OUT)/%.exe: $(OBJ)/%.c.o $(OUT)/libWers.dll
+	$(CC) -o $@ $< -L$(OUT) -llibWers
+
+$(OUT)/%.dll: $(OBJ)/%.o
+	$(CCX) -shared -o $@  $< -Wl,--out-implib,$(OUT)/$*.lib
+	copy $(SRC)\libWers.h $(OUT)
+
+$(OUT)/%.lib: $(OUT)/%.dll
+
+$(OBJ)/%.o: $(SRC)/%.cpp $(DEPS)
+	$(CCX) -c $(CFLAGS)  $< -o $@
+
+$(OUT)/%.exe: $(OBJ)/%.o $(DEPS) $(OUT)/libWers.dll
+	$(CCX) -o $@ $< -L$(OUT) -llibWers
