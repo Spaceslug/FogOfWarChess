@@ -17,7 +17,7 @@
 
 #include <grpcpp/grpcpp.h>
 #include "chesscom.grpc.pb.h"
-#include "slugchess.h"
+#include "../SlugChessCore/slugchess.h"
 #include "version.h"
 #include "match.h"
 #include "messenger.h"

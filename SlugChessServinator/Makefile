@@ -27,10 +27,8 @@ $(SC_LIB)/libslugchess.so:
 	echo Building SlugChess shared lib
 	cd ../SlugChessCore && $(MAKE) libslugchess.so
 
-slugchess.h:
-	cp $(ROOT_DIR)/../SlugChessCore/*.h $(ROOT_DIR)/*.h 	
 
-server: $(SC_LIB)/libslugchess.so slugchess.h chesscom.pb.o chesscom.grpc.pb.o chesscomservice.o server.o gamebrowser.o matchmanager.o
+server: $(SC_LIB)/libslugchess.so chesscom.pb.o chesscom.grpc.pb.o chesscomservice.o server.o gamebrowser.o matchmanager.o
 	$(CXX) $^ $(LDFLAGS) -L$(SC_LIB) -Wl,-rpath=$(SC_LIB) -o $@ -lslugchess
 
 

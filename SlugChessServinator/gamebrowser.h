@@ -3,7 +3,7 @@
 #include "condition_variable"
 #include "tuple"
 
-#include "slugchess.h"
+#include "../SlugChessCore/slugchess.h"
 #include "matchmanager.h"
 #include "chesscom.pb.h"
 

@@ -1,6 +1,6 @@
 #pragma once
 #include <condition_variable>
-#include "slugchess.h"
+#include "../SlugChessCore/slugchess.h"
 
 struct ChessClock {
     int blackSecLeft;
