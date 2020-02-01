@@ -19,6 +19,7 @@ SlugChess::SlugChess(const std::string& sfenString, const VisionRules& visionRul
     Sfen::WriteSfenPicesToBoard(_board, sfenString);
     CalculateVision();
     CalculateLegalMoves();
+    CalculateLegalShadowMoves();
     //CalPossibleCastles();
 }
 
@@ -197,11 +198,14 @@ void SlugChess::CalculateLegalMoves(){
 
 void SlugChess::CalculateLegalShadowMoves(){
     _legalShadowMoves.clear();
-    bool* visionBoard  = _whiteTurn?_blackVision:_whiteVision;
+    bool visionBoard [64];
+    std::fill(std::begin(visionBoard), std::end(visionBoard), true);
     for(int i = 0; i < 64;i++){
-        if(_board[i].Pice != ChessPice::Non && (_whiteTurn != _board[i].HasWhitePice())){
+        if(_board[i].Pice != ChessPice::Non && (_whiteTurn == _board[i].HasBlackPice() )){
             _legalShadowMoves[i];
+            std::cout << "getting leagal moves for " << Field::PiceChar( _board[i].Pice) << *_board[i].fieldname << std::endl << std::flush;
             GameRules::GetLegalMoves(_legalShadowMoves[i], _board, i, visionBoard);
+            std::cout << "found " << _legalShadowMoves[i].size() << std::endl << std::flush;
         }
     }
 }
@@ -314,6 +318,7 @@ void SlugChess::DoMove(const std::string& from, const std::string& to){
     }
     CalculateVision();
     CalculateLegalMoves();
+    CalculateLegalShadowMoves();
 }
 
 void SlugChess::WriteMoveSan(const std::string& fromStr, const std::string& toStr){

@@ -11,7 +11,8 @@ GRPC_CPP_PLUGIN_PATH ?= `which $(GRPC_CPP_PLUGIN)`
 
 PROTOS_PATH = ../protobuf
 vpath %.proto $(PROTOS_PATH)
-
+ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+SC_LIB = $(ROOT_DIR)/../SlugChessCore
 SOURCES := $(wildcard *.cpp)
 OBJECTS := $(patsubst %.cpp,%.o,$(SOURCES))
 DEPENDS := $(patsubst %.cpp,%.d,$(SOURCES))
@@ -22,14 +23,16 @@ DEPENDS := $(patsubst %.cpp,%.d,$(SOURCES))
 
 all: server 
 
-server: chesscom.pb.o chesscom.grpc.pb.o field.o gamerules.o slugchess.o chesscomservice.o server.o gamebrowser.o matchmanager.o
-	$(CXX) $^ $(LDFLAGS) -o $@
+$(SC_LIB)/libslugchess.so: 
+	echo Building SlugChess shared lib
+	cd ../SlugChessCore && $(MAKE) libslugchess.so
 
-slugchesstest: field.o gamerules.o slugchess.o slugchesstest.o
-	$(CXX) $^ $(LDFLAGS) -o $@
-	
-runtest: slugchesstest
-	./slugchesstest
+slugchess.h:
+	cp $(ROOT_DIR)/../SlugChessCore/*.h $(ROOT_DIR)/*.h 	
+
+server: $(SC_LIB)/libslugchess.so slugchess.h chesscom.pb.o chesscom.grpc.pb.o chesscomservice.o server.o gamebrowser.o matchmanager.o
+	$(CXX) $^ $(LDFLAGS) -L$(SC_LIB) -Wl,-rpath=$(SC_LIB) -o $@ -lslugchess
+
 
 runserver: server
 	./server
@@ -45,7 +48,7 @@ runserver: server
 	protoc -I $(PROTOS_PATH)  --cpp_out=. $<
 
 clean:
-	rm -f *.o *.pb.cc *.pb.h $(DEPENDS) server slugchesstest
+	rm -f *.o *.pb.cc *.pb.h $(DEPENDS) server 
 	
 %.o: %.cpp Makefile
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -MMD -MP -c $< -o $@

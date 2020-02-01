@@ -172,6 +172,22 @@ void ChessComService::MatchReadLoop(ServerContext* context, std::shared_ptr<::Ma
                             (*avMoves)[SlugChess::BP(keyVal.first)].CopyFrom(fm);
                             fmRF->Clear();
                         }
+                        //Shadow MOves
+                        auto avShadowMoves = movePtr->mutable_availableshadowmoves();
+                        chesscom::FieldMoves fmShadow;
+                        auto fmShadowRF = fmShadow.mutable_list();
+                        for (auto &&keyVal : *matchPtr->game->LegalShadowMovesRef())
+                        {
+                            //std::cout << keyVal.first << " < ";
+                            for (auto &&pos : keyVal.second)
+                            {
+                                //std::cout << SlugChess::BP(pos) << " - ";
+                                fmShadowRF->Add(SlugChess::BP(pos));
+                            }
+                            std::cout << std::endl;
+                            (*avShadowMoves)[SlugChess::BP(keyVal.first)].CopyFrom(fmShadow);
+                            fmShadowRF->Clear();
+                        }
                         chesscom::MatchEvent expectedMatchEvent = chesscom::MatchEvent::Non;
                         if(matchPtr->game->Result() != SlugChess::EndResult::StillPlaying){
                             switch (matchPtr->game->Result())
@@ -273,7 +289,7 @@ void ChessComService::MatchReadLoop(ServerContext* context, std::shared_ptr<::Ma
                     auto avShadowMoves = movePtr->mutable_availableshadowmoves();
                     chesscom::FieldMoves fmShadow;
                     auto fmShadowRF = fmShadow.mutable_list();
-                    for (auto &&keyVal : *matchPtr->game->LegalMovesRef())
+                    for (auto &&keyVal : *matchPtr->game->LegalShadowMovesRef())
                     {
                         //std::cout << keyVal.first << " < ";
                         for (auto &&pos : keyVal.second)

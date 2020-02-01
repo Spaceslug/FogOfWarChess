@@ -1,0 +1,6 @@
+*.o
+*.pb.*
+*.d
+*.so
+slugchesstest
+.vscode/
