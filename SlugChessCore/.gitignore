@@ -2,5 +2,7 @@
 *.pb.*
 *.d
 *.so
+output
+object
 slugchesstest
 .vscode/

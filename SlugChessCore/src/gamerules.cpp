@@ -1,6 +1,6 @@
 #include "gamerules.h"
 
-const std::map<std::string, int32_t> GameRules::_boardPosToIndex ({ 
+SHARED_EXPORT const std::map<std::string, int32_t> GameRules::_boardPosToIndex ({
         { "a1", 0 }, { "b1", 1 }, { "c1", 2 }, { "d1", 3 }, { "e1", 4 }, { "f1", 5 }, { "g1", 6 }, { "h1", 7 },
         { "a2", 8 }, { "b2", 9 }, { "c2", 10 },{ "d2", 11 },{ "e2", 12 },{ "f2", 13 },{ "g2", 14 },{ "h2", 15 },
         { "a3", 16 },{ "b3", 17 },{ "c3", 18 },{ "d3", 19 },{ "e3", 20 },{ "f3", 21 },{ "g3", 22 },{ "h3", 23 },
@@ -11,7 +11,7 @@ const std::map<std::string, int32_t> GameRules::_boardPosToIndex ({
         { "a8", 56 },{ "b8", 57 },{ "c8", 58 },{ "d8", 59 },{ "e8", 60 },{ "f8", 61 },{ "g8", 62 },{ "h8", 63 }
 });
 
-const std::vector<std::string> GameRules::_boardPos ({
+SHARED_EXPORT const std::vector<std::string> GameRules::_boardPos ({
         "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1", 
         "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
         "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3", 

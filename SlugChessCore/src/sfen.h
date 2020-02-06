@@ -1,7 +1,10 @@
 #pragma once
 #include <vector>
 #include <locale>
+#include <cwctype>
+#include <locale>
 #include "gamerules.h"
+
 
 class Sfen{
     public:
@@ -111,7 +114,7 @@ class Sfen{
             if(character == '-' || character == ' '){
                 castleLoop = false;
             }else if(character >= 'A' && character <= 'H'){
-                int posIndex = GameRules::BoardPosToIndex(std::string(1,std::tolower(character))+'1');
+                int posIndex = GameRules::BoardPosToIndex(std::string(1,std::tolower(character, std::locale()))+'1');
                 //std::cout << "fenchar cast posIndex  " << std::to_string(posIndex) << std::endl;
                 if(board[posIndex].Pice == ChessPice::WhiteRook){
                     for (auto&& field : board)
@@ -123,7 +126,7 @@ class Sfen{
                     board[posIndex].FirstMove = true;
                 }
             }else if(character >= 'a' && character <= 'h'){
-                int posIndex = GameRules::BoardPosToIndex(std::string(1,std::tolower(character))+'8');
+                int posIndex = GameRules::BoardPosToIndex(std::string(1,std::tolower(character, std::locale()))+'8');
                 if(board[posIndex].Pice == ChessPice::BlackRook){
                     for (auto&& field : board)
                     {

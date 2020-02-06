@@ -25,7 +25,7 @@ SlugChess::SlugChess(const std::string& sfenString, const VisionRules& visionRul
 
 
 const std::string SlugChess::ToFenString(){
-
+	return "";
 }
 
 void SlugChess::PrintBoard(std::stringstream& ss, bool whiteplayer){

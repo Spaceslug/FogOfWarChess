@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include "shared.h"
 
 enum ChessPice {
     Non = 0,
@@ -17,7 +18,7 @@ enum ChessPice {
     WhiteKing = 12
 };
 
-struct Field {
+struct SHARED_EXPORT Field {
     public:
     const std::string* fieldname; //pointer to string in BoardPos
     bool AnPassan_able;

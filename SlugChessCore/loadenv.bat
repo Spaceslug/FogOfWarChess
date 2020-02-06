@@ -1,5 +1,5 @@
 @echo off
-set ENV="C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\VC\Auxiliary\Build\vcvarsall.bat"
+set ENV="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat"
 set TARGET=x64
 
 where nmake.exe >nul 2>nul || (
