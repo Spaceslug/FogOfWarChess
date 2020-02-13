@@ -18,15 +18,31 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.Runtime.InteropServices;
 
 namespace SlugChess
 {
+    internal static class Import
+    {
+        public const string lib = "libtest.dll";
+    }
+
+    /// <summary>
+    /// http://msdn.microsoft.com/en-us/library/aa288468(VS.71).aspx
+    /// http://www.mono-project.com/docs/advanced/pinvoke/
+    /// </summary>
+    internal static class UnsafeNativeMethods
+    {
+        [DllImport(Import.lib, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool wers__initialize(string filename);
+    }
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
-
+        
 
 
         private static RoutedUICommand _pressMeCommand = new RoutedUICommand("Press Me", "PressMe", typeof(MainWindow));
