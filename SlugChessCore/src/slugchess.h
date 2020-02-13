@@ -10,7 +10,7 @@
 
 #include "shared.h"
 
-class SHARED_EXPORT SlugChess {
+class SlugChess {
     public:
 
     enum EndResult{

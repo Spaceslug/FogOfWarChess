@@ -2,13 +2,13 @@
 #define _SHARED_EXPORTS_H__
 
 #ifdef WIN
-#ifdef shared_EXPORTS
-#define SHARED_EXPORT __declspec(dllexport)
+#ifdef SHARED_EXPORTS
+#define SHARED_API __declspec(dllexport)
 #else
-#define SHARED_EXPORT __declspec(dllimport)
+#define SHARED_API __declspec(dllimport)
 #endif
 #else
-#define SHARED_EXPORT
+#define SHARED_API
 #endif
 
 #endif /* _SHARED_EXPORTS_H__ */

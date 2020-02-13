@@ -3,12 +3,10 @@
 #include <iostream>
 #include "visionrules.h"
 
-#include "shared.h"
-
-class SHARED_EXPORT GameRules {
+class GameRules {
     private:
-	 static  const std::map<std::string, int32_t> _boardPosToIndex;
-	 static  const std::vector<std::string> _boardPos;
+    static const std::map<std::string, int32_t> _boardPosToIndex;
+    static const std::vector<std::string> _boardPos;
     public:
     //static const std::map<std::string, int32_t> BoardPosToIndex;
     //static const std::vector<std::string> BoardPos;

@@ -2,7 +2,7 @@
 
 CXX = cl
 LINK = link
-FLAGS = /O2 /W4 /EHsc /Dshared_EXPORTS /DWIN
+FLAGS = /O2 /W4 /EHsc /DSHARED_EXPORTS /DWIN
 
 #ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
@@ -31,11 +31,19 @@ all: slugchess.dll
 slugchess.dll : $(OUT)\libslugchess.dll
 slugchesstest.exe : $(OUT)\slugchesstest.exe
 
+test : $(OUT)\testrun.exe
+testlib : $(OUT)\libtest.dll
+
+
 $(OUT)\libslugchess.dll: $(OBJ)\slugchess.obj $(OBJ)\field.obj $(OBJ)\gamerules.obj
+	$(LINK) $? /DLL /OUT:$@
+
+$(OUT)\libtest.dll: $(OBJ)\test.obj 
 	$(LINK) $? /DLL /OUT:$@
 #$(LINK) /DLL $? /OUT:specieal.dll
 	
 #copy slugchess.h $(OUT)
+$(OUT)\testrun.exe : $(OBJ)\testrun.obj $(OUT)\libtest.dll 
 
 $(OUT)\slugchesstest.exe: $(OBJ)\slugchesstest.obj 
 	$(LINK) $? $(OUT)\libslugchess.lib /OUT:$@
@@ -45,6 +53,9 @@ runtest: slugchesstest.exe
 
 {$(SRC)}.cpp{$(OBJ)}.obj:
 	$(CXX) /c $(FLAGS) $? /Fo:$@
+
+{$(OBJ)}.obj{$(OUT)}.exe:
+	$(LINK) $< $(OUT)\libtest.lib $(OUT)\libslugchess.lib /OUT:$@
 
 #{$(OBJ)}.obj{$(OUT)}.dll:
 #	$(LINK) $? /DLL /OUT:$@
@@ -56,7 +67,6 @@ runtest: slugchesstest.exe
 
 
 clean:
-	del /q $(OBJ) $(OUT)
-	
+	del /q $(OBJ) $(OUT) 	
 
 	

@@ -2,7 +2,7 @@
 #include <map>
 #include "field.h"
 
-struct SHARED_EXPORT Rules{
+struct Rules{
     bool ViewMoveFields;
     bool ViewCaptureField;
     int ViewRange;
@@ -21,7 +21,7 @@ struct SHARED_EXPORT Rules{
     }
 };
 
-struct SHARED_EXPORT VisionRules{
+struct VisionRules{
     bool enabled;
     Rules globalRules;
     std::map<ChessPice, Rules> overWriteRules;
