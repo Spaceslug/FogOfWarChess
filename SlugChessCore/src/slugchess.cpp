@@ -247,7 +247,7 @@ Field SlugChess::ExecuteMove(const std::string from, const std::string to){
 
 Field SlugChess::ExecuteMove(int from, int to){
     Field tofield = Field(_board[to].Pice, _board[to].fieldname);
-    int killedPos = -1;
+    //int killedPos = -1;
     int modTo = to%8;
     int modFrom = from%8;
     //std::cout << "!!! Board modTo" << std::to_string(modTo) << "modFrom " << std::to_string(modFrom) << std::endl;
@@ -258,7 +258,7 @@ Field SlugChess::ExecuteMove(int from, int to){
         //std::cout << "!!!Dooing Castling" << std::endl;
         int kingEnd;
         int rookEnd;
-        ChessPice rook = _board[to].HasWhitePice()?ChessPice::WhiteRook:ChessPice::BlackRook;
+        //ChessPice rook = _board[to].HasWhitePice()?ChessPice::WhiteRook:ChessPice::BlackRook;
         if(modTo > modFrom+1){
             kingEnd = GameRules::RightOne(GameRules::RightOne(from));
             rookEnd = GameRules::RightOne(from);

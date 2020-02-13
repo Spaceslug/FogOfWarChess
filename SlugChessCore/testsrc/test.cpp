@@ -37,7 +37,6 @@
 #endif
 
 using namespace std;
-using json = nlohmann::json;
 
 struct MyPair {
 	string target;
@@ -159,8 +158,7 @@ unsigned int wers__numKeys() {
 
 bool wers__getKey(unsigned int i, char* projectile, char* target) {
 	if (i>=keys.size()) return false;
-	strcpy(projectile, ProjectileVsTarget[keys[i]].projectile.c_str());
-	strcpy(target, ProjectileVsTarget[keys[i]].target.c_str());
+
 	return true;
 }
 

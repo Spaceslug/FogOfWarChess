@@ -112,7 +112,6 @@ void GameLoop(){
 }
 
 int main(int argc, char** argv) {
-    void (*prev_handler)(int);
 
     std::cout << "Slugchess boardpos b3 " << std::to_string(GameRules::BoardPosToIndex("b3")) << "" << std::flush << std::endl;
     //std::cout << "Slugchess boardpos b3 " << std::to_string(SlugChess::BPToIndx("b3")) << "" << std::flush << std::endl;

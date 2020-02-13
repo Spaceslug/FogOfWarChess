@@ -108,7 +108,6 @@ class SlugChess {
     }
     static void CalculateLegalMoves(std::vector<Field>& board, bool visionBoard[]);
     private:
-#pragma warning(disable:4251)
     Field ExecuteMove(const std::string from, const std::string to);
     Field ExecuteMove(int from, int to);
     //void WriteLan(const std::string& from, const std::string& to);
@@ -134,5 +133,4 @@ class SlugChess {
     std::list<int> _possibleCastles;
     std::list<std::tuple<ChessPice,int>> _killedPices; //chesspice and postion it died in
     ChessPice _lastCaptured = ChessPice::Non;
-#pragma warning(default:4251)
 };

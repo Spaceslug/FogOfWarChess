@@ -12,7 +12,7 @@ GRPC_CPP_PLUGIN_PATH ?= `which $(GRPC_CPP_PLUGIN)`
 PROTOS_PATH = ../protobuf
 vpath %.proto $(PROTOS_PATH)
 ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
-SC_LIB = $(ROOT_DIR)/../SlugChessCore
+SC_LIB = $(ROOT_DIR)/../SlugChessCore/output
 SOURCES := $(wildcard *.cpp)
 OBJECTS := $(patsubst %.cpp,%.o,$(SOURCES))
 DEPENDS := $(patsubst %.cpp,%.d,$(SOURCES))
@@ -25,7 +25,7 @@ all: server
 
 $(SC_LIB)/libslugchess.so: 
 	echo Building SlugChess shared lib
-	cd ../SlugChessCore && $(MAKE) libslugchess.so
+	cd ../SlugChessCore && $(MAKE) libslugchess
 
 
 server: $(SC_LIB)/libslugchess.so chesscom.pb.o chesscom.grpc.pb.o chesscomservice.o server.o gamebrowser.o matchmanager.o
