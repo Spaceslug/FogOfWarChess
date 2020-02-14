@@ -7,6 +7,7 @@ FLAGS = /O2 /W4 /EHsc /DSHARED_EXPORTS /DWIN
 #ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
 SRC  = src
+TESTSRC = testsrc
 OUT = output
 OBJ = object
 !IF [mkdir $(OUT) 2> NUL]
@@ -32,6 +33,8 @@ slugchess.dll : $(OUT)\libslugchess.dll
 slugchesstest.exe : $(OUT)\slugchesstest.exe
 
 test : $(OUT)\testrun.exe
+	.\$(OUT)\testrun.exe
+
 testlib : $(OUT)\libtest.dll
 
 
@@ -52,6 +55,9 @@ runtest: slugchesstest.exe
 	./slugchesstest.exe
 
 {$(SRC)}.cpp{$(OBJ)}.obj:
+	$(CXX) /c $(FLAGS) $? /Fo:$@
+
+{$(TESTSRC)}.cpp{$(OBJ)}.obj:
 	$(CXX) /c $(FLAGS) $? /Fo:$@
 
 {$(OBJ)}.obj{$(OUT)}.exe:
