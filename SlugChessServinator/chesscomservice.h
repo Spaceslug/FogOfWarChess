@@ -23,6 +23,7 @@
 #include "messenger.h"
 #include "gamebrowser.h"
 #include "matchmanager.h"
+#include "usermanager.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;
@@ -39,13 +40,13 @@ public:
     
     std::mutex lock;
     std::atomic<int> tokenCounter;
-    std::unordered_map<std::string, std::string> userTokens;
     std::queue<std::string> lookingForMatchQueue;
     std::map<std::string, std::string> foundMatchReply;
     //std::map<std::string, std::shared_ptr<::Match>> matches;
     Messenger messenger;
     GameBrowser gameBrowser;
     MatchManager matchManager;
+    UserManager userManager;
 
     ChessComService();
     Status Login(ServerContext* context, const chesscom::LoginForm* request, chesscom::LoginResult* response) override;
@@ -57,4 +58,5 @@ public:
     grpc::Status HostGame(grpc::ServerContext *context, const chesscom::HostedGame *request, chesscom::LookForMatchResult *response) override;
     grpc::Status AvailableGames(grpc::ServerContext *context, const chesscom::Void *request, chesscom::HostedGamesMap *response) override;
     grpc::Status JoinGame(grpc::ServerContext *context, const chesscom::JoinGameRequest *request, chesscom::LookForMatchResult *response) override;
+    grpc::Status Alive(grpc::ServerContext* context, const chesscom::Heartbeat* request, chesscom::Heartbeat* response) override;
 };

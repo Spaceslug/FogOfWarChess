@@ -74,6 +74,7 @@ enum SideType
 message Heartbeat
 {
 	bool alive = 1;
+	string usertoken = 2;
 }
 
 message MatchId
@@ -159,8 +160,9 @@ message LoginForm {
 message LoginResult {
 	bool successfullLogin = 1;
 	//bool versionCorrect = 3;
-	string userToken = 2;
+	//string userToken = 2;
 	string loginMessage = 4;
+	UserData userData = 5;
 }
 
 message UserIdentity {
@@ -178,9 +180,10 @@ message LookForMatchResult {
 	string matchToken = 2;
 	bool isWhitePlayer = 3;
 	//VisionRules rules = 4;    //TODO deprocate
-	string opponentUsername = 5;
+	//string opponentUsername = 5;
 	//TimeRules timerules = 6;  //TODO deprocate
 	GameRules gameRules = 7;  // this hold both
+	UserData opponentUserData = 8;
 }
 
 message MovePacket{

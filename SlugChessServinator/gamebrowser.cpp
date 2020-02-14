@@ -59,8 +59,8 @@ void GameBrowser::JoinGame(int32_t id, const chesscom::UserData& joinerData, che
         hostMatchResult->set_succes(true);
         joinerMatchResult->mutable_gamerules()->CopyFrom(hostedGame.gamerules());
         hostMatchResult->mutable_gamerules()->CopyFrom(hostedGame.gamerules());
-        joinerMatchResult->set_opponentusername(hostedGame.host().username());
-        hostMatchResult->set_opponentusername(hostedGame.joiner().username());
+        joinerMatchResult->mutable_opponentuserdata()->CopyFrom(hostedGame.host());
+        hostMatchResult->mutable_opponentuserdata()->CopyFrom(hostedGame.joiner());
         std::string matchId = _matchManager->CreateMatch(hostedGame);
         bool hostWhite = _matchManager->GetMatch(matchId)->getWhitePlayer() == hostedGame.host().usertoken();
         joinerMatchResult->set_matchtoken(matchId);

@@ -28,7 +28,7 @@ $(SC_LIB)/libslugchess.so:
 	cd ../SlugChessCore && $(MAKE) libslugchess
 
 
-server: $(SC_LIB)/libslugchess.so chesscom.pb.o chesscom.grpc.pb.o chesscomservice.o server.o gamebrowser.o matchmanager.o
+server: $(SC_LIB)/libslugchess.so chesscom.pb.o chesscom.grpc.pb.o chesscomservice.o server.o gamebrowser.o matchmanager.o usermanager.o
 	$(CXX) $^ $(LDFLAGS) -L$(SC_LIB) -Wl,-rpath=$(SC_LIB) -o $@ -lslugchess
 
 

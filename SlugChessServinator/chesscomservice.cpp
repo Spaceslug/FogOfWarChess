@@ -20,19 +20,17 @@ Status ChessComService::Login(ServerContext* context, const chesscom::LoginForm*
         {
             response->set_loginmessage("You should upgrade to latest version. Server version " VERSION ", Client version " + request->majorversion() + "." + request->minorversion() + "." + request->buildversion()+". You can find the latest version at 'http://spaceslug.no/slugchess/list.html'");
         }
-        auto it = std::find_if(userTokens.begin(), userTokens.end(),
-                [request](const std::pair<std::string, std::string> &p) {
-                    return p.second == request->username();
-                });
 
-        if (it != userTokens.end()) {
-            userTokens.erase(it);
-        }
+
         std::string userToken = request->username() + "-" + std::to_string(tokenCounter++);
-        userTokens[userToken] = request->username();
+        //PRETEND TO FERCH USERDATA FROM A USER DATABASE
+        auto userData = *response->mutable_userdata();
+        userData.set_username(request->username());
+        userData.set_usertoken(userToken);
+        userData.set_elo(9999);
+        userManager.LogInUser(userToken, userData);
 
-        std::cout << "User " << request->username() << " " << response->usertoken() << " logged in" << std::endl << std::flush;
-        response->set_usertoken(userToken);
+        std::cout << "User " << request->username() << " " << userToken << " logged in" << std::endl << std::flush;
         response->set_successfulllogin(true);
     }
     else
@@ -89,7 +87,7 @@ Status ChessComService::LookForMatch(ServerContext* context, const chesscom::Use
     response->set_succes(true);
     response->set_matchtoken(matchToken);
     response->set_iswhiteplayer(matPtr->whitePlayer == userToken);
-    response->set_opponentusername(userTokens[response->iswhiteplayer()?matPtr->blackPlayer:matPtr->whitePlayer]);
+    response->mutable_opponentuserdata()->CopyFrom(userManager.GetUserData(response->iswhiteplayer()?matPtr->blackPlayer:matPtr->whitePlayer));
     response->mutable_gamerules()->set_chesstype(chesscom::ChessType::Classic);
     response->mutable_gamerules()->set_sidetype(chesscom::SideType::Random);
     
@@ -501,6 +499,7 @@ Status ChessComService::ChatMessageStream(ServerContext* context, grpc::ServerRe
 grpc::Status ChessComService::HostGame(grpc::ServerContext *context, const chesscom::HostedGame *request, chesscom::LookForMatchResult *response)
 {
     //TODO: check if the useroken set by host acctually exitst. Make user manager
+    if(!userManager.UsertokenLoggedIn(request->host().usertoken())) return grpc::Status::CANCELLED;
     std::cout << " hosting game enter:"<< std::endl << std::flush;
     std::mutex mutex;
     std::condition_variable cv;
@@ -530,4 +529,23 @@ grpc::Status ChessComService::JoinGame(grpc::ServerContext *context, const chess
 {
     gameBrowser.JoinGame(request->id(), request->joiner(), response);
     return grpc::Status::OK;
+}
+
+grpc::Status ChessComService::Alive(grpc::ServerContext* context, const chesscom::Heartbeat* request, chesscom::Heartbeat* response)
+{
+    if(userManager.TestHeart(request->usertoken()))
+    {
+        response->set_alive(true);
+        response->set_usertoken(request->usertoken());
+        return grpc::Status::OK;
+    }
+    else
+    {
+        userManager.Logout(request->usertoken());
+        //TODO MUST DO NESSESARY ACTIONS IE STOP MATCES THAT INCLUDES THIS USER
+        response->set_alive(false);
+        response->set_usertoken(request->usertoken());
+        return grpc::Status::OK;
+    }
+
 }
