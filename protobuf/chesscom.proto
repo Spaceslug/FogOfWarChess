@@ -210,9 +210,9 @@ message JoinGameRequest
 
 message ChatMessage {
 	//for validation
-	string userToken = 1;
-
-	string sender = 2;
-	string reciver = 3;
+	string senderUsertoken = 1; 
+	
+	string senderUsername = 2; //sender username
+	string reciverUsertoken = 3; //reciver userToken
 	string message = 4;
 }

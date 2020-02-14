@@ -78,7 +78,7 @@ namespace SlugChess
         private ServerConnection _connection;
         private ChessCom.UserData _userdata;
         private string _matchToken;
-        private string _opponentUsername;
+        private ChessCom.UserData _opponentUserData;
         private Grpc.Core.AsyncDuplexStreamingCall<ChessCom.MovePacket, ChessCom.MoveResult> _matchStream;
         private Grpc.Core.AsyncDuplexStreamingCall<ChessCom.ChatMessage, ChessCom.ChatMessage> _matchMessageStream;
         private Task _runnerTask;
@@ -96,6 +96,7 @@ namespace SlugChess
         private ChessCom.TimeRules _timeRules;
         private CreateGame _createGameWindow;
         private GameBrowser _gameBrowserWindow;
+        private System.Timers.Timer _heartbeatTimer = new System.Timers.Timer(60000);
 
 
         public MainWindow()
@@ -195,7 +196,7 @@ namespace SlugChess
             {
                 _isSingelplayer = false;
                 Instance._matchToken = result.MatchToken;
-                Instance._opponentUsername = result.OpponentUsername;
+                Instance._opponentUserData = result.OpponentUserData;
                 Instance.Dispatcher.Invoke(()=> {
                     _mediaPlayer.Stop();
                     _mediaPlayer.Open(MatchStartSoundUri);
@@ -383,7 +384,7 @@ namespace SlugChess
         public void StartMatch(bool isWhitePlayer, string matchToken, ChessCom.VisionRules rules, ChessCom.TimeRules timeRules)
         {
             WriteTextNonInvoke("Starting match: " + matchToken +  ", you are " + (isWhitePlayer?"white":"black"));
-            WriteTextNonInvoke("Opponent username: " + _opponentUsername);
+            WriteTextNonInvoke("Opponent username: " + _opponentUserData.Username + " Elo: " + _opponentUserData.Elo);
             _clientIsPlayer = isWhitePlayer ? ClientIsPlayer.White : ClientIsPlayer.Black;
             _myLastMove = new ChessCom.Move { From = "", To = "" };
             _lastMoveFrom = null;
@@ -583,8 +584,8 @@ namespace SlugChess
                 _userdata = new ChessCom.UserData
                 {
                     Username = username,
-                    Usertoken = result.UserToken,
-                    Elo = 9999
+                    Usertoken = result.UserData.Username,
+                    Elo = result.UserData.Elo
                 };
                 WriteTextNonInvoke("Logged in as " + username);
                 if(result.LoginMessage != "") WriteTextNonInvoke(result.LoginMessage);
@@ -596,12 +597,18 @@ namespace SlugChess
 
                 _matchMessageStream = _connection.Call.ChatMessageStream();
                 _matchMessageStream.RequestStream.WriteAsync(new ChessCom.ChatMessage {
-                    UserToken = _userdata.Usertoken,
-                    Reciver = "system",
-                    Sender = _userdata.Username,
+                    SenderUsertoken = _userdata.Usertoken,
+                    ReciverUsertoken = "system",
+                    SenderUsername = _userdata.Username,
                     Message = "init"
                 });
                 Task.Run(() => MessageCallRunner());
+                _heartbeatTimer.Elapsed += (obj, e) =>
+                {
+                    _connection?.Call.Alive(new ChessCom.Heartbeat {Alive = true});
+                };
+                _heartbeatTimer.AutoReset = true;
+                _heartbeatTimer.Enabled = true;
                 //TODO recive message callback
                 //TODO handle shutdown of message
             }
@@ -622,7 +629,7 @@ namespace SlugChess
                 }
                 ChessCom.ChatMessage chatMessage = _matchMessageStream.ResponseStream.Current;
 
-                WriteTextInvoke(chatMessage.Message, chatMessage.Sender);
+                WriteTextInvoke(chatMessage.Message, chatMessage.SenderUsername);
             }
         }
 
@@ -656,8 +663,8 @@ namespace SlugChess
 
         private void SendMessageClick(object sender, RoutedEventArgs args)
         {
-            if (_opponentUsername == null) return;
-            _matchMessageStream?.RequestStream.WriteAsync(new ChessCom.ChatMessage { Sender= _userdata.Username, UserToken= _userdata.Usertoken, Reciver=_opponentUsername, Message= sendTextBox.Text});
+            if (_opponentUserData == null) return;
+            _matchMessageStream?.RequestStream.WriteAsync(new ChessCom.ChatMessage { SenderUsername= _userdata.Username, SenderUsertoken= _userdata.Usertoken, ReciverUsertoken=_opponentUserData.Usertoken, Message= sendTextBox.Text});
             WriteTextNonInvoke(sendTextBox.Text, _userdata.Username);
             sendTextBox.Text = "";
 
