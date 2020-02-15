@@ -1,6 +1,6 @@
 #pragma once
 #include "map"
-#include "chesscom.grpc.pb.h"
+#include "../chesscom/chesscom.grpc.pb.h"
 
 class Messenger {
     public:
@@ -14,19 +14,19 @@ class Messenger {
         std::unique_lock<std::mutex> scopeLock (_messageStreamsMutex);
         chesscom::ChatMessage msg;
         msg.set_allocated_message(&message);
-        msg.set_allocated_reciver(&revicerToken);
-        msg.set_allocated_sender(&senderUername);
+        msg.set_allocated_reciverusertoken(&revicerToken);
+        msg.set_allocated_senderusername(&senderUername);
         _messageStreams[revicerToken]->Write(msg);
         msg.release_message();
-        msg.release_reciver();
-        msg.release_sender();
+        msg.release_reciverusertoken();
+        msg.release_senderusername();
     }
-    void AddMessageStream(std::string& userToken, grpc::ServerReaderWriter< chesscom::ChatMessage, chesscom::ChatMessage>* stream)
+    void AddMessageStream(const std::string& userToken, grpc::ServerReaderWriter< chesscom::ChatMessage, chesscom::ChatMessage>* stream)
     {
         std::unique_lock<std::mutex> scopeLock (_messageStreamsMutex);
         _messageStreams[userToken] = stream;
     }
-    void RemoveMessageStream(std::string& userToken)
+    void RemoveMessageStream(const std::string& userToken)
     {
         std::unique_lock<std::mutex> scopeLock (_messageStreamsMutex);
         _messageStreams.erase(userToken);

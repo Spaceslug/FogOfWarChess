@@ -1,5 +1,7 @@
 *.o
 *.pb.*
 *.d
-server
+output
+object
+depends
 .vscode/

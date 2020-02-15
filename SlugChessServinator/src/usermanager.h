@@ -3,7 +3,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "chesscom.grpc.pb.h"
+#include "../chesscom/chesscom.grpc.pb.h"
 
 //PLEASE NOTE: ONE CAN NOT ASSUME A USER IS LOGGED IN FROM ONE PUBLIC CALL TO ANOTHER
 //   SOME REWORK OF FUNCTIONS IS NESSESARY FOR THAT

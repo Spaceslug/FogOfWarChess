@@ -20,24 +20,21 @@ Status ChessComService::Login(ServerContext* context, const chesscom::LoginForm*
         {
             response->set_loginmessage("You should upgrade to latest version. Server version " VERSION ", Client version " + request->majorversion() + "." + request->minorversion() + "." + request->buildversion()+". You can find the latest version at 'http://spaceslug.no/slugchess/list.html'");
         }
-
-
         std::string userToken = request->username() + "-" + std::to_string(tokenCounter++);
         //PRETEND TO FERCH USERDATA FROM A USER DATABASE
-        auto userData = *response->mutable_userdata();
+        auto& userData = *response->mutable_userdata();
         userData.set_username(request->username());
         userData.set_usertoken(userToken);
         userData.set_elo(9999);
         userManager.LogInUser(userToken, userData);
 
-        std::cout << "User " << request->username() << " " << userToken << " logged in" << std::endl << std::flush;
+        std::cout << "User " << response->userdata().username() << " " << response->userdata().usertoken() << " logged in" << std::endl << std::flush;
         response->set_successfulllogin(true);
     }
     else
     {
         response->set_successfulllogin(false);
         response->set_loginmessage("Login failed because version missmatch. Server version " VERSION ", Client version " + request->majorversion() + "." + request->minorversion() + "." + request->buildversion()+". You can find the latest version at 'http://spaceslug.no/slugchess/list.html'");
-        
     }
     return Status::OK;
 }
@@ -433,30 +430,17 @@ void ChessComService::ChatMessageStreamLoop(ServerContext* context, std::string&
         {
             if(!stream->Read(&chatPkt)){
                 //throw "premeture end of steam"
-
                 std::cout << usertoken << " ChatStreamCanceled in read thread " << std::endl << std::flush;
                 break;
             }
-            if(chatPkt.usertoken() != usertoken)
+            if(chatPkt.senderusertoken() != usertoken)
             {
                 std::cout << usertoken << " Wrong usertoken in chat thread " << std::endl << std::flush;
             }
             else
             {
-                std::cout << usertoken << " Prossesing massage to " << chatPkt.reciver() << std::endl << std::flush;
-                std::unique_lock<std::mutex> scopeLock (lock);
-                // for(auto matchKeyVal : matches){ TODO temperaraly disabled
-                //     if(matchKeyVal.second->whitePlayer == usertoken && userTokens[matchKeyVal.second->blackPlayer] == chatPkt.reciver())
-                //     {
-                //         std::cout << usertoken << " Sending message to  " << matchKeyVal.second->blackPlayer << std::endl << std::flush;
-                //         messenger.SendMessage(*chatPkt.mutable_sender(), matchKeyVal.second->blackPlayer, *chatPkt.mutable_message());
-                //     }
-                //     else if(matchKeyVal.second->blackPlayer == usertoken&& userTokens[matchKeyVal.second->whitePlayer] == chatPkt.reciver())
-                //     {
-                //         std::cout << usertoken << " Sending message to  " << matchKeyVal.second->whitePlayer << std::endl << std::flush;
-                //         messenger.SendMessage(*chatPkt.mutable_sender(), matchKeyVal.second->whitePlayer, *chatPkt.mutable_message());
-                //     }
-                // }   
+                std::cout << usertoken << " Prossesing massage to " << chatPkt.reciverusertoken() << std::endl << std::flush;
+                messenger.SendMessage(*chatPkt.mutable_reciverusertoken(), *chatPkt.mutable_senderusername(), *chatPkt.mutable_message());                
             }
             
         }
@@ -472,7 +456,7 @@ Status ChessComService::ChatMessageStream(ServerContext* context, grpc::ServerRe
 {
     chesscom::ChatMessage chatPkt;
     stream->Read(&chatPkt);
-    std::string userToken = chatPkt.usertoken();
+    std::string userToken = chatPkt.senderusertoken();
 
     std::cout << "Opening ChatMessageStream for "  <<  userToken << std::endl << std::flush;
     std::thread t1([this, context, &userToken, stream](){
@@ -543,6 +527,7 @@ grpc::Status ChessComService::Alive(grpc::ServerContext* context, const chesscom
     {
         userManager.Logout(request->usertoken());
         //TODO MUST DO NESSESARY ACTIONS IE STOP MATCES THAT INCLUDES THIS USER
+        messenger.RemoveMessageStream(request->usertoken());
         response->set_alive(false);
         response->set_usertoken(request->usertoken());
         return grpc::Status::OK;

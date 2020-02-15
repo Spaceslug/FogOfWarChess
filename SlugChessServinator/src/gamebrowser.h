@@ -3,9 +3,9 @@
 #include "condition_variable"
 #include "tuple"
 
-#include "../SlugChessCore/src/slugchess.h"
+#include "../../SlugChessCore/src/slugchess.h"
 #include "matchmanager.h"
-#include "chesscom.pb.h"
+#include "../chesscom/chesscom.pb.h"
 
 
 class GameBrowser{

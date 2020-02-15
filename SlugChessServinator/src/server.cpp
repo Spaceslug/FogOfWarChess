@@ -16,8 +16,8 @@
 
 
 #include <grpcpp/grpcpp.h>
-#include "chesscom.grpc.pb.h"
-#include "../SlugChessCore/src/slugchess.h"
+#include "../chesscom/chesscom.grpc.pb.h"
+#include "../../SlugChessCore/src/slugchess.h"
 #include "version.h"
 #include "chesscomservice.h"
 

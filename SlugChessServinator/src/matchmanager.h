@@ -1,5 +1,5 @@
 #pragma once
-#include "chesscom.grpc.pb.h"
+#include "../chesscom/chesscom.grpc.pb.h"
 #include "match.h"
 
 
