@@ -583,8 +583,8 @@ namespace SlugChess
             {
                 _userdata = new ChessCom.UserData
                 {
-                    Username = username,
-                    Usertoken = result.UserData.Username,
+                    Username = result.UserData.Username,
+                    Usertoken = result.UserData.Usertoken,
                     Elo = result.UserData.Elo
                 };
                 WriteTextNonInvoke("Logged in as " + username);
