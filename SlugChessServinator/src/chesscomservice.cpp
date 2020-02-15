@@ -333,9 +333,9 @@ Status ChessComService::Match(ServerContext* context, grpc::ServerReaderWriter< 
     std::thread t1([this, context, matchPtr, stream](){
         this->MatchReadLoop(context, matchPtr, stream);
     });
-    bool playerWhite = matchPtr->whitePlayer == userToken;
+    //bool playerWhite = matchPtr->whitePlayer == userToken;
     bool loop = true;
-    int lastEventNum = 0;
+    uint lastEventNum = 0;
     std::unique_lock<std::mutex> lk(matchPtr->mutex);
     while (loop)
     {

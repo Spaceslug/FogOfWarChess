@@ -44,6 +44,7 @@ bool UserManager::Logout(const std::string& token)
     std::scoped_lock<std::mutex> lock(_mutex);
     _logedInUsers.erase(token);
     _timepoints.erase(token);
+    return true;
 }
 
 const chesscom::UserData& UserManager::GetUserData(const std::string& token)

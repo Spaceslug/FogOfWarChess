@@ -69,6 +69,8 @@ std::shared_ptr<Match> MatchManager::GetMatch(const std::string& matchId)
     if(_matches.count(matchId) > 0)
     {
         return _matches[matchId];
+    }else{
+        return std::shared_ptr<Match>();
     }
 }
 
