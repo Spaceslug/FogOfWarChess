@@ -147,6 +147,10 @@ message Move {
 	map<string, FieldMoves> availableMoves = 9;
 	map<string, FieldMoves> availableShadowMoves = 11;
 	Pices capturedPice = 10;
+	map<string, FieldMoves> whiteShadowMoves = 12;
+	map<string, FieldMoves> blackShadowMoves = 13;
+	map<string, FieldMoves> whiteMoves = 14;
+	map<string, FieldMoves> blackMoves = 15;
 }
 
 message LoginForm {

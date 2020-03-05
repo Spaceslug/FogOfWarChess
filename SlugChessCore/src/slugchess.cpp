@@ -10,7 +10,15 @@
 #include <stdlib.h>
 #endif
 
-
+bool SlugChess::visionBoardTrue[] = {
+    true, true, true, true, true, true, true, true,
+    true, true, true, true, true, true, true, true,
+    true, true, true, true, true, true, true, true,
+    true, true, true, true, true, true, true, true,
+    true, true, true, true, true, true, true, true,
+    true, true, true, true, true, true, true, true,
+    true, true, true, true, true, true, true, true,
+    true, true, true, true, true, true, true, true};
 
 SlugChess::SlugChess(const std::string& sfenString, const VisionRules& visionRules){
     // rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1
@@ -55,9 +63,7 @@ void SlugChess::PrintBoard(std::stringstream& ss, bool visionboard[]){
 }
 
 void SlugChess::PrintDebugBoard(std::stringstream& ss){
-    bool vision [64];
-    std::fill(std::begin(vision), std::end(vision), true);
-    PrintDebugBoard(ss, vision);
+    PrintDebugBoard(ss, visionBoardTrue);
 }
 
 void SlugChess::PrintDebugBoard(std::stringstream& ss, bool visionboard[]){
@@ -155,13 +161,11 @@ void SlugChess::CalculateVision(){
         {
             //_legalMoves.clear();
             std::map<int, std::vector<int>> visionMoves;
-            bool visionBoard [64];
-            std::fill(std::begin(visionBoard), std::end(visionBoard), true);
             
             for(int i = 0; i < 64;i++){
                 if(_board[i].HasWhitePice()){
                     visionMoves[i];
-                    GameRules::GetLegalMoves(visionMoves[i], _board, i, visionBoard);
+                    GameRules::GetLegalMoves(visionMoves[i], _board, i, visionBoardTrue);
                 }
             }
             for (auto &&keyVal : visionMoves)
@@ -174,7 +178,7 @@ void SlugChess::CalculateVision(){
             for(int i = 0; i < 64;i++){
                 if(_board[i].HasBlackPice()){
                     visionMoves[i];
-                    GameRules::GetLegalMoves(visionMoves[i], _board, i, visionBoard);
+                    GameRules::GetLegalMoves(visionMoves[i], _board, i, visionBoardTrue);
                 }
             }
             for (auto &&keyVal : visionMoves)
@@ -194,27 +198,83 @@ void SlugChess::CalculateVision(){
 
 void SlugChess::CalculateLegalMoves(){
     _legalMoves.clear();
-    bool* visionBoard  = _whiteTurn?_whiteVision:_blackVision;
+    _legalWhiteMoves.clear();
+    _legalBlackMoves.clear();
     for(int i = 0; i < 64;i++){
-        if(_board[i].Pice != ChessPice::Non && (_whiteTurn == _board[i].HasWhitePice())){
-            _legalMoves[i];
-            GameRules::GetLegalMoves(_legalMoves[i], _board, i, visionBoard);
+        if(_board[i].HasWhitePice()){
+            _legalWhiteMoves[i];
+            GameRules::GetLegalMoves(_legalWhiteMoves[i], _board, i, _whiteVision);
         }
     }
+    for(int i = 0; i < 64;i++){
+        if(_board[i].HasBlackPice()){
+            _legalBlackMoves[i];
+            GameRules::GetLegalMoves(_legalBlackMoves[i], _board, i, _blackVision);
+        }
+    }
+    _legalMoves = _whiteTurn?_legalWhiteMoves:_legalBlackMoves;
 }
 
 void SlugChess::CalculateLegalShadowMoves(){
-    _legalShadowMoves.clear();
-    bool visionBoard [64];
-    std::fill(std::begin(visionBoard), std::end(visionBoard), true);
+    _shadowWhiteMoves.clear();
+    _shadowBlackMoves.clear();
+    std::vector<Field> whiteBoard(_board);
     for(int i = 0; i < 64;i++){
-        if(_board[i].Pice != ChessPice::Non && (_whiteTurn == _board[i].HasBlackPice() )){
-            _legalShadowMoves[i];
-            std::cout << "getting leagal moves for " << Field::PiceChar( _board[i].Pice) << *_board[i].fieldname << std::endl << std::flush;
-            GameRules::GetLegalMoves(_legalShadowMoves[i], _board, i, visionBoard);
-            std::cout << "found " << _legalShadowMoves[i].size() << std::endl << std::flush;
+        if(!_whiteVision[i]){
+            whiteBoard[i] = Field();
         }
     }
+    std::vector<Field> blackBoard(_board);
+    for(int i = 0; i < 64;i++){
+        if(!_blackVision[i]){
+            blackBoard[i] = Field();
+        }
+    }
+    for(int i = 0; i < 64;i++){
+        if(whiteBoard[i].HasBlackPice()){
+            _shadowBlackMoves[i];
+            //std::cout << "getting leagal moves for " << Field::PiceChar( _board[i].Pice) << *_board[i].fieldname << std::endl << std::flush;
+            GameRules::GetLegalMoves(_shadowBlackMoves[i], whiteBoard, i, visionBoardTrue);
+            //std::cout << "found " << _legalShadowMoves[i].size() << std::endl << std::flush;
+        }
+    }
+    for(int i = 0; i < 64;i++){
+        if(blackBoard[i].HasWhitePice()){
+            _shadowWhiteMoves[i];
+            //std::cout << "getting leagal moves for " << Field::PiceChar( _board[i].Pice) << *_board[i].fieldname << std::endl << std::flush;
+            GameRules::GetLegalMoves(_shadowWhiteMoves[i], blackBoard, i, visionBoardTrue);
+            //std::cout << "found " << _legalShadowMoves[i].size() << std::endl << std::flush;
+        }
+    }
+   
+}
+
+void SlugChess::FindChecks(){
+    // _blackFieldsThatCheck.clear();
+    // _whiteFieldsThatCheck.clear();
+    // auto whiteMoves = _whiteTurn?_legalMovesWithFullVision:_legalShadowMovesWithFullVision;
+    // auto blackMoves = _whiteTurn?_legalShadowMovesWithFullVision:_legalMovesWithFullVision;
+    // int whiteKingIndex = 0;
+    // for(; whiteKingIndex < 64; whiteKingIndex++){
+    //     if(_board[whiteKingIndex].Pice == ChessPice::WhiteKing)break;
+    // }
+    // int blackKingIndex = 0;
+    // for(; blackKingIndex < 64; blackKingIndex++){
+    //     if(_board[blackKingIndex].Pice == ChessPice::BlackKing)break;
+    // }
+    // for (auto &&keyVal : whiteMoves)
+    // {
+    //     if(std::find(keyVal.second.begin(), keyVal.second.end(), blackKingIndex) != keyVal.second.end()){
+    //         _whiteFieldsThatCheck.push_back(keyVal.first);
+    //     }
+    // }
+    // for (auto &&keyVal : blackMoves)
+    // {
+    //     if(std::find(keyVal.second.begin(), keyVal.second.end(), whiteKingIndex) != keyVal.second.end()){
+    //         _blackFieldsThatCheck.push_back(keyVal.first);
+    //     }
+    // }
+    
 }
 
 void SlugChess::CalPossibleCastles(){
@@ -326,6 +386,7 @@ void SlugChess::DoMove(const std::string& from, const std::string& to){
     CalculateVision();
     CalculateLegalMoves();
     CalculateLegalShadowMoves();
+    FindChecks();
 }
 
 void SlugChess::WriteMoveSan(const std::string& fromStr, const std::string& toStr){

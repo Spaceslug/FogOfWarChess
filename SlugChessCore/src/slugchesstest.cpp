@@ -31,7 +31,8 @@ void GameLoop(){
             rules.enabled = true;
             rules.overWriteRules[ChessPice::WhitePawn] = Rules(false,true, 1);
             rules.overWriteRules[ChessPice::BlackPawn] = Rules(false,true, 1);     
-            game = new SlugChess("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1", rules);
+            //game = new SlugChess("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1", rules);
+            game = new SlugChess("rnbqkbnr/pppp1ppp/4R3/8/4p3/8/PPPPPPPP/1NBQKBNR w AHah - 0 1", rules);
             std::stringstream ss;
             game->PrintBoard(ss, game->WhitesTurn());        
             std::cout << ss.str() << std::endl;
@@ -61,6 +62,22 @@ void GameLoop(){
             std::cout << "Printing moves" << std::endl;
 
             game->PrintSanMoves(ss);        
+            std::cout << ss.str() << std::endl;
+        }else if(s == "check"){
+            std::stringstream ss;
+            //std::cout << "Printing moves" << std::endl;
+            ss << "White checks: ";
+            for (auto &&fieldIndex : *game->WhiteChecksRef())
+            {
+                ss << game->BP(fieldIndex) << " ";
+            }
+            ss << std::endl;
+
+            ss << "Black checks: ";
+            for (auto &&fieldIndex : *game->BlackChecksRef())
+            {
+                ss << game->BP(fieldIndex) << " ";
+            }
             std::cout << ss.str() << std::endl;
         }else if( s.size() == 4){
             
@@ -113,25 +130,25 @@ void GameLoop(){
 
 int main(int argc, char** argv) {
 
-    std::cout << "Slugchess boardpos b3 " << std::to_string(GameRules::BoardPosToIndex("b3")) << "" << std::flush << std::endl;
+    //std::cout << "Slugchess boardpos b3 " << std::to_string(GameRules::BoardPosToIndex("b3")) << "" << std::flush << std::endl;
     //std::cout << "Slugchess boardpos b3 " << std::to_string(SlugChess::BPToIndx("b3")) << "" << std::flush << std::endl;
-    std::cout << "Slugchess  3 right one" << std::to_string(GameRules::RightOne(3)) << "" << std::flush << std::endl;
-    std::stringstream ss;
-    VisionRules rules;
-    rules.globalRules = Rules();
-    rules.globalRules.ViewCaptureField = true;
-    rules.globalRules.ViewMoveFields = true;
-    rules.globalRules.ViewRange = 2;
-    rules.enabled = true;
-    rules.overWriteRules[ChessPice::WhitePawn] = Rules(false,true, 1);
-    rules.overWriteRules[ChessPice::BlackPawn] = Rules(false,true, 1);
+    // std::cout << "Slugchess  3 right one" << std::to_string(GameRules::RightOne(3)) << "" << std::flush << std::endl;
+    // std::stringstream ss;
+    // VisionRules rules;
+    // rules.globalRules = Rules();
+    // rules.globalRules.ViewCaptureField = true;
+    // rules.globalRules.ViewMoveFields = true;
+    // rules.globalRules.ViewRange = 2;
+    // rules.enabled = true;
+    // rules.overWriteRules[ChessPice::WhitePawn] = Rules(false,true, 1);
+    // rules.overWriteRules[ChessPice::BlackPawn] = Rules(false,true, 1);
     //SlugChess slugChess("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1", rules);
-    SlugChess slugChess("rnbqkbnr/1ppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w AHah - 0 1", rules);
-    slugChess.PrintDebugBoard(ss);
-    slugChess.PrintWhiteVision(ss);
-    ss << std::endl;
-    slugChess.PrintBlackVision(ss);
-    std::cout << ss.str();
+    // SlugChess slugChess("rnbqkbnr/1ppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w AHah - 0 1", rules);
+    // slugChess.PrintDebugBoard(ss);
+    // slugChess.PrintWhiteVision(ss);
+    // ss << std::endl;
+    // slugChess.PrintBlackVision(ss);
+    // std::cout << ss.str();
     int postest = 54;
     std::cout << "Pos " << std::to_string(postest) << ": row " << std::to_string(Field::IndexRow(postest)) << " col " << std::to_string(Field::IndexColumn(postest));
     std::cout << " colrow " << std::to_string(GameRules::IndexFromColRow(Field::IndexColumn(postest), (Field::IndexRow(postest)))) << std::endl;   
