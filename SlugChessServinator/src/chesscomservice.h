@@ -24,6 +24,7 @@
 #include "gamebrowser.h"
 #include "matchmanager.h"
 #include "usermanager.h"
+#include "slugchesscoverter.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;

@@ -114,6 +114,7 @@ Status ChessComService::LookForMatch(ServerContext* context, const chesscom::Use
 void ChessComService::MatchReadLoop(ServerContext* context, std::shared_ptr<::Match> matchPtr, grpc::ServerReaderWriter< chesscom::MoveResult, chesscom::MovePacket>* stream){
     chesscom::MovePacket movePkt;
     bool keepRunning = true;
+    bool isWhitePlayer = matchPtr->whitePlayer == movePkt.usertoken();
     try{
         while (!context->IsCancelled() && keepRunning)
         {
@@ -141,96 +142,9 @@ void ChessComService::MatchReadLoop(ServerContext* context, std::shared_ptr<::Ma
                     bool isPlayersCurrentTurn = matchPtr->moves.size()%2 == (isWhitePlayer?0:1);
                     if(isPlayersCurrentTurn){
                         matchPtr->game->DoMove(movePtr->from(), movePtr->to());
-                        auto ww = matchPtr->game->GetWhiteVision(); 
-                        auto bw = matchPtr->game->GetBlackVision(); 
-                        auto pices = matchPtr->game->GetPices(); 
-                        *movePtr->mutable_whitevision() = {ww.begin(), ww.end()};
-                        *movePtr->mutable_blackvision() = {bw.begin(), bw.end()};
-                        *movePtr->mutable_pices() = {pices.begin(), pices.end()};
-                        movePtr->set_capturedpice((chesscom::Pices)matchPtr->game->LastCaptured());
-                        //std::stringstream ss;
-                        //matchPtr->game->PrintBlackVision(ss);
-                        //std::cout << ss.str();
-                        //MOves
-                        auto avMoves = movePtr->mutable_availablemoves();
-                        chesscom::FieldMoves fm;
-                        auto fmRF = fm.mutable_list();
-                        for (auto &&keyVal : *matchPtr->game->LegalMovesRef())
-                        {
-                            //std::cout << keyVal.first << " < ";
-                            for (auto &&pos : keyVal.second)
-                            {
-                                //std::cout << SlugChess::BP(pos) << " - ";
-                                fmRF->Add(SlugChess::BP(pos));
-                            }
-                            //std::cout << std::endl;
-                            (*avMoves)[SlugChess::BP(keyVal.first)].CopyFrom(fm);
-                            fmRF->Clear();
-                        }
-                        //White MOves
-                        auto whiteMoves = movePtr->mutable_whitemoves();
-                        chesscom::FieldMoves fmWhite;
-                        auto fmWhiteRF = fmWhite.mutable_list();
-                        for (auto &&keyVal : *matchPtr->game->LegalWhiteMovesRef())
-                        {
-                            //std::cout << keyVal.first << " < ";
-                            for (auto &&pos : keyVal.second)
-                            {
-                                //std::cout << SlugChess::BP(pos) << " - ";
-                                fmWhiteRF->Add(SlugChess::BP(pos));
-                            }
-                            std::cout << std::endl;
-                            (*whiteMoves)[SlugChess::BP(keyVal.first)].CopyFrom(fmWhite);
-                            fmWhiteRF->Clear();
-                        }
-                        //Black MOves
-                        auto blackMoves = movePtr->mutable_blackmoves();
-                        chesscom::FieldMoves fmBlack;
-                        auto fmBlackRF = fmBlack.mutable_list();
-                        for (auto &&keyVal : *matchPtr->game->LegalBlackMovesRef())
-                        {
-                            //std::cout << keyVal.first << " < ";
-                            for (auto &&pos : keyVal.second)
-                            {
-                                //std::cout << SlugChess::BP(pos) << " - ";
-                                fmBlackRF->Add(SlugChess::BP(pos));
-                            }
-                            std::cout << std::endl;
-                            (*blackMoves)[SlugChess::BP(keyVal.first)].CopyFrom(fmBlack);
-                            fmBlackRF->Clear();
-                        }
-                        //White Shadow MOves
-                    auto whiteShadowMoves = movePtr->mutable_whiteshadowmoves();
-                    chesscom::FieldMoves fmWhiteShadow;
-                    auto fmWhiteShadowRF = fmWhiteShadow.mutable_list();
-                    for (auto &&keyVal : *matchPtr->game->ShadowWhiteMovesRef())
-                    {
-                        //std::cout << keyVal.first << " < ";
-                        for (auto &&pos : keyVal.second)
-                        {
-                            //std::cout << SlugChess::BP(pos) << " - ";
-                            fmWhiteShadowRF->Add(SlugChess::BP(pos));
-                        }
-                        std::cout << std::endl;
-                        (*whiteShadowMoves)[SlugChess::BP(keyVal.first)].CopyFrom(fmWhiteShadow);
-                        fmWhiteShadowRF->Clear();
-                    }
-                    //Black Shadow MOves
-                    auto blackShadowMoves = movePtr->mutable_blackshadowmoves();
-                    chesscom::FieldMoves fmBlackShadow;
-                    auto fmBlackShadowRF = fmBlackShadow.mutable_list();
-                    for (auto &&keyVal : *matchPtr->game->ShadowBlackMovesRef())
-                    {
-                        //std::cout << keyVal.first << " < ";
-                        for (auto &&pos : keyVal.second)
-                        {
-                            //std::cout << SlugChess::BP(pos) << " - ";
-                            fmBlackShadowRF->Add(SlugChess::BP(pos));
-                        }
-                        std::cout << std::endl;
-                        (*blackShadowMoves)[SlugChess::BP(keyVal.first)].CopyFrom(fmBlackShadow);
-                        fmBlackShadowRF->Clear();
-                    }
+                        
+                        SlugChessConverter::SetMove(matchPtr->game, movePtr, isWhitePlayer);
+
                         chesscom::MatchEvent expectedMatchEvent = chesscom::MatchEvent::Non;
                         if(matchPtr->game->Result() != SlugChess::EndResult::StillPlaying){
                             switch (matchPtr->game->Result())
@@ -305,93 +219,9 @@ void ChessComService::MatchReadLoop(ServerContext* context, std::shared_ptr<::Ma
                     std::unique_lock<std::mutex> scopeLock (lock);
                     std::cout << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got move " << movePkt.move().from() << " " << movePkt.move().to() << std::endl << std::flush;
                     matchPtr->game->DoMove(movePtr->from(), movePtr->to());
-                    auto ww = matchPtr->game->GetWhiteVision(); 
-                    auto bw = matchPtr->game->GetBlackVision(); 
-                    auto pices = matchPtr->game->GetPices(); 
-                    *movePtr->mutable_whitevision() = {ww.begin(), ww.end()};
-                    *movePtr->mutable_blackvision() = {bw.begin(), bw.end()};
-                    *movePtr->mutable_pices() = {pices.begin(), pices.end()};
-                    movePtr->set_capturedpice((chesscom::Pices)matchPtr->game->LastCaptured());
-                    //MOves
-                    auto avMoves = movePtr->mutable_availablemoves();
-                    chesscom::FieldMoves fm;
-                    auto fmRF = fm.mutable_list();
-                    for (auto &&keyVal : *matchPtr->game->LegalMovesRef())
-                    {
-                        //std::cout << keyVal.first << " < ";
-                        for (auto &&pos : keyVal.second)
-                        {
-                            //std::cout << SlugChess::BP(pos) << " - ";
-                            fmRF->Add(SlugChess::BP(pos));
-                        }
-                        std::cout << std::endl;
-                        (*avMoves)[SlugChess::BP(keyVal.first)].CopyFrom(fm);
-                        fmRF->Clear();
-                    }
-                    //White MOves
-                    auto whiteMoves = movePtr->mutable_whitemoves();
-                    chesscom::FieldMoves fmWhite;
-                    auto fmWhiteRF = fmWhite.mutable_list();
-                    for (auto &&keyVal : *matchPtr->game->LegalWhiteMovesRef())
-                    {
-                        //std::cout << keyVal.first << " < ";
-                        for (auto &&pos : keyVal.second)
-                        {
-                            //std::cout << SlugChess::BP(pos) << " - ";
-                            fmWhiteRF->Add(SlugChess::BP(pos));
-                        }
-                        std::cout << std::endl;
-                        (*whiteMoves)[SlugChess::BP(keyVal.first)].CopyFrom(fmWhite);
-                        fmWhiteRF->Clear();
-                    }
-                    //Black MOves
-                    auto blackMoves = movePtr->mutable_blackmoves();
-                    chesscom::FieldMoves fmBlack;
-                    auto fmBlackRF = fmBlack.mutable_list();
-                    for (auto &&keyVal : *matchPtr->game->LegalBlackMovesRef())
-                    {
-                        //std::cout << keyVal.first << " < ";
-                        for (auto &&pos : keyVal.second)
-                        {
-                            //std::cout << SlugChess::BP(pos) << " - ";
-                            fmBlackRF->Add(SlugChess::BP(pos));
-                        }
-                        std::cout << std::endl;
-                        (*blackMoves)[SlugChess::BP(keyVal.first)].CopyFrom(fmBlack);
-                        fmBlackRF->Clear();
-                    }
-                    //White Shadow MOves
-                    auto whiteShadowMoves = movePtr->mutable_whiteshadowmoves();
-                    chesscom::FieldMoves fmWhiteShadow;
-                    auto fmWhiteShadowRF = fmWhiteShadow.mutable_list();
-                    for (auto &&keyVal : *matchPtr->game->ShadowWhiteMovesRef())
-                    {
-                        //std::cout << keyVal.first << " < ";
-                        for (auto &&pos : keyVal.second)
-                        {
-                            //std::cout << SlugChess::BP(pos) << " - ";
-                            fmWhiteShadowRF->Add(SlugChess::BP(pos));
-                        }
-                        std::cout << std::endl;
-                        (*whiteShadowMoves)[SlugChess::BP(keyVal.first)].CopyFrom(fmWhiteShadow);
-                        fmWhiteShadowRF->Clear();
-                    }
-                    //Black Shadow MOves
-                    auto blackShadowMoves = movePtr->mutable_blackshadowmoves();
-                    chesscom::FieldMoves fmBlackShadow;
-                    auto fmBlackShadowRF = fmBlackShadow.mutable_list();
-                    for (auto &&keyVal : *matchPtr->game->ShadowBlackMovesRef())
-                    {
-                        //std::cout << keyVal.first << " < ";
-                        for (auto &&pos : keyVal.second)
-                        {
-                            //std::cout << SlugChess::BP(pos) << " - ";
-                            fmBlackShadowRF->Add(SlugChess::BP(pos));
-                        }
-                        std::cout << std::endl;
-                        (*blackShadowMoves)[SlugChess::BP(keyVal.first)].CopyFrom(fmBlackShadow);
-                        fmBlackShadowRF->Clear();
-                    }
+                    
+                    SlugChessConverter::SetMove(matchPtr->game, movePtr, isWhitePlayer);
+
                     matchPtr->moves.push_back(movePtr);
                     std::cout << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got Win" << std::endl << std::flush;
                     matchPtr->matchEvents.push_back(movePkt.cheatmatchevent());

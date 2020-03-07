@@ -2,6 +2,7 @@
 #include <map>
 #include <vector>
 #include <list>
+#include <set>
 #include <iostream>
 #include <sstream>
 #include <algorithm>
@@ -17,6 +18,11 @@ class SlugChess {
         Draw = 1,
         WhiteWin = 2,
         BlackWin = 3,
+    };
+    enum Perspective{
+        White = 0,
+        Black = 1,
+        Both = 2,
     };
     SlugChess(const std::string& sfenString, const VisionRules& visionRules);
 
@@ -62,6 +68,8 @@ class SlugChess {
     std::map<int, std::vector<int>>* LegalBlackMovesRef(){ return &_legalBlackMoves; }
     std::map<int, std::vector<int>>* ShadowWhiteMovesRef(){ return &_shadowWhiteMoves; }
     std::map<int, std::vector<int>>* ShadowBlackMovesRef(){ return &_shadowBlackMoves; }
+
+    std::set<int> Checks(Perspective perspective);
     //std::list<int>* BlackChecksRef(){ return &_blackFieldsThatCheck; }
     //std::list<int>* WhiteChecksRef(){ return &_whiteFieldsThatCheck; }
 
@@ -108,6 +116,7 @@ class SlugChess {
     void CalculateLegalMoves();
     void CalculateLegalShadowMoves();
     void FindChecks();
+    int GetFieldWithPice(ChessPice pice);
  
     static void CalculateLegalMoves(std::vector<Field>& board, bool visionBoard[]);
 

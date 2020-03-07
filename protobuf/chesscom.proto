@@ -151,6 +151,7 @@ message Move {
 	map<string, FieldMoves> blackShadowMoves = 13;
 	map<string, FieldMoves> whiteMoves = 14;
 	map<string, FieldMoves> blackMoves = 15;
+	repeated string check = 16;
 }
 
 message LoginForm {

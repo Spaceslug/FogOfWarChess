@@ -276,6 +276,43 @@ void SlugChess::FindChecks(){
     // }
     
 }
+std::set<int> SlugChess::Checks(Perspective perspective){
+    std::set<int> set;
+    if(perspective != Perspective::Both){
+        bool whitePerspec = perspective == Perspective::White;
+        auto moves = whitePerspec?_legalWhiteMoves:_legalBlackMoves;
+        auto shadowMoves = whitePerspec?_shadowBlackMoves:_shadowWhiteMoves;
+        int kingPespective = GetFieldWithPice(whitePerspec?ChessPice::WhiteKing:ChessPice::BlackKing);
+        int kingOther = GetFieldWithPice(whitePerspec?ChessPice::BlackKing:ChessPice::WhiteKing);
+        for (auto &&keyVal : moves)
+        {
+            auto kingIter = std::find(keyVal.second.begin(), keyVal.second.end(), kingOther);
+            if(kingIter != keyVal.second.end()){
+                set.insert(keyVal.first);
+                set.insert(*kingIter);
+            }
+        }
+        for (auto &&keyVal : shadowMoves)
+        {
+            auto kingIter = std::find(keyVal.second.begin(), keyVal.second.end(), kingPespective);
+            if(kingIter != keyVal.second.end()){
+                set.insert(keyVal.first);
+                set.insert(*kingIter);
+            }
+        }
+        
+    }
+    return set;
+}
+
+int SlugChess::GetFieldWithPice(ChessPice pice){
+    for(int i = 0; i < 64;i++){
+        if(_board[i].Pice == pice){
+            return i;
+        }
+    }
+    return -1;
+}
 
 void SlugChess::CalPossibleCastles(){
     _possibleCastles.clear();
