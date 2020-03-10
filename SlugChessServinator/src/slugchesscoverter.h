@@ -11,6 +11,22 @@
 class SlugChessConverter
 {
     public:
+    static void SetGameState(std::shared_ptr<SlugChess> game, chesscom::GameState* gameState, bool isWhitePlayer){
+        auto vision = isWhitePlayer?game->GetWhiteVision():game->GetBlackVision(); 
+        auto pices = game->GetPices(); 
+        *gameState->mutable_player_vision() = {vision.begin(), vision.end()};
+        *gameState->mutable_pices() = {pices.begin(), pices.end()};
+        gameState->set_captured_pice((chesscom::Pices)game->LastCaptured());
+        //MOves
+        CopyToMap(gameState->mutable_player_moves(), isWhitePlayer?game->LegalWhiteMovesRef():game->LegalBlackMovesRef());
+        CopyToMap(gameState->mutable_shadow_moves(), isWhitePlayer?game->ShadowWhiteMovesRef():game->ShadowBlackMovesRef());
+
+        auto check = gameState->mutable_check();
+        for (auto &&index : game->Checks(isWhitePlayer?SlugChess::Perspective::White:SlugChess::Perspective::Black))
+        {
+            check->Add(SlugChess::BP(index));
+        }
+    }
     static void SetMove(std::shared_ptr<SlugChess> game, std::shared_ptr<chesscom::Move> move, bool isWhitePlayer){
         auto ww = game->GetWhiteVision(); 
         auto bw = game->GetBlackVision(); 

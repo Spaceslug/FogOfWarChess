@@ -6,7 +6,10 @@ struct ChessClock {
     int blackSecLeft;
     int whiteSecLeft;
 };
-
+struct ChessMove {
+    std::string from;
+    std::string to;
+};
 class Match {
 public:
 
@@ -26,7 +29,7 @@ public:
     std::string whitePlayer;
     std::string blackPlayer;
     std::string matchToken;
-    std::vector<std::shared_ptr<chesscom::Move>> moves;
+    std::vector<std::shared_ptr<ChessMove>> moves;
     std::string& getWhitePlayer(){return whitePlayer;}
     std::string& getBlackPlayer(){return blackPlayer;}
     std::string& getMatchToken(){return matchToken;}

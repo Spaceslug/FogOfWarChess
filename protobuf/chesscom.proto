@@ -154,6 +154,19 @@ message Move {
 	repeated string check = 16;
 }
 
+message GameState{
+	string from = 2;
+	string to = 3;
+	google.protobuf.Timestamp timestamp = 4;
+	int32 sec_spent = 5;
+	repeated bool player_vision = 7;
+	repeated Pices pices = 8;
+	map<string, FieldMoves> player_moves = 9;
+	map<string, FieldMoves> shadow_moves = 11;
+	Pices captured_pice = 10;
+	repeated string check = 16;
+}
+
 message LoginForm {
 	string username = 1;
 	string encryptedPassword = 5;
@@ -201,7 +214,8 @@ message MovePacket{
 }
 message MoveResult{
 	bool moveHappned = 1;
-	Move move = 2;
+	//Move move = 2;
+	GameState game_state = 2;
 	bool opponentAskingForDraw = 4;
 	MatchEvent matchEvent = 5;
 	int32 secsLeft = 6;
