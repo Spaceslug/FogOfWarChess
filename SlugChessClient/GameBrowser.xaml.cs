@@ -41,6 +41,7 @@ namespace SlugChess
 
         private void JoinGame_Click(object sender, RoutedEventArgs e)
         {
+            if (dgMatchesDataGrid.SelectedIndex < 0) return;
             int selectedId = ((MatchesBind)dgMatchesDataGrid.Items[dgMatchesDataGrid.SelectedIndex]).GetMatchId();
             Task.Run(() => {
                 var token = _joinGameTokenSource.Token;

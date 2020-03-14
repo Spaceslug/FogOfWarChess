@@ -33,7 +33,7 @@
         <Label x:Name="lbMin" Content="min" HorizontalAlignment="Left" Margin="209,75,0,0" VerticalAlignment="Top"/>
         <Label x:Name="lbSec" Content="sec" HorizontalAlignment="Left" Margin="209,103,0,0" VerticalAlignment="Top"/>
         <Button x:Name="btHostGame" Content="Host Game" Click="BtHostGame_Click" HorizontalAlignment="Left" Margin="10,173,0,0" VerticalAlignment="Top" Width="194" RenderTransformOrigin="0.267,-0.333"/>
-        <Label x:Name="lbVisionInfo" ToolTip="Non: see all board &#x0a;Standard: 1 VR pawn, 2 VR officer &#x0a;Sea: pices see where they can move, knight 1 VR" Content="more info"  HorizontalAlignment="Left" Margin="204,131,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="lbVisionInfo" ToolTip="Non: see all board &#x0a;Standard: 1 VR pawn, 2 VR officer &#x0a;Sea: pices see where they can move, knight and pawn 1 VR" Content="more info"  HorizontalAlignment="Left" Margin="204,131,0,0" VerticalAlignment="Top"/>
         <TextBlock x:Name="tbHostingMatchText" Visibility="Hidden" TextWrapping="WrapWithOverflow" Margin="10,198,0,0" VerticalAlignment="Top" Width="194" Height="57" HorizontalAlignment="Left">
             Your game is now joineble by other players. Close the window if you are tired of waiting
         </TextBlock>

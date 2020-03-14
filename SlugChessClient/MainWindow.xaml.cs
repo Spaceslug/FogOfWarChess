@@ -222,59 +222,38 @@ namespace SlugChess
                     //{
 
                     //}
-                    
+                    if (!move.MoveHappned && move.GameState != null) 
+                    {
+                        //Hack to flip back whos turn it is as this is not a move
+                        _globalState.WhiteTurn = !_globalState.WhiteTurn;
+                        Instance.Dispatcher.Invoke(() => {
+                            _globalState.UpdateFromChesscom(move.GameState);
+                            ClearBoard();
+                            UpdateBoardFromGlobalState();
+
+                        });
+                    }
                     if (move.MoveHappned)
                     {
-                        if (move.Move.AvailableMoves.Count > 0) //Prossess board from server
-                        {
-                            Instance.Dispatcher.Invoke(() => {
-                                if (move.Move.From != _myLastMove.From || move.Move.To != _myLastMove.To)
-                                {
-                                    WriteTextNonInvoke("Opponent did move other!");
-                                }
-                                //Pices killedPice = _globalState.DoMoveTo(move.Move.To);
-                                _globalState.UpdateFromMove(move.Move);
-                                if ((Pices)move.Move.CapturedPice != Pices.Non) _killedPices.Add((Pices)move.Move.CapturedPice);
-                                _lastMoveFrom = _globalState.CanSeeField(_clientIsPlayer, move.Move.From) ? move.Move.From : "";
-                                _lastMoveTo = _globalState.CanSeeField(_clientIsPlayer, move.Move.To) ? move.Move.To : "";
-                                ClearBoard();
-                                UpdateBoardFromGlobalState();
-
-                                _mediaPlayer.Stop();
-                                _mediaPlayer.Open(MoveSoundUri);
-                                _mediaPlayer.Play();
-
-
-                            });
-                        }
-                        else //Prossess board self
-                        {
-                            if (move.Move.From != _myLastMove.From || move.Move.To != _myLastMove.To)
+                        Instance.Dispatcher.Invoke(() => {
+                            if (move.GameState.From != _myLastMove.From || move.GameState.To != _myLastMove.To)
                             {
-
-                                Instance.Dispatcher.Invoke(() => {
-                                    WriteTextNonInvoke("Opponent did move!");
-                                    //messageBox.AppendText("Opponent did move!\n");
-                                    //messageBox.CaretPosition = messageBox.CaretPosition.DocumentEnd;
-                                    //messageBox.BringIntoView();
-                                    //messageBox.Focus();
-                                    _globalState.Selected = move.Move.From;
-                                    Pices killedPice = _globalState.DoMoveTo(move.Move.To);
-                                    if (killedPice != Pices.Non) _killedPices.Add(killedPice);
-                                    _globalState.Selected = null;
-                                    _lastMoveFrom = _globalState.CanSeeField(_clientIsPlayer, move.Move.From) ? move.Move.From : "";
-                                    _lastMoveTo = _globalState.CanSeeField(_clientIsPlayer, move.Move.To) ? move.Move.To : "";
-                                    ClearBoard();
-                                    UpdateBoardFromGlobalState();
-
-                                    _mediaPlayer.Stop();
-                                    _mediaPlayer.Open(MoveSoundUri);
-                                    _mediaPlayer.Play();
-
-
-                                });
+                                WriteTextNonInvoke("Opponent did move other!");
                             }
-                        }
+                            //Pices killedPice = _globalState.DoMoveTo(move.Move.To);
+                            _globalState.UpdateFromChesscom(move.GameState);
+                            if ((Pices)move.GameState.CapturedPice != Pices.Non) _killedPices.Add((Pices)move.GameState.CapturedPice);
+                            _lastMoveFrom = move.GameState.From != ""?_globalState.CanSeeField(_clientIsPlayer, move.GameState.From) ? move.GameState.From : "": "";
+                            _lastMoveTo = move.GameState.To != "" ? _globalState.CanSeeField(_clientIsPlayer, move.GameState.To) ? move.GameState.To : "" : "";
+                            ClearBoard();
+                            UpdateBoardFromGlobalState();
+
+                            _mediaPlayer.Stop();
+                            _mediaPlayer.Open(MoveSoundUri);
+                            _mediaPlayer.Play();
+
+
+                        });
                         
                         if (_globalState.WhiteTurn)
                         {
@@ -470,7 +449,7 @@ namespace SlugChess
                     child.Background = new SolidColorBrush(Color.FromArgb(0xFF, 0x6F, 0x8F, 0x8F));
                 }
                 ApplyFieldStateToGrid(child, _globalState.GetFieldAt(child.Name));
-                if (_globalState.CanSeeField(_clientIsPlayer, child.Name))
+                if (_globalState.CanSeeField(child.Name))
                 {
                     child.Opacity = 1;
                     var currentColorKingField = _globalState.WhiteTurn ? whiteKingField : blackKingField;
@@ -486,7 +465,7 @@ namespace SlugChess
                         border.BorderThickness = new Thickness(2, 2, 2, 2); //You can specify here which borders do you want
                         child.Children.Add(border);
                     }
-                    else if (_globalState.IsLegalMove(child.Name))
+                    else if (_globalState.OtherIsLegalMove(child.Name))
                     {
                         var border = new Border();
                         border.BorderBrush = Brushes.Red;
@@ -501,32 +480,27 @@ namespace SlugChess
                         child.Children.Add(border);
                     }
                      
-                    if (_globalState.GetLegalShadowMovesFromField(child.Name).Contains(currentColorKingField) && _globalState.CanSeeField(_clientIsPlayer, currentColorKingField))
+                    if (_globalState.Checks.Contains(child.Name))
                     {
                         //messageBox.AppendText("YGetLegalMovesFromField" + "\n");
                         var border = new Border();
                         border.BorderBrush = Brushes.Gold;
                         border.BorderThickness = new Thickness(3, 3, 3, 3); //You can specify here which borders do you want
                         child.Children.Add(border);
-                        Grid kingGrid = (Grid)BoardGrid.FindName(currentColorKingField);
-                        border = new Border();
-                        border.BorderBrush = Brushes.Gold;
-                        border.BorderThickness = new Thickness(3, 3, 3, 3); //You can specify here which borders do you want
-                        kingGrid.Children.Add(border);
                     }
-                    else if (_globalState.GetLegalMovesFromField(child.Name).Contains(shadowColorKingField) && _globalState.CanSeeField(_clientIsPlayer, shadowColorKingField))
-                    {
-                        //messageBox.AppendText("YGetLegalMovesFromField" + "\n");
-                        var border = new Border();
-                        border.BorderBrush = Brushes.Gold;
-                        border.BorderThickness = new Thickness(3, 3, 3, 3); //You can specify here which borders do you want
-                        child.Children.Add(border);
-                        Grid kingGrid = (Grid)BoardGrid.FindName(shadowColorKingField);
-                        border = new Border();
-                        border.BorderBrush = Brushes.Gold;
-                        border.BorderThickness = new Thickness(3, 3, 3, 3); //You can specify here which borders do you want
-                        kingGrid.Children.Add(border);
-                    }
+                    //else if (_globalState.GetLegalMovesFromField(child.Name).Contains(shadowColorKingField) && _globalState.CanSeeField(_clientIsPlayer, shadowColorKingField))
+                    //{
+                    //    //messageBox.AppendText("YGetLegalMovesFromField" + "\n");
+                    //    var border = new Border();
+                    //    border.BorderBrush = Brushes.Gold;
+                    //    border.BorderThickness = new Thickness(3, 3, 3, 3); //You can specify here which borders do you want
+                    //    child.Children.Add(border);
+                    //    Grid kingGrid = (Grid)BoardGrid.FindName(shadowColorKingField);
+                    //    border = new Border();
+                    //    border.BorderBrush = Brushes.Gold;
+                    //    border.BorderThickness = new Thickness(3, 3, 3, 3); //You can specify here which borders do you want
+                    //    kingGrid.Children.Add(border);
+                    //}
 
                 }
                 else
@@ -593,6 +567,13 @@ namespace SlugChess
                 //loginButton.Content = "U logged in";
                 loginButton.IsEnabled = false;
                 lookForMatchButton.IsEnabled = true;
+                foreach(var item in ((MenuItem)TopMenu.Items[0]).Items)
+                {
+                    if (item is MenuItem menuitem)
+                    {
+                        if ((string)menuitem.Header != "_Host" || (string)menuitem.Header != "_Browse Games") menuitem.IsEnabled = true;
+                    }
+                }
                 tbLoginStatus.Text = $"{_userdata.Username}";
 
                 _matchMessageStream = _connection.Call.ChatMessageStream();

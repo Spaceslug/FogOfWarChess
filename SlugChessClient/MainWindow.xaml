@@ -9,10 +9,10 @@
         Closing="Window_Closing"
         Icon="pack://siteoforigin:,,,/img/icon.png">
     <DockPanel>
-        <Menu DockPanel.Dock="Top">
+        <Menu x:Name="TopMenu" DockPanel.Dock="Top">
             <MenuItem Header="_Game">
-                <MenuItem Header="_Host" Click="HostClick"/>
-                <MenuItem Header="_Browse Games" Click="BrowseGamesClick"/>
+                <MenuItem Header="_Host" Click="HostClick" IsEnabled="False"/>
+                <MenuItem Header="_Browse Games" Click="BrowseGamesClick" IsEnabled="False"/>
                 <MenuItem Header="_Connect" />
                 <MenuItem Header="_Nothing" />
                 <Separator />

@@ -13,9 +13,10 @@ version 0.x.1
 -updator of slugchessclient (fetch newest version for spaceslug.no)
 -client with only unary and server streamer calls for Match and ChatMessages
 -server saves all matches that have been played
+-Alive Heartbeats are not tested and potencially doesn't work
 
 BUGS:
--check helper does not work for player getting checked
+
 
 version 1.0.0
 -make this a stable version
@@ -29,9 +30,10 @@ version 0.9.0
 
 
 version 0.8.1 
--fix check helper bug, (check mus be handled inside slugchess. shadowmoves is not good enough)
--Make less cases of invalid state on client. Only enable things when logged in
--implement Alive Hearbeat (Clients must send heartbeat every 1 min)
+-(x)fix looking for game bug
+-(x)fix check helper bug, (check mus be handled inside slugchess. shadowmoves is not good enough)
+-(x)Make less cases of invalid state on client. Only enable things when logged in
+-(x)implement Alive Hearbeat (Clients must send heartbeat every 1 min)
 
 version 0.8.0 (Done)
 -(x)Create custom games with custom rules

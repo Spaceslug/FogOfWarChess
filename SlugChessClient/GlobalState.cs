@@ -38,16 +38,30 @@ namespace SlugChess
         private List<Field> Board { get; set; } = new List<Field>(64);
         private bool[] WhiteVision { get; set; } = new bool[64];
         private bool[] BlackVision { get; set; } = new bool[64];
+        private bool[] PlayerVision { get; set; } = new bool[64];
         private string _selected = null;
-        public string Selected { get { return _selected; } set { _legalMovesSelected = (value != null?_legalMovesAll[value]:new List<(string, List<FieldState>)>()); _selected = value; } } 
+        public string Selected { get { return _selected; } set { _legalMovesSelected = (value != null?_legalMoves[value]:new List<(string, List<FieldState>)>()); _selected = value; } } 
         public bool WhiteTurn { get; set; } = true;
         public VisionRules VisionRules { get; set; }
         private List<(string, List<FieldState>)> _legalMovesSelected = new List<(string, List<FieldState>)>();
-        private Dictionary<string, List<(string, List<FieldState>)>> _legalMovesAll = new Dictionary<string, List<(string, List<FieldState>)>>();
-        private Dictionary<string, List<(string, List<FieldState>)>> _legalShadowMovesAll = new Dictionary<string, List<(string, List<FieldState>)>>();
+        private Dictionary<string, List<(string, List<FieldState>)>> _legalMoves = new Dictionary<string, List<(string, List<FieldState>)>>();
+        //private Dictionary<string, List<(string, List<FieldState>)>> _legalShadowMovesAll = new Dictionary<string, List<(string, List<FieldState>)>>();
+        private Dictionary<string, List<(string, List<FieldState>)>> _legalWhiteMoves = new Dictionary<string, List<(string, List<FieldState>)>>();
+        private Dictionary<string, List<(string, List<FieldState>)>> _legalBlackMoves = new Dictionary<string, List<(string, List<FieldState>)>>();
+        private Dictionary<string, List<(string, List<FieldState>)>> _shadowWhiteMoves = new Dictionary<string, List<(string, List<FieldState>)>>();
+        private Dictionary<string, List<(string, List<FieldState>)>> _shadowBlackMoves = new Dictionary<string, List<(string, List<FieldState>)>>();
+        private Dictionary<string, List<(string, List<FieldState>)>> _playerMoves = new Dictionary<string, List<(string, List<FieldState>)>>();
+        private Dictionary<string, List<(string, List<FieldState>)>> _shadowMoves = new Dictionary<string, List<(string, List<FieldState>)>>();
+        private Google.Protobuf.Collections.RepeatedField<string> _checks = new Google.Protobuf.Collections.RepeatedField<string>();
         public IEnumerable<string> GetLegalMovesFromSelected => _legalMovesSelected.Select(items => items.Item1);
-        public IEnumerable<string> GetLegalMovesFromField(string field) => (_legalMovesAll.ContainsKey(field)?_legalMovesAll[field]?.Select(items => items.Item1):new List<string>());
-        public IEnumerable<string> GetLegalShadowMovesFromField(string field) => (_legalShadowMovesAll.ContainsKey(field) ? _legalShadowMovesAll[field]?.Select(items => items.Item1) : new List<string>());
+        public IEnumerable<string> GetLegalMovesFromField(string field) => (_legalMoves.ContainsKey(field)?_legalMoves[field]?.Select(items => items.Item1):new List<string>());
+        public IEnumerable<string> GetLegalWhiteMovesFromField(string field) => (_legalWhiteMoves.ContainsKey(field) ? _legalWhiteMoves[field]?.Select(items => items.Item1) : new List<string>());
+        public IEnumerable<string> GetLegalBlackMovesFromField(string field) => (_legalBlackMoves.ContainsKey(field) ? _legalBlackMoves[field]?.Select(items => items.Item1) : new List<string>());
+        public IEnumerable<string> GetShadowWhiteMovesFromField(string field) => (_shadowWhiteMoves.ContainsKey(field) ? _shadowWhiteMoves[field]?.Select(items => items.Item1) : new List<string>());
+        public IEnumerable<string> GetShadowBlackMovesFromField(string field) => (_shadowBlackMoves.ContainsKey(field) ? _shadowBlackMoves[field]?.Select(items => items.Item1) : new List<string>());
+        public IEnumerable<string> GetPlayerMovesFromField(string field) => (_playerMoves.ContainsKey(field) ? _playerMoves[field]?.Select(items => items.Item1) : new List<string>());
+        public IEnumerable<string> GetShadowMovesFromField(string field) => (_shadowMoves.ContainsKey(field) ? _shadowMoves[field]?.Select(items => items.Item1) : new List<string>());
+        public Google.Protobuf.Collections.RepeatedField<string> Checks => _checks;
 
         //public void UpdateState(GlobalState oldState)
         //{
@@ -67,7 +81,7 @@ namespace SlugChess
             newState.VisionRules = this.VisionRules;
             newState.WhiteVision = this.WhiteVision;
             newState._legalMovesSelected = this._legalMovesSelected;
-            newState._legalMovesAll = this._legalMovesAll;
+            newState._legalMoves = this._legalMoves;
 
             return newState;
         } 
@@ -106,7 +120,16 @@ namespace SlugChess
 
         public bool IsLegalMove(string pos)
         {
-            if (WhiteTurn ? WhiteVision[BoardPosToIndex[pos]]: BlackVision[BoardPosToIndex[pos]])
+            if (PlayerVision[BoardPosToIndex[pos]])
+            {
+                return _legalMovesSelected.Any((a) => a.Item1 == pos);
+            }
+            return false;
+        }
+
+        public bool OtherIsLegalMove(string pos)
+        {
+            if (PlayerVision[BoardPosToIndex[pos]])
             {
                 return _legalMovesSelected.Any((a) => a.Item1 == pos);
             }
@@ -125,8 +148,32 @@ namespace SlugChess
                 Board[i] = f;
             }
             
-            _legalMovesAll = move.AvailableMoves.ToDictionary(keyVal => keyVal.Key, keyVal => keyVal.Value.List.Select(from => (from, new List<FieldState>())).ToList());
-            _legalShadowMovesAll = move.AvailableShadowMoves.ToDictionary(keyVal => keyVal.Key, keyVal => keyVal.Value.List.Select(from => (from, new List<FieldState>())).ToList());
+            _legalMoves = move.AvailableMoves.ToDictionary(keyVal => keyVal.Key, keyVal => keyVal.Value.List.Select(from => (from, new List<FieldState>())).ToList());
+            _legalWhiteMoves = move.WhiteMoves.ToDictionary(keyVal => keyVal.Key, keyVal => keyVal.Value.List.Select(from => (from, new List<FieldState>())).ToList());
+            _legalBlackMoves = move.BlackMoves.ToDictionary(keyVal => keyVal.Key, keyVal => keyVal.Value.List.Select(from => (from, new List<FieldState>())).ToList());
+            _shadowWhiteMoves = move.WhiteShadowMoves.ToDictionary(keyVal => keyVal.Key, keyVal => keyVal.Value.List.Select(from => (from, new List<FieldState>())).ToList());
+            _shadowBlackMoves = move.BlackShadowMoves.ToDictionary(keyVal => keyVal.Key, keyVal => keyVal.Value.List.Select(from => (from, new List<FieldState>())).ToList());
+            _checks = move.Check;
+            //ToDictionary<string, string>(from => from, to => to );
+
+        }
+
+        public void UpdateFromChesscom(ChessCom.GameState gameState)
+        {
+
+            WhiteTurn = !WhiteTurn;
+            PlayerVision = gameState.PlayerVision.ToArray();
+            for (int i = 0; i < gameState.Pices.Count; i++)
+            {
+                Field f = Board[i];
+                f.Pice = (Pices)gameState.Pices[i];
+                Board[i] = f;
+            }
+
+            _playerMoves = gameState.PlayerMoves.ToDictionary(keyVal => keyVal.Key, keyVal => keyVal.Value.List.Select(from => (from, new List<FieldState>())).ToList());
+            _shadowMoves = gameState.ShadowMoves.ToDictionary(keyVal => keyVal.Key, keyVal => keyVal.Value.List.Select(from => (from, new List<FieldState>())).ToList());
+            _checks = gameState.Check;
+            _legalMoves = _playerMoves;
             //ToDictionary<string, string>(from => from, to => to );
 
         }
@@ -173,7 +220,7 @@ namespace SlugChess
 
             WhiteTurn = !WhiteTurn;
             CalculateVision();
-            _legalMovesAll = GameRules.GetLegalMoves(this);
+            _legalMoves = GameRules.GetLegalMoves(this);
 
             //Selected = null;
             return killedPice;
@@ -197,6 +244,8 @@ namespace SlugChess
             }
             BlackVision = new bool[64];
             WhiteVision = new bool[64];
+            //hack
+            //PlayerVision = Enumerable.Repeat<bool>(true, 64).ToArray();
             for (int i = 0; i < 64; i++)
             {
                 if (Board[i].Pice == Pices.Non) continue;
@@ -238,6 +287,10 @@ namespace SlugChess
                 default:
                     throw new Exception("fuck you this cant happen");
             }
+        }
+        public bool CanSeeField(string fieldname)
+        {
+            return PlayerVision[GameRules.BPToIndx(fieldname)];
         }
 
         public bool CanWhiteSeeField(string fieldName)
@@ -328,7 +381,7 @@ namespace SlugChess
             globalState.Board.Add(new Field(Pices.BlackRook, false, false, true, true, false));
 
             globalState.CalculateVision();
-            globalState._legalMovesAll = GameRules.GetLegalMoves(globalState);
+            globalState._legalMoves = GameRules.GetLegalMoves(globalState);
             return globalState;
         }
 
@@ -408,7 +461,7 @@ namespace SlugChess
             globalState.Board.Add(new Field(Pices.BlackRook, false, false, true, true, false));
 
             globalState.CalculateVision();
-            globalState._legalMovesAll = GameRules.GetLegalMoves(globalState);
+            globalState._legalMoves = GameRules.GetLegalMoves(globalState);
             return globalState;
         }
 
