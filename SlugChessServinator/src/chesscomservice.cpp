@@ -143,7 +143,7 @@ void ChessComService::MatchReadLoop(ServerContext* context, std::shared_ptr<::Ma
                     if(isPlayersCurrentTurn){
                         matchPtr->game->DoMove(movePtr->from(), movePtr->to());
                         
-                        SlugChessConverter::SetMove(matchPtr->game, movePtr, isWhitePlayer);
+                        //SlugChessConverter::SetMove(matchPtr->game, movePtr, isWhitePlayer);
 
                         chesscom::MatchEvent expectedMatchEvent = chesscom::MatchEvent::Non;
                         if(matchPtr->game->Result() != SlugChess::EndResult::StillPlaying){
@@ -182,11 +182,8 @@ void ChessComService::MatchReadLoop(ServerContext* context, std::shared_ptr<::Ma
                             }
                         }
                         matchPtr->matchEvents.push_back(expectedMatchEvent);
-                        //matchPtr->moves.push_back(movePtr);
-                        std::shared_ptr<ChessMove> move;
-                        move->from = movePtr->from();
-                        move->to = movePtr->to();
-                        matchPtr->moves.push_back(move);
+                        matchPtr->moves.push_back(movePtr);
+                        std::cout << "adding ChessMove2" << std::endl << std::flush;
                         matchPtr->cv.notify_all();
                         //std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " whitesecs left " << std::to_string(matchPtr->clock->whiteSecLeft) << " blacksecs left " << std::to_string(matchPtr->clock->blackSecLeft) << std::endl << std::flush;
                         //std::string output;google::protobuf::util::MessageToJsonString(*movePtr, &output);
@@ -224,12 +221,10 @@ void ChessComService::MatchReadLoop(ServerContext* context, std::shared_ptr<::Ma
                     std::cout << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got move " << movePkt.move().from() << " " << movePkt.move().to() << std::endl << std::flush;
                     matchPtr->game->DoMove(movePtr->from(), movePtr->to());
                     
-                    SlugChessConverter::SetMove(matchPtr->game, movePtr, isWhitePlayer);
-                    //matchPtr->moves.push_back(movePtr);
-                    std::shared_ptr<ChessMove> move;
-                    move->from = movePtr->from();
-                    move->to = movePtr->to();
-                    matchPtr->moves.push_back(move);
+                    //SlugChessConverter::SetMove(matchPtr->game, movePtr, isWhitePlayer);
+                    matchPtr->moves.push_back(movePtr);
+                    std::cout << "adding ChessMove" << std::endl << std::flush;
+                   
                     std::cout << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Got Win" << std::endl << std::flush;
                     matchPtr->matchEvents.push_back(movePkt.cheatmatchevent());
                     matchPtr->cv.notify_all();
@@ -271,6 +266,17 @@ Status ChessComService::Match(ServerContext* context, grpc::ServerReaderWriter< 
     bool loop = true;
     uint lastEventNum = 0;
     std::unique_lock<std::mutex> lk(matchPtr->mutex);
+    //Sending init
+    std::cout  << " Sending init gamestate to  " << userToken << std::endl << std::flush;
+    moveResultPkt.set_movehappned(false);
+    moveResultPkt.set_opponentaskingfordraw(false);
+    SlugChessConverter::SetGameState(matchPtr->game, &state, playerIsWhite);
+    moveResultPkt.set_allocated_game_state(&state);
+    moveResultPkt.set_matchevent(chesscom::MatchEvent::Non);
+    moveResultPkt.set_secsleft(matchPtr->clock->whiteSecLeft);
+    stream->Write(moveResultPkt);
+    //moveResultPkt.release_move();
+    moveResultPkt.release_game_state();
     while (loop)
     {
         if(context->IsCancelled()) {
@@ -306,6 +312,7 @@ Status ChessComService::Match(ServerContext* context, grpc::ServerReaderWriter< 
                 }
                 else if(matchPtr->matchEvents[lastEventNum] == chesscom::MatchEvent::WhiteWin || matchPtr->matchEvents[lastEventNum] == chesscom::MatchEvent::BlackWin)
                 {
+                    std::cout  << " Going to send other move " << std::endl << std::flush;
                     std::cout  << movePkt.matchtoken() << " " <<  movePkt.usertoken()<< " Someone won!! " << matchPtr->matchEvents[lastEventNum] << std::endl << std::flush;
                     moveResultPkt.set_movehappned(true);
                     moveResultPkt.set_opponentaskingfordraw(false);
@@ -330,6 +337,7 @@ Status ChessComService::Match(ServerContext* context, grpc::ServerReaderWriter< 
                 }
                 else
                 {
+                    std::cout  << " Going to send move " << std::endl << std::flush;
                     moveResultPkt.set_movehappned(true);
                     moveResultPkt.set_opponentaskingfordraw(false);
                     //moveResultPkt.set_allocated_move(matchPtr->moves.back().get());

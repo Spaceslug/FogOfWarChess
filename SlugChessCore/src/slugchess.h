@@ -28,13 +28,16 @@ class SlugChess {
 
     void DoMove(const std::string& from, const std::string& to);
     const std::string ToFenString();
+
     void PrintBoard(std::stringstream& ss, bool whitePlayer);
     void PrintDebugBoard(std::stringstream& ss);
     void PrintWhiteVision(std::stringstream& ss);
     void PrintBlackVision(std::stringstream& ss);
     void PrintVisionBoard(std::stringstream& ss, bool visionBoard[]);
-
     void PrintSanMoves(std::stringstream& ss);
+
+    std::string From(Perspective perspective);
+    std::string To(Perspective perspective);
 
     std::vector<bool> GetWhiteVision(){ return std::vector<bool>(std::begin(_whiteVision), std::end(_whiteVision)); }
     std::vector<bool> GetBlackVision(){ return std::vector<bool>(std::begin(_blackVision), std::end(_blackVision)); }
@@ -117,12 +120,13 @@ class SlugChess {
     void CalculateLegalShadowMoves();
     void FindChecks();
     int GetFieldWithPice(ChessPice pice);
+    bool* VisionBoardPerspective(Perspective perspective);
  
     static void CalculateLegalMoves(std::vector<Field>& board, bool visionBoard[]);
 
 
     std::string _fenString;
-    std::list<std::tuple<int, int>> _moves;
+    std::list<std::pair<int, int>> _moves;
     std::stringstream _sanMoves;
     EndResult _gameEnd;
     int _halfTurnSinceCapture = 0;
