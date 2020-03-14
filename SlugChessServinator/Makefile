@@ -24,7 +24,7 @@ $(shell mkdir -p $(DEP) )
 $(shell mkdir -p $(CHESSCOM) )
 SOURCES := $(wildcard $(SRC)/*.cpp)
 OBJECTS := $(patsubst $(SRC)/%.cpp,$(OBJ)/%.o,$(SOURCES))
-DEPENDS := $(patsubst $(SRC)/%.cpp,$(DEP)/%.d,$(SOURCES))
+DEPENDS := $(patsubst $(SRC)/%.cpp,$(OBJ)/%.d,$(SOURCES))
 CHESSCOM_OBJ = $(OBJ)/chesscom.pb.o $(OBJ)/chesscom.grpc.pb.o
 
 # .PHONY means these rules get executed even if

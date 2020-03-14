@@ -396,7 +396,7 @@ Field SlugChess::ExecuteMove(int from, int to){
         //std::cout << *_board[to].fieldname << " is now " << Field::PiceChar(_board[to].Pice) << std::endl; 
     }
     
-    _moves.push_back(std::tuple<int, int>(from, to));
+    _moves.push_back(std::pair<int, int>(from, to));
     //Selected = null;
     return tofield;
 }
@@ -469,4 +469,34 @@ void SlugChess::WriteMoveSan(const std::string& fromStr, const std::string& toSt
 void SlugChess::PrintSanMoves(std::stringstream& ss)
 {
     ss << _sanMoves.str();
+}
+
+std::string SlugChess::From(Perspective perspective)
+{
+    if(_moves.empty()) return "";
+    int from = _moves.back().first;
+    auto vis = VisionBoardPerspective(perspective);
+    return vis[from]?BP(from):"";
+}
+std::string SlugChess::To(Perspective perspective)
+{
+    if(_moves.empty()) return "";
+    int to = _moves.back().second;
+    auto vis = VisionBoardPerspective(perspective);
+    return vis[to]?BP(to):"";
+}
+
+bool* SlugChess::VisionBoardPerspective(Perspective perspective)
+{
+    switch (perspective)
+    {
+    case Perspective::Both:
+        return visionBoardTrue;
+    case Perspective::White:
+        return _whiteVision;
+    case Perspective::Black:
+        return _blackVision;
+
+    }
+    return nullptr;
 }

@@ -12,19 +12,24 @@ class SlugChessConverter
 {
     public:
     static void SetGameState(std::shared_ptr<SlugChess> game, chesscom::GameState* gameState, bool isWhitePlayer){
+        std::cout  << " set game stat " << std::endl << std::flush;
         auto vision = isWhitePlayer?game->GetWhiteVision():game->GetBlackVision(); 
         auto pices = game->GetPices(); 
         *gameState->mutable_player_vision() = {vision.begin(), vision.end()};
         *gameState->mutable_pices() = {pices.begin(), pices.end()};
         gameState->set_captured_pice((chesscom::Pices)game->LastCaptured());
+        gameState->set_from(game->From(isWhitePlayer?SlugChess::Perspective::White:SlugChess::Perspective::Black));
+        gameState->set_to(game->To(isWhitePlayer?SlugChess::Perspective::White:SlugChess::Perspective::Black));
         //MOves
         CopyToMap(gameState->mutable_player_moves(), isWhitePlayer?game->LegalWhiteMovesRef():game->LegalBlackMovesRef());
         CopyToMap(gameState->mutable_shadow_moves(), isWhitePlayer?game->ShadowWhiteMovesRef():game->ShadowBlackMovesRef());
 
         auto check = gameState->mutable_check();
+        check->Clear();
         for (auto &&index : game->Checks(isWhitePlayer?SlugChess::Perspective::White:SlugChess::Perspective::Black))
         {
-            check->Add(SlugChess::BP(index));
+            std::cout  << std::to_string(isWhitePlayer) << " adding check  " << SlugChess::BP(index) << std::endl << std::flush;
+            check->Add(SlugChess::BP(index)); 
         }
     }
     static void SetMove(std::shared_ptr<SlugChess> game, std::shared_ptr<chesscom::Move> move, bool isWhitePlayer){
