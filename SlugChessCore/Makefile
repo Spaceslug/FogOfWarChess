@@ -15,7 +15,7 @@ $(shell mkdir -p $(DEP) )
 
 SOURCES := $(wildcard $(SRC)/*.cpp)
 OBJECTS := $(patsubst $(SRC)/%.cpp,$(OBJ)/%.o,$(SOURCES))
-DEPENDS := $(patsubst $(SRC)/%.cpp,$(DEP)/%.d,$(SOURCES))
+DEPENDS := $(patsubst $(SRC)/%.cpp,$(OBJ)/%.d,$(SOURCES))
 
 # .PHONY means these rules get executed even if
 # files of those names exist.

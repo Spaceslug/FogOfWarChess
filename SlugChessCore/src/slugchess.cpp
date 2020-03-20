@@ -340,6 +340,25 @@ void SlugChess::CalPossibleCastles(){
     }
 }
 
+void SlugChess::CleanAnPassants()
+    {
+        //with test
+        int index = 0;
+        for(Field& field : _board)
+        {
+            if(field.AnPassan_able)
+            {
+                field.AnPassan_able = false;
+                break;
+            }
+            index++;
+        }
+        if(index < 63 && _board[index].AnPassan_able){
+            std::cout << "Clearing an passant failed" << std::flush << std::endl;
+        }
+    }
+
+
 Field SlugChess::ExecuteMove(const std::string from, const std::string to){
     return ExecuteMove(GameRules::BoardPosToIndex(from), GameRules::BoardPosToIndex(to));
 }
@@ -399,6 +418,19 @@ Field SlugChess::ExecuteMove(int from, int to){
     _moves.push_back(std::pair<int, int>(from, to));
     //Selected = null;
     return tofield;
+}
+
+bool SlugChess::LegalMove(std::string& from, std::string& to)
+{
+    if(from[0] < 'a' || from[0] > 'h' 
+        ||from[1] < '1' || from[1] > '8'
+        ||to[0] < 'a' || to[0] > 'h'
+        ||to[1] < '1' || to[1] > '8' ) return false;
+    if(_legalMoves.count(BPToIndx(from)) > 0){
+        std::vector<int> vector = _legalMoves[BPToIndx(from)];
+        return std::find(vector.begin(), vector.end(), BPToIndx(to)) != vector.end();
+    }
+    return false;
 }
 
 void SlugChess::DoMove(const std::string& from, const std::string& to){

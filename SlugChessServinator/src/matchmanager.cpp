@@ -47,7 +47,7 @@ std::string MatchManager::CreateMatch(chesscom::HostedGame& hostedGame)
     }
     else if(hostedGame.gamerules().chesstype() == chesscom::ChessType::SlugRandom)
     {
-        //throw std::exception("not implemten SlugRandom chess");
+        fenString = Sfen::GenSlugRandom();
     }
     
     VisionRules visionRules = FromChesscomVisionRules(hostedGame.gamerules().visionrules());

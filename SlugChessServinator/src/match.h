@@ -19,7 +19,7 @@ public:
         whitePlayer = whitePlayerToken;
         blackPlayer = blackPlayerToken;
         clock = std::make_shared<ChessClock>();
-        game = std::make_shared<SlugChess>("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1", visionRules);
+        game = std::make_shared<SlugChess>(fenString, visionRules);
     }
 	
     //bool newUpdate = false;

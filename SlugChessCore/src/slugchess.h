@@ -41,30 +41,11 @@ class SlugChess {
 
     std::vector<bool> GetWhiteVision(){ return std::vector<bool>(std::begin(_whiteVision), std::end(_whiteVision)); }
     std::vector<bool> GetBlackVision(){ return std::vector<bool>(std::begin(_blackVision), std::end(_blackVision)); }
-    std::vector<ChessPice> GetPices(){ 
-        std::vector<ChessPice> pices(64);
-        for (int i = 0; i < 64; i++)
-        {
-            pices[i] = _board[i].Pice;
-        }
-        
-        return pices;
-    }
-
+    std::vector<ChessPice> GetPices(){std::vector<ChessPice> pices(64);for (int i = 0; i < 64; i++)pices[i] = _board[i].Pice; return pices; }
     void SetEnd(EndResult endResult){ _gameEnd = endResult; }
     EndResult Result(){ return _gameEnd; }
 
-    bool LegalMove(std::string& from, std::string& to){ 
-        if(from[0] < 'a' || from[0] > 'h' 
-            ||from[1] < '1' || from[1] > '8'
-            ||to[0] < 'a' || to[0] > 'h'
-            ||to[1] < '1' || to[1] > '8' ) return false;
-        if(_legalMoves.count(BPToIndx(from)) > 0){
-            std::vector<int> vector = _legalMoves[BPToIndx(from)];
-            return std::find(vector.begin(), vector.end(), BPToIndx(to)) != vector.end();
-        }
-        return false; 
-    }
+    bool LegalMove(std::string& from, std::string& to);
 
     std::map<int, std::vector<int>>* LegalMovesRef(){ return &_legalMoves; }
     std::map<int, std::vector<int>>* LegalWhiteMovesRef(){ return &_legalWhiteMoves; }
@@ -73,41 +54,16 @@ class SlugChess {
     std::map<int, std::vector<int>>* ShadowBlackMovesRef(){ return &_shadowBlackMoves; }
 
     std::set<int> Checks(Perspective perspective);
-    //std::list<int>* BlackChecksRef(){ return &_blackFieldsThatCheck; }
-    //std::list<int>* WhiteChecksRef(){ return &_whiteFieldsThatCheck; }
 
     bool WhitesTurn(){return _whiteTurn; }
     ChessPice LastCaptured(){ return _lastCaptured; }
     void CalPossibleCastles();
-    void CleanAnPassants()
-    {
-        //with test
-        int index = 0;
-        for(Field& field : _board)
-        {
-            if(field.AnPassan_able)
-            {
-                field.AnPassan_able = false;
-                break;
-            }
-            index++;
-        }
-        if(index < 63 && _board[index].AnPassan_able){
-            std::cout << "Clearing an passant failed" << std::flush << std::endl;
-        }
-    }
+    void CleanAnPassants();
 
     static bool visionBoardTrue [64];
-
-
-    static const int32_t BPToIndx(std::string& pos)
-    {
-        return GameRules::BoardPosToIndex(pos);
-    }
-    static std::string BP(int index)
-    {
-        return GameRules::BoardPos(index);
-    }
+    static const int32_t BPToIndx(std::string& pos){return GameRules::BoardPosToIndex(pos);}
+    static std::string BP(int index) { return GameRules::BoardPos(index); }
+    
     private:
     Field ExecuteMove(const std::string from, const std::string to);
     Field ExecuteMove(int from, int to);
@@ -148,5 +104,4 @@ class SlugChess {
     ChessPice _lastCaptured = ChessPice::Non;
     std::list<int> _blackFieldsThatCheck;
     std::list<int> _whiteFieldsThatCheck;
-
 };

@@ -36,6 +36,20 @@ void GameLoop(){
             std::stringstream ss;
             game->PrintBoard(ss, game->WhitesTurn());        
             std::cout << ss.str() << std::endl;
+        }else if(s == "playr"){
+            if(game != nullptr) delete game;   
+            VisionRules rules;
+            rules.globalRules = Rules();
+            rules.globalRules.ViewCaptureField = true;
+            rules.globalRules.ViewMoveFields = false;
+            rules.globalRules.ViewRange = 2;
+            rules.enabled = true;
+            rules.overWriteRules[ChessPice::WhitePawn] = Rules(false,true, 1);
+            rules.overWriteRules[ChessPice::BlackPawn] = Rules(false,true, 1);     
+            game = new SlugChess(Sfen::GenDoubleFisherRandom(), rules);
+            std::stringstream ss;
+            game->PrintBoard(ss, game->WhitesTurn());        
+            std::cout << ss.str() << std::endl;
         }else if(s == "moves"){
             auto moves = *game->LegalMovesRef();
             for (auto &&keyVal : moves)
@@ -63,22 +77,22 @@ void GameLoop(){
 
             game->PrintSanMoves(ss);        
             std::cout << ss.str() << std::endl;
-        }else if(s == "check"){
+        }else if(s == "check"){ 
             std::stringstream ss;
             //std::cout << "Printing moves" << std::endl;
             ss << "White checks: ";
-            for (auto &&fieldIndex : *game->WhiteChecksRef())
-            {
-                ss << game->BP(fieldIndex) << " ";
-            }
-            ss << std::endl;
+            // for (auto &&fieldIndex : *game->WhiteChecksRef())
+            // {
+            //     ss << game->BP(fieldIndex) << " ";
+            // }
+            // ss << std::endl;
 
-            ss << "Black checks: ";
-            for (auto &&fieldIndex : *game->BlackChecksRef())
-            {
-                ss << game->BP(fieldIndex) << " ";
-            }
-            std::cout << ss.str() << std::endl;
+            // ss << "Black checks: ";
+            // for (auto &&fieldIndex : *game->BlackChecksRef())
+            // {
+            //     ss << game->BP(fieldIndex) << " ";
+            // }
+            std::cout << ss.str() << std::endl; 
         }else if( s.size() == 4){
             
             std::string from = s.substr(0, 2);
@@ -149,9 +163,11 @@ int main(int argc, char** argv) {
     // ss << std::endl;
     // slugChess.PrintBlackVision(ss);
     // std::cout << ss.str();
-    int postest = 54;
-    std::cout << "Pos " << std::to_string(postest) << ": row " << std::to_string(Field::IndexRow(postest)) << " col " << std::to_string(Field::IndexColumn(postest));
-    std::cout << " colrow " << std::to_string(GameRules::IndexFromColRow(Field::IndexColumn(postest), (Field::IndexRow(postest)))) << std::endl;   
+    //int postest = 54;
+    //std::cout << "Pos " << std::to_string(postest) << ": row " << std::to_string(Field::IndexRow(postest)) << " col " << std::to_string(Field::IndexColumn(postest));
+    //std::cout << " colrow " << std::to_string(GameRules::IndexFromColRow(Field::IndexColumn(postest), (Field::IndexRow(postest)))) << std::endl;   
+    for(int i = 0; i < 5; i++)
+    std::cout << "sFen Double Fuisher Random: " << Sfen::GenDoubleFisherRandom() << std::endl;
     GameLoop();
     return 0;
 }

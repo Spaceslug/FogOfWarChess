@@ -3,15 +3,46 @@
 #include <locale>
 #include <cwctype>
 #include <locale>
+#include <string>
+#include <list>
+#include <random>
+#include <chrono>
+#include <algorithm>  
 #include "gamerules.h"
 
 
 class Sfen{
     public:
+    static const std::string GenNormalChess()
+    {
+        return "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1";
+    }
+
+    static const std::string GenSlugRandom()
+    {
+        std::vector<ChessPice> bagOfBlack = {ChessPice::BlackKing, ChessPice::BlackQueen, ChessPice::BlackRook, ChessPice::BlackRook, ChessPice::BlackBishop, ChessPice::BlackBishop, ChessPice::BlackKnight, ChessPice::BlackKnight};
+        std::vector<ChessPice> bagOfWhite = {ChessPice::WhiteKing, ChessPice::WhiteQueen, ChessPice::WhiteRook, ChessPice::WhiteRook, ChessPice::WhiteBishop, ChessPice::WhiteBishop, ChessPice::WhiteKnight, ChessPice::WhiteKnight};
+        unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+        auto rand = std::default_random_engine(seed);
+        shuffle(bagOfBlack.begin(), bagOfBlack.end(), rand); 
+        shuffle(bagOfWhite.begin(), bagOfWhite.end(), rand);
+        std::stringstream ss;
+         std::for_each(bagOfBlack.begin(), bagOfBlack.end(), [&ss](ChessPice& pice){
+            ss << Field::PiceChar(pice);
+        });
+        ss << "/pppppppp/8/8/8/8/PPPPPPPP/";
+        std::for_each(bagOfWhite.begin(), bagOfWhite.end(), [&ss](ChessPice& pice){
+           ss << Field::PiceChar(pice);
+        });
+        ss << " w - - 0 1";
+        return ss.str();
+    }
+
     /**
      * True if succsessful. Only support start 0 moves done
      * */
-    static int WriteSfenPicesToBoard(std::vector<Field>& board, const std::string& sfen){
+    static int WriteSfenPicesToBoard(std::vector<Field>& board, const std::string& sfen)
+    {
         // rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1
         // normal startingpoint shredder-fen
 
@@ -111,7 +142,10 @@ class Sfen{
         {
             char character = sfen[fenIndex];
             //std::cout << "fenchar cast pos " << std::string(1,std::tolower(character))+'1' << std::endl;
-            if(character == '-' || character == ' '){
+            if(character == '-'){
+                fenIndex++;
+                castleLoop = false;
+            }else if( character == ' '){
                 castleLoop = false;
             }else if(character >= 'A' && character <= 'H'){
                 int posIndex = GameRules::BoardPosToIndex(std::string(1,std::tolower(character, std::locale()))+'1');
@@ -154,7 +188,7 @@ class Sfen{
             board[i].fieldname = GameRules::BoardPosRef(i);
         }
         
-        
+        std::cout << "Sfen board builder finished" << std::endl;
         
         return true;
 
