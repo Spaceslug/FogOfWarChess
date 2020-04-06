@@ -1,0 +1,53 @@
+
+
+#FROM ubuntu:bionic as cpp-build
+#
+#RUN apt-get update && \
+#apt-get install -y build-essential autoconf cmake libtool pkg-config git curl libssl-dev
+#
+#
+#
+#FROM cpp-build as grpc-build 
+#
+#WORKDIR /additions
+#
+#RUN git clone -b $(curl -L https://grpc.io/release) https://github.com/grpc/grpc 
+#
+#RUN cd grpc && git submodule update --init
+#
+#RUN mkdir -p grpc/cmake/build && cd grpc/cmake && \
+#cmake \
+#   -DCMAKE_BUILD_TYPE=Release \
+#   -DgRPC_INSTALL=ON \
+#   -DgRPC_BUILD_TESTS=OFF \
+#   -DgRPC_SSL_PROVIDER=package \
+#   -DgRPC_BUILD_GRPC_CPP_PLUGIN=ON \
+#   -DgRPC_BUILD_CSHARP_EXT=OFF \
+#   .. 
+
+#RUN cd grpc/cmake && make && make install && cp ./grpc_cpp_plugin /usr/local/bin/grpc_cpp_plugin 
+
+#RUN echo $PATH && ls /usr/local/lib && echo ---cmake--- && ls -al /additions/grpc/cmake && echo ---kibs--- && ls -al /additions/grpc/cmake/libs/opt/pkgconfig
+#RUN which grpc_cpp_plugin
+
+FROM grpc/cxx as build
+
+WORKDIR /src
+
+COPY ./protobuf ./protobuf
+COPY ./SlugChessCore ./SlugChessCore
+COPY ./SlugChessServinator ./SlugChessServinator
+
+#RUN ls . && echo xxxx && ls .. && echo xxxx && ls ../.. && echo xxxx && 
+RUN cd SlugChessServinator && make
+
+FROM ubuntu:bionic as prod
+
+WORKDIR /opt/SlugChessServinator
+
+COPY --from=build ./output/server ./
+
+CMD ["./server"]
+
+
+
