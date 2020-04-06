@@ -46,7 +46,7 @@ void GameLoop(){
             rules.enabled = true;
             rules.overWriteRules[ChessPice::WhitePawn] = Rules(false,true, 1);
             rules.overWriteRules[ChessPice::BlackPawn] = Rules(false,true, 1);     
-            game = new SlugChess(Sfen::GenDoubleFisherRandom(), rules);
+            game = new SlugChess(Sfen::GenSlugRandom(), rules);
             std::stringstream ss;
             game->PrintBoard(ss, game->WhitesTurn());        
             std::cout << ss.str() << std::endl;
@@ -167,7 +167,7 @@ int main(int argc, char** argv) {
     //std::cout << "Pos " << std::to_string(postest) << ": row " << std::to_string(Field::IndexRow(postest)) << " col " << std::to_string(Field::IndexColumn(postest));
     //std::cout << " colrow " << std::to_string(GameRules::IndexFromColRow(Field::IndexColumn(postest), (Field::IndexRow(postest)))) << std::endl;   
     for(int i = 0; i < 5; i++)
-    std::cout << "sFen Double Fuisher Random: " << Sfen::GenDoubleFisherRandom() << std::endl;
+    std::cout << "sFen Double Fuisher Random: " << Sfen::GenSlugRandom() << std::endl;
     GameLoop();
     return 0;
 }

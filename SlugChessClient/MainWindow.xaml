@@ -13,7 +13,7 @@
             <MenuItem Header="_Game">
                 <MenuItem Header="_Host" Click="HostClick" IsEnabled="False"/>
                 <MenuItem Header="_Browse Games" Click="BrowseGamesClick" IsEnabled="False"/>
-                <MenuItem Header="_Connect" />
+                <MenuItem Header="_Login" Click="LoginButtonClick"/>
                 <MenuItem Header="_Nothing" />
                 <Separator />
                 <MenuItem Header="_Exit" Click="CloseClick"/>
@@ -34,7 +34,7 @@
                 <Label x:Name="loginLabel" Content="Name:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="nameTextBox" HorizontalAlignment="Left" Height="23" Margin="53,12,0,0" TextWrapping="Wrap" Text="noname" VerticalAlignment="Top" Width="120"/>
                 <Button x:Name="loginButton" Content="Log In" Click="LoginButtonClick" HorizontalAlignment="Left" Margin="178,12,0,0" VerticalAlignment="Top" Width="75"/>
-                <Button x:Name="lookForMatchButton" Content="Look for match" Click="LookForMatchClick" IsEnabled="false" HorizontalAlignment="Left" Margin="258,12,0,0" VerticalAlignment="Top" Width="85"/>
+                <Button x:Name="lookForMatchButton" Content="Look for match" Click="LookForMatchClick" Visibility="Hidden" IsEnabled="false" HorizontalAlignment="Left" Margin="258,12,0,0" VerticalAlignment="Top" Width="85"/>
                 <RichTextBox x:Name="messageBox" IsReadOnly="true" HorizontalAlignment="Left" Height="179" Margin="10,103,0,0" VerticalAlignment="Top" Width="332">
                     <RichTextBox.Resources>
                         <Style TargetType="{x:Type Paragraph}">
@@ -174,7 +174,7 @@
                 </StatusBarItem>
                 <Separator Grid.Column="3" />
                 <StatusBarItem Grid.Column="4">
-                    <ProgressBar Value="50" Width="90" Height="16" />
+                    <ProgressBar Value="50" Width="90" Height="16" Visibility="Hidden"/>
                 </StatusBarItem>
             </StatusBar>
         </Grid>

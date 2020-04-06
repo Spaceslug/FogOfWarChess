@@ -569,7 +569,7 @@ namespace SlugChess
                 lookForMatchButton.IsEnabled = true;
                 foreach(var item in ((MenuItem)TopMenu.Items[0]).Items)
                 {
-                    if (item is MenuItem menuitem)
+                    if (item is MenuItem menuitem) 
                     {
                         if ((string)menuitem.Header != "_Host" || (string)menuitem.Header != "_Browse Games") menuitem.IsEnabled = true;
                     }

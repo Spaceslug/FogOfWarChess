@@ -6,6 +6,7 @@ version 0.x.1
 - a check to evaluate the validity of time spent on move. Change the value if it seams wrong. 
 -go back and forwards in the move while playing a match
 -a way to see where and when pices died
+-castling checks threatened fields, and works with FisherRandom 
 -print the Rules of a SlugChess game to text
 -print the VisionRules of a SlugChess game to text
 -add commands to the server in the message box
@@ -14,20 +15,28 @@ version 0.x.1
 -client with only unary and server streamer calls for Match and ChatMessages
 -server saves all matches that have been played
 -Alive Heartbeats are not tested and potencially doesn't work
+-use Python script to upload new SlugChess version to spaceslug.no
 
 BUGS:
 
 
 version 1.0.0
 -make this a stable version
--full PGN support
--back and forward in match( clients are sendt state so should be easy)
+-spectate a PGN (PGNs on server)
+-full PGN support ()
 -Print rules
 
-version 0.9.0
--implement double fisher random
--save moves of match so they can be replayed
 
+version 0.10.0
+- auto updator
+
+version 0.9.1
+-back and forward in match( clients are sendt state so should be easy)
+-fix state if clients alot
+
+version 0.9.0
+-(x)implement double fisher random
+-fix release uploader
 
 version 0.8.1 
 -(x)fix looking for game bug
