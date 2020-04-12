@@ -6,7 +6,7 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="800"
              x:Class="SlugChessAval.Views.Chessboard">
   <Grid ColumnDefinitions="Auto,1*" RowDefinitions="1*,Auto" Margin="5,5,5,5">
-    <Grid Name="BoardGrid" Grid.Row="0" Grid.Column="1" Background="Black" ColumnDefinitions="*,*,*,*,*,*,*,*" RowDefinitions="*,*,*,*,*,*,*,*">
+    <Grid Name="BoardGrid" Grid.Row="0" Grid.Column="1"  PointerReleased="ChessfieldClicked" Background="Black" ColumnDefinitions="*,*,*,*,*,*,*,*" RowDefinitions="*,*,*,*,*,*,*,*">
       <Grid Name="a8" Background="#FFFFFFFF" Grid.Row="0" Grid.Column="0" />
       <Grid Name="b8" Background="#FF6F6F6F" Grid.Row="0" Grid.Column="1" />
       <Grid Name="c8" Background="#FFFFFFFF" Grid.Row="0" Grid.Column="2" />

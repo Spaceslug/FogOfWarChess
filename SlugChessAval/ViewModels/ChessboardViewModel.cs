@@ -5,6 +5,7 @@ using Splat;
 using System;
 using System.Collections.Generic;
 using System.Reactive;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace SlugChessAval.ViewModels
@@ -14,7 +15,13 @@ namespace SlugChessAval.ViewModels
         public string UrlPathSegment => "/chessboard";
         public IScreen HostScreen { get; }
 
-
+        [DataMember]
+        public ChessboardModel CbModel
+        {
+            get => _cbModel;
+            set => this.RaiseAndSetIfChanged(ref _cbModel, value);
+        }
+        private ChessboardModel _cbModel;
 
         public ReactiveCommand<Unit, (string, string)> MoveFromTo;
 
@@ -25,6 +32,7 @@ namespace SlugChessAval.ViewModels
             //   () => new TodoItem { Description = Description },
             //   okEnabled);
             //Cancel = ReactiveCommand.Create(() => { });
+            this.WhenAnyValue(x => x.CbModel, x => UpdateBoard(x));
 
         }
 
@@ -32,5 +40,12 @@ namespace SlugChessAval.ViewModels
         {
 
         }
+
+        private void UpdateBoard(ChessboardModel model)
+        {
+
+        }
+
+        
     }
 }
