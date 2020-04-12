@@ -49,7 +49,9 @@ namespace ReactiveUI.Samples.Suspension.ViewModels
             get => _guiScaling;
             set => this.RaiseAndSetIfChanged(ref _guiScaling, value);
         }
-        private double _guiScaling = 1; 
+        private double _guiScaling = 3;
+
+        public int Font => 32;
 
         public int NormalFontSize => Convert.ToInt32(12 * _guiScaling);
 

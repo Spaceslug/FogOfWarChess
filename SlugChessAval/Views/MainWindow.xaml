@@ -8,5 +8,6 @@
         Icon="/Assets/avalonia-logo.ico"
         Title="SlugChessAval"
         Content="{Binding Content}">
+        <views:Chessboard/>
 
 </Window>

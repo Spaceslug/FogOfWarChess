@@ -84,28 +84,28 @@ message MatchId
 
 message VisionRules {
 	bool enabled = 1;
-	bool viewMoveFields = 2;
-	int32 viewRange = 3;
-	map<int32, VisionRules> piceOverwriter = 4; //Must be a Pices value
-	bool viewCaptureField = 5;
+	bool view_move_fields = 2;
+	int32 view_range = 3;
+	map<int32, VisionRules> pice_overwriter = 4; //Must be a Pices value
+	bool view_capture_field = 5;
 }
 
 message TimeRules {
-	Time playerTime = 2;
-	int32 secondsPerMove = 3;
+	Time player_time = 2;
+	int32 seconds_per_move = 3;
 }
 
 message GameRules
 {
-	VisionRules visionRules = 1;
-	TimeRules timeRules = 2;
-	ChessType chessType = 3;
-	SideType sideType = 4;
+	VisionRules vision_rules = 1;
+	TimeRules time_rules = 2;
+	ChessType chess_type = 3;
+	SideType side_type = 4;
 }
 
 message HostedGame 
 {
-	GameRules gameRules = 1;
+	GameRules game_rules = 1;
     //string hostUsertoken = 2;
     //string joinerUsertoken = 3;
 	int32 id = 4;
@@ -118,12 +118,12 @@ message HostedGame
 
 message HostedGamesMap
 {
-	map<int32, HostedGame> hostedGames = 1;
+	map<int32, HostedGame> hosted_games = 1;
 }
 
 message HostedGameResult
 {
-	bool foundUpponent = 1;
+	bool found_opponent = 1;
 
 }
 
@@ -169,22 +169,22 @@ message GameState{
 
 message LoginForm {
 	string username = 1;
-	string encryptedPassword = 5;
-	string majorVersion = 2;
-	string minorVersion = 3;
-	string buildVersion = 4;
+	string encrypted_password = 5;
+	string major_version = 2;
+	string minor_version = 3;
+	string build_version = 4;
 }
 
 message LoginResult {
-	bool successfullLogin = 1;
+	bool successfull_login = 1;
 	//bool versionCorrect = 3;
 	//string userToken = 2;
-	string loginMessage = 4;
-	UserData userData = 5;
+	string login_message = 4;
+	UserData user_data = 5;
 }
 
 message UserIdentity {
-	string userToken = 1;
+	string usertoken = 1;
 }
 
 message UserData {
@@ -195,30 +195,30 @@ message UserData {
 
 message LookForMatchResult {
 	bool succes = 1;
-	string matchToken = 2;
-	bool isWhitePlayer = 3;
+	string match_token = 2;
+	bool is_white_player = 3;
 	//VisionRules rules = 4;    //TODO deprocate
 	//string opponentUsername = 5;
 	//TimeRules timerules = 6;  //TODO deprocate
 	GameRules gameRules = 7;  // this hold both
-	UserData opponentUserData = 8;
+	UserData opponent_userdata = 8;
 }
 
 message MovePacket{
-	bool doingMove = 1;
+	bool doing_move = 1;
 	Move move = 2;
-	string userToken = 3;
-	bool askingForDraw = 4;
-	MatchEvent cheatMatchEvent = 5;
-	string matchToken = 6;
+	string usertoken = 3;
+	bool asking_for_draw = 4;
+	MatchEvent cheat_matchevent = 5;
+	string match_token = 6;
 }
 message MoveResult{
-	bool moveHappned = 1;
+	bool move_happned = 1;
 	//Move move = 2;
 	GameState game_state = 2;
-	bool opponentAskingForDraw = 4;
-	MatchEvent matchEvent = 5;
-	int32 secsLeft = 6;
+	bool opponent_asking_for_draw = 4;
+	MatchEvent match_event = 5;
+	int32 secs_left = 6;
 }
 
 message JoinGameRequest 
@@ -229,9 +229,9 @@ message JoinGameRequest
 
 message ChatMessage {
 	//for validation
-	string senderUsertoken = 1; 
+	string sender_usertoken = 1; 
 	
-	string senderUsername = 2; //sender username
-	string reciverUsertoken = 3; //reciver userToken
+	string sender_username = 2; //sender username
+	string reciver_usertoken = 3; //reciver userToken
 	string message = 4;
 }

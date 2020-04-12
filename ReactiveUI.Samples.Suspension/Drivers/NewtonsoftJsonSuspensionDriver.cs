@@ -25,7 +25,8 @@ namespace ReactiveUI.Samples.Suspension.Drivers
 
     public IObservable<object> LoadState()
     {
-        var open = File.OpenRead(_file);
+        if (!File.Exists(_file)) throw new FileNotFoundException($"Can not find {_file}");
+        //var open = File.OpenRead(_file);
         var lines = File.ReadAllText(_file);
         var state = JsonConvert.DeserializeObject<object>(lines, _settings);
         return Observable.Return(state);

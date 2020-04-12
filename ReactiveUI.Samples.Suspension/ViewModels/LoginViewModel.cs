@@ -2,6 +2,7 @@ using System.Reactive;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Avalonia.Input;
 using Splat;
 
 namespace ReactiveUI.Samples.Suspension.ViewModels
@@ -9,6 +10,7 @@ namespace ReactiveUI.Samples.Suspension.ViewModels
     [DataContract]
     public class LoginViewModel : ReactiveObject, IRoutableViewModel
     {
+        public ReactiveCommand<string, Unit> ClickShit;
         private readonly ReactiveCommand<Unit, Unit> _login;
         private string _password;
         private string _username;
@@ -55,6 +57,11 @@ namespace ReactiveUI.Samples.Suspension.ViewModels
         {
             get => _password;
             set => this.RaiseAndSetIfChanged(ref _password, value);
+        }
+
+        private void Thing(object sender, PointerReleasedEventArgs e)
+        {
+
         }
     }
 }

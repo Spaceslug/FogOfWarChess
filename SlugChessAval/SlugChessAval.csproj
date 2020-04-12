@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <Compile Update="**\*.xaml.cs">
@@ -13,22 +13,19 @@
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
   <ItemGroup>
-    <AvaloniaResource Remove="Views\TodoListView.xaml" />
+    <PackageReference Include="Avalonia" Version="0.9.7" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.9.7" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="0.9.7" />
+    <PackageReference Include="Google.Protobuf" Version="3.11.4" />
+    <PackageReference Include="Grpc" Version="2.28.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Svg.Skia" Version="0.1.6" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Views\TodoListView.xaml" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Avalonia" Version="0.9.0" />
-    <PackageReference Include="Avalonia.Desktop" Version="0.9.0" />
-    <PackageReference Include="Avalonia.ReactiveUI" Version="0.9.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Views\TodoListView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
+    <Folder Include="Chesscom\" />
     <Folder Include="Test\" />
   </ItemGroup>
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="$(ProjectDir)..\protobuf\gen_chesscom_files_aval.bat $(ProjectDir)..\protobuf" />
+  </Target>
 </Project>

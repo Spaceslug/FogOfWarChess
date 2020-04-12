@@ -33,7 +33,7 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" 
+            <Button Grid.Column="0" FontSize="{Binding NormalFontSize}"
                     Command="{Binding Search}"
                     Content="Search" />
             <Button Grid.Column="1" 

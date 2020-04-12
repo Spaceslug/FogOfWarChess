@@ -1,0 +1,96 @@
+﻿
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="800"
+             x:Class="SlugChessAval.Views.Chessboard">
+  <Grid ColumnDefinitions="Auto,1*" RowDefinitions="1*,Auto" Margin="5,5,5,5">
+    <Grid Name="BoardGrid" Grid.Row="0" Grid.Column="1" Background="Black" ColumnDefinitions="*,*,*,*,*,*,*,*" RowDefinitions="*,*,*,*,*,*,*,*">
+      <Grid Name="a8" Background="#FFFFFFFF" Grid.Row="0" Grid.Column="0" />
+      <Grid Name="b8" Background="#FF6F6F6F" Grid.Row="0" Grid.Column="1" />
+      <Grid Name="c8" Background="#FFFFFFFF" Grid.Row="0" Grid.Column="2" />
+      <Grid Name="d8" Background="#FF6F6F6F" Grid.Row="0" Grid.Column="3" />
+      <Grid Name="e8" Background="#FFFFFFFF" Grid.Row="0" Grid.Column="4" />
+      <Grid Name="f8" Background="#FF6F6F6F" Grid.Row="0" Grid.Column="5" />
+      <Grid Name="g8" Background="#FFFFFFFF" Grid.Row="0" Grid.Column="6" />
+      <Grid Name="h8" Background="#FF6F6F6F" Grid.Row="0" Grid.Column="7" />
+      <Grid Name="a7" Background="#FF6F6F6F" Grid.Row="1" Grid.Column="0" />
+      <Grid Name="b7" Background="#FFFFFFFF" Grid.Row="1" Grid.Column="1" />
+      <Grid Name="c7" Background="#FF6F6F6F" Grid.Row="1" Grid.Column="2" />
+      <Grid Name="d7" Background="#FFFFFFFF" Grid.Row="1" Grid.Column="3" />
+      <Grid Name="e7" Background="#FF6F6F6F" Grid.Row="1" Grid.Column="4" />
+      <Grid Name="f7" Background="#FFFFFFFF" Grid.Row="1" Grid.Column="5" />
+      <Grid Name="g7" Background="#FF6F6F6F" Grid.Row="1" Grid.Column="6" />
+      <Grid Name="h7" Background="#FFFFFFFF" Grid.Row="1" Grid.Column="7" />
+      <Grid Name="a6" Background="#FFFFFFFF" Grid.Row="2" Grid.Column="0" />
+      <Grid Name="b6" Background="#FF6F6F6F" Grid.Row="2" Grid.Column="1" />
+      <Grid Name="c6" Background="#FFFFFFFF" Grid.Row="2" Grid.Column="2" />
+      <Grid Name="d6" Background="#FF6F6F6F" Grid.Row="2" Grid.Column="3" />
+      <Grid Name="e6" Background="#FFFFFFFF" Grid.Row="2" Grid.Column="4" />
+      <Grid Name="f6" Background="#FF6F6F6F" Grid.Row="2" Grid.Column="5" />
+      <Grid Name="g6" Background="#FFFFFFFF" Grid.Row="2" Grid.Column="6" />
+      <Grid Name="h6" Background="#FF6F6F6F" Grid.Row="2" Grid.Column="7" />
+      <Grid Name="a5" Background="#FF6F6F6F" Grid.Row="3" Grid.Column="0" />
+      <Grid Name="b5" Background="#FFFFFFFF" Grid.Row="3" Grid.Column="1" />
+      <Grid Name="c5" Background="#FF6F6F6F" Grid.Row="3" Grid.Column="2" />
+      <Grid Name="d5" Background="#FFFFFFFF" Grid.Row="3" Grid.Column="3" />
+      <Grid Name="e5" Background="#FF6F6F6F" Grid.Row="3" Grid.Column="4" />
+      <Grid Name="f5" Background="#FFFFFFFF" Grid.Row="3" Grid.Column="5" />
+      <Grid Name="g5" Background="#FF6F6F6F" Grid.Row="3" Grid.Column="6" />
+      <Grid Name="h5" Background="#FFFFFFFF" Grid.Row="3" Grid.Column="7" />
+      <Grid Name="a4" Background="#FFFFFFFF" Grid.Row="4" Grid.Column="0" />
+      <Grid Name="b4" Background="#FF6F6F6F" Grid.Row="4" Grid.Column="1" />
+      <Grid Name="c4" Background="#FFFFFFFF" Grid.Row="4" Grid.Column="2" />
+      <Grid Name="d4" Background="#FF6F6F6F" Grid.Row="4" Grid.Column="3" />
+      <Grid Name="e4" Background="#FFFFFFFF" Grid.Row="4" Grid.Column="4" />
+      <Grid Name="f4" Background="#FF6F6F6F" Grid.Row="4" Grid.Column="5" />
+      <Grid Name="g4" Background="#FFFFFFFF" Grid.Row="4" Grid.Column="6" />
+      <Grid Name="h4" Background="#FF6F6F6F" Grid.Row="4" Grid.Column="7" />
+      <Grid Name="a3" Background="#FF6F6F6F" Grid.Row="5" Grid.Column="0" />
+      <Grid Name="b3" Background="#FFFFFFFF" Grid.Row="5" Grid.Column="1" />
+      <Grid Name="c3" Background="#FF6F6F6F" Grid.Row="5" Grid.Column="2" />
+      <Grid Name="d3" Background="#FFFFFFFF" Grid.Row="5" Grid.Column="3" />
+      <Grid Name="e3" Background="#FF6F6F6F" Grid.Row="5" Grid.Column="4" />
+      <Grid Name="f3" Background="#FFFFFFFF" Grid.Row="5" Grid.Column="5" />
+      <Grid Name="g3" Background="#FF6F6F6F" Grid.Row="5" Grid.Column="6" />
+      <Grid Name="h3" Background="#FFFFFFFF" Grid.Row="5" Grid.Column="7" />
+      <Grid Name="a2" Background="#FFFFFFFF" Grid.Row="6" Grid.Column="0" />
+      <Grid Name="b2" Background="#FF6F6F6F" Grid.Row="6" Grid.Column="1" />
+      <Grid Name="c2" Background="#FFFFFFFF" Grid.Row="6" Grid.Column="2" />
+      <Grid Name="d2" Background="#FF6F6F6F" Grid.Row="6" Grid.Column="3" />
+      <Grid Name="e2" Background="#FFFFFFFF" Grid.Row="6" Grid.Column="4" />
+      <Grid Name="f2" Background="#FF6F6F6F" Grid.Row="6" Grid.Column="5" />
+      <Grid Name="g2" Background="#FFFFFFFF" Grid.Row="6" Grid.Column="6" />
+      <Grid Name="h2" Background="#FF6F6F6F" Grid.Row="6" Grid.Column="7" />
+      <Grid Name="a1" Background="#FF6F6F6F" Grid.Row="7" Grid.Column="0" />
+      <Grid Name="b1" Background="#FFFFFFFF" Grid.Row="7" Grid.Column="1" />
+      <Grid Name="c1" Background="#FF6F6F6F" Grid.Row="7" Grid.Column="2" />
+      <Grid Name="d1" Background="#FFFFFFFF" Grid.Row="7" Grid.Column="3" />
+      <Grid Name="e1" Background="#FF6F6F6F" Grid.Row="7" Grid.Column="4" />
+      <Grid Name="f1" Background="#FFFFFFFF" Grid.Row="7" Grid.Column="5" />
+      <Grid Name="g1" Background="#FF6F6F6F" Grid.Row="7" Grid.Column="6" />
+      <Grid Name="h1" Background="#FFFFFFFF" Grid.Row="7" Grid.Column="7" /> 
+    </Grid>
+    <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="*,*,*,*,*,*,*,*" RowDefinitions="*">
+      <TextBlock Text="1" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="0" Grid.Column="0" Margin="3" HorizontalAlignment="Center" />
+      <TextBlock Text="2" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center"/>
+      <TextBlock Text="3" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center"/>
+      <TextBlock Text="4" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="0" Grid.Column="3" HorizontalAlignment="Center"/>
+      <TextBlock Text="5" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="0" Grid.Column="4" HorizontalAlignment="Center"/>
+      <TextBlock Text="6" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="0" Grid.Column="5" HorizontalAlignment="Center"/>
+      <TextBlock Text="7" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="0" Grid.Column="6" HorizontalAlignment="Center"/>
+      <TextBlock Text="8" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="0" Grid.Column="7" HorizontalAlignment="Center"/>
+    </Grid>
+    <Grid Grid.Row="0" Grid.Column="0" ColumnDefinitions="*" RowDefinitions="*,*,*,*,*,*,*,*"  >
+      <TextBlock Text="A" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="0" Grid.Column="0" Margin="8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <TextBlock Text="B" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="1" Grid.Column="0" Margin="8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <TextBlock Text="C" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="2" Grid.Column="0" Margin="8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <TextBlock Text="D" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="3" Grid.Column="0" Margin="8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <TextBlock Text="E" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="4" Grid.Column="0" Margin="8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <TextBlock Text="F" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="5" Grid.Column="0" Margin="8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <TextBlock Text="G" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="6" Grid.Column="0" Margin="8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <TextBlock Text="H" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="7" Grid.Column="0" Margin="8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Grid> 
+  </Grid>
+</UserControl>

@@ -2,13 +2,13 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    d:DataContext="{d:DesignInstance viewModels:LoginViewModel, IsDesignTimeCreatable=True}"
+    
     xmlns:viewModels="clr-namespace:ReactiveUI.Samples.Suspension.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     x:Class="ReactiveUI.Samples.Suspension.Views.LoginView"
     xmlns:reactiveUi="http://reactiveui.net"
     mc:Ignorable="d">
-    <Grid>
+    <Grid Name="gBoy" PointerReleased="Thing" >
         <Grid.RowDefinitions>
             <RowDefinition Height="96" />
             <RowDefinition Height="96" />
@@ -25,7 +25,7 @@
         <Button Grid.Row="3" Content="Login" Command="{Binding Login}" />
         <LayoutTransformControl Name="layoutTransform" Grid.Row="4">
             <LayoutTransformControl.LayoutTransform>
-            <ScaleTransform ScaleX="1" ScaleY="1"/>
+            <ScaleTransform ScaleX="3" ScaleY="3"/>
             </LayoutTransformControl.LayoutTransform>
             <Button >Layout Transform</Button>
         </LayoutTransformControl>
