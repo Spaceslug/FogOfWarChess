@@ -13,6 +13,7 @@ namespace SlugChessAval.Drivers
         private readonly JsonSerializerSettings _settings = new JsonSerializerSettings
         {
             TypeNameHandling = TypeNameHandling.All,
+            
         };
 
         public NewtonsoftJsonSuspensionDriver(string file) => _file = file;
@@ -35,7 +36,7 @@ namespace SlugChessAval.Drivers
 
         public IObservable<Unit> SaveState(object state)
         {
-            var lines = JsonConvert.SerializeObject(state, _settings);
+            var lines = JsonConvert.SerializeObject(state, Formatting.Indented, _settings);
             File.WriteAllText(_file, lines);
             return Observable.Return(Unit.Default);
         }

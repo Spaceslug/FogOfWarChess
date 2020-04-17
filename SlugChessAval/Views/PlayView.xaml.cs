@@ -1,6 +1,5 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
 using ReactiveUI;
@@ -8,10 +7,9 @@ using SlugChessAval.ViewModels;
 
 namespace SlugChessAval.Views
 {
-    public class Chessboard : ReactiveUserControl<ChessboardViewModel>
+    public class PlayView : ReactiveUserControl<PlayViewModel>
     {
-        //public Button MyButton;
-        public Chessboard()
+        public PlayView()
         {
             this.WhenActivated(disposables =>
             {
@@ -20,14 +18,7 @@ namespace SlugChessAval.Views
                 //    .DisposeWith(disposables);
             });
             AvaloniaXamlLoader.Load(this);
-            //MyButton = this.FindControl<Button>("myButton");
         }
-
-        private void ChessfieldClicked(object o, PointerReleasedEventArgs a)
-        {
-            ViewModel.ChessfieldClicked((Border)o);
-        }
-
 
     }
 }

@@ -1,32 +1,54 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
-using Svg.Skia.Avalonia;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
+//using Svg.Skia.Avalonia;
 
 namespace SlugChessAval.Services
 {
-    public class AssetBank
+    public static class AssetBank
     {
-        private static string _assetFolder = "Asset\\";
+        private static string _assetFolder = "Asset/";
+        private static string _builtInAssetFolder = "avares://SlugChessAval/Assets/";
 
-        private static Dictionary<string, SvgImage> _loadedBitmaps = new Dictionary<string, SvgImage>();
+        public static IBitmap GetImage(string s) => _loadedBitmaps[s];
+        private static Dictionary<string, IBitmap> _loadedBitmaps = new Dictionary<string, IBitmap>();
 
         public static Task<bool> LoadAssets() => Task.Run<bool>(()=>
-       {
-           foreach(var file in Directory.EnumerateFiles(_assetFolder))
-           {
-               if (file.ToLower().EndsWith(".svg"))
-               {
-                   var svg = new SvgSkia();
-                  svg.Load(file);
-                   _loadedBitmaps[Path.GetFileNameWithoutExtension(file)] = new SvgImage { Source=svg };
-                   var r = new Image();
-                   r.Source = new SvgImage { Source = svg };
-               }
-           }
-           return true;
-       });
+        {
+            var assetLoader = AvaloniaLocator.Current.GetService<IAssetLoader>();
+            foreach (var assetUri in assetLoader.GetAssets(new Uri(_builtInAssetFolder), null))
+            {
+                if (assetUri.AbsolutePath.ToLower().EndsWith(".png"))
+                {
+                    _loadedBitmaps[Path.GetFileNameWithoutExtension(assetUri.AbsolutePath)] = new Bitmap(assetLoader.Open(assetUri));
+                }
+            }
+            if (Directory.Exists(_assetFolder))
+            {
+                foreach (var file in Directory.EnumerateFiles(_assetFolder))
+                {
+                    if (file.ToLower().EndsWith(".svg"))
+                    {
+                        // var svg = new SvgSkia();
+                        //svg.Load(file);
+                        // _loadedBitmaps[Path.GetFileNameWithoutExtension(file)] = new SvgImage { Source=svg };
+                        // var r = new Image();
+                        // r.Source = new SvgImage { Source = svg };
+                    }
+                    else if (file.ToLower().EndsWith(".png"))
+                    {
+                        _loadedBitmaps[Path.GetFileNameWithoutExtension(file)] = new Bitmap(file);
+                    }
+                }
+            }
+            
+            return true;
+        });
 
         public static Image WhitePawnImage => new Image { Source=_loadedBitmaps["whitePawn"] };
     }

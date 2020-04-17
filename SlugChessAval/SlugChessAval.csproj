@@ -2,6 +2,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <Compile Update="**\*.xaml.cs">
@@ -10,8 +11,25 @@
     <AvaloniaResource Include="**\*.xaml">
       <SubType>Designer</SubType>
     </AvaloniaResource>
-    <AvaloniaResource Include="Assets\**" />
+    <AvaloniaResource Include="Assets\*" />
   </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Remove="Views\LoginView.xaml" />
+    <AvaloniaResource Remove="Views\PlayView.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="SkiaSvg\Extensions.cs" />
+    <Compile Remove="SkiaSvg\ISvg.cs" />
+    <Compile Remove="SkiaSvg\SvgCustomDrawOperation.cs" />
+    <Compile Remove="SkiaSvg\SvgImage.cs" />
+    <Compile Remove="SkiaSvg\SvgSkia.cs" />
+    <Compile Remove="SkiaSvg\SvgTypeConverter.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Views\LoginView.xaml" />
+    <None Remove="Views\PlayView.xaml" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="0.9.7" />
     <PackageReference Include="Avalonia.Desktop" Version="0.9.7" />
@@ -19,11 +37,29 @@
     <PackageReference Include="Google.Protobuf" Version="3.11.4" />
     <PackageReference Include="Grpc" Version="2.28.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Svg.Skia" Version="0.1.6" />
+    <PackageReference Include="Svg.Skia" Version="0.1.7" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Chesscom\" />
     <Folder Include="Test\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SkiaSvg\Extensions.cs" />
+    <None Include="SkiaSvg\ISvg.cs" />
+    <None Include="SkiaSvg\SvgCustomDrawOperation.cs" />
+    <None Include="SkiaSvg\SvgImage.cs" />
+    <None Include="SkiaSvg\SvgSkia.cs" />
+    <None Include="SkiaSvg\SvgTypeConverter.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\PlayView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\LoginView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
   </ItemGroup>
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Exec Command="$(ProjectDir)..\protobuf\gen_chesscom_files_aval.bat $(ProjectDir)..\protobuf" />

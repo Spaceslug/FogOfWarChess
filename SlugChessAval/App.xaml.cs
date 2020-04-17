@@ -20,6 +20,8 @@ namespace SlugChessAval
 
         public override void OnFrameworkInitializationCompleted()
         {
+            AssetBank.LoadAssets();
+
             // Initialize suspension hooks.
             var suspension = new AutoSuspendHelper(ApplicationLifetime);
             RxApp.SuspensionHost.CreateNewAppState = () => new MainWindowViewModel();
@@ -31,8 +33,9 @@ namespace SlugChessAval
             Locator.CurrentMutable.RegisterConstant<IScreen>(state);
 
             // Register views.
-            //Locator.CurrentMutable.Register<IViewFor<SearchViewModel>>(() => new SearchView());
-            //Locator.CurrentMutable.Register<IViewFor<LoginViewModel>>(() => new LoginView());
+            Locator.CurrentMutable.Register<IViewFor<ChessboardViewModel>>(() => new Chessboard());
+            Locator.CurrentMutable.Register<IViewFor<PlayViewModel>>(() => new PlayView());
+
 
             // Show the main window.
             new MainWindow { DataContext = Locator.Current.GetService<IScreen>() }.Show();

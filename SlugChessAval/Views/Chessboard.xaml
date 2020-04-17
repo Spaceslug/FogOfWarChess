@@ -5,92 +5,620 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="800"
              x:Class="SlugChessAval.Views.Chessboard">
+  <UserControl.Resources>
+    <SolidColorBrush x:Key="WhiteField" Color="#FF6F6F6F" />
+    <SolidColorBrush x:Key="BlackField" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="ImageBackground" Color="#FF33AA22" Opacity="0.8" />
+    <ImageBrush x:Key="Fog" Source="avares://SlugChessAval/Assets/fog.png" Stretch="Fill"/>
+    <RadialGradientBrush x:Key="Move" GradientOrigin="0.5,0.5" Radius="0.7" Opacity="0.8" SpreadMethod="Pad">
+      <GradientStop Color="Red" Offset="0" />
+      <GradientStop Color="Transparent" Offset="0,5" />
+    </RadialGradientBrush>
+  </UserControl.Resources>
+  <Control.Styles>
+      <Style Selector="Grid.check">
+          <Setter Property="Background" Value="{DynamicResource CheckBrush}"/>
+      </Style>
+  </Control.Styles>
   <Grid ColumnDefinitions="Auto,1*" RowDefinitions="1*,Auto" Margin="5,5,5,5">
-    <Grid Name="BoardGrid" Grid.Row="0" Grid.Column="1"  PointerReleased="ChessfieldClicked" Background="Black" ColumnDefinitions="*,*,*,*,*,*,*,*" RowDefinitions="*,*,*,*,*,*,*,*">
-      <Grid Name="a8" Background="#FFFFFFFF" Grid.Row="0" Grid.Column="0" />
-      <Grid Name="b8" Background="#FF6F6F6F" Grid.Row="0" Grid.Column="1" />
-      <Grid Name="c8" Background="#FFFFFFFF" Grid.Row="0" Grid.Column="2" />
-      <Grid Name="d8" Background="#FF6F6F6F" Grid.Row="0" Grid.Column="3" />
-      <Grid Name="e8" Background="#FFFFFFFF" Grid.Row="0" Grid.Column="4" />
-      <Grid Name="f8" Background="#FF6F6F6F" Grid.Row="0" Grid.Column="5" />
-      <Grid Name="g8" Background="#FFFFFFFF" Grid.Row="0" Grid.Column="6" />
-      <Grid Name="h8" Background="#FF6F6F6F" Grid.Row="0" Grid.Column="7" />
-      <Grid Name="a7" Background="#FF6F6F6F" Grid.Row="1" Grid.Column="0" />
-      <Grid Name="b7" Background="#FFFFFFFF" Grid.Row="1" Grid.Column="1" />
-      <Grid Name="c7" Background="#FF6F6F6F" Grid.Row="1" Grid.Column="2" />
-      <Grid Name="d7" Background="#FFFFFFFF" Grid.Row="1" Grid.Column="3" />
-      <Grid Name="e7" Background="#FF6F6F6F" Grid.Row="1" Grid.Column="4" />
-      <Grid Name="f7" Background="#FFFFFFFF" Grid.Row="1" Grid.Column="5" />
-      <Grid Name="g7" Background="#FF6F6F6F" Grid.Row="1" Grid.Column="6" />
-      <Grid Name="h7" Background="#FFFFFFFF" Grid.Row="1" Grid.Column="7" />
-      <Grid Name="a6" Background="#FFFFFFFF" Grid.Row="2" Grid.Column="0" />
-      <Grid Name="b6" Background="#FF6F6F6F" Grid.Row="2" Grid.Column="1" />
-      <Grid Name="c6" Background="#FFFFFFFF" Grid.Row="2" Grid.Column="2" />
-      <Grid Name="d6" Background="#FF6F6F6F" Grid.Row="2" Grid.Column="3" />
-      <Grid Name="e6" Background="#FFFFFFFF" Grid.Row="2" Grid.Column="4" />
-      <Grid Name="f6" Background="#FF6F6F6F" Grid.Row="2" Grid.Column="5" />
-      <Grid Name="g6" Background="#FFFFFFFF" Grid.Row="2" Grid.Column="6" />
-      <Grid Name="h6" Background="#FF6F6F6F" Grid.Row="2" Grid.Column="7" />
-      <Grid Name="a5" Background="#FF6F6F6F" Grid.Row="3" Grid.Column="0" />
-      <Grid Name="b5" Background="#FFFFFFFF" Grid.Row="3" Grid.Column="1" />
-      <Grid Name="c5" Background="#FF6F6F6F" Grid.Row="3" Grid.Column="2" />
-      <Grid Name="d5" Background="#FFFFFFFF" Grid.Row="3" Grid.Column="3" />
-      <Grid Name="e5" Background="#FF6F6F6F" Grid.Row="3" Grid.Column="4" />
-      <Grid Name="f5" Background="#FFFFFFFF" Grid.Row="3" Grid.Column="5" />
-      <Grid Name="g5" Background="#FF6F6F6F" Grid.Row="3" Grid.Column="6" />
-      <Grid Name="h5" Background="#FFFFFFFF" Grid.Row="3" Grid.Column="7" />
-      <Grid Name="a4" Background="#FFFFFFFF" Grid.Row="4" Grid.Column="0" />
-      <Grid Name="b4" Background="#FF6F6F6F" Grid.Row="4" Grid.Column="1" />
-      <Grid Name="c4" Background="#FFFFFFFF" Grid.Row="4" Grid.Column="2" />
-      <Grid Name="d4" Background="#FF6F6F6F" Grid.Row="4" Grid.Column="3" />
-      <Grid Name="e4" Background="#FFFFFFFF" Grid.Row="4" Grid.Column="4" />
-      <Grid Name="f4" Background="#FF6F6F6F" Grid.Row="4" Grid.Column="5" />
-      <Grid Name="g4" Background="#FFFFFFFF" Grid.Row="4" Grid.Column="6" />
-      <Grid Name="h4" Background="#FF6F6F6F" Grid.Row="4" Grid.Column="7" />
-      <Grid Name="a3" Background="#FF6F6F6F" Grid.Row="5" Grid.Column="0" />
-      <Grid Name="b3" Background="#FFFFFFFF" Grid.Row="5" Grid.Column="1" />
-      <Grid Name="c3" Background="#FF6F6F6F" Grid.Row="5" Grid.Column="2" />
-      <Grid Name="d3" Background="#FFFFFFFF" Grid.Row="5" Grid.Column="3" />
-      <Grid Name="e3" Background="#FF6F6F6F" Grid.Row="5" Grid.Column="4" />
-      <Grid Name="f3" Background="#FFFFFFFF" Grid.Row="5" Grid.Column="5" />
-      <Grid Name="g3" Background="#FF6F6F6F" Grid.Row="5" Grid.Column="6" />
-      <Grid Name="h3" Background="#FFFFFFFF" Grid.Row="5" Grid.Column="7" />
-      <Grid Name="a2" Background="#FFFFFFFF" Grid.Row="6" Grid.Column="0" />
-      <Grid Name="b2" Background="#FF6F6F6F" Grid.Row="6" Grid.Column="1" />
-      <Grid Name="c2" Background="#FFFFFFFF" Grid.Row="6" Grid.Column="2" />
-      <Grid Name="d2" Background="#FF6F6F6F" Grid.Row="6" Grid.Column="3" />
-      <Grid Name="e2" Background="#FFFFFFFF" Grid.Row="6" Grid.Column="4" />
-      <Grid Name="f2" Background="#FF6F6F6F" Grid.Row="6" Grid.Column="5" />
-      <Grid Name="g2" Background="#FFFFFFFF" Grid.Row="6" Grid.Column="6" />
-      <Grid Name="h2" Background="#FF6F6F6F" Grid.Row="6" Grid.Column="7" />
-      <Grid Name="a1" Background="#FF6F6F6F" Grid.Row="7" Grid.Column="0" />
-      <Grid Name="b1" Background="#FFFFFFFF" Grid.Row="7" Grid.Column="1" />
-      <Grid Name="c1" Background="#FF6F6F6F" Grid.Row="7" Grid.Column="2" />
-      <Grid Name="d1" Background="#FFFFFFFF" Grid.Row="7" Grid.Column="3" />
-      <Grid Name="e1" Background="#FF6F6F6F" Grid.Row="7" Grid.Column="4" />
-      <Grid Name="f1" Background="#FFFFFFFF" Grid.Row="7" Grid.Column="5" />
-      <Grid Name="g1" Background="#FF6F6F6F" Grid.Row="7" Grid.Column="6" />
-      <Grid Name="h1" Background="#FFFFFFFF" Grid.Row="7" Grid.Column="7" /> 
+    <Grid Name="BoardGrid" Grid.Row="0" Grid.Column="1"  Background="{DynamicResource Fog}" ColumnDefinitions="*,*,*,*,*,*,*,*" RowDefinitions="*,*,*,*,*,*,*,*">
+      <Border Name="a8" Grid.Row="0" Grid.Column="0" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[56].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[56].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[56].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[56].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[56].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[56].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="b8" Grid.Row="0" Grid.Column="1" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[57].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[57].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[57].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[57].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[57].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[57].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="c8" Grid.Row="0" Grid.Column="2" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[58].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[58].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[58].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[58].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[58].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[58].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="d8" Grid.Row="0" Grid.Column="3" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[59].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[59].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[59].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[59].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[59].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[59].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="e8" Grid.Row="0" Grid.Column="4" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[60].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[60].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[60].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[60].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[60].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[60].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="f8" Grid.Row="0" Grid.Column="5" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[61].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[61].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[61].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[61].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[61].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[61].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="g8" Grid.Row="0" Grid.Column="6" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[62].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[62].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[62].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[62].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[62].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[62].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="h8" Grid.Row="0" Grid.Column="7" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[63].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[63].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[63].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[63].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[63].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[63].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="a7" Grid.Row="1" Grid.Column="0" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[48].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[48].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[48].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[48].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[48].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[48].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="b7" Grid.Row="1" Grid.Column="1" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[49].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[49].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[49].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[49].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[49].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[49].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="c7" Grid.Row="1" Grid.Column="2" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[50].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[50].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[50].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[50].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[50].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[50].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="d7" Grid.Row="1" Grid.Column="3" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[51].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[51].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[51].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[51].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[51].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[51].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="e7" Grid.Row="1" Grid.Column="4" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[52].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[52].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[52].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[52].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[52].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[52].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="f7" Grid.Row="1" Grid.Column="5" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[53].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[53].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[53].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[53].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[53].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[53].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="g7" Grid.Row="1" Grid.Column="6" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[54].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[54].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[54].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[54].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[54].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[54].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="h7" Grid.Row="1" Grid.Column="7" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[55].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[55].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[55].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[55].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[55].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[55].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="a6" Grid.Row="2" Grid.Column="0" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[40].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[40].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[40].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[40].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[40].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[40].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="b6" Grid.Row="2" Grid.Column="1" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[41].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[41].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[41].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[41].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[41].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[41].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="c6" Grid.Row="2" Grid.Column="2" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[42].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[42].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[42].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[42].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[42].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[42].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="d6" Grid.Row="2" Grid.Column="3" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[43].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[43].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[43].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[43].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[43].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[43].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="e6" Grid.Row="2" Grid.Column="4" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[44].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[44].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[44].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[44].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[44].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[44].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="f6" Grid.Row="2" Grid.Column="5" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[45].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[45].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[45].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[45].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[45].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[45].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="g6" Grid.Row="2" Grid.Column="6" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[46].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[46].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[46].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[46].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[46].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[46].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="h6" Grid.Row="2" Grid.Column="7" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[47].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[47].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[47].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[47].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[47].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[47].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="a5" Grid.Row="3" Grid.Column="0" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[32].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[32].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[32].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[32].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[32].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[32].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="b5" Grid.Row="3" Grid.Column="1" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[33].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[33].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[33].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[33].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[33].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[33].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="c5" Grid.Row="3" Grid.Column="2" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[34].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[34].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[34].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[34].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[34].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[34].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="d5" Grid.Row="3" Grid.Column="3" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[35].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[35].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[35].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[35].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[35].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[35].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="e5" Grid.Row="3" Grid.Column="4" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[36].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[36].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[36].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[36].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[36].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[36].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="f5" Grid.Row="3" Grid.Column="5" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[37].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[37].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[37].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[37].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[37].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[37].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="g5" Grid.Row="3" Grid.Column="6" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[38].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[38].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[38].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[38].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[38].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[38].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="h5" Grid.Row="3" Grid.Column="7" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[39].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[39].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[39].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[39].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[39].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[39].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="a4" Grid.Row="4" Grid.Column="0" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[24].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[24].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[24].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[24].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[24].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[24].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="b4" Grid.Row="4" Grid.Column="1" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[25].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[25].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[25].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[25].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[25].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[25].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="c4" Grid.Row="4" Grid.Column="2" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[26].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[26].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[26].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[26].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[26].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[26].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="d4" Grid.Row="4" Grid.Column="3" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[27].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[27].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[27].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[27].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[27].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[27].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="e4" Grid.Row="4" Grid.Column="4" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[28].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[28].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[28].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[28].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[28].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[28].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="f4" Grid.Row="4" Grid.Column="5" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[29].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[29].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[29].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[29].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[29].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[29].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="g4" Grid.Row="4" Grid.Column="6" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[30].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[30].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[30].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[30].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[30].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[30].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="h4" Grid.Row="4" Grid.Column="7" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[31].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[31].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[31].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[31].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[31].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[31].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="a3" Grid.Row="5" Grid.Column="0" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[16].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[16].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[16].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[16].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[16].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[16].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="b3" Grid.Row="5" Grid.Column="1" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[17].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[17].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[17].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[17].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[17].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[17].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="c3" Grid.Row="5" Grid.Column="2" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[18].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[18].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[18].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[18].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[18].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[18].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="d3" Grid.Row="5" Grid.Column="3" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[19].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[19].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[19].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[19].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[19].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[19].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="e3" Grid.Row="5" Grid.Column="4" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[20].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[20].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[20].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[20].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[20].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[20].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="f3" Grid.Row="5" Grid.Column="5" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[21].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[21].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[21].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[21].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[21].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[21].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="g3" Grid.Row="5" Grid.Column="6" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[22].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[22].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[22].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[22].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[22].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[22].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="h3" Grid.Row="5" Grid.Column="7" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[23].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[23].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[23].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[23].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[23].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[23].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="a2" Grid.Row="6" Grid.Column="0" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[8].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[8].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[8].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[8].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[8].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[8].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="b2" Grid.Row="6" Grid.Column="1" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[9].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[9].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[9].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[9].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[9].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[9].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="c2" Grid.Row="6" Grid.Column="2" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[10].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[10].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[10].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[10].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[10].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[10].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="d2" Grid.Row="6" Grid.Column="3" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[11].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[11].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[11].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[11].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[11].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[11].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="e2" Grid.Row="6" Grid.Column="4" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[12].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[12].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[12].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[12].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[12].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[12].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="f2" Grid.Row="6" Grid.Column="5" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[13].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[13].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[13].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[13].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[13].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[13].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="g2" Grid.Row="6" Grid.Column="6" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[14].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[14].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[14].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[14].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[14].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[14].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="h2" Grid.Row="6" Grid.Column="7" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[15].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[15].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[15].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[15].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[15].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[15].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="a1" Grid.Row="7" Grid.Column="0" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[0].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[0].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[0].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[0].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[0].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[0].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="b1" Grid.Row="7" Grid.Column="1" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[1].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[1].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[1].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[1].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[1].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[1].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="c1" Grid.Row="7" Grid.Column="2" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[2].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[2].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[2].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[2].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[2].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[2].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="d1" Grid.Row="7" Grid.Column="3" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[3].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[3].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[3].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[3].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[3].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[3].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="e1" Grid.Row="7" Grid.Column="4" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[4].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[4].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[4].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[4].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[4].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[4].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="f1" Grid.Row="7" Grid.Column="5" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[5].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[5].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[5].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[5].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[5].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[5].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="g1" Grid.Row="7" Grid.Column="6" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+        BorderBrush=    "{Binding FieldBoard[6].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[6].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[6].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[6].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[6].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[6].Image}" />
+        </DockPanel>
+      </Border>
+      <Border Name="h1" Grid.Row="7" Grid.Column="7" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+        BorderBrush=    "{Binding FieldBoard[7].BorderBrush}"
+        BorderThickness="{Binding FieldBoard[7].BorderThickness}"
+        Opacity=        "{Binding FieldBoard[7].Opacity}"
+        CornerRadius=   "{Binding FieldBoard[7].CornerRadius}" >
+        <DockPanel Background="{Binding FieldBoard[7].ImageBackgroundBrush}">
+          <Image Source="{Binding FieldBoard[7].Image}" />
+        </DockPanel>
+      </Border>
+    
     </Grid>
     <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="*,*,*,*,*,*,*,*" RowDefinitions="*">
-      <TextBlock Text="1" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="0" Grid.Column="0" Margin="3" HorizontalAlignment="Center" />
-      <TextBlock Text="2" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center"/>
-      <TextBlock Text="3" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center"/>
-      <TextBlock Text="4" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="0" Grid.Column="3" HorizontalAlignment="Center"/>
-      <TextBlock Text="5" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="0" Grid.Column="4" HorizontalAlignment="Center"/>
-      <TextBlock Text="6" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="0" Grid.Column="5" HorizontalAlignment="Center"/>
-      <TextBlock Text="7" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="0" Grid.Column="6" HorizontalAlignment="Center"/>
-      <TextBlock Text="8" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="0" Grid.Column="7" HorizontalAlignment="Center"/>
+      <TextBlock Text="A" FontSize="{DynamicResource FontSizeLarge}" FontWeight="Bold" Grid.Row="0" Grid.Column="0" Margin="3" HorizontalAlignment="Center" />
+      <TextBlock Text="B" FontSize="{DynamicResource FontSizeLarge}" FontWeight="Bold" Grid.Row="0" Grid.Column="1" Margin="3" HorizontalAlignment="Center"/>
+      <TextBlock Text="C" FontSize="{DynamicResource FontSizeLarge}" FontWeight="Bold" Grid.Row="0" Grid.Column="2" Margin="3" HorizontalAlignment="Center"/>
+      <TextBlock Text="D" FontSize="{DynamicResource FontSizeLarge}" FontWeight="Bold" Grid.Row="0" Grid.Column="3" Margin="3" HorizontalAlignment="Center"/>
+      <TextBlock Text="E" FontSize="{DynamicResource FontSizeLarge}" FontWeight="Bold" Grid.Row="0" Grid.Column="4" Margin="3" HorizontalAlignment="Center"/>
+      <TextBlock Text="F" FontSize="{DynamicResource FontSizeLarge}" FontWeight="Bold" Grid.Row="0" Grid.Column="5" Margin="3" HorizontalAlignment="Center"/>
+      <TextBlock Text="G" FontSize="{DynamicResource FontSizeLarge}" FontWeight="Bold" Grid.Row="0" Grid.Column="6" Margin="3" HorizontalAlignment="Center"/>
+      <TextBlock Text="H" FontSize="{DynamicResource FontSizeLarge}" FontWeight="Bold" Grid.Row="0" Grid.Column="7" Margin="3" HorizontalAlignment="Center"/>
     </Grid>
     <Grid Grid.Row="0" Grid.Column="0" ColumnDefinitions="*" RowDefinitions="*,*,*,*,*,*,*,*"  >
-      <TextBlock Text="A" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="0" Grid.Column="0" Margin="8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-      <TextBlock Text="B" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="1" Grid.Column="0" Margin="8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-      <TextBlock Text="C" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="2" Grid.Column="0" Margin="8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-      <TextBlock Text="D" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="3" Grid.Column="0" Margin="8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-      <TextBlock Text="E" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="4" Grid.Column="0" Margin="8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-      <TextBlock Text="F" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="5" Grid.Column="0" Margin="8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-      <TextBlock Text="G" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="6" Grid.Column="0" Margin="8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-      <TextBlock Text="H" FontSize="{DynamicResource FontSizeLarge}" Grid.Row="7" Grid.Column="0" Margin="8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <TextBlock Text="8" FontSize="{DynamicResource FontSizeLarge}" FontWeight="Bold" Grid.Row="0" Grid.Column="0" Margin="6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <TextBlock Text="7" FontSize="{DynamicResource FontSizeLarge}" FontWeight="Bold" Grid.Row="1" Grid.Column="0" Margin="6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <TextBlock Text="6" FontSize="{DynamicResource FontSizeLarge}" FontWeight="Bold" Grid.Row="2" Grid.Column="0" Margin="6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <TextBlock Text="5" FontSize="{DynamicResource FontSizeLarge}" FontWeight="Bold" Grid.Row="3" Grid.Column="0" Margin="6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <TextBlock Text="4" FontSize="{DynamicResource FontSizeLarge}" FontWeight="Bold" Grid.Row="4" Grid.Column="0" Margin="6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <TextBlock Text="3" FontSize="{DynamicResource FontSizeLarge}" FontWeight="Bold" Grid.Row="5" Grid.Column="0" Margin="6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <TextBlock Text="2" FontSize="{DynamicResource FontSizeLarge}" FontWeight="Bold" Grid.Row="6" Grid.Column="0" Margin="6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <TextBlock Text="1" FontSize="{DynamicResource FontSizeLarge}" FontWeight="Bold" Grid.Row="7" Grid.Column="0" Margin="6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
     </Grid> 
   </Grid>
 </UserControl>

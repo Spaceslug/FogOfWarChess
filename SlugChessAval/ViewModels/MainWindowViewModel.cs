@@ -15,6 +15,18 @@ namespace SlugChessAval.ViewModels
         public string UserSignature { get; set; }
         public TodoListViewModel List { get; }
 
+        public string Description
+        {
+            get => _description;
+            set => this.RaiseAndSetIfChanged(ref _description, value);
+        }
+        private string _description = "WEhaaaaatee";
+        public class Student
+        {
+            public string Name { get; set; }
+        }
+        public List<Student> Students => new List<Student> { new Student { Name = "Dave" }, new Student { Name = "Britt" } };
+
 
         [DataMember]
         public RoutingState Router
@@ -44,6 +56,7 @@ namespace SlugChessAval.ViewModels
             //_search = ReactiveCommand.Create(
             //    () => { Router.Navigate.Execute(new SearchViewModel()); },
             //    canSearch);
+            Router.Navigate.Execute(new PlayViewModel());
         }
 
         
