@@ -33,7 +33,7 @@ namespace SlugChessAval.Models
         };
 
 
-        public ChessCom.GameState ComGameState;
+        //public ChessCom.GameState ComGameState;
         [DataMember]
         public IDictionary<string, List<string>> Moves { get; set; } = new Dictionary<string, List<string>>();
         [DataMember]
@@ -58,23 +58,25 @@ namespace SlugChessAval.Models
         private IList<string> _checks;
 
         [DataMember]
-        public string From { get; private set; }
+        public string From { get; private set; } = "";
         [DataMember]
-        public string To { get; private set; }
+        public string To { get; private set; } = "";
 
         public bool InVision(string fieldname) => _vision[BoardPosToIndex[fieldname]];
         public IList<bool> Vision => _vision;
         [DataMember]
         private IList<bool> _vision;
 
-        private ChessboardModel()
+        private ChessboardModel(IList<bool> vision, IList<string> checks, IList<ChessCom.Pices> fieldPices)
         {
-
+            _vision = vision;
+            _checks = checks;
+            _fieldPices = fieldPices;
         }
 
         public static ChessboardModel FromChesscomGamestate(ChessCom.GameState gameState)
         {
-            var chessboard = new ChessboardModel();
+            var chessboard = new ChessboardModel(gameState.PlayerVision, gameState.Check, gameState.Pices);
             foreach(var keyval in gameState.PlayerMoves)
             {
                 chessboard.Moves.Add(keyval.Key, new List<string>(keyval.Value.List));
@@ -83,30 +85,23 @@ namespace SlugChessAval.Models
             {
                 chessboard.ShadowMoves.Add(keyval.Key, new List<string>(keyval.Value.List));
             }
-            chessboard._fieldPices = gameState.Pices;
-            chessboard._checks = gameState.Check;
             chessboard.From = gameState.From;
             chessboard.To = gameState.To;
-            chessboard._vision = gameState.PlayerVision;
 
             return chessboard;
         }
 
         public static ChessboardModel FromDefault()
         {
-            var chessboard = new ChessboardModel();
-            chessboard._fieldPices = Enumerable.Repeat(ChessCom.Pices.None, 64).ToList();
-            chessboard._checks = new List<string>();
+            var chessboard = new ChessboardModel(Enumerable.Repeat(true, 64).ToList(), new List<string>(), Enumerable.Repeat(ChessCom.Pices.None, 64).ToList());
             chessboard.From = "";
             chessboard.To = "";
-            chessboard._vision = Enumerable.Repeat(true, 64).ToList();
             return chessboard;
         }
 
         public static ChessboardModel FromTestData()
         {
-            var chessboard = new ChessboardModel();
-            chessboard._fieldPices = Enumerable.Repeat(ChessCom.Pices.None, 64).ToList();
+            var chessboard = new ChessboardModel(Enumerable.Repeat(true, 64).ToList(), new List<string> { "d8", "h8" }, Enumerable.Repeat(ChessCom.Pices.None, 64).ToList());
             chessboard._fieldPices[59] = ChessCom.Pices.WhiteRook;
             chessboard._fieldPices[63] = ChessCom.Pices.BlackKing;
             chessboard._fieldPices[48] = ChessCom.Pices.BlackPawn;
@@ -120,10 +115,9 @@ namespace SlugChessAval.Models
             chessboard._fieldPices[14] = ChessCom.Pices.WhitePawn;
             chessboard._fieldPices[6] = ChessCom.Pices.WhiteKing;
 
-            chessboard._checks = new List<string> {"d8","h8"};
             chessboard.From = "d2";
             chessboard.To = "d8";
-            chessboard._vision = Enumerable.Repeat(true, 64).ToList();
+
             chessboard._vision[56] = false;
             chessboard._vision[48] = false;
             chessboard._vision[40] = false;

@@ -18,8 +18,10 @@ namespace SlugChessAval.Views
                 // Bind the 'ExampleCommand' to 'ExampleButton' defined above.
                 //this.BindCommand(ViewModel, x => x.ClickShit, x => x.ExampleGrid)
                 //    .DisposeWith(disposables);
+
             });
             AvaloniaXamlLoader.Load(this);
+            //ViewModel.mainChessboardGrid = this.FindControl<Grid>("mainChessboardGrid");
             //MyButton = this.FindControl<Button>("myButton");
         }
 

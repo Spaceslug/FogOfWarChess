@@ -20,7 +20,7 @@
           <Setter Property="Background" Value="{DynamicResource CheckBrush}"/>
       </Style>
   </Control.Styles>
-  <Grid ColumnDefinitions="Auto,1*" RowDefinitions="1*,Auto" Margin="5,5,5,5">
+  <Grid Name="mainChessboardGrid" Width="{Binding #mainChessboardGrid.Bounds.Height}" ColumnDefinitions="Auto,1*" RowDefinitions="1*,Auto" Margin="5,5,5,5">
     <Grid Name="BoardGrid" Grid.Row="0" Grid.Column="1"  Background="{DynamicResource Fog}" ColumnDefinitions="*,*,*,*,*,*,*,*" RowDefinitions="*,*,*,*,*,*,*,*">
       <Border Name="a8" Grid.Row="0" Grid.Column="0" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[56].BorderBrush}"

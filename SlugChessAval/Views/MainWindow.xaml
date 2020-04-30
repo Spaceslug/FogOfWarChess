@@ -6,14 +6,41 @@
         xmlns:views="clr-namespace:SlugChessAval.Views"
         xmlns:reactiveUi="http://reactiveui.net"
         x:Class="SlugChessAval.Views.MainWindow"
-        Icon="/Assets/avalonia-logo.ico"
-        Title="SlugChessAval"
-        Width="500" Height="500">
-  
-    <reactiveUi:RoutedViewHost Router="{Binding Router}">
+        Icon="/Assets/icon.ico"
+        Title="{Binding Title}"
+        Width="800" Height="600">
+  <Window.Styles>
+    <Style Selector="Button.normal">
+      <Setter Property="FontSize" Value="{DynamicResource FontSizeLarge}"/>
+      <Setter Property="Margin" Value="5"/>
+    </Style>
+    <Style Selector="TextBox">
+      <Setter Property="FontSize" Value="{DynamicResource FontSizeLarge}"/>
+    </Style>
+    <Style Selector="TextBlock">
+      <Setter Property="FontSize" Value="{DynamicResource FontSizeLarge}"/>
+    </Style>
+    <Style Selector="ComboBoxItem">
+      <Setter Property="FontSize" Value="{DynamicResource FontSizeLarge}"/>
+    </Style>
+    <Style Selector="ComboBox">
+      <Setter Property="FontSize" Value="{DynamicResource FontSizeLarge}"/>
+    </Style>
+  </Window.Styles>
+  <Grid>
+    <Grid.RowDefinitions>
+        <RowDefinition Height="*" />
+        <RowDefinition Height="48" />
+    </Grid.RowDefinitions>
+    <reactiveUi:RoutedViewHost Grid.Row="0" Router="{Binding Router}" PageTransition="{x:Null}" >
       <reactiveUi:RoutedViewHost.DefaultContent>
-        <TextBlock Text="Default Content" />
+       <TextBlock Text="waiting for view"/>
       </reactiveUi:RoutedViewHost.DefaultContent>
     </reactiveUi:RoutedViewHost>
+      <Grid Grid.Row="1" RowDefinitions="*,*" ColumnDefinitions="80,1*,80">
+        <TextBlock Grid.Row="0" Grid.Column="1" Text="Welcome to SlugChess" FontSize="{DynamicResource FontSizeLarge}" TextAlignment="Center"/>
+        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Notification}" FontSize="{DynamicResource FontSizeLarge}" Foreground="LightSalmon" TextAlignment="Center" />
+      </Grid>
+    </Grid>
 
 </Window>

@@ -51,36 +51,29 @@ namespace SlugChessAval.ViewModels
             get => _selected;
             set => this.RaiseAndSetIfChanged(ref _selected, value);
         }
-        private string _selected;
+        private string _selected = "";
 
         public ReactiveCommand<(string from, string to), (string from, string to)> MoveFromTo;
 
         public IBrush FogBackground = new ImageBrush(AssetBank.GetImage("fog"));
 
 
-        public List<Student> Students
+        public double Width
         {
-            get => _students;
-            set => this.RaiseAndSetIfChanged(ref _students, value);
+            get => _width;
+            set => this.RaiseAndSetIfChanged(ref _width, value);
         }
-        private List<Student> _students;
+        private double _width = 100;
 
-        public string A
-        {
-            get => _a;
-            set => this.RaiseAndSetIfChanged(ref _a, value);
-        }
-        private string _a = "A";
-
-        public ChessboardViewModel(IScreen screen = null)
+        public Grid? mainChessboardGrid;
+        public ChessboardViewModel(IScreen? screen = null)
         {
             _fieldBoard = Enumerable.Repeat(new Field {  }, 64).ToList();
             _cbModel = ChessboardModel.FromDefault();
             MoveFromTo = ReactiveCommand.Create<(string from, string to),(string from, string to)>( t => t);
-
-            MoveFromTo.Select(t => $"From={t.from}, To={t.to}").Subscribe(s => A = s);
-            //MoveFromTo.Execute(("dad", "aaaa"));
-            //MoveFromTo.Subscribe(t => A = t.from + " whaaaaah");
+            //MoveFromTo.Select(t => $"From={t.from}, To={t.to}").Subscribe(s => A = s);
+            ////MoveFromTo.Execute(("dad", "aaaa"));
+            ////MoveFromTo.Subscribe(t => A = t.from + " whaaaaah");
 
             //A = "b";
             //var command = ReactiveCommand.Create<string, string>(s => { return s; });
@@ -140,7 +133,7 @@ namespace SlugChessAval.ViewModels
             Selected = "";
             for (int i = 0; i < FieldBoard.Count; i++)
             {
-                var oldField = FieldBoard[i];
+                //var oldField = FieldBoard[i];
                 var newField = new Field();
 
                 if (model.Vision[i])
@@ -246,7 +239,7 @@ namespace SlugChessAval.ViewModels
             public IBrush BorderBrush { get; set; } = ColorNull;
             public CornerRadius CornerRadius { get; set; } = new CornerRadius(0.0d);
             public double Opacity { get; set; } = 1.0d;
-            public IBrush ImageBackgroundBrush { get; set; } = Transparent;
+            public IBrush? ImageBackgroundBrush { get; set; } = Transparent;
             //public string TestText { get; set; } = "default";
 
             public static IBrush ColorNull = new SolidColorBrush(0xFF000000);
@@ -285,8 +278,8 @@ namespace SlugChessAval.ViewModels
             {
                 ImageBackgroundBrush = new RadialGradientBrush { GradientOrigin = RelativePoint.Center, Radius = 0.5d, Opacity = 1.0d, SpreadMethod = GradientSpreadMethod.Pad, 
                     GradientStops = new GradientStops { 
-                        new GradientStop { Color=Color.FromUInt32(0xAA33AA22), Offset=0.0d},
-                        new GradientStop { Color=Color.FromUInt32(0xAA33AA22), Offset=0.3d},
+                        new GradientStop { Color=Color.FromUInt32(0xCC33AA22), Offset=0.0d},
+                        new GradientStop { Color=Color.FromUInt32(0xCC33AA22), Offset=0.44d},
                         new GradientStop { Color=Color.FromUInt32(0x00000000), Offset=0.5d}
                     } 
                 }
@@ -297,8 +290,8 @@ namespace SlugChessAval.ViewModels
                 {
                     GradientOrigin = RelativePoint.Center, Radius = 0.5d, Opacity = 1.0d, SpreadMethod = GradientSpreadMethod.Pad,
                     GradientStops = new GradientStops {
-                        new GradientStop { Color=Color.FromUInt32(0xAA555511), Offset=0.0d},
-                        new GradientStop { Color=Color.FromUInt32(0xAA555511), Offset=0.3d},
+                        new GradientStop { Color=Color.FromUInt32(0xCC777722), Offset=0.0d},
+                        new GradientStop { Color=Color.FromUInt32(0xCC777722), Offset=0.44d},
                         new GradientStop { Color=Color.FromUInt32(0x00000000), Offset=0.5d}
                     }
                 }

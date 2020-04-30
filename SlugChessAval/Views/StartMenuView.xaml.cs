@@ -7,9 +7,9 @@ using SlugChessAval.ViewModels;
 
 namespace SlugChessAval.Views
 {
-    public class LoginView : ReactiveUserControl<LoginViewModel>
+    public class StartMenuView : ReactiveUserControl<StartMenuViewModel>
     {
-        public LoginView()
+        public StartMenuView()
         {
             this.WhenActivated(disposables =>
             {

@@ -12,11 +12,11 @@ namespace SlugChessAval.Services
 {
     public static class AssetBank
     {
-        private static string _assetFolder = "Asset/";
-        private static string _builtInAssetFolder = "avares://SlugChessAval/Assets/";
+        private static readonly string _assetFolder = "Asset/";
+        private static readonly string _builtInAssetFolder = "avares://SlugChessAval/Assets/";
 
         public static IBitmap GetImage(string s) => _loadedBitmaps[s];
-        private static Dictionary<string, IBitmap> _loadedBitmaps = new Dictionary<string, IBitmap>();
+        private static readonly Dictionary<string, IBitmap> _loadedBitmaps = new Dictionary<string, IBitmap>();
 
         public static Task<bool> LoadAssets() => Task.Run<bool>(()=>
         {

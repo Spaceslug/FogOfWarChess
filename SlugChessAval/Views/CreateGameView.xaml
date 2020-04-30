@@ -1,0 +1,59 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="SlugChessAval.Views.CreateGameView">
+
+<Grid RowDefinitions="8*,1*">
+  <Grid Grid.Row="0">
+
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="1*" />
+      <ColumnDefinition Width="2*" />
+      <ColumnDefinition Width="2*" />
+      <ColumnDefinition Width="1*" />
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="48" />
+      <RowDefinition Height="48" />
+      <RowDefinition Height="48" />
+      <RowDefinition Height="48" />
+      <RowDefinition Height="48" />
+      <RowDefinition Height="48" />
+      <RowDefinition Height="48" />
+      <RowDefinition Height="48" />
+    </Grid.RowDefinitions>
+	  <TextBlock Grid.Row="1" Grid.Column="1" Text="Chess Type"  Margin="3"/>
+	  <ComboBox Grid.Row="1" Grid.Column="2" SelectedIndex="{Binding ChessTypeSelectedIndex}" IsEnabled="{Binding !HostGame.IsExecuting^}" Margin="3">
+	      <ComboBoxItem IsEnabled="True">Classic</ComboBoxItem>
+	      <ComboBoxItem IsEnabled="False">Fisher Random</ComboBoxItem>
+	      <ComboBoxItem IsEnabled="True">Slug Random</ComboBoxItem>
+	  </ComboBox>
+	  <TextBlock Grid.Row="2" Grid.Column="1" Text="Host Color"  Margin="3" />
+	  <ComboBox Grid.Row="2" Grid.Column="2" SelectedIndex="{Binding HostColorSelectedIndex}" IsEnabled="{Binding !HostGame.IsExecuting^}" Margin="3">
+	      <ComboBoxItem >Host is White</ComboBoxItem>
+	      <ComboBoxItem >Host is Black</ComboBoxItem>
+	      <ComboBoxItem >Random</ComboBoxItem>
+	  </ComboBox>
+	  <TextBlock Grid.Row="3" Grid.Column="1" Text="Start time" Margin="3"/>
+	  <TextBox Grid.Row="3" Grid.Column="2" Text="{Binding StartTimeMin, Mode=TwoWay}" IsEnabled="{Binding !HostGame.IsExecuting^}" Margin="3"/>
+	  <TextBlock  Grid.Row="3" Grid.Column="3" Text="min" Margin="3" />
+	  <TextBlock  Grid.Row="4" Grid.Column="1" Text="Extra time" Margin="3"/>
+	  <TextBox  Grid.Row="4" Grid.Column="2"  Text="{Binding ExtraTimeSec, Mode=TwoWay}" IsEnabled="{Binding !HostGame.IsExecuting^}" Margin="3" />
+	  <TextBlock  Grid.Row="4" Grid.Column="3" Text="sec" Margin="3"/>
+	  <TextBlock  Grid.Row="5" Grid.Column="1" Text="Vision Rules" Margin="3" />
+	  <ComboBox  Grid.Row="5" Grid.Column="2" SelectedIndex="0" IsEnabled="{Binding !HostGame.IsExecuting^}" Margin="5">
+	      <ComboBoxItem >SlugChess Standard</ComboBoxItem>
+	      <ComboBoxItem >SlugChess Sea</ComboBoxItem>
+	      <ComboBoxItem >No Vision Rules</ComboBoxItem>
+	  </ComboBox> 
+	  <!--<TextBlock  Grid.Row="5" Grid.Column="3" ToolTip="Non: see all board &#x0a;Standard: 1 VR pawn, 2 VR officer &#x0a;Sea: pices see where they can move, knight and pawn 1 VR" Text="more info" Margin="3"/>-->
+	  <Button  Grid.Row="7" Grid.Column="1" Classes="normal" Content="Host Game" Command="{Binding HostGame}" IsEnabled="{Binding !HostGame.IsExecuting^}" />
+ 	  <Button  Grid.Row="7" Grid.Column="2" Classes="normal" Content="Cancel" Command="{Binding Cancel}" />
+  </Grid>
+  <Grid Grid.Row="1">
+		<TextBlock Text="Your game is now joineble by other players. Close the window if you are tired of waiting" IsVisible="{Binding HostGame.IsExecuting^}"  Margin="3" />  
+  </Grid>
+</Grid>
+</UserControl>

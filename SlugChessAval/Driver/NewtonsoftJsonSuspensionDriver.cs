@@ -4,6 +4,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using Newtonsoft.Json;
 using ReactiveUI;
+using SlugChessAval.ViewModels;
 
 namespace SlugChessAval.Drivers
 {
@@ -30,13 +31,14 @@ namespace SlugChessAval.Drivers
             if (!File.Exists(_file)) throw new FileNotFoundException($"Can not find {_file}");
             //var open = File.OpenRead(_file);
             var lines = File.ReadAllText(_file);
-            var state = JsonConvert.DeserializeObject<object>(lines, _settings);
+            var state = JsonConvert.DeserializeObject<MainWindowViewModel>(lines, _settings);
             return Observable.Return(state);
         }
 
         public IObservable<Unit> SaveState(object state)
         {
-            var lines = JsonConvert.SerializeObject(state, Formatting.Indented, _settings);
+            MainWindowViewModel stateTyped = state as MainWindowViewModel;
+            var lines = JsonConvert.SerializeObject(stateTyped, Formatting.Indented, _settings);
             File.WriteAllText(_file, lines);
             return Observable.Return(Unit.Default);
         }

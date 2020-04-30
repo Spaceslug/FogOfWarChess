@@ -31,10 +31,13 @@ namespace SlugChessAval
             // Read main view model state from disk.
             var state = RxApp.SuspensionHost.GetAppState<MainWindowViewModel>();
             Locator.CurrentMutable.RegisterConstant<IScreen>(state);
-
             // Register views.
             Locator.CurrentMutable.Register<IViewFor<ChessboardViewModel>>(() => new Chessboard());
             Locator.CurrentMutable.Register<IViewFor<PlayViewModel>>(() => new PlayView());
+            Locator.CurrentMutable.Register<IViewFor<LoginViewModel>>(() => new LoginView());
+            Locator.CurrentMutable.Register<IViewFor<StartMenuViewModel>>(() => new StartMenuView());
+            Locator.CurrentMutable.Register<IViewFor<CreateGameViewModel>>(() => new CreateGameView());
+            Locator.CurrentMutable.Register<IViewFor<GameBrowserViewModel>>(() => new GameBrowserView());
 
 
             // Show the main window.
