@@ -10,6 +10,9 @@
     <Company>spaceslug.no</Company>
   </PropertyGroup>
   <ItemGroup>
+     <RuntimeHostConfigurationOption Include="System.Globalization.Invariant" Value="true" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Update="**\*.xaml.cs">
       <DependentUpon>%(Filename)</DependentUpon>
     </Compile>

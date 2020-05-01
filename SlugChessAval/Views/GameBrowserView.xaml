@@ -14,7 +14,7 @@
             <Button Content="Join Game" Command="{Binding JoinGame}" Margin="5" />
             <Button Content="Cancel" Command="{Binding Cancel}" Margin="5" />
         </WrapPanel>
-        <!-- <DataGrid Grid.Row="2" 
+        <DataGrid Grid.Row="2" 
         		  Name="dgMatchesDataGrid" 
                   AutoGenerateColumns="True" 
                   SelectionMode="Single" 
@@ -22,10 +22,8 @@
                   SelectedItem="{Binding SelectedItem}"
                   Items="{Binding MatchModels}"
                   CanUserReorderColumns="False" CanUserResizeColumns="True" 
-                  CanUserSortColumns="True" IsReadOnly="True"  /> -->
-        <StackPanel>
-        <DataGrid AutoGenerateColumns="True" Items="{Binding People}"/>
-    </StackPanel>
+                  CanUserSortColumns="True" IsReadOnly="True"  /> 
+       
               
 
     </Grid>

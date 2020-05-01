@@ -36,7 +36,7 @@ version 0.9.1
 
 version 0.9.0
 -(x)implement double fisher random
--fix release uploader
+-(x)fix release uploader
 
 version 0.8.1 
 -(x)fix looking for game bug
