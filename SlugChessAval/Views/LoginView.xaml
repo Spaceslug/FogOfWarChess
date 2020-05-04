@@ -11,14 +11,14 @@
       <RowDefinition Height="48" />
       <RowDefinition Height="48" />
       <RowDefinition Height="48" />
+      <RowDefinition Height="48" />
       <RowDefinition Height="*" />
     </Grid.RowDefinitions>
     <TextBlock Grid.Row="0" Text="Login view" Margin="5" />
     <TextBox Grid.Row="1" Text="{Binding Username}" />
     <TextBox Grid.Row="2" PasswordChar="?"  Text="{Binding Password}" />
-    <WrapPanel Grid.Row="3">
-    <Button Name="a" Height="{Binding #a.Bounds.Width}"  Content="Login" Command="{Binding Login}" />
-    </WrapPanel>
+    <Button Grid.Row="3" Height="{Binding #a.Bounds.Width}"  Content="Login" Command="{Binding Login}" />
     <Button Grid.Row="4" Content="Back" Command="{Binding $parent[Window].Router.NavigateBack}" />
+    <TextBlock Grid.Row="5" Text="PS. In current version no user exists so just write a username and random password" Foreground="LightCyan" />
   </Grid>
 </UserControl>

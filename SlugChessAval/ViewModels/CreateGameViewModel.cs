@@ -24,7 +24,7 @@ namespace SlugChessAval.ViewModels
 
         private CancellationTokenSource _hostGameTokenSource = new CancellationTokenSource();
 
-        public ReactiveCommand<Unit, Unit> Cancel { get; }
+        public ICommand Cancel => ((MainWindowViewModel)HostScreen).Cancel;
 
         public ReactiveCommand<Unit, LookForMatchResult> HostGame { get; }
 
@@ -74,11 +74,6 @@ namespace SlugChessAval.ViewModels
                 {
 
                 }
-            });
-
-            Cancel = ReactiveCommand.Create(() => {
-                _hostGameTokenSource.Cancel();
-                ((MainWindowViewModel)HostScreen).Cancel.Execute(Unit.Default);
             });
             
             

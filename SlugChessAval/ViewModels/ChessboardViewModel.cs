@@ -22,7 +22,7 @@ namespace SlugChessAval.ViewModels
 {
 
     [DataContract]
-    public class ChessboardViewModel : ViewModelBase, IRoutableViewModel
+    public class ChessboardViewModel : ViewModelBase
     {
         
 
@@ -33,9 +33,6 @@ namespace SlugChessAval.ViewModels
         }
         private List<Field> _fieldBoard;
 
-
-        public string UrlPathSegment => "/chessboard";
-        public IScreen HostScreen { get; }
 
         //[DataMember]
         public ChessboardModel CbModel
@@ -66,7 +63,7 @@ namespace SlugChessAval.ViewModels
         private double _width = 100;
 
         public Grid? mainChessboardGrid;
-        public ChessboardViewModel(IScreen? screen = null)
+        public ChessboardViewModel()
         {
             _fieldBoard = Enumerable.Repeat(new Field {  }, 64).ToList();
             _cbModel = ChessboardModel.FromDefault();
@@ -100,7 +97,6 @@ namespace SlugChessAval.ViewModels
 
             //Console.WriteLine(" whaaaaah");
 
-            HostScreen = screen ?? Locator.Current.GetService<IScreen>();
             //MoveFromTo = ReactiveCommand.Create(
             //   () => new TodoItem { Description = Description },
             //   okEnabled);

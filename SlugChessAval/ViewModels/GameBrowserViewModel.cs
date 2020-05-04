@@ -48,17 +48,18 @@ namespace SlugChessAval.ViewModels
 
             RefreshGamesList = ReactiveCommand.CreateFromTask(() => SlugChessService.Client.Call.AvailableGamesAsync(new ChessCom.Void()).ResponseAsync);
             RefreshGamesList.Subscribe(x => { MatchModels.Clear(); MatchModels.AddRange(MatchModel.FromChesscom(x)); });
+            RefreshGamesList.Execute().Subscribe();
 
             var canJoin = this.WhenAnyValue(x => x.SelectedItem).Select(o => o != null);
 
             JoinGame = ReactiveCommand.CreateFromTask(() =>JoinGameRequest(),
                 canJoin);
-            JoinGame.Subscribe((result) => {
-                if (result.Succes)
-                {
+            //JoinGame.Subscribe((result) => {
+            //    if (result.Succes)
+            //    {
 
-                }
-            });
+            //    }
+            //});
 
         }
 

@@ -128,7 +128,33 @@ namespace SlugChessAval.Services
                     return false;
                 }
             });
-        
+
+        public IObservable<MovePacket> GetMatchListener(string matchId)
+        {
+            var subject = new Subject<MovePacket>();
+            //TODO add exeption handleling to OnError the subject and allow subscribers to do well formed closing. OnError also if stream ends before end of match event
+            Task.Run(() =>
+            {
+                var stream = Call.MatchEventListener(new MatchId { MatchId_ = matchId });
+                while (stream.ResponseStream.MoveNext().Result)
+                {
+                    subject.OnNext(stream.ResponseStream.Current);
+                    //Close stream if end of match event
+                    if (stream.ResponseStream.Current.CheatMatchevent switch
+                    {
+                        MatchEvent.Draw => true,
+                        MatchEvent.UnexpectedClosing => true,
+                        MatchEvent.ExpectedClosing => true,
+                        _ => false,
+                    }) break;
+                }
+                stream.Dispose();
+                subject.OnCompleted();
+
+            });
+            return subject;
+        }
+
     }
         
 }

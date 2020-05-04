@@ -8,6 +8,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Windows.Input;
 using System.Reactive;
+using ChessCom;
 
 namespace SlugChessAval.ViewModels
 {
@@ -40,34 +41,46 @@ namespace SlugChessAval.ViewModels
         public ICommand MoveToGameBrowser => _moveToGameBrowser;
         private readonly ReactiveCommand<Unit, Unit> _moveToGameBrowser;
 
+        public ReactiveCommand<Unit, LookForMatchResult> ConnectToGame { get; }
+
+        private GameBrowserViewModel _vmGameBrowser { get; }
+        private CreateGameViewModel _vmCreateGame { get; }
+
         public PlayViewModel(IScreen? screen = null)
         {
             HostScreen = screen ?? Locator.Current.GetService<IScreen>();
 
-
             Chessboard = new ChessboardViewModel { CbModel = ChessboardModel.FromTestData() };
-            
+            _vmGameBrowser = new GameBrowserViewModel { };
+            _vmCreateGame = new CreateGameViewModel { };
+
+            Observable.Merge(
+                _vmCreateGame.HostGame,
+                _vmGameBrowser.JoinGame).Subscribe((x) => { if (x.Succes) BootUpMatch(x); });
+
             Chessboard.MoveFromTo.Select(t => t).Subscribe(t => {
                 LastMove = $"From={t.from}, To={t.to}";
             });
 
             var canMoveToCreateGame = this.WhenAny(vm => vm.OngoingGame, x => !x.Value);
             _moveToCreateGame = ReactiveCommand.Create(
-                () => { HostScreen.Router.Navigate.Execute(new CreateGameViewModel()).Subscribe(); },
+                () => { HostScreen.Router.Navigate.Execute(_vmCreateGame).Subscribe(); },
                 canMoveToCreateGame);
 
             var canMoveToGameBrowser = this.WhenAnyValue(vm => vm.LastMove).Select(x => true);
             _moveToGameBrowser = ReactiveCommand.Create(
-                () => { HostScreen.Router.Navigate.Execute(new GameBrowserViewModel()).Subscribe(); },
+                () => { HostScreen.Router.Navigate.Execute(_vmGameBrowser).Subscribe(); },
                 canMoveToGameBrowser);
         }
 
-        public void BootUpMatch(ChessCom.LookForMatchResult result)
+        /// <summary>
+        /// Allready determined result.Success is true
+        /// </summary>
+        /// <param name="result"></param>
+        public void BootUpMatch(LookForMatchResult result)
         {
-            if (result.Succes)
-            {
+            //TODO play found game audio clip
 
-            }
         }
 
     }

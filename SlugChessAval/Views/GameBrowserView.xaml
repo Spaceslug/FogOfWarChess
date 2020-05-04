@@ -13,6 +13,9 @@
         <WrapPanel Grid.Row="1">
             <Button Content="Join Game" Command="{Binding JoinGame}" Margin="5" />
             <Button Content="Cancel" Command="{Binding Cancel}" Margin="5" />
+            <Button Classes="normal" Content="Refresh List" 
+                    Command="{Binding RefreshGamesList}" 
+                    IsEnabled="{Binding !RefreshGamesList.IsExecuting^} " />
         </WrapPanel>
         <DataGrid Grid.Row="2" 
         		  Name="dgMatchesDataGrid" 

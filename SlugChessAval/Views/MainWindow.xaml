@@ -4,11 +4,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:SlugChessAval.ViewModels;assembly=SlugChessAval"
         xmlns:views="clr-namespace:SlugChessAval.Views"
+        xmlns:converters="clr-namespace:SlugChessAval.Converters"
         xmlns:reactiveUi="http://reactiveui.net"
         x:Class="SlugChessAval.Views.MainWindow"
         Icon="/Assets/icon.ico"
         Title="{Binding Title}"
         Width="800" Height="600">
+  <Window.Resources>
+    <converters:TimeSpanToMinSecString x:Key="instance"/>
+  </Window.Resources>
   <Window.Styles>
     <Style Selector="Button.normal">
       <Setter Property="FontSize" Value="{DynamicResource FontSizeLarge}"/>
@@ -25,6 +29,9 @@
     </Style>
     <Style Selector="ComboBox">
       <Setter Property="FontSize" Value="{DynamicResource FontSizeLarge}"/>
+    </Style>
+    <Style Selector="DataGridRow:selected">
+      <Setter Property="Foreground" Value="Brown"/>
     </Style>
   </Window.Styles>
   <Grid>
