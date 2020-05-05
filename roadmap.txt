@@ -26,9 +26,12 @@ version 1.0.0
 -full PGN support ()
 -Print rules
 
+version 0.11.0
+- auto updator
 
 version 0.10.0
-- auto updator
+-switch to aval with all the same features as client
+  -Alive heartbeat must be fixed
 
 version 0.9.1
 -back and forward in match( clients are sendt state so should be easy)

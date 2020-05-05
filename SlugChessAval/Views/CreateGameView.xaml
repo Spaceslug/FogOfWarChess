@@ -48,7 +48,7 @@
 	      <ComboBoxItem >SlugChess Sea</ComboBoxItem>
 	      <ComboBoxItem >No Vision Rules</ComboBoxItem>
 	  </ComboBox> 
-	  <!--<TextBlock  Grid.Row="5" Grid.Column="3" ToolTip="Non: see all board &#x0a;Standard: 1 VR pawn, 2 VR officer &#x0a;Sea: pices see where they can move, knight and pawn 1 VR" Text="more info" Margin="3"/>-->
+	  <ToolTip  Grid.Row="5" Grid.Column="3" Tip="Non: see all board &#x0a;Standard: 1 VR pawn, 2 VR officer &#x0a;Sea: pices see where they can move, knight and pawn 1 VR" Content="more info" Margin="3"/>
 	  <Button  Grid.Row="7" Grid.Column="1" Classes="normal" Content="Host Game" Command="{Binding HostGame}" IsEnabled="{Binding !HostGame.IsExecuting^}" />
  	  <Button  Grid.Row="7" Grid.Column="2" Classes="normal" Content="Cancel" Command="{Binding Cancel}" />
   </Grid>

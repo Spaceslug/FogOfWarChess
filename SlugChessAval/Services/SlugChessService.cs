@@ -16,6 +16,7 @@ namespace SlugChessAval.Services
     {
         #region init stuff
         public static SlugChessService Client { get; private set; } = new SlugChessService("localhost", 9999);
+        public static string Usertoken => Client.UserData?.Usertoken ?? "";
         public static void Instanciate(string adress, int port)
         {
             //if (Client != null) throw new Exception("Allready initialized");
@@ -45,7 +46,7 @@ namespace SlugChessAval.Services
             _channel = new Channel(adress, port, ChannelCredentials.Insecure);
             Call = new ChessCom.ChessCom.ChessComClient(_channel);
             _heartbeatTimer.AutoReset = true;
-            _heartbeatTimer.Elapsed += (o, e) => { if (!Call.Alive(new Heartbeat { Alive = true, Usertoken = UserData.Usertoken }).Alive) { UserLoggedIn.OnNext(false); UserData = null; } };
+            _heartbeatTimer.Elapsed += (o, e) => { if (!Call.Alive(new Heartbeat { Alive = true, Usertoken = UserData?.Usertoken ?? "" }).Alive) { UserLoggedIn.OnNext(false); UserData = null; } };
             UserLoggedIn.Subscribe(loggedIn => { if (loggedIn) { _heartbeatTimer.Start(); } else { _heartbeatTimer.Stop(); } } );
         }
         #endregion
@@ -129,18 +130,18 @@ namespace SlugChessAval.Services
                 }
             });
 
-        public IObservable<MovePacket> GetMatchListener(string matchId)
+        public IObservable<MoveResult> GetMatchListener(string matchId)
         {
-            var subject = new Subject<MovePacket>();
+            var subject = new Subject<MoveResult>();
             //TODO add exeption handleling to OnError the subject and allow subscribers to do well formed closing. OnError also if stream ends before end of match event
             Task.Run(() =>
             {
-                var stream = Call.MatchEventListener(new MatchId { MatchId_ = matchId });
+                var stream = Call.MatchEventListener(new MatchObserver { MatchId = matchId, Usertoken = UserData?.Usertoken ?? ""});
                 while (stream.ResponseStream.MoveNext().Result)
                 {
                     subject.OnNext(stream.ResponseStream.Current);
                     //Close stream if end of match event
-                    if (stream.ResponseStream.Current.CheatMatchevent switch
+                    if (stream.ResponseStream.Current.MatchEvent switch
                     {
                         MatchEvent.Draw => true,
                         MatchEvent.UnexpectedClosing => true,

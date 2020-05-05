@@ -7,6 +7,15 @@ using ChessCom;
 
 namespace SlugChessAval.Models
 {
+    public enum PlayerIs
+    {
+        Non,
+        White,
+        Black,
+        Both,
+        Oberserver
+    }
+
     public class MatchModel
     {
 

@@ -13,4 +13,8 @@
     <PackageReference Include="Grpc" Version="2.28.1" />
   </ItemGroup>
 
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="$(ProjectDir)..\protobuf\gen_chesscom_files_csharplib.bat $(ProjectDir)..\protobuf" />
+  </Target>
+
 </Project>

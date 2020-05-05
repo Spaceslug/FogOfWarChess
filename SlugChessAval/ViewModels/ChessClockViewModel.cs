@@ -1,6 +1,7 @@
 ﻿using ReactiveUI;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Text;
 
 namespace SlugChessAval.ViewModels
@@ -12,7 +13,7 @@ namespace SlugChessAval.ViewModels
             get => _whiteTimeLeft;
             set => this.RaiseAndSetIfChanged(ref _whiteTimeLeft, value);
         }
-        private TimeSpan _whiteTimeLeft;
+        private TimeSpan _whiteTimeLeft = new TimeSpan(0, 10, 15);
 
         public TimeSpan BlackTimeLeft
         {
@@ -34,5 +35,10 @@ namespace SlugChessAval.ViewModels
             set => this.RaiseAndSetIfChanged(ref _blackSecPerMove, value);
         }
         private int _blackSecPerMove;
+
+        public void SetTime(TimeSpan whiteTimeLeft, TimeSpan blackTimeLeft)
+        {
+            throw new NotImplementedException("");
+        }
     }
 }

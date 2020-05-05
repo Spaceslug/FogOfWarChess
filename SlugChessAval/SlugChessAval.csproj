@@ -22,6 +22,7 @@
     <AvaloniaResource Include="Assets\*" />
   </ItemGroup>
   <ItemGroup>
+    <AvaloniaResource Remove="Views\Chatbox.xaml" />
     <AvaloniaResource Remove="Views\ChessClock.xaml" />
     <AvaloniaResource Remove="Views\CreateGameView.xaml" />
     <AvaloniaResource Remove="Views\GameBrowserView.xaml" />
@@ -38,6 +39,7 @@
     <Compile Remove="SkiaSvg\SvgTypeConverter.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Views\Chatbox.xaml" />
     <None Remove="Views\ChessClock.xaml" />
     <None Remove="Views\CreateGameView.xaml" />
     <None Remove="Views\GameBrowserView.xaml" />
@@ -98,6 +100,11 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Views\Chatbox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\ChesscomCSharpLib\ChesscomCSharpLib.csproj" />
   </ItemGroup>
   <ItemGroup>
@@ -108,7 +115,4 @@
       <DependentUpon>GameBrowserView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="$(ProjectDir)..\protobuf\gen_chesscom_files_csharplib.bat $(ProjectDir)..\protobuf" />
-  </Target>
 </Project>

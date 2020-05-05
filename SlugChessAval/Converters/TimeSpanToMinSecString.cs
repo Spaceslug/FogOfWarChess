@@ -8,12 +8,12 @@ namespace SlugChessAval.Converters
     public class TimeSpanToMinSecString : Avalonia.Data.Converters.IValueConverter
     {
 
-        public TimeSpanToMinSecString instance = new TimeSpanToMinSecString();
+        public static TimeSpanToMinSecString instance = new TimeSpanToMinSecString();
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             TimeSpan timeSpan = (TimeSpan)value;
-            return timeSpan.ToString("mm:ss");
+            return timeSpan.ToString(@"mm\:ss");
         }
 
         public object? ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

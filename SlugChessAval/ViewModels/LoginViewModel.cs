@@ -31,7 +31,7 @@ namespace SlugChessAval.ViewModels
         public ICommand Login => _login;
         private readonly ReactiveCommand<Unit, bool> _login;
 
-        private bool _loginInProgress = false;
+        //private bool _loginInProgress = false;
 
         [DataMember]
         public string Username
@@ -125,7 +125,7 @@ namespace SlugChessAval.ViewModels
                 Console.WriteLine("Login failed. " + result.LoginMessage);
             }
             HostScreen.Router.NavigateBack.Execute().Subscribe();
-            _loginInProgress = false;
+            //_loginInProgress = false;
         }
     }
 }

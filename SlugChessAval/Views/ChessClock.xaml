@@ -4,5 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="SlugChessAval.Views.ChessClock">
-    Welcome to Avalonia!
+    <Grid  Height="58"  Width="329">
+        <TextBlock HorizontalAlignment="Left" Name="lbWhiteTimeLeft" Text="{Binding WhiteTimeLeft}"  Margin="50,0,0,0" Height="58" Width="68" FontWeight="Bold" FontSize="22" />
+        <TextBlock Name="lbBlackTimeLeft" Text="{Binding BlackTimeLeft}" Margin="167,0,94,0"  Height="58" Width="66" FontWeight="Bold" FontSize="22" />
+        <TextBlock Name="lbBlackTimePerMove" Text="+00s"  Height="58" Width="38" FontWeight="Bold" FontSize="12" />
+        <TextBlock HorizontalAlignment="Left" Name="lbWhiteTimePerMove" Text="+00s" Margin="50,0,0,0"  Height="58" Width="38" FontWeight="Bold" FontSize="12" />
+        <Image HorizontalAlignment="Left" Name="imgWhiteKing" Source="/Assets/whiteKing.png"  Height="58" Margin="0,0,0,0"  Width="64"/>
+        <Image HorizontalAlignment="Right" Name="imgBlackKing" Source="/Assets/blackKing.png" Height="58" Margin="0,0,0,0" Width="64"/>
+    </Grid>
 </UserControl>

@@ -30,12 +30,12 @@ namespace SlugChessAval.ViewModels
         public ReactiveCommand<Unit, LookForMatchResult> JoinGame { get; }
 
         public ObservableCollection<MatchModel> MatchModels { get; }
-        public object SelectedItem
+        public object? SelectedItem
         {
             get => _selectedItem;
             set => this.RaiseAndSetIfChanged(ref _selectedItem, value);
         }
-        private object _selectedItem;
+        private object? _selectedItem;
 
         public GameBrowserViewModel(IScreen? screen = null)
         {
@@ -65,7 +65,11 @@ namespace SlugChessAval.ViewModels
 
         private Task<LookForMatchResult> JoinGameRequest() => Task.Run(() =>
         {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
             int selectedId = ((MatchModel)SelectedItem).GetMatchId();
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
             var token = _joinGameTokenSource.Token;
             try
             {

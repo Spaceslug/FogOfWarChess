@@ -21,7 +21,7 @@ service ChessCom {
 												//If server has not recived an Alive Heartbeat from a logged in user in
 												//2 minutes the user will be force logged out. Clients are recomendet to send
 												//Alive Heartbeat every 1 minute
-	rpc MatchEventListener(MatchId) returns (stream MovePacket) {}
+	rpc MatchEventListener(MatchObserver) returns (stream MoveResult) {}
 	rpc SendMove(MovePacket) returns (Void) {}
 	rpc ChatMessageListenter(UserData) returns (stream ChatMessage) {}
 	rpc SendChatMessage(ChatMessage) returns (Void) {}
@@ -77,9 +77,10 @@ message Heartbeat
 	string usertoken = 2;
 }
 
-message MatchId
+message MatchObserver
 {
 	string matchId = 1;
+	string usertoken = 2;
 }
 
 message VisionRules {

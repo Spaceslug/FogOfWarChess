@@ -27,17 +27,17 @@ namespace SlugChessAval.ViewModels
 
 
 
-        public string Description
-        {
-            get => _description;
-            set => this.RaiseAndSetIfChanged(ref _description, value);
-        }
-        private string _description = "WEhaaaaatee";
-        public class Student
-        {
-            public string Name { get; set; }
-        }
-        public List<Student> Students => new List<Student> { new Student { Name = "Dave" }, new Student { Name = "Britt" } };
+        //public string Description
+        //{
+        //    get => _description;
+        //    set => this.RaiseAndSetIfChanged(ref _description, value);
+        //}
+        //private string _description = "WEhaaaaatee";
+        //public class Student
+        //{
+        //    public string Name { get; set; }
+        //}
+        //public List<Student> Students => new List<Student> { new Student { Name = "Dave" }, new Student { Name = "Britt" } };
 
         [DataMember]
         public double GuiScaling
