@@ -11,7 +11,7 @@ std::string MatchManager::CreateMatch(std::string& player1Token, std::string& pl
     std::shared_ptr<::Match> match = std::make_shared<::Match>(matchToken, white, black,	 
         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1", defaultVisionRules);
 
-    match->clock->blackSecLeft = defaultTimeRules.playertime().minutes() * 60 + defaultTimeRules.playertime().seconds();
+    match->clock->blackSecLeft = defaultTimeRules.player_time().minutes() * 60 + defaultTimeRules.player_time().seconds();
     match->clock->whiteSecLeft = match->clock->blackSecLeft;
     _matches[matchToken] = match;
     std::cout << "  checing match " << " black sec left " << std::to_string(match->clock->blackSecLeft) << " white sec left " << std::to_string(match->clock->whiteSecLeft) << std::endl << std::flush;
@@ -24,11 +24,11 @@ std::string MatchManager::CreateMatch(chesscom::HostedGame& hostedGame)
     std::string matchToken = "match"+ std::to_string(_tokenCounter++);
     std::string white;
     std::string black;
-    if(hostedGame.gamerules().sidetype() == chesscom::SideType::HostIsWhite)
+    if(hostedGame.game_rules().side_type() == chesscom::SideType::HostIsWhite)
     {
         white = hostedGame.host().usertoken();black = hostedGame.joiner().usertoken();
     }
-    else if(hostedGame.gamerules().sidetype() == chesscom::SideType::HostIsBlack)
+    else if(hostedGame.game_rules().side_type() == chesscom::SideType::HostIsBlack)
     {
         black = hostedGame.host().usertoken();white = hostedGame.joiner().usertoken();
     }
@@ -37,23 +37,23 @@ std::string MatchManager::CreateMatch(chesscom::HostedGame& hostedGame)
         std::tie(white, black) = RandomSort(hostedGame.host().usertoken(), hostedGame.joiner().usertoken());
     }
     std::string fenString;
-    if(hostedGame.gamerules().chesstype() == chesscom::ChessType::Classic)
+    if(hostedGame.game_rules().chess_type() == chesscom::ChessType::Classic)
     {
         fenString = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1";
     }
-    else if(hostedGame.gamerules().chesstype() == chesscom::ChessType::FisherRandom)
+    else if(hostedGame.game_rules().chess_type() == chesscom::ChessType::FisherRandom)
     {
         //throw std::exception("not implemten FisherRandom chess");
     }
-    else if(hostedGame.gamerules().chesstype() == chesscom::ChessType::SlugRandom)
+    else if(hostedGame.game_rules().chess_type() == chesscom::ChessType::SlugRandom)
     {
         fenString = Sfen::GenSlugRandom();
     }
     
-    VisionRules visionRules = FromChesscomVisionRules(hostedGame.gamerules().visionrules());
+    VisionRules visionRules = FromChesscomVisionRules(hostedGame.game_rules().vision_rules());
     std::shared_ptr<::Match> match = std::make_shared<::Match>(matchToken, white, black, 
        fenString, visionRules);
-    match->clock->blackSecLeft = hostedGame.gamerules().timerules().playertime().minutes() * 60 + hostedGame.gamerules().timerules().playertime().seconds();
+    match->clock->blackSecLeft = hostedGame.game_rules().time_rules().player_time().minutes() * 60 + hostedGame.game_rules().time_rules().player_time().seconds();
     match->clock->whiteSecLeft = match->clock->blackSecLeft;
     {
         std::unique_lock<std::mutex> lk(_matchesMutex);
@@ -84,15 +84,15 @@ VisionRules MatchManager::FromChesscomVisionRules(const chesscom::VisionRules& c
 {
     VisionRules visionRules;
     visionRules.enabled = chesscomVision.enabled();
-    visionRules.globalRules.ViewMoveFields = chesscomVision.viewmovefields();
-    visionRules.globalRules.ViewRange = chesscomVision.viewrange();
-    visionRules.globalRules.ViewCaptureField = chesscomVision.viewcapturefield();
+    visionRules.globalRules.ViewMoveFields = chesscomVision.view_move_fields();
+    visionRules.globalRules.ViewRange = chesscomVision.view_range();
+    visionRules.globalRules.ViewCaptureField = chesscomVision.view_capture_field();
     //std::cout << " Vision rules" << std::endl << std::flush;
-    for (auto&& piceRulesPar : chesscomVision.piceoverwriter()) {
+    for (auto&& piceRulesPar : chesscomVision.pice_overwriter()) {
         ChessPice pice = (ChessPice)piceRulesPar.first;
-        visionRules.overWriteRules[pice].ViewRange = piceRulesPar.second.viewrange();
-        visionRules.overWriteRules[pice].ViewMoveFields = piceRulesPar.second.viewmovefields();
-        visionRules.overWriteRules[pice].ViewCaptureField = piceRulesPar.second.viewcapturefield();
+        visionRules.overWriteRules[pice].ViewRange = piceRulesPar.second.view_range();
+        visionRules.overWriteRules[pice].ViewMoveFields = piceRulesPar.second.view_move_fields();
+        visionRules.overWriteRules[pice].ViewCaptureField = piceRulesPar.second.view_capture_field();
     }
 
     return visionRules;

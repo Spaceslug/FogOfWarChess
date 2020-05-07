@@ -15,9 +15,9 @@ class MatchManager
     chesscom::TimeRules ServerTimeRules()
     {
         chesscom::TimeRules tr;
-        tr.mutable_playertime()->set_minutes(5);
-        tr.mutable_playertime()->set_seconds(0);
-        tr.set_secondspermove(6);
+        tr.mutable_player_time()->set_minutes(5);
+        tr.mutable_player_time()->set_seconds(0);
+        tr.set_seconds_per_move(6);
 
         return tr;
     }

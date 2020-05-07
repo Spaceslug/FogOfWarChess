@@ -79,7 +79,7 @@ message Heartbeat
 
 message MatchObserver
 {
-	string matchId = 1;
+	string match_id = 1;
 	string usertoken = 2;
 }
 
@@ -141,17 +141,17 @@ message Move {
 	string from = 2;
 	string to = 3;
 	google.protobuf.Timestamp timestamp = 4;
-	int32 secSpent = 5;
-	repeated bool whiteVision = 6;
-	repeated bool blackVision = 7;
+	int32 sec_spent = 5;
+	repeated bool white_vision = 6;
+	repeated bool black_vision = 7;
 	repeated Pices pices = 8;
-	map<string, FieldMoves> availableMoves = 9;
-	map<string, FieldMoves> availableShadowMoves = 11;
-	Pices capturedPice = 10;
-	map<string, FieldMoves> whiteShadowMoves = 12;
-	map<string, FieldMoves> blackShadowMoves = 13;
-	map<string, FieldMoves> whiteMoves = 14;
-	map<string, FieldMoves> blackMoves = 15;
+	map<string, FieldMoves> available_moves = 9;
+	map<string, FieldMoves> available_shadow_moves = 11;
+	Pices captured_pice = 10;
+	map<string, FieldMoves> white_shadow_moves = 12;
+	map<string, FieldMoves> black_shadow_moves = 13;
+	map<string, FieldMoves> white_moves = 14;
+	map<string, FieldMoves> black_moves = 15;
 	repeated string check = 16;
 }
 
@@ -201,8 +201,8 @@ message LookForMatchResult {
 	//VisionRules rules = 4;    //TODO deprocate
 	//string opponentUsername = 5;
 	//TimeRules timerules = 6;  //TODO deprocate
-	GameRules gameRules = 7;  // this hold both
-	UserData opponent_userdata = 8;
+	GameRules game_rules = 7;  // this hold both
+	UserData opponent_user_data = 8;
 }
 
 message MovePacket{

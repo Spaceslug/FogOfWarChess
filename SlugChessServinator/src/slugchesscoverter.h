@@ -36,20 +36,20 @@ class SlugChessConverter
         auto ww = game->GetWhiteVision(); 
         auto bw = game->GetBlackVision(); 
         auto pices = game->GetPices(); 
-        *move->mutable_whitevision() = {ww.begin(), ww.end()};
-        *move->mutable_blackvision() = {bw.begin(), bw.end()};
+        *move->mutable_white_vision() = {ww.begin(), ww.end()};
+        *move->mutable_black_vision() = {bw.begin(), bw.end()};
         *move->mutable_pices() = {pices.begin(), pices.end()};
-        move->set_capturedpice((chesscom::Pices)game->LastCaptured());
+        move->set_captured_pice((chesscom::Pices)game->LastCaptured());
         //MOves
-        CopyToMap(move->mutable_availablemoves(), game->LegalMovesRef());
+        CopyToMap(move->mutable_available_moves(), game->LegalMovesRef());
         //White MOves
-        CopyToMap(move->mutable_whitemoves(), game->LegalWhiteMovesRef());
+        CopyToMap(move->mutable_white_moves(), game->LegalWhiteMovesRef());
         //Black MOves
-        CopyToMap(move->mutable_blackmoves(), game->LegalBlackMovesRef());
+        CopyToMap(move->mutable_black_moves(), game->LegalBlackMovesRef());
         //White Shadow MOves
-        CopyToMap(move->mutable_whiteshadowmoves(), game->ShadowWhiteMovesRef());
+        CopyToMap(move->mutable_white_shadow_moves(), game->ShadowWhiteMovesRef());
         //Black Shadow MOves
-        CopyToMap(move->mutable_blackshadowmoves(), game->ShadowBlackMovesRef());
+        CopyToMap(move->mutable_black_shadow_moves(), game->ShadowBlackMovesRef());
 
         auto check = move->mutable_check();
         for (auto &&index : game->Checks(isWhitePlayer?SlugChess::Perspective::White:SlugChess::Perspective::Black))

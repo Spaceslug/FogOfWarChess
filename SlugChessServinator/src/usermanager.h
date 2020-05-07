@@ -14,7 +14,7 @@ class UserManager
     bool UsertokenLoggedIn(const std::string& token);
     bool TestHeart(const std::string& token);
     bool Logout(const std::string& token);
-    const chesscom::UserData& GetUserData(const std::string& token);
+    const chesscom::UserData& Getuser_data(const std::string& token);
     private:
     std::mutex _mutex;
     std::unordered_map<std::string, chesscom::UserData> _logedInUsers;

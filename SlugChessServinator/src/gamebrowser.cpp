@@ -23,7 +23,7 @@ void GameBrowser::WriteAvailableGames(chesscom::HostedGamesMap& gamesList)
     // {
     //     std::cout << "Hosting game " << std::to_string(game.first) << " " << game.second.host().usertoken() << std::endl << std::flush;
     // }
-    *gamesList.mutable_hostedgames() = {_availableGames.begin(), _availableGames.end()};
+    *gamesList.mutable_hosted_games() = {_availableGames.begin(), _availableGames.end()};
     // for (auto &&game : gamesList.hostedgames())
     // {
     //     std::cout << "Hosting game " << std::to_string(game.first) << " " << game.second.host().usertoken() << std::endl << std::flush;
@@ -57,16 +57,16 @@ void GameBrowser::JoinGame(int32_t id, const chesscom::UserData& joinerData, che
         hostedGame.mutable_joiner()->CopyFrom(joinerData);
         joinerMatchResult->set_succes(true);
         hostMatchResult->set_succes(true);
-        joinerMatchResult->mutable_gamerules()->CopyFrom(hostedGame.gamerules());
-        hostMatchResult->mutable_gamerules()->CopyFrom(hostedGame.gamerules());
-        joinerMatchResult->mutable_opponentuserdata()->CopyFrom(hostedGame.host());
-        hostMatchResult->mutable_opponentuserdata()->CopyFrom(hostedGame.joiner());
+        joinerMatchResult->mutable_game_rules()->CopyFrom(hostedGame.game_rules());
+        hostMatchResult->mutable_game_rules()->CopyFrom(hostedGame.game_rules());
+        joinerMatchResult->mutable_opponent_user_data()->CopyFrom(hostedGame.host());
+        hostMatchResult->mutable_opponent_user_data()->CopyFrom(hostedGame.joiner());
         std::string matchId = _matchManager->CreateMatch(hostedGame);
         bool hostWhite = _matchManager->GetMatch(matchId)->getWhitePlayer() == hostedGame.host().usertoken();
-        joinerMatchResult->set_matchtoken(matchId);
-        hostMatchResult->set_matchtoken(matchId);
-        joinerMatchResult->set_iswhiteplayer(!hostWhite);
-        hostMatchResult->set_iswhiteplayer(hostWhite);
+        joinerMatchResult->set_match_token(matchId);
+        hostMatchResult->set_match_token(matchId);
+        joinerMatchResult->set_is_white_player(!hostWhite);
+        hostMatchResult->set_is_white_player(hostWhite);
         *hostFinished = true;
         hostCV->notify_all();
     }

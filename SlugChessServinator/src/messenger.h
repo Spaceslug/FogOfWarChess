@@ -14,12 +14,12 @@ class Messenger {
         std::unique_lock<std::mutex> scopeLock (_messageStreamsMutex);
         chesscom::ChatMessage msg;
         msg.set_allocated_message(&message);
-        msg.set_allocated_reciverusertoken(&revicerToken);
-        msg.set_allocated_senderusername(&senderUername);
+        msg.set_allocated_sender_usertoken(&revicerToken);
+        msg.set_allocated_sender_username(&senderUername);
         _messageStreams[revicerToken]->Write(msg);
         msg.release_message();
-        msg.release_reciverusertoken();
-        msg.release_senderusername();
+        msg.release_reciver_usertoken();
+        msg.release_sender_username();
     }
     void AddMessageStream(const std::string& userToken, grpc::ServerReaderWriter< chesscom::ChatMessage, chesscom::ChatMessage>* stream)
     {
