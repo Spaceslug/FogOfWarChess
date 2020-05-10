@@ -420,7 +420,7 @@ Field SlugChess::ExecuteMove(int from, int to){
     return tofield;
 }
 
-bool SlugChess::LegalMove(std::string& from, std::string& to)
+bool SlugChess::LegalMove(const std::string& from, const std::string& to)
 {
     if(from[0] < 'a' || from[0] > 'h' 
         ||from[1] < '1' || from[1] > '8'

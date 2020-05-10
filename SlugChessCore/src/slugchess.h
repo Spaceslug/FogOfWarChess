@@ -45,7 +45,7 @@ class SlugChess {
     void SetEnd(EndResult endResult){ _gameEnd = endResult; }
     EndResult Result(){ return _gameEnd; }
 
-    bool LegalMove(std::string& from, std::string& to);
+    bool LegalMove(const std::string& from, const std::string& to);
 
     std::map<int, std::vector<int>>* LegalMovesRef(){ return &_legalMoves; }
     std::map<int, std::vector<int>>* LegalWhiteMovesRef(){ return &_legalWhiteMoves; }
@@ -61,7 +61,7 @@ class SlugChess {
     void CleanAnPassants();
 
     static bool visionBoardTrue [64];
-    static const int32_t BPToIndx(std::string& pos){return GameRules::BoardPosToIndex(pos);}
+    static const int32_t BPToIndx(const std::string& pos){return GameRules::BoardPosToIndex(pos);}
     static std::string BP(int index) { return GameRules::BoardPos(index); }
     
     private:
