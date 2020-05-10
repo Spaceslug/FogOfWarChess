@@ -219,7 +219,7 @@ message MoveResult{
 	GameState game_state = 2;
 	bool opponent_asking_for_draw = 4;
 	MatchEvent match_event = 5;
-	int32 secs_left = 6;
+	ChessClock chess_clock = 7;
 }
 
 message JoinGameRequest 
@@ -235,4 +235,9 @@ message ChatMessage {
 	string sender_username = 2; //sender username
 	string reciver_usertoken = 3; //reciver userToken
 	string message = 4;
+}
+
+message ChessClock {
+	int32 white_seconds_left = 1;
+	int32 black_seconds_left = 2;
 }
