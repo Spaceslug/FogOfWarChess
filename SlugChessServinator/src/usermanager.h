@@ -12,6 +12,7 @@ class UserManager
     public:
     void LogInUser(const std::string& token, const chesscom::UserData& userData);
     bool UsertokenLoggedIn(const std::string& token);
+    bool Heartbeat(const std::string& token);
     bool TestHeart(const std::string& token);
     bool Logout(const std::string& token);
     const chesscom::UserData& Getuser_data(const std::string& token);

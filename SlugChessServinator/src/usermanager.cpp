@@ -13,6 +13,18 @@ bool UserManager::UsertokenLoggedIn(const std::string& token)
     return _logedInUsers.count(token) > 0;
 }
 
+bool UserManager::Heartbeat(const std::string& token)
+{
+    if(TestHeart(token)){
+        _timepoints[token] = std::chrono::system_clock::now();
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 bool UserManager::TestHeart(const std::string& token)
 {
     if(UsertokenLoggedIn(token)){
@@ -22,7 +34,7 @@ bool UserManager::TestHeart(const std::string& token)
             << std::chrono::duration_cast<std::chrono::milliseconds>(now - _timepoints[token]).count()
             << std::endl << std::flush;
         if(std::chrono::duration_cast<std::chrono::milliseconds>(now - _timepoints[token]) 
-            > std::chrono::milliseconds(2000))
+            > std::chrono::milliseconds(1000*60*2))
         {
             return false;
         }

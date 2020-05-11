@@ -6,6 +6,16 @@
 class MatchManager
 {
     public:
+    static void MatchListenLoop(std::string listenerUsertoken, 
+        std::shared_ptr<Match> matchPtr,
+        grpc::ServerContext* contextPtr,
+        grpc::internal::WriterInterface<chesscom::MoveResult>* writerPtr);
+    static void DoMoveInMatch(
+        chesscom::MatchEvent event,
+        std::string usertoken, 
+        std::shared_ptr<Match> matchPtr, 
+        std::shared_ptr<chesscom::Move> movePtr);
+
     std::string CreateMatch(std::string& player1Token, std::string& player2Token);
     std::string CreateMatch(chesscom::HostedGame& hostedGame);
     std::shared_ptr<Match> GetMatch(const std::string& matchId);
