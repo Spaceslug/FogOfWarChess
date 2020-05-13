@@ -4,12 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:SlugChessAval.ViewModels;assembly=SlugChessAval"
         	   xmlns:views="clr-namespace:SlugChessAval.Views"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="400"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="700"
              x:Class="SlugChessAval.Views.PlayView">
-  <Grid ColumnDefinitions="3*,1*" RowDefinitions="*,auto" Margin="5,5,5,5">
+  <Grid ColumnDefinitions="3*,auto" RowDefinitions="*,auto" Margin="5,5,5,5">
     <views:Chessboard DataContext="{Binding Chessboard}" Grid.Row="0" Grid.Column="0" />
     <WrapPanel Grid.Row="0" Grid.Column="1">
-      
+      <views:ChessClock DataContext="{Binding ChessClock}"/>
     </WrapPanel>
     <WrapPanel Grid.Row="1" Grid.Column="0">
       <Button Command="{Binding MoveToCreateGame}" Content="Host Game" Margin="5"/>

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
@@ -16,13 +17,14 @@ using System.Windows.Input;
 
 namespace SlugChessAval.ViewModels
 {
-    public class GameBrowserViewModel : ViewModelBase, IRoutableViewModel
+    public class GameBrowserViewModel : ViewModelBase, IRoutableViewModel, IActivatableViewModel
     {
         public string UrlPathSegment => "/gamebrowser";
         public IScreen HostScreen { get; }
 
-        private CancellationTokenSource _joinGameTokenSource = new CancellationTokenSource();
+        public ViewModelActivator Activator { get; }
 
+        private CancellationTokenSource _joinGameTokenSource = new CancellationTokenSource();
 
         public ICommand Cancel => ((MainWindowViewModel)HostScreen).Cancel;
 
@@ -30,16 +32,24 @@ namespace SlugChessAval.ViewModels
         public ReactiveCommand<Unit, LookForMatchResult> JoinGame { get; }
 
         public ObservableCollection<MatchModel> MatchModels { get; }
-        public object? SelectedItem
+        public MatchModel? SelectedItem
         {
             get => _selectedItem;
             set => this.RaiseAndSetIfChanged(ref _selectedItem, value);
         }
-        private object? _selectedItem;
+        private MatchModel? _selectedItem;
+
+        public int SelectedIndex
+        {
+            get => _selectedIndex;
+            set => this.RaiseAndSetIfChanged(ref _selectedIndex, value);
+        }
+        private int _selectedIndex = -1;
 
         public GameBrowserViewModel(IScreen? screen = null)
         {
             HostScreen = screen ?? Locator.Current.GetService<IScreen>();
+            Activator = new ViewModelActivator();
 #if DEBUG
             MatchModels = new ObservableCollection<MatchModel>(MatchModel.FromTestData());
 #else
@@ -48,7 +58,6 @@ namespace SlugChessAval.ViewModels
 
             RefreshGamesList = ReactiveCommand.CreateFromTask(() => SlugChessService.Client.Call.AvailableGamesAsync(new ChessCom.Void()).ResponseAsync);
             RefreshGamesList.Subscribe(x => { MatchModels.Clear(); MatchModels.AddRange(MatchModel.FromChesscom(x)); });
-            RefreshGamesList.Execute().Subscribe();
 
             var canJoin = this.WhenAnyValue(x => x.SelectedItem).Select(o => o != null);
 
@@ -60,7 +69,16 @@ namespace SlugChessAval.ViewModels
 
             //    }
             //});
+            this.WhenActivated(disposables =>
+            {
+                // Use WhenActivated to execute logic
+                // when the view model gets activated.
+                this.HandleActivation();
 
+                // Or use WhenActivated to execute logic
+                // when the view model gets deactivated.
+                Disposable.Create(() => this.HandleDeactivation()).DisposeWith(disposables);
+            });
         }
 
         private Task<LookForMatchResult> JoinGameRequest() => Task.Run(() =>
@@ -88,6 +106,16 @@ namespace SlugChessAval.ViewModels
                 return new LookForMatchResult { Succes = false };
             }
         });
+
+        private void HandleActivation() 
+        {
+            RefreshGamesList.Execute().Subscribe();
+        }
+
+        private void HandleDeactivation() 
+        { 
+
+        }
 
         //private void dgMatchesDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         //{

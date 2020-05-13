@@ -11,7 +11,7 @@
         Title="{Binding Title}"
         Width="800" Height="600">
   <Window.Resources>
-    <converters:TimeSpanToMinSecString x:Key="instance"/>
+    <converters:TimeSpanToMinSecString x:Key="timeSpanToMinSec"/>
   </Window.Resources>
   <Window.Styles>
     <Style Selector="Button.normal">
@@ -45,7 +45,7 @@
       </reactiveUi:RoutedViewHost.DefaultContent>
     </reactiveUi:RoutedViewHost>
       <Grid Grid.Row="1" RowDefinitions="*,*" ColumnDefinitions="80,1*,80">
-        <TextBlock Grid.Row="0" Grid.Column="1" Text="Welcome to SlugChess" FontSize="{DynamicResource FontSizeLarge}" TextAlignment="Center"/>
+        <TextBlock Grid.Row="0" Grid.Column="1" Text="Welcome to SlugChess" TextAlignment="Center"/>
         <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Notification}" FontSize="{DynamicResource FontSizeLarge}" Foreground="LightSalmon" TextAlignment="Center" />
       </Grid>
     </Grid>

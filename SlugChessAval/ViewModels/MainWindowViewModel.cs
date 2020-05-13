@@ -26,7 +26,7 @@ namespace SlugChessAval.ViewModels
         //public TodoListViewModel List { get; }
 
 
-
+        public TimeSpan WhiteTimeLeft => new TimeSpan(0, 5, 6);
         //public string Description
         //{
         //    get => _description;

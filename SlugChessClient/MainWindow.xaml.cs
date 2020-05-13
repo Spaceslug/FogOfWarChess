@@ -176,7 +176,7 @@ namespace SlugChess
 
         private void Window_Closing(object sender, CancelEventArgs args)
         {
-            _matchStream?.RequestStream.WriteAsync(new ChessCom.MovePacket { CheatMatchEvent = ChessCom.MatchEvent.UnexpectedClosing, UserToken = _userdata.Usertoken, DoingMove=false}).Wait();
+            _matchStream?.RequestStream.WriteAsync(new ChessCom.MovePacket { CheatMatchevent = ChessCom.MatchEvent.UnexpectedClosing, Usertoken = _userdata.Usertoken, DoingMove=false}).Wait();
             _matchStream?.RequestStream.CompleteAsync();
             // -- Might need an abort message to avoid exeptions on the server
             //_matchMessageStream?.RequestStream.WriteAsync(new ChessCom.ChatMessage
@@ -207,7 +207,7 @@ namespace SlugChess
                 var matchStream = _connection.Call.Match();
                 _matchStream = matchStream;
                 //Open match stream call
-                _matchStream.RequestStream.WriteAsync(new ChessCom.MovePacket { AskingForDraw = false, DoingMove = false, MatchToken = _matchToken, UserToken = _userdata.Usertoken });
+                _matchStream.RequestStream.WriteAsync(new ChessCom.MovePacket { AskingForDraw = false, DoingMove = false, MatchToken = _matchToken, Usertoken = _userdata.Usertoken });
                 bool matchEnded = false;
                 while (!matchEnded)
                 {
@@ -259,7 +259,7 @@ namespace SlugChess
                         {
                             _timer?.Stop();
                             //WriteTextInvoke("Black time before: " + _blackStaticTimeLeft.ToString(@"mm\:ss") + $" secSpent {move.Move.SecSpent} secs left {move.SecsLeft}" );
-                            _blackStaticTimeLeft = TimeSpan.FromSeconds(move.SecsLeft);
+                            _blackStaticTimeLeft = TimeSpan.FromSeconds(move.ChessClock.BlackSecondsLeft);
                             _blackTimeSpan = _blackStaticTimeLeft;
                             //WriteTextInvoke("Black time after: " + _blackStaticTimeLeft.ToString(@"mm\:ss"));
                             Instance.Dispatcher.Invoke(() => { lbBlackTimeLeft.Content = _blackTimeSpan.ToString(@"mm\:ss"); });
@@ -284,7 +284,7 @@ namespace SlugChess
                         else
                         {
                             _timer?.Stop();
-                            _whiteStaticTimeLeft = TimeSpan.FromSeconds(move.SecsLeft);
+                            _whiteStaticTimeLeft = TimeSpan.FromSeconds(move.ChessClock.WhiteSecondsLeft);
                             _whiteTimeSpan = _whiteStaticTimeLeft;
                             Instance.Dispatcher.Invoke(() => { lbWhiteTimeLeft.Content = _whiteTimeSpan.ToString(@"mm\:ss"); });
                             _timer = new DispatcherTimer(new TimeSpan(0, 0, 1), DispatcherPriority.Normal, delegate
@@ -343,7 +343,7 @@ namespace SlugChess
                             EndOfMatch(move.MatchEvent);
                             matchEnded = true;
                         });
-                        _matchStream.RequestStream.WriteAsync(new ChessCom.MovePacket { CheatMatchEvent = ChessCom.MatchEvent.ExpectedClosing, AskingForDraw = false, DoingMove = false, MatchToken = _matchToken, UserToken = _userdata.Usertoken }).Wait();
+                        _matchStream.RequestStream.WriteAsync(new ChessCom.MovePacket { CheatMatchevent = ChessCom.MatchEvent.ExpectedClosing, AskingForDraw = false, DoingMove = false, MatchToken = _matchToken, Usertoken = _userdata.Usertoken }).Wait();
                         _matchStream.RequestStream.CompleteAsync();
 
                     }
@@ -626,7 +626,7 @@ namespace SlugChess
 
         private void LookForMatchClick(object sender, RoutedEventArgs args)
         {
-            _runnerTask = Task.Run(() => { Runner(_connection.Call.LookForMatch(new ChessCom.UserIdentity { UserToken = _userdata.Usertoken })); });
+            _runnerTask = Task.Run(() => { Runner(_connection.Call.LookForMatch(new ChessCom.UserIdentity { Usertoken = _userdata.Usertoken })); });
             ((Button)sender).IsEnabled = false;
             //ChessCom.LookForMatchResult result = _connection.Call.LookForMatch(new ChessCom.UserIdentity {UserToken =  _userToken});
             //if (result.Succes)
@@ -747,10 +747,10 @@ namespace SlugChess
                             _matchStream.RequestStream.WriteAsync(new ChessCom.MovePacket
                             {
                                 AskingForDraw = false,
-                                CheatMatchEvent = matchEvent,
+                                CheatMatchevent = matchEvent,
                                 DoingMove = true,
                                 MatchToken = _matchToken,
-                                UserToken = _userdata.Usertoken,
+                                Usertoken = _userdata.Usertoken,
                                 Move = _myLastMove,
                                 
                             });

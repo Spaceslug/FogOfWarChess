@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Reactive;
 using ChessCom;
 using SlugChessAval.Services;
+using Avalonia.Threading;
 
 namespace SlugChessAval.ViewModels
 {
@@ -21,7 +22,13 @@ namespace SlugChessAval.ViewModels
 
 
         public ChessboardViewModel Chessboard { get; private set; }
-        public ChessClockViewModel ChessClock { get; private set; }
+        public ChessClockViewModel ChessClock
+        {
+            get => _chessClock;
+            set => this.RaiseAndSetIfChanged(ref _chessClock, value);
+        }
+        private ChessClockViewModel _chessClock;
+
         private GameBrowserViewModel _vmGameBrowser { get; }
         private CreateGameViewModel _vmCreateGame { get; }
 
@@ -56,7 +63,7 @@ namespace SlugChessAval.ViewModels
         {
             HostScreen = screen ?? Locator.Current.GetService<IScreen>();
 
-            Chessboard = new ChessboardViewModel { CbModel = ChessboardModel.FromTestData() };
+            Chessboard = new ChessboardViewModel { CbModel = ChessboardModel.FromDefault() };
             Chessboard.MoveFromTo.Subscribe(t => {
                 LastMove = $"From={t.from}, To={t.to}";
                 if(OngoingGame) //TDODO && isPlayersTurn)
@@ -74,13 +81,19 @@ namespace SlugChessAval.ViewModels
 
                 }
             });
+            ChessClock = new ChessClockViewModel(new TimeSpan(), new TimeSpan(), 0);
 
             _vmGameBrowser = new GameBrowserViewModel { };
             _vmCreateGame = new CreateGameViewModel { };
 
             Observable.Merge(
                 _vmCreateGame.HostGame,
-                _vmGameBrowser.JoinGame).Subscribe((x) => { if (x.Succes) BootUpMatch(x); });
+                _vmGameBrowser.JoinGame).Subscribe((x) => { 
+                    if (x.Succes) {
+                        HostScreen.Router.NavigateBack.Execute().Subscribe();
+                        BootUpMatch(x); 
+                    } 
+                });
 
 
             var canMoveToCreateGame = this.WhenAny(vm => vm.OngoingGame, x => !x.Value);
@@ -104,13 +117,19 @@ namespace SlugChessAval.ViewModels
             _matchToken = result.MatchToken;
             //TODO make game rules display
             //TODO make opponent data display
+            ((MainWindowViewModel)HostScreen).Notification = "You are playing agains " + result.OpponentUserData.Username + " as " + (result.IsWhitePlayer?"white":"black");
             _playerIs = result.IsWhitePlayer ? PlayerIs.White : PlayerIs.Black;
+            var playerTime = new TimeSpan(0, result.GameRules.TimeRules.PlayerTime.Minutes, result.GameRules.TimeRules.PlayerTime.Seconds);
+            ChessClock = new ChessClockViewModel(playerTime, playerTime, result.GameRules.TimeRules.SecondsPerMove);
             //TODO play found game audio clip
             SlugChessService.Client.GetMatchListener(result.MatchToken).Subscribe((moveResult) => 
             {
 
                 //TODO set currents turn from value in MoveResult
-                //TODO update time in ChessClock from tim date in moveResult
+                if (moveResult.MoveHappned)
+                {
+                    ChessClock.SetTime(TimeSpan.FromSeconds(moveResult.ChessClock.WhiteSecondsLeft), TimeSpan.FromSeconds(moveResult.ChessClock.BlackSecondsLeft), /*moveResult.GameState.IsCurrentTurnWhite*/false, true);
+                }
                 if (moveResult.GameState != null)
                 {
                     Chessboard.CbModel = ChessboardModel.FromChesscomGamestate(moveResult.GameState);
@@ -146,16 +165,18 @@ namespace SlugChessAval.ViewModels
                     //TODO print in log who won
                     //And send som motification shit
                 }
-            }, (error) => 
+            }, (error) => Dispatcher.UIThread.InvokeAsync(() =>
             {
+
                 //TODO Print error to chatbox
+                ((MainWindowViewModel)HostScreen).Notification = "Connection error:  " + error.ToString();
                 _playerIs = PlayerIs.Non;
                 OngoingGame = false;
-            }, () => 
+            }), () => Dispatcher.UIThread.InvokeAsync(() =>
             {
                 _playerIs = PlayerIs.Non;
                 OngoingGame = false;
-            });
+            }));
         }
 
     }

@@ -4,12 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="SlugChessAval.Views.ChessClock">
-    <Grid  Height="58"  Width="329">
-        <TextBlock HorizontalAlignment="Left" Name="lbWhiteTimeLeft" Text="{Binding WhiteTimeLeft}"  Margin="50,0,0,0" Height="58" Width="68" FontWeight="Bold" FontSize="22" />
-        <TextBlock Name="lbBlackTimeLeft" Text="{Binding BlackTimeLeft}" Margin="167,0,94,0"  Height="58" Width="66" FontWeight="Bold" FontSize="22" />
-        <TextBlock Name="lbBlackTimePerMove" Text="+00s"  Height="58" Width="38" FontWeight="Bold" FontSize="12" />
-        <TextBlock HorizontalAlignment="Left" Name="lbWhiteTimePerMove" Text="+00s" Margin="50,0,0,0"  Height="58" Width="38" FontWeight="Bold" FontSize="12" />
-        <Image HorizontalAlignment="Left" Name="imgWhiteKing" Source="/Assets/whiteKing.png"  Height="58" Margin="0,0,0,0"  Width="64"/>
-        <Image HorizontalAlignment="Right" Name="imgBlackKing" Source="/Assets/blackKing.png" Height="58" Margin="0,0,0,0" Width="64"/>
+    <Grid  Height="60"  MinWidth="320" Background="{DynamicResource ThemeControlMidBrush}">
+
+      <!--<TextBlock HorizontalAlignment="Left" Name="lbWhiteTimeLeft" Text="{Binding WhiteTimeLeft, Converter={StaticResource timeSpanToMinSec}}"  Margin="65,35,0,0" Height="58" Width="68" FontWeight="Bold" FontSize="22" />-->
+      <TextBlock HorizontalAlignment="Left" Name="lbWhiteTimeLeft" Text="{Binding WhiteTimeLeftString}"  Margin="65,35,0,0" Height="58" Width="68" FontWeight="Bold" FontSize="22" />
+      <!--<TextBlock HorizontalAlignment="Left" Name="lbBlackTimeLeft" Text="{Binding BlackTimeLeft, Converter={StaticResource timeSpanToMinSec}}"  Margin="0,35,65,0" Height="58" Width="68" FontWeight="Bold" FontSize="22" />-->
+      <TextBlock HorizontalAlignment="Right" Name="lbBlackTimeLeft" Text="{Binding BlackTimeLeftString}" Margin="0,35,65,0"  Height="58" Width="68" FontWeight="Bold" FontSize="22" />
+      <TextBlock HorizontalAlignment="Right" Name="lbBlackTimePerMove" Text="{Binding BlackSecPerMove}" Margin="0,5,85,0" FontWeight="Bold" FontSize="12" />
+      <TextBlock HorizontalAlignment="Left" Name="lbWhiteTimePerMove" Text="{Binding WhiteSecPerMove}" Margin="75,5,0,0"  FontWeight="Bold" FontSize="12" />
+      <Image HorizontalAlignment="Left" Name="imgWhiteKing" Source="/Assets/whiteKing.png"   Margin="0,0,0,0" />
+      <Image HorizontalAlignment="Right" Name="imgBlackKing" Source="/Assets/blackKing.png"  Margin="0,0,0,0" />
     </Grid>
 </UserControl>

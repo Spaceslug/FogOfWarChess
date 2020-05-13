@@ -23,7 +23,6 @@
   </ItemGroup>
   <ItemGroup>
     <AvaloniaResource Remove="Views\Chatbox.xaml" />
-    <AvaloniaResource Remove="Views\ChessClock.xaml" />
     <AvaloniaResource Remove="Views\CreateGameView.xaml" />
     <AvaloniaResource Remove="Views\GameBrowserView.xaml" />
     <AvaloniaResource Remove="Views\LoginView.xaml" />
@@ -40,7 +39,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="Views\Chatbox.xaml" />
-    <None Remove="Views\ChessClock.xaml" />
     <None Remove="Views\CreateGameView.xaml" />
     <None Remove="Views\GameBrowserView.xaml" />
     <None Remove="Views\LoginView.xaml" />
@@ -91,11 +89,6 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\GameBrowserView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Views\ChessClock.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
   </ItemGroup>

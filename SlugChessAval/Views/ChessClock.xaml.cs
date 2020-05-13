@@ -1,10 +1,12 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using Avalonia.ReactiveUI;
+using SlugChessAval.ViewModels;
 
 namespace SlugChessAval.Views
 {
-    public class ChessClock : UserControl
+    public class ChessClock : ReactiveUserControl<ChessClockViewModel>
     {
         public ChessClock()
         {
