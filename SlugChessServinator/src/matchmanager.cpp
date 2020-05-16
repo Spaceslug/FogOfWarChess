@@ -15,6 +15,7 @@ std::string MatchManager::CreateMatch(std::string& player1Token, std::string& pl
     match->clock->blackSecLeft = defaultTimeRules.player_time().minutes() * 60 + defaultTimeRules.player_time().seconds();
     match->clock->whiteSecLeft = match->clock->blackSecLeft;
     match->clock->secsPerMove = defaultTimeRules.seconds_per_move();
+    match->clock->is_ticking = false;
     _matches[matchToken] = match;
     std::cout << "  checing match " << " black sec left " << std::to_string(match->clock->blackSecLeft) << " white sec left " << std::to_string(match->clock->whiteSecLeft) << std::endl << std::flush;
     auto matPtr = _matches[matchToken];
@@ -58,11 +59,11 @@ std::string MatchManager::CreateMatch(chesscom::HostedGame& hostedGame)
     match->clock->blackSecLeft = hostedGame.game_rules().time_rules().player_time().minutes() * 60 + hostedGame.game_rules().time_rules().player_time().seconds();
     match->clock->whiteSecLeft = match->clock->blackSecLeft;
     match->clock->secsPerMove = hostedGame.game_rules().time_rules().seconds_per_move();
+    match->clock->is_ticking = false;
     {
         std::unique_lock<std::mutex> lk(_matchesMutex);
         _matches[matchToken] = match;
     }
-
     return matchToken;
 }
 
@@ -137,6 +138,7 @@ void MatchManager::MatchListenLoop(
     moveResultPkt.set_match_event(chesscom::MatchEvent::Non);
     moveResultPkt.mutable_chess_clock()->set_white_seconds_left(matchPtr->clock->whiteSecLeft);
     moveResultPkt.mutable_chess_clock()->set_black_seconds_left(matchPtr->clock->blackSecLeft);
+    moveResultPkt.mutable_chess_clock()->set_timer_ticking(matchPtr->clock->is_ticking);
     writerPtr->Write(moveResultPkt);
     moveResultPkt.release_game_state();
 
@@ -171,7 +173,7 @@ void MatchManager::MatchListenLoop(
                     moveResultPkt.set_match_event(matchPtr->matchEvents[lastEventNum]);
                     moveResultPkt.mutable_chess_clock()->set_white_seconds_left(matchPtr->clock->whiteSecLeft);
                     moveResultPkt.mutable_chess_clock()->set_black_seconds_left(matchPtr->clock->blackSecLeft);
-
+                    moveResultPkt.mutable_chess_clock()->set_timer_ticking(matchPtr->clock->is_ticking);
                     std::stringstream ss;
                     ss << "Moves of the game in SAN:" << std::endl;
                     matchPtr->game->PrintSanMoves(ss);
@@ -193,6 +195,7 @@ void MatchManager::MatchListenLoop(
                     moveResultPkt.set_match_event(chesscom::MatchEvent::Non);
                     moveResultPkt.mutable_chess_clock()->set_white_seconds_left(matchPtr->clock->whiteSecLeft);
                     moveResultPkt.mutable_chess_clock()->set_black_seconds_left(matchPtr->clock->blackSecLeft);
+                    moveResultPkt.mutable_chess_clock()->set_timer_ticking(matchPtr->clock->is_ticking);
                     writerPtr->Write(moveResultPkt);
                     moveResultPkt.release_game_state();
                     std::cout  << matchPtr->matchToken << " " <<  listenerUsertoken << " SentMoveResult " << std::endl << std::flush;

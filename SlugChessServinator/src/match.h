@@ -12,6 +12,7 @@ struct ChessClock {
     int blackSecLeft;
     int whiteSecLeft;
     int secsPerMove;
+    bool is_ticking;
 };
 struct ChessMove {
     std::string from;
@@ -78,6 +79,11 @@ public:
                 }
                 
             }
+            else
+            {
+                clock->is_ticking = true;
+            }
+            
             matchEvents.push_back(expectedmatch_event);
             moves.push_back(move);
             cv.notify_all();

@@ -142,30 +142,19 @@ message Move {
 	string to = 3;
 	google.protobuf.Timestamp timestamp = 4;
 	int32 sec_spent = 5;
-	repeated bool white_vision = 6;
-	repeated bool black_vision = 7;
-	repeated Pices pices = 8;
-	map<string, FieldMoves> available_moves = 9;
-	map<string, FieldMoves> available_shadow_moves = 11;
-	Pices captured_pice = 10;
-	map<string, FieldMoves> white_shadow_moves = 12;
-	map<string, FieldMoves> black_shadow_moves = 13;
-	map<string, FieldMoves> white_moves = 14;
-	map<string, FieldMoves> black_moves = 15;
-	repeated string check = 16;
 }
 
 message GameState{
 	string from = 2;
 	string to = 3;
 	google.protobuf.Timestamp timestamp = 4;
-	int32 sec_spent = 5;
 	repeated bool player_vision = 7;
 	repeated Pices pices = 8;
 	map<string, FieldMoves> player_moves = 9;
 	map<string, FieldMoves> shadow_moves = 11;
 	Pices captured_pice = 10;
 	repeated string check = 16;
+	bool current_turn_is_white = 17;
 }
 
 message LoginForm {
@@ -198,9 +187,6 @@ message LookForMatchResult {
 	bool succes = 1;
 	string match_token = 2;
 	bool is_white_player = 3;
-	//VisionRules rules = 4;    //TODO deprocate
-	//string opponentUsername = 5;
-	//TimeRules timerules = 6;  //TODO deprocate
 	GameRules game_rules = 7;  // this hold both
 	UserData opponent_user_data = 8;
 }
@@ -240,4 +226,5 @@ message ChatMessage {
 message ChessClock {
 	int32 white_seconds_left = 1;
 	int32 black_seconds_left = 2;
+	bool timer_ticking = 3;
 }

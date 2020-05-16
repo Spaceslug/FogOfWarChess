@@ -20,6 +20,7 @@ class SlugChessConverter
         gameState->set_captured_pice((chesscom::Pices)game->LastCaptured());
         gameState->set_from(game->From(isWhitePlayer?SlugChess::Perspective::White:SlugChess::Perspective::Black));
         gameState->set_to(game->To(isWhitePlayer?SlugChess::Perspective::White:SlugChess::Perspective::Black));
+        gameState->set_current_turn_is_white(game->WhitesTurn());
         //MOves
         CopyToMap(gameState->mutable_player_moves(), isWhitePlayer?game->LegalWhiteMovesRef():game->LegalBlackMovesRef());
         CopyToMap(gameState->mutable_shadow_moves(), isWhitePlayer?game->ShadowWhiteMovesRef():game->ShadowBlackMovesRef());
@@ -30,31 +31,6 @@ class SlugChessConverter
         {
             std::cout  << std::to_string(isWhitePlayer) << " adding check  " << SlugChess::BP(index) << std::endl << std::flush;
             check->Add(SlugChess::BP(index)); 
-        }
-    }
-    static void SetMove(std::shared_ptr<SlugChess> game, std::shared_ptr<chesscom::Move> move, bool isWhitePlayer){
-        auto ww = game->GetWhiteVision(); 
-        auto bw = game->GetBlackVision(); 
-        auto pices = game->GetPices(); 
-        *move->mutable_white_vision() = {ww.begin(), ww.end()};
-        *move->mutable_black_vision() = {bw.begin(), bw.end()};
-        *move->mutable_pices() = {pices.begin(), pices.end()};
-        move->set_captured_pice((chesscom::Pices)game->LastCaptured());
-        //MOves
-        CopyToMap(move->mutable_available_moves(), game->LegalMovesRef());
-        //White MOves
-        CopyToMap(move->mutable_white_moves(), game->LegalWhiteMovesRef());
-        //Black MOves
-        CopyToMap(move->mutable_black_moves(), game->LegalBlackMovesRef());
-        //White Shadow MOves
-        CopyToMap(move->mutable_white_shadow_moves(), game->ShadowWhiteMovesRef());
-        //Black Shadow MOves
-        CopyToMap(move->mutable_black_shadow_moves(), game->ShadowBlackMovesRef());
-
-        auto check = move->mutable_check();
-        for (auto &&index : game->Checks(isWhitePlayer?SlugChess::Perspective::White:SlugChess::Perspective::Black))
-        {
-            check->Add(SlugChess::BP(index));
         }
     }
 private:
