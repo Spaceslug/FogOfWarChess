@@ -8,7 +8,7 @@
              x:Class="SlugChessAval.Views.PlayView">
   <Grid ColumnDefinitions="3*,auto" RowDefinitions="*,auto" Margin="5,5,5,5">
     <views:Chessboard DataContext="{Binding Chessboard}" Grid.Row="0" Grid.Column="0" />
-    <WrapPanel Grid.Row="0" Grid.Column="1">
+    <WrapPanel Grid.Row="0" Grid.Column="1"  Margin="5">
       <views:ChessClock DataContext="{Binding ChessClock}"/>
     </WrapPanel>
     <WrapPanel Grid.Row="1" Grid.Column="0">

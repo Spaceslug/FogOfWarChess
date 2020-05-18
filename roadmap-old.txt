@@ -16,6 +16,9 @@ version 0.x.1
 -server saves all matches that have been played
 -Alive Heartbeats are not tested and potencially doesn't work
 -use Python script to upload new SlugChess version to spaceslug.no
+-password and name on hosted games
+-elo system 
+-matchmaker using elo
 
 BUGS:
 

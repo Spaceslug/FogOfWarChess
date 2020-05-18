@@ -1,10 +1,14 @@
-﻿using ReactiveUI;
+﻿using Avalonia.Threading;
+using ReactiveUI;
 using SlugChessAval.Services;
 using Splat;
 using System;
 using System.Collections.Generic;
 using System.Reactive;
+using System.Reactive.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace SlugChessAval.ViewModels
@@ -35,6 +39,16 @@ namespace SlugChessAval.ViewModels
             _moveToLogin = ReactiveCommand.Create(
                 () => { HostScreen.Router.Navigate.Execute(new LoginViewModel()).Subscribe(); },
                 canMoveToLogin);
+#if DEBUG
+            if (Program.LaunchedWithParam("-debugLogin"))
+            {
+                SlugChessService.Client.WhenAnyValue(x => x.ConnectionAlive).Delay(TimeSpan.FromSeconds(0.1)).Subscribe(x => 
+                {
+                    Dispatcher.UIThread.InvokeAsync(() => _moveToLogin.Execute().Subscribe());
+                });
+                
+            }
+#endif
         }
     }
 }

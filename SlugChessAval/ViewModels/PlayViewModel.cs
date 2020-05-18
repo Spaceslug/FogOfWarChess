@@ -11,6 +11,7 @@ using System.Reactive;
 using ChessCom;
 using SlugChessAval.Services;
 using Avalonia.Threading;
+using Google.Protobuf.WellKnownTypes;
 
 namespace SlugChessAval.ViewModels
 {
@@ -49,6 +50,7 @@ namespace SlugChessAval.ViewModels
         public string PlayingAs => _playerIs switch { PlayerIs.White => "Playing as White", PlayerIs.Black => "Playing as Black", PlayerIs.Both => "Playing yourself", PlayerIs.Oberserver => "Watching as Observer", _ => "No game active" };
         public PlayerIs _playerIs = PlayerIs.Non;
 
+        private PlayerIs _currentTurnPlayer = PlayerIs.Non;
         private string _matchToken { get; set; } = "0000";
 
         public ICommand MoveToCreateGame => _moveToCreateGame;
@@ -57,7 +59,7 @@ namespace SlugChessAval.ViewModels
         public ICommand MoveToGameBrowser => _moveToGameBrowser;
         private readonly ReactiveCommand<Unit, Unit> _moveToGameBrowser;
 
-        public ReactiveCommand<Unit, LookForMatchResult> ConnectToGame { get; }
+        //public ReactiveCommand<Unit, LookForMatchResult> ConnectToGame { get; }
 
         public PlayViewModel(IScreen? screen = null)
         {
@@ -66,7 +68,7 @@ namespace SlugChessAval.ViewModels
             Chessboard = new ChessboardViewModel { CbModel = ChessboardModel.FromDefault() };
             Chessboard.MoveFromTo.Subscribe(t => {
                 LastMove = $"From={t.from}, To={t.to}";
-                if(OngoingGame) //TDODO && isPlayersTurn)
+                if(OngoingGame && (_playerIs == _currentTurnPlayer))
                 {
                     SlugChessService.Client.Call.SendMoveAsync( new MovePacket
                     {
@@ -75,13 +77,13 @@ namespace SlugChessAval.ViewModels
                         DoingMove = true,
                         MatchToken = _matchToken,
                         Usertoken = SlugChessService.Usertoken,
-                        Move = new Move { From=t.from, To=t.to},
+                        Move = new Move { From=t.from, To=t.to, SecSpent=ChessClock.GetSecondsSpent(), Timestamp=Timestamp.FromDateTime(DateTime.UtcNow)},
                     });
                     //TODO prevent Chessboard from selecting until server has responded with a MoveResult
 
                 }
             });
-            ChessClock = new ChessClockViewModel(new TimeSpan(), new TimeSpan(), 0);
+            _chessClock = new ChessClockViewModel(new TimeSpan(), new TimeSpan(), 0);
 
             _vmGameBrowser = new GameBrowserViewModel { };
             _vmCreateGame = new CreateGameViewModel { };
@@ -125,10 +127,10 @@ namespace SlugChessAval.ViewModels
             SlugChessService.Client.GetMatchListener(result.MatchToken).Subscribe((moveResult) => 
             {
 
-                //TODO set currents turn from value in MoveResult
+                if (moveResult.GameState.CurrentTurnIsWhite) _currentTurnPlayer = PlayerIs.White; else _currentTurnPlayer = PlayerIs.Black;
                 if (moveResult.MoveHappned)
                 {
-                    ChessClock.SetTime(TimeSpan.FromSeconds(moveResult.ChessClock.WhiteSecondsLeft), TimeSpan.FromSeconds(moveResult.ChessClock.BlackSecondsLeft), /*moveResult.GameState.IsCurrentTurnWhite*/false, true);
+                    ChessClock.SetTime(TimeSpan.FromSeconds(moveResult.ChessClock.WhiteSecondsLeft), TimeSpan.FromSeconds(moveResult.ChessClock.BlackSecondsLeft), moveResult.GameState.CurrentTurnIsWhite, moveResult.ChessClock.TimerTicking);
                 }
                 if (moveResult.GameState != null)
                 {
@@ -155,6 +157,9 @@ namespace SlugChessAval.ViewModels
                 //} else if
                 if (moveResult.MatchEvent == MatchEvent.UnexpectedClosing)
                 {
+                    ChessClock.StopTimer();
+                    OngoingGame = false;
+                    _playerIs = PlayerIs.Oberserver;
                     //TODO print message to chat
                     //string popupText = "UnexpextedClosing";
                     //string textBoxText = "Opponents client unexpectedly closed";
@@ -162,6 +167,9 @@ namespace SlugChessAval.ViewModels
                 }
                 else if (moveResult.MatchEvent == ChessCom.MatchEvent.WhiteWin || moveResult.MatchEvent == ChessCom.MatchEvent.BlackWin)
                 {
+                    ChessClock.StopTimer();
+                    OngoingGame = false;
+                    _playerIs = PlayerIs.Oberserver;
                     //TODO print in log who won
                     //And send som motification shit
                 }
