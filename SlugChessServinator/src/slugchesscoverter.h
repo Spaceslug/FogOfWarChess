@@ -2,6 +2,7 @@
 #include <map>
 #include <vector>
 #include <set>
+#include <algorithm>
 
 #include <google/protobuf/util/time_util.h>
 
@@ -15,13 +16,26 @@ class SlugChessConverter
         std::cout  << " set game stat " << std::endl << std::flush;
         auto vision = isWhitePlayer?game->GetWhiteVision():game->GetBlackVision(); 
         auto pices = game->GetPices(); 
+        auto captured = game->KilledPices();
+        std::vector<chesscom::PiceCapture> capturedTrans{captured->size()}; 
+        std::transform (captured->begin(), captured->end(), capturedTrans.begin(), [](std::pair<ChessPice,int> cp)
+        {
+            chesscom::PiceCapture newCP;
+            newCP.set_pice((chesscom::Pices)cp.first);
+            newCP.set_location(SlugChess::BP(cp.second));
+            return newCP;
+        });
+
         *gameState->mutable_player_vision() = {vision.begin(), vision.end()};
         *gameState->mutable_pices() = {pices.begin(), pices.end()};
-        gameState->set_captured_pice((chesscom::Pices)game->LastCaptured());
+        *gameState->mutable_captured_pices() = {capturedTrans.begin(), capturedTrans.end()};
+        //gameState->set_captured_pice((chesscom::Pices)game->LastCaptured());
         gameState->set_from(game->From(isWhitePlayer?SlugChess::Perspective::White:SlugChess::Perspective::Black));
         gameState->set_to(game->To(isWhitePlayer?SlugChess::Perspective::White:SlugChess::Perspective::Black));
         gameState->set_current_turn_is_white(game->WhitesTurn());
         //MOves
+        gameState->mutable_player_moves()->clear();
+        gameState->mutable_shadow_moves()->clear();
         CopyToMap(gameState->mutable_player_moves(), isWhitePlayer?game->LegalWhiteMovesRef():game->LegalBlackMovesRef());
         CopyToMap(gameState->mutable_shadow_moves(), isWhitePlayer?game->ShadowWhiteMovesRef():game->ShadowBlackMovesRef());
 

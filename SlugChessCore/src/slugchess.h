@@ -57,6 +57,7 @@ class SlugChess {
 
     bool WhitesTurn(){return _whiteTurn; }
     ChessPice LastCaptured(){ return _lastCaptured; }
+    std::list<std::pair<ChessPice,int>>* KilledPices(){ return &_killedPices; }
     void CalPossibleCastles();
     void CleanAnPassants();
 
@@ -100,7 +101,7 @@ class SlugChess {
     std::map<int, std::vector<int>> _shadowBlackMoves;
     // Starts with king and ends with rook
     std::list<int> _possibleCastles;
-    std::list<std::tuple<ChessPice,int>> _killedPices; //chesspice and postion it died in
+    std::list<std::pair<ChessPice,int>> _killedPices; //chesspice and postion it died in
     ChessPice _lastCaptured = ChessPice::Non;
     std::list<int> _blackFieldsThatCheck;
     std::list<int> _whiteFieldsThatCheck;
