@@ -26,7 +26,7 @@ namespace SlugChessAval.Drivers
             return Observable.Return(Unit.Default);
         }
 
-        public IObservable<object> LoadState()
+        public IObservable<object?> LoadState()
         {
             if (!File.Exists(_file)) throw new FileNotFoundException($"Can not find {_file}");
             //var open = File.OpenRead(_file);
@@ -37,7 +37,7 @@ namespace SlugChessAval.Drivers
 
         public IObservable<Unit> SaveState(object state)
         {
-            MainWindowViewModel stateTyped = state as MainWindowViewModel;
+            MainWindowViewModel? stateTyped = state as MainWindowViewModel;
             var lines = JsonConvert.SerializeObject(stateTyped, Formatting.Indented, _settings);
             File.WriteAllText(_file, lines);
             return Observable.Return(Unit.Default);

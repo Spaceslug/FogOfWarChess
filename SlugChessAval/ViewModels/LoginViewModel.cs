@@ -73,7 +73,14 @@ namespace SlugChessAval.ViewModels
                     HostScreen.Router.Navigate.Execute(new PlayViewModel()).Subscribe();
                 }
             });
-            
+#if DEBUG
+            if (Program.LaunchedWithParam("-debugLogin"))
+            {
+                Username = Program.GetParamValue("-debugLogin");
+                Password = Program.GetParamValue("-debugLogin");
+                _login.Execute().Subscribe();
+            }
+#endif
         }
 
         private void HandleLoginAttemptResult(ChessCom.LoginResult result)

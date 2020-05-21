@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SlugChessAval": {
+      "commandName": "Project",
+      "commandLineArgs": "-debugLogin debugman"
+    }
+  }
+}

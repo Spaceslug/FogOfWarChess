@@ -9,7 +9,7 @@
         x:Class="SlugChessAval.Views.MainWindow"
         Icon="/Assets/icon.ico"
         Title="{Binding Title}"
-        Width="800" Height="600">
+        Width="840" Height="600">
   <Window.Resources>
     <converters:TimeSpanToMinSecString x:Key="timeSpanToMinSec"/>
   </Window.Resources>
