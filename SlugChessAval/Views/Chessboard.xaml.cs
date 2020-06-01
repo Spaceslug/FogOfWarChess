@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using Avalonia.ReactiveUI;
 using ReactiveUI;
 using SlugChessAval.ViewModels;
@@ -18,6 +19,9 @@ namespace SlugChessAval.Views
                 // Bind the 'ExampleCommand' to 'ExampleButton' defined above.
                 //this.BindCommand(ViewModel, x => x.ClickShit, x => x.ExampleGrid)
                 //    .DisposeWith(disposables);
+                StyleMirror.WhiteField = (SolidColorBrush)this.Resources["WhiteField"];
+                StyleMirror.BlackField = (SolidColorBrush)this.Resources["BlackField"];
+
 
             });
             AvaloniaXamlLoader.Load(this);

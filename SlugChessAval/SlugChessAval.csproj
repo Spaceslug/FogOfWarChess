@@ -22,6 +22,7 @@
     <AvaloniaResource Include="Assets\*" />
   </ItemGroup>
   <ItemGroup>
+    <AvaloniaResource Remove="Views\CapturedPices.xaml" />
     <AvaloniaResource Remove="Views\Chatbox.xaml" />
     <AvaloniaResource Remove="Views\CreateGameView.xaml" />
     <AvaloniaResource Remove="Views\GameBrowserView.xaml" />
@@ -38,6 +39,7 @@
     <Compile Remove="SkiaSvg\SvgTypeConverter.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Views\CapturedPices.xaml" />
     <None Remove="Views\Chatbox.xaml" />
     <None Remove="Views\CreateGameView.xaml" />
     <None Remove="Views\GameBrowserView.xaml" />
@@ -94,6 +96,11 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\Chatbox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\CapturedPices.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
   </ItemGroup>

@@ -39,6 +39,7 @@ namespace SlugChessAval
             Locator.CurrentMutable.Register<IViewFor<CreateGameViewModel>>(() => new CreateGameView());
             Locator.CurrentMutable.Register<IViewFor<GameBrowserViewModel>>(() => new GameBrowserView());
             Locator.CurrentMutable.Register<IViewFor<ChessClockViewModel>>(() => new ChessClock());
+            Locator.CurrentMutable.Register<IViewFor<CapturedPicesViewModel>>(() => new CapturedPices());
 
 
             // Show the main window.

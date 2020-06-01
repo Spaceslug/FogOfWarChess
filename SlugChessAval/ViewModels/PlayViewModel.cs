@@ -30,6 +30,13 @@ namespace SlugChessAval.ViewModels
         }
         private ChessClockViewModel _chessClock;
 
+        public CapturedPicesViewModel CapturedPices
+        {
+            get => _capturedPices;
+            set => this.RaiseAndSetIfChanged(ref _capturedPices, value);
+        }
+        private CapturedPicesViewModel _capturedPices;
+
         private GameBrowserViewModel _vmGameBrowser { get; }
         private CreateGameViewModel _vmCreateGame { get; }
 
@@ -84,6 +91,7 @@ namespace SlugChessAval.ViewModels
                 }
             });
             _chessClock = new ChessClockViewModel(new TimeSpan(), new TimeSpan(), 0);
+            _capturedPices = new CapturedPicesViewModel();
 
             _vmGameBrowser = new GameBrowserViewModel { };
             _vmCreateGame = new CreateGameViewModel { };
@@ -124,7 +132,9 @@ namespace SlugChessAval.ViewModels
             var playerTime = new TimeSpan(0, result.GameRules.TimeRules.PlayerTime.Minutes, result.GameRules.TimeRules.PlayerTime.Seconds);
             ChessClock = new ChessClockViewModel(playerTime, playerTime, result.GameRules.TimeRules.SecondsPerMove);
             //TODO play found game audio clip
-            SlugChessService.Client.GetMatchListener(result.MatchToken).Subscribe((moveResult) => 
+            var matchObservable = SlugChessService.Client.GetMatchListener(result.MatchToken);
+            CapturedPices = new CapturedPicesViewModel(matchObservable);
+            matchObservable.Subscribe((moveResult) => 
             {
 
                 if (moveResult.GameState.CurrentTurnIsWhite) _currentTurnPlayer = PlayerIs.White; else _currentTurnPlayer = PlayerIs.Black;

@@ -134,7 +134,7 @@ namespace SlugChessAval.ViewModels
 
                 if (model.Vision[i])
                 {
-                    newField.Image = ImageFromPice(model.FieldPices[i]);
+                    newField.Image = AssetBank.ImageFromPice(model.FieldPices[i]);
                     newField.Opacity = 1.0d;
                     if (ChessboardModel.BoardPos[i] == model.From || ChessboardModel.BoardPos[i] == model.To)
                     {
@@ -204,24 +204,7 @@ namespace SlugChessAval.ViewModels
         }
 
 
-        private IBitmap? ImageFromPice(ChessCom.Pices pice) =>
-            pice switch
-            {
-                ChessCom.Pices.None => null,
-                ChessCom.Pices.BlackKing => AssetBank.GetImage("blackKing"),
-                ChessCom.Pices.BlackQueen => AssetBank.GetImage("blackQueen"),
-                ChessCom.Pices.BlackRook => AssetBank.GetImage("blackRook"),
-                ChessCom.Pices.BlackBishop => AssetBank.GetImage("blackBishop"),
-                ChessCom.Pices.BlackKnight => AssetBank.GetImage("blackKnight"),
-                ChessCom.Pices.BlackPawn => AssetBank.GetImage("blackPawn"),
-                ChessCom.Pices.WhiteKing => AssetBank.GetImage("whiteKing"),
-                ChessCom.Pices.WhiteQueen => AssetBank.GetImage("whiteQueen"),
-                ChessCom.Pices.WhiteRook => AssetBank.GetImage("whiteRook"),
-                ChessCom.Pices.WhiteBishop => AssetBank.GetImage("whiteBishop"),
-                ChessCom.Pices.WhiteKnight => AssetBank.GetImage("whiteKnight"),
-                ChessCom.Pices.WhitePawn => AssetBank.GetImage("whitePawn"),
-                _ => throw new ArgumentException(message: "invalid enum value", paramName: nameof(pice)),
-            };
+        
 
         public class Student
         {

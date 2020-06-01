@@ -51,5 +51,23 @@ namespace SlugChessAval.Services
         });
 
         public static Image WhitePawnImage => new Image { Source=_loadedBitmaps["whitePawn"] };
+        public static IBitmap? ImageFromPice(ChessCom.Pices pice) =>
+            pice switch
+            {
+                ChessCom.Pices.None => null,
+                ChessCom.Pices.BlackKing => AssetBank.GetImage("blackKing"),
+                ChessCom.Pices.BlackQueen => AssetBank.GetImage("blackQueen"),
+                ChessCom.Pices.BlackRook => AssetBank.GetImage("blackRook"),
+                ChessCom.Pices.BlackBishop => AssetBank.GetImage("blackBishop"),
+                ChessCom.Pices.BlackKnight => AssetBank.GetImage("blackKnight"),
+                ChessCom.Pices.BlackPawn => AssetBank.GetImage("blackPawn"),
+                ChessCom.Pices.WhiteKing => AssetBank.GetImage("whiteKing"),
+                ChessCom.Pices.WhiteQueen => AssetBank.GetImage("whiteQueen"),
+                ChessCom.Pices.WhiteRook => AssetBank.GetImage("whiteRook"),
+                ChessCom.Pices.WhiteBishop => AssetBank.GetImage("whiteBishop"),
+                ChessCom.Pices.WhiteKnight => AssetBank.GetImage("whiteKnight"),
+                ChessCom.Pices.WhitePawn => AssetBank.GetImage("whitePawn"),
+                _ => throw new ArgumentException(message: "invalid enum value", paramName: nameof(pice)),
+            };
     }
 }

@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="SlugChessAval.Views.ChessClock">
-    <Grid  Height="60"  MinWidth="320" Background="{DynamicResource ThemeControlMidBrush}">
+    <Grid  Height="60"  MinWidth="280" HorizontalAlignment="Stretch" Background="{DynamicResource ThemeControlMidBrush}">
 
       <!--<TextBlock HorizontalAlignment="Left" Name="lbWhiteTimeLeft" Text="{Binding WhiteTimeLeft, Converter={StaticResource timeSpanToMinSec}}"  Margin="65,35,0,0" Height="58" Width="68" FontWeight="Bold" FontSize="22" />-->
       <TextBlock HorizontalAlignment="Left" Name="lbWhiteTimeLeft" Text="{Binding WhiteTimeLeftString}"  Margin="65,35,0,0" Height="58" Width="68" FontWeight="Bold" FontSize="22" />

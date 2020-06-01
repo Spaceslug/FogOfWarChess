@@ -32,6 +32,11 @@ namespace SlugChessAval.Models
             "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8"
         };
 
+        public static bool FieldColorLight(string pos)
+        {
+            return !((pos[1] % 2) == (pos[0] % 2));
+        }
+
 
         //public ChessCom.GameState ComGameState;
         [DataMember]

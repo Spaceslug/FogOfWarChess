@@ -5,7 +5,6 @@
 - learn how to debug in the IDE
 - a check to evaluate the validity of time spent on move. Change the value if it seams wrong. 
 - go back and forwards in the move while playing a match
-- a way to see where and when pices died
 - castling checks threatened fields, and works with FisherRandom 
 - print the Rules of a SlugChess game to text
 - print the VisionRules of a SlugChess game to text
@@ -14,15 +13,32 @@
 - updator of slugchessclient (fetch newest version for spaceslug.no)
 - client with only unary and server streamer calls for Match and ChatMessages
 - server saves all matches that have been played
-- Alive Heartbeats are not tested and potencially doesn't work
 - use Python script to upload new SlugChess version to spaceslug.no
 - password and name on hosted games
 - elo system 
 - matchmaker using elo
 
+## What does the versions mean (only from v1.0.0 and onwards)
+The client and server versions follow eachother. It is impossible to use a release client with 
+higher number than release server as new client is only release after server is updated.
+
+### Build version is lower
+It is recomended to update. Hosted games can still be played but not matchmaking (elo games)
+
+Minor fixes goes here that should not break games between users
+
+### Minor version is lower
+You need to update in order to login
+
+Game breaking changes but no changes to the chesscom communication api or function
+
+### Major
+Changes to chesscom commuication api or underlating function.
+
 ## BUGS:
+- GameState from server does not clear all previuos moves even though the pice has moved
 -
--
+
 
 
 ### version 1.0.0
@@ -31,17 +47,24 @@
 - full PGN support ()
 - Print rules
 
+### version 0.12.0
+- add audio to Aval
+- python script for uploading new versions of Aval and maintain a manifest of versions for updator
+- auto updator for Aval
+
 ### version 0.11.0
-- auto updator
+- a worker that periodicly run tasks on server
+  - Task: Check last hearbeat on logged in
+  - Task: Remove matches that should no longer run
+  - Task: Log metrics like ammout of logged in users, current matches
+- Do the things that should happen when user i logged out e.g stop matches
 
-version 0.10.0
-- switch to aval with all the same features as client
-  - Alive heartbeat must be fixed
-
-### version 0.9.1
+### version 0.10.0
 - back and forward in match( clients are sendt state so should be easy)
-- fix state if clients alot
-
+- a way to see where and when pices died
+- switch to aval with all the same features as client
+  - Alive heartbeat must be fixed. Make sure it works as intended.
+  
 ### version 0.9.0 (Done)
 - [x] implement double fisher random
 - [x] fix release uploader

@@ -8,9 +8,12 @@
              x:Class="SlugChessAval.Views.PlayView">
   <Grid ColumnDefinitions="3*,auto" RowDefinitions="*,auto" Margin="5,5,5,5">
     <views:Chessboard DataContext="{Binding Chessboard}" Grid.Row="0" Grid.Column="0" />
-    <WrapPanel Grid.Row="0" Grid.Column="1"  Margin="5">
-      <views:ChessClock DataContext="{Binding ChessClock}"/>
-    </WrapPanel>
+
+    <Grid Grid.Row="0" Grid.Column="1" ColumnDefinitions="*" RowDefinitions="auto,auto"  Margin="5" Width="380">
+      <views:CapturedPices Grid.Row="0" DataContext="{Binding CapturedPices}" Width="380" />
+      <views:ChessClock Grid.Row="1" DataContext="{Binding ChessClock}"/>
+    </Grid>
+    
     <WrapPanel Grid.Row="1" Grid.Column="0">
       <Button Command="{Binding MoveToCreateGame}" Content="Host Game" Margin="5"/>
       <Button Command="{Binding MoveToGameBrowser}" Content="Browse Games" Margin="5" />

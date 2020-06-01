@@ -15,6 +15,7 @@ using System.Diagnostics;
 using System.Reflection;
 using Splat;
 using Avalonia;
+using SlugChessAval.Models;
 
 namespace SlugChessAval.ViewModels
 {
@@ -131,6 +132,8 @@ namespace SlugChessAval.ViewModels
             //    () => { Router.Navigate.Execute(new SearchViewModel()); },
             //    canSearch);
             //Router.Navigate.Execute(new PlayViewModel());
+
+
 #if DEBUG
             int port = 43326;
 #else
@@ -138,7 +141,17 @@ namespace SlugChessAval.ViewModels
 #endif
             Notification = "Connecting to server";
             SlugChessService.Instanciate("hive.spaceslug.no", port);
-            //this.F
+            SlugChessService.Client.UserLoggedIn.Subscribe(userLoggenIn => 
+            {
+                if (userLoggenIn)
+                {
+                    Notification = "Logged in as " + SlugChessService.Client.UserData?.Username ?? "non";
+                }
+                else
+                {
+                    Notification = "Logged out";
+                }
+            });
             //.;
             Router.Navigate.Execute(new StartMenuViewModel(this));
         }
