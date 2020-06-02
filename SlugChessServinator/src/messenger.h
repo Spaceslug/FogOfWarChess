@@ -12,16 +12,33 @@ class Messenger {
     void SendMessage(std::string& revicerToken, std::string& senderUername, std::string& message)
     {
         std::unique_lock<std::mutex> scopeLock (_messageStreamsMutex);
-        chesscom::ChatMessage msg;
-        msg.set_allocated_message(&message);
-        msg.set_allocated_sender_usertoken(&revicerToken);
-        msg.set_allocated_sender_username(&senderUername);
-        _messageStreams[revicerToken]->Write(msg);
-        msg.release_message();
-        msg.release_reciver_usertoken();
-        msg.release_sender_username();
+        if(_messageStreams.count(revicerToken) > 0)
+        {
+            chesscom::ChatMessage msg;
+            msg.set_allocated_message(&message);
+            msg.set_allocated_sender_usertoken(&revicerToken);
+            msg.set_allocated_sender_username(&senderUername);
+            _messageStreams[revicerToken]->Write(msg);
+            msg.release_message();
+            msg.release_reciver_usertoken();
+            msg.release_sender_username();
+        }
+        
     }
-    void AddMessageStream(const std::string& userToken, grpc::ServerReaderWriter< chesscom::ChatMessage, chesscom::ChatMessage>* stream)
+    void SendMessage(const std::string& revicerToken, const std::string& senderUername, const std::string& message)
+    {
+        std::unique_lock<std::mutex> scopeLock (_messageStreamsMutex);
+        if(_messageStreams.count(revicerToken) > 0)
+        {
+            chesscom::ChatMessage msg;
+            msg.set_message(message);
+            msg.set_sender_usertoken(revicerToken);
+            msg.set_sender_username(senderUername);
+            _messageStreams[revicerToken]->Write(msg);
+        }
+        
+    }
+    void AddMessageStream(const std::string& userToken, grpc::internal::WriterInterface< chesscom::ChatMessage>* stream)
     {
         std::unique_lock<std::mutex> scopeLock (_messageStreamsMutex);
         _messageStreams[userToken] = stream;
@@ -33,5 +50,5 @@ class Messenger {
     }
     private:
     std::mutex _messageStreamsMutex;
-    std::map<std::string, grpc::ServerReaderWriter< chesscom::ChatMessage, chesscom::ChatMessage>*> _messageStreams;
+    std::map<std::string, grpc::internal::WriterInterface<chesscom::ChatMessage>*> _messageStreams;
 };
