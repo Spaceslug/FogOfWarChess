@@ -8,6 +8,7 @@ using System.Reactive.Subjects;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SlugChessAval.Services
@@ -52,9 +53,10 @@ namespace SlugChessAval.Services
                     _heartbeatTimer.Start();
                     Task.Run(() =>
                     {
-                        var stream = Call.ChatMessageListenter(UserData);
+                        var stream = Call.ChatMessageListener(UserData);
                         while (stream.ResponseStream.MoveNext().Result)
                         {
+                            while (_messages.HasObservers == false) Thread.Sleep(500);
                             _messages.OnNext(DateTime.Now.ToString("HH:mm:ss") + " "+ stream.ResponseStream.Current.SenderUsername + ": " + stream.ResponseStream.Current.Message);
                         }
                         stream.Dispose();

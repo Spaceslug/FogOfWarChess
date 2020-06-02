@@ -33,6 +33,12 @@ namespace SlugChessAval.ViewModels
             set => this.RaiseAndSetIfChanged(ref _recivedMessagesText, value);
         }
         private string _recivedMessagesText = "";
+        public int CaretIndex
+        {
+            get => _caretIndex;
+            set => this.RaiseAndSetIfChanged(ref _caretIndex, value);
+        }
+        private int _caretIndex = 0;
 
         public ChatboxViewModel()
         {
@@ -51,15 +57,16 @@ namespace SlugChessAval.ViewModels
             }, this.WhenAnyValue((x)=> x.MessageText, (messageText) => !string.IsNullOrWhiteSpace(messageText)));
             this.WhenActivated(disposables =>
             {
-                SlugChessService.Client.Messages.Subscribe(x => RecivedMessagesText = RecivedMessagesText + "\n" + x).DisposeWith(disposables);
+                SlugChessService.Client.Messages.Subscribe(x => { 
+                    RecivedMessagesText = RecivedMessagesText + "\n" + x; 
+                    CaretIndex = RecivedMessagesText.Length;
+                }).DisposeWith(disposables);
                 
                 Disposable.Create(() =>
                 {
 
                 }).DisposeWith(disposables);
             });
-
-            RecivedMessagesText = "This text thing\nBringst slo t  snew sktawd kosad bnefe\nAnd manny line og tezt\nHahaha\nThis text thing\nBringst slo t  snew sktawd kosad bnefe\nAnd manny line og tezt\nHahahaThis text thing\nBringst slo t  snew sktawd kosad bnefe\nAnd manny line og tezt\nHahaha\nThis text thing\nBringst slo t  snew sktawd kosad bnefe\nAnd manny line og tezt\nHahaha\nThis text thing\nBringst slo t  snew sktawd kosad bnefe\nAnd manny line og tezt\nHahaha\nThis text thing\nBringst slo t  snew sktawd kosad bnefe\nAnd manny line og tezt\nHahaha\nThis text thing\nBringst slo t  snew sktawd kosad bnefe\nAnd manny line og tezt\nHahaha\n";
         }
     }
 }
