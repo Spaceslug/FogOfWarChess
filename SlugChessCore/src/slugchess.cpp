@@ -444,7 +444,7 @@ void SlugChess::DoMove(const std::string& from, const std::string& to){
     if(attackedField.Pice != ChessPice::Non){
         //std::cout << "Killed pice " << Field::PiceChar(attackedField.Pice) << " at " << *attackedField.fieldname << std::endl;
         _lastCaptureField = GameRules::BoardPosToIndex(*attackedField.fieldname);
-        _killedPices.push_back(std::tuple<ChessPice,int>(attackedField.Pice, GameRules::BoardPosToIndex(*attackedField.fieldname)));
+        _killedPices.push_back(std::pair<ChessPice,int>(attackedField.Pice, GameRules::BoardPosToIndex(*attackedField.fieldname)));
     }else{
         _lastCaptureField = -1;
     }

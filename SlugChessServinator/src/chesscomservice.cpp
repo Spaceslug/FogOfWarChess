@@ -242,15 +242,16 @@ Status ChessComService::ChatMessageStream(ServerContext* context, grpc::ServerRe
     std::thread t1([this, context, &userToken, stream](){
         this->ChatMessageStreamLoop(context, userToken, stream);
     });
+    messenger.AddMessageStream(userToken, &(*stream));
     bool loop = true;
     while (loop)
     {
         if(context->IsCancelled()) {
             std::cout <<  userToken<< " ChatMessageStream cancelled " << std::endl << std::flush;
             t1.join();
+            messenger.RemoveMessageStream(userToken);
             return grpc::Status::OK;
         }
-        messenger.AddMessageStream(userToken, stream);
         
         std::this_thread::sleep_for(std::chrono::milliseconds(MAX_SLEEP_MS));
     }
@@ -314,4 +315,35 @@ grpc::Status ChessComService::Alive(grpc::ServerContext* context, const chesscom
         return grpc::Status::OK;
     }
 
+}
+
+grpc::Status ChessComService::ChatMessageListener(grpc::ServerContext* context, const chesscom::UserData* request, grpc::ServerWriter< ::chesscom::ChatMessage>* writer) 
+{
+    std::cout << "Opening ChatMessageStream for "  <<  request->usertoken() << std::endl << std::flush;
+    messenger.AddMessageStream(request->usertoken(), writer);
+    messenger.SendMessage(request->usertoken(), "system", "Welcome " + request->username() + " to SlugChess. You are now connected to the chat system.");
+    messenger.SendMessage(request->usertoken(), "system", "Type '/help' from more info on commands");
+    bool loop = true;
+    while (loop)
+    {
+        if(context->IsCancelled()) {
+            std::cout <<  request->usertoken() << " ChatMessageStream cancelled " << std::endl << std::flush;
+            messenger.RemoveMessageStream(request->usertoken());
+            return grpc::Status::OK;
+        }
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(MAX_SLEEP_MS));
+    }
+    messenger.RemoveMessageStream(request->usertoken());
+    std::cout  <<  request->usertoken() << " ChatMessageStream ended." << std::endl << std::flush;
+    return grpc::Status::OK;
+}
+
+grpc::Status ChessComService::SendChatMessage(grpc::ServerContext* context, const chesscom::ChatMessage* request, chesscom::Void* response)
+{
+    //Also sending the message back to sender so it shows up in their log
+    //TODO: verify username is usertoken. In general usertoken should only be unique user id or user verification.
+    messenger.SendMessage(request->reciver_usertoken(), request->sender_username(), request->message());
+    messenger.SendMessage(request->sender_usertoken(), request->sender_username(), request->message());
+    return grpc::Status::OK;
 }

@@ -23,7 +23,7 @@ service ChessCom {
 												//Alive Heartbeat every 1 minute
 	rpc MatchEventListener(MatchObserver) returns (stream MoveResult) {}
 	rpc SendMove(MovePacket) returns (Void) {}
-	rpc ChatMessageListenter(UserData) returns (stream ChatMessage) {}
+	rpc ChatMessageListener(UserData) returns (stream ChatMessage) {}
 	rpc SendChatMessage(ChatMessage) returns (Void) {}
 }
 
