@@ -57,7 +57,7 @@ Changes to chesscom commuication api or underlating function.
   - Task: Check last hearbeat on logged in
   - Task: Remove matches that should no longer run
   - Task: Log metrics like ammout of logged in users, current matches
-- Do the things that should happen when user i logged out e.g stop matches
+- Do the things that should happen when user i logged out e.g stop matches, end all log calls
 
 ### version 0.10.0
 - back and forward in match( clients are sendt state so should be easy)

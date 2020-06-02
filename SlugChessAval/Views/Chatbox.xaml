@@ -4,5 +4,19 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="SlugChessAval.Views.Chatbox">
-    Welcome to Avalonia!
+  <Border BorderBrush="{StaticResource ThemeBorderHighBrush}" BorderThickness="1">
+  <Grid RowDefinitions="auto,*,auto">
+    <Grid Grid.Row="0" ColumnDefinitions="auto,auto">
+      <TextBlock Grid.Column="0" Text="Chatroom: " />
+      <TextBlock Grid.Column="1" Text="{Binding ChatroomName}" />
+    </Grid>
+    <TextBox Grid.Row="1"  Text="{Binding RecivedMessagesText}" IsReadOnly="true" TextWrapping="Wrap" AcceptsReturn="True" />
+    <Grid Grid.Row="2" ColumnDefinitions="*,auto">
+      <TextBox Grid.Column="0" Text="{Binding MessageText}" />
+      <Button Grid.Column="1" Classes="normal"
+              Command="{Binding SendTextCommand}"
+              Content="Send" HotKey="Enter" />
+    </Grid>
+  </Grid>
+  </Border>
 </UserControl>

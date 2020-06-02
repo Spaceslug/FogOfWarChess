@@ -1,19 +1,23 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using Avalonia.ReactiveUI;
+using ReactiveUI;
+using SlugChessAval.ViewModels;
 
 namespace SlugChessAval.Views
 {
-    public class Chatbox : UserControl
+    public class Chatbox : ReactiveUserControl<ChatboxViewModel>
     {
         public Chatbox()
         {
-            this.InitializeComponent();
+            AvaloniaXamlLoader.Load(this);
+            this.WhenActivated(disposables =>
+            {
+
+            });
+            DataContext = new ChatboxViewModel();
         }
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
-    }
+     }
 }

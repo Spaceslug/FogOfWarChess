@@ -9,9 +9,10 @@
   <Grid ColumnDefinitions="3*,auto" RowDefinitions="*,auto" Margin="5,5,5,5">
     <views:Chessboard DataContext="{Binding Chessboard}" Grid.Row="0" Grid.Column="0" />
 
-    <Grid Grid.Row="0" Grid.Column="1" ColumnDefinitions="*" RowDefinitions="auto,auto"  Margin="5" Width="380">
+    <Grid Grid.Row="0" Grid.Column="1" ColumnDefinitions="*" RowDefinitions="auto,auto,*"  Margin="5" Width="380">
       <views:CapturedPices Grid.Row="0" DataContext="{Binding CapturedPices}" Width="380" />
       <views:ChessClock Grid.Row="1" DataContext="{Binding ChessClock}"/>
+      <views:Chatbox Grid.Row="2" />
     </Grid>
     
     <WrapPanel Grid.Row="1" Grid.Column="0">
@@ -19,7 +20,7 @@
       <Button Command="{Binding MoveToGameBrowser}" Content="Browse Games" Margin="5" />
     </WrapPanel>
     <WrapPanel Grid.Row="1" Grid.Column="1">
-      <TextBlock Text="{Binding LastMove}" Foreground="White" />
+
     </WrapPanel>
     
   </Grid>

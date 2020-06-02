@@ -47,7 +47,23 @@ namespace SlugChessAval.Services
             Call = new ChessCom.ChessCom.ChessComClient(_channel);
             _heartbeatTimer.AutoReset = true;
             _heartbeatTimer.Elapsed += (o, e) => { if (!Call.Alive(new Heartbeat { Alive = true, Usertoken = UserData?.Usertoken ?? "" }).Alive) { UserLoggedIn.OnNext(false); UserData = null; } };
-            UserLoggedIn.Subscribe(loggedIn => { if (loggedIn) { _heartbeatTimer.Start(); } else { _heartbeatTimer.Stop(); } } );
+            UserLoggedIn.Subscribe(loggedIn => { 
+                if (loggedIn) { 
+                    _heartbeatTimer.Start();
+                    Task.Run(() =>
+                    {
+                        var stream = Call.ChatMessageListenter(UserData);
+                        while (stream.ResponseStream.MoveNext().Result)
+                        {
+                            _messages.OnNext(DateTime.Now.ToString("HH:mm:ss") + " "+ stream.ResponseStream.Current.SenderUsername + ": " + stream.ResponseStream.Current.Message);
+                        }
+                        stream.Dispose();
+                    });
+
+                } else {
+                    _heartbeatTimer.Stop(); 
+                } 
+            });
         }
         #endregion
 
@@ -72,6 +88,8 @@ namespace SlugChessAval.Services
         private bool _connectionAlive = false;
 
         public Subject<bool> UserLoggedIn { get; set; } = new Subject<bool>();
+        public IObservable<string> Messages => _messages;
+        private Subject<string> _messages = new Subject<string>();
         public UserData? UserData
         {
             get { return _userData; }
@@ -88,13 +106,14 @@ namespace SlugChessAval.Services
                 var result = Client.Call.Login(new LoginForm { Username = username, MajorVersion = ver.FileMajorPart.ToString(), MinorVersion = ver.FileMinorPart.ToString(), BuildVersion = ver.FileBuildPart.ToString() });
                 if (result.SuccessfullLogin)
                 {
-                    UserLoggedIn.OnNext(true);
                     UserData = new UserData
                     {
                         Username = result.UserData.Username,
                         Usertoken = result.UserData.Usertoken,
                         Elo = result.UserData.Elo
                     };
+                    UserLoggedIn.OnNext(true);
+                    
                     Serilog.Log.Information("Logged in as " + result.UserData.Username);
                     if (result.LoginMessage != "") Serilog.Log.Information("Login Message: " + result.LoginMessage);
                     //foreach (var item in ((MenuItem)TopMenu.Items[0]).Items)

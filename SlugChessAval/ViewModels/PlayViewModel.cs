@@ -134,7 +134,8 @@ namespace SlugChessAval.ViewModels
             //TODO play found game audio clip
             var matchObservable = SlugChessService.Client.GetMatchListener(result.MatchToken);
             CapturedPices = new CapturedPicesViewModel(matchObservable);
-            matchObservable.Subscribe((moveResult) => 
+            matchObservable.Subscribe(
+            (moveResult) => Dispatcher.UIThread.InvokeAsync(() =>
             {
 
                 if (moveResult.GameState.CurrentTurnIsWhite) _currentTurnPlayer = PlayerIs.White; else _currentTurnPlayer = PlayerIs.Black;
@@ -183,7 +184,7 @@ namespace SlugChessAval.ViewModels
                     //TODO print in log who won
                     //And send som motification shit
                 }
-            }, (error) => Dispatcher.UIThread.InvokeAsync(() =>
+            }), (error) => Dispatcher.UIThread.InvokeAsync(() =>
             {
 
                 //TODO Print error to chatbox

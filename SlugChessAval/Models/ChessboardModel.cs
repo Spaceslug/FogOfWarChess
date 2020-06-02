@@ -34,7 +34,7 @@ namespace SlugChessAval.Models
 
         public static bool FieldColorLight(string pos)
         {
-            return !((pos[1] % 2) == (pos[0] % 2));
+            return (pos[1] % 2) == (pos[0] % 2);
         }
 
 
