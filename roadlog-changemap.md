@@ -60,10 +60,12 @@ Changes to chesscom commuication api or underlating function.
 - [] Do the things that should happen when user i logged out e.g stop matches, end all log calls
 
 ### version 0.10.0
-- [ ] back and forward in match( clients are sendt state so should be easy)
+- [x] back and forward in match( clients are sendt state so should be easy)
 - [x] a way to see where and when pices died
 - [ ] switch to aval with all the same features as client
   - [ ] Alive heartbeat must be fixed. Make sure it works as intended.
+  - [ ] Fix match terminating when one player exits client
+  - [ ] Messages not sent between players in a match
   
 ### version 0.9.0 (Done)
 - [x] implement double fisher random

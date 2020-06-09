@@ -16,8 +16,12 @@
     </Grid>
     
     <WrapPanel Grid.Row="1" Grid.Column="0">
-      <Button Command="{Binding MoveToCreateGame}" Content="Host Game" Margin="5"/>
-      <Button Command="{Binding MoveToGameBrowser}" Content="Browse Games" Margin="5" />
+      <Button Command="{Binding MoveToCreateGame}" Content="Host Game" IsVisible="{Binding !OngoingGame}" Margin="5"/>
+      <Button Command="{Binding MoveToGameBrowser}" Content="Browse Games" IsVisible="{Binding !OngoingGame}" Margin="5" />
+      <Button Classes="normal" Command="{Binding BackEnd}" Content="&#60;&#60;" IsVisible="{Binding OngoingGame}" Margin="5" />
+      <Button Classes="normal" Command="{Binding BackOne}" Content="&#60;" IsVisible="{Binding OngoingGame}" Margin="5" />
+      <Button Classes="normal" Command="{Binding ForwardOne}" Content="&#62;" IsVisible="{Binding OngoingGame}" Margin="5" />
+      <Button Classes="normal" Command="{Binding ForwardEnd}" Content="&#62;&#62;" IsVisible="{Binding OngoingGame}" Margin="5" />
     </WrapPanel>
     <WrapPanel Grid.Row="1" Grid.Column="1">
 
