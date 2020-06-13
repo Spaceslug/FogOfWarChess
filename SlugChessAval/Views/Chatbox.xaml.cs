@@ -16,7 +16,7 @@ namespace SlugChessAval.Views
             {
 
             });
-            DataContext = new ChatboxViewModel();
+            //DataContext = new ChatboxViewModel();
         }
 
     }

@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Runtime.Serialization;
 using System.Text;
@@ -23,13 +24,14 @@ namespace SlugChessAval.ViewModels
 {
 
     [DataContract]
-    public class LoginViewModel : ViewModelBase, IRoutableViewModel
+    public class LoginViewModel : ViewModelBase, IRoutableViewModel, IActivatableViewModel
     {
+        public ViewModelActivator Activator { get; }
         public string UrlPathSegment => "/login";
         public IScreen HostScreen { get; }
 
         public ICommand Login => _login;
-        private readonly ReactiveCommand<Unit, bool> _login;
+        private readonly ReactiveCommand<Unit, ChessCom.LoginResult> _login;
 
         //private bool _loginInProgress = false;
 
@@ -51,6 +53,7 @@ namespace SlugChessAval.ViewModels
 
         public LoginViewModel(IScreen? screen = null)
         {
+            Activator = new ViewModelActivator();
             HostScreen = screen ?? Locator.Current.GetService<IScreen>();
             
             // When any of the specified properties change, 
@@ -67,11 +70,8 @@ namespace SlugChessAval.ViewModels
             _login = ReactiveCommand.CreateFromTask(
                 () => SlugChessService.Client.LoginInUserAsync(Username, Password), 
                 canLogin);
-            _login.Subscribe((sucsseded) => {
-                if (sucsseded)
-                {
-                    HostScreen.Router.Navigate.Execute(new PlayViewModel()).Subscribe();
-                }
+            _login.Subscribe((result) => {
+                HandleLoginAttemptResult(result);
             });
 #if DEBUG
             if (Program.LaunchedWithParam("-debugLogin"))
@@ -80,6 +80,15 @@ namespace SlugChessAval.ViewModels
                 Password = Program.GetParamValue("-debugLogin");
                 _login.Execute().Subscribe();
             }
+
+            this.WhenActivated(disposables =>
+            {
+
+                Disposable.Create(() =>
+                {
+
+                }).DisposeWith(disposables);
+            });
 #endif
         }
 
@@ -88,50 +97,25 @@ namespace SlugChessAval.ViewModels
             if (result.SuccessfullLogin)
             {
                 ((MainWindowViewModel)HostScreen).Notification = result.UserData.Username + " logged in :>";
-                //_userdata = new ChessCom.UserData
-                //{
-                //    Username = result.UserData.Username,
-                //    Usertoken = result.UserData.Usertoken,
-                //    Elo = result.UserData.Elo
-                //};
-                //WriteTextNonInvoke("Logged in as " + username);
-                //if (result.LoginMessage != "") WriteTextNonInvoke(result.LoginMessage);
-                ////_userToken = result.UserToken;
-                ////loginButton.Content = "U logged in";
-                //loginButton.IsEnabled = false;
-                //lookForMatchButton.IsEnabled = true;
-                //foreach (var item in ((MenuItem)TopMenu.Items[0]).Items)
-                //{
-                //    if (item is MenuItem menuitem)
-                //    {
-                //        if ((string)menuitem.Header != "_Host" || (string)menuitem.Header != "_Browse Games") menuitem.IsEnabled = true;
-                //    }
-                //}
-                //tbLoginStatus.Text = $"{_userdata.Username}";
 
-                //_matchMessageStream = _connection.Call.ChatMessageStream();
-                //_matchMessageStream.RequestStream.WriteAsync(new ChessCom.ChatMessage
-                //{
-                //    SenderUsertoken = _userdata.Usertoken,
-                //    ReciverUsertoken = "system",
-                //    SenderUsername = _userdata.Username,
-                //    Message = "init"
-                //});
-                //Task.Run(() => MessageCallRunner());
-                //_heartbeatTimer.Elapsed += (obj, e) =>
-                //{
-                //    _connection?.Call.Alive(new ChessCom.Heartbeat { Alive = true });
-                //};
-                //_heartbeatTimer.AutoReset = true;
-                //_heartbeatTimer.Enabled = true;
+                SlugChessService.Client.MessageToLocal("Logged in as " + result.UserData.Username, "system");
+                Serilog.Log.Information("Logged in as " + result.UserData.Username);
+
+                HostScreen.Router.Navigate.Execute(new PlayViewModel()).Subscribe();
                 ////TODO recive message callback
                 ////TODO handle shutdown of message
             }
             else
             {
-                Console.WriteLine("Login failed. " + result.LoginMessage);
+                ((MainWindowViewModel)HostScreen).Notification = "Login failed: " + result.LoginMessage;
             }
-            HostScreen.Router.NavigateBack.Execute().Subscribe();
+
+            if (result.LoginMessage != "")
+            {
+                Serilog.Log.Information("Login Message: " + result.LoginMessage);
+                SlugChessService.Client.MessageToLocal("Login Message: " + result.LoginMessage, "system");
+            }
+
             //_loginInProgress = false;
         }
     }

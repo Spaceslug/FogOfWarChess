@@ -14,6 +14,8 @@ namespace SlugChessAval.ViewModels
 
         public ReactiveCommand<Unit, Unit> SendTextCommand { get; }
 
+        public string? OpponentUsertoken { get; set; } = null;
+
         public string ChatroomName
         {
             get => _chatroomName;
@@ -51,7 +53,7 @@ namespace SlugChessAval.ViewModels
                     Message = MessageText,
                     SenderUsername = SlugChessService.Client.UserData.Username,
                     SenderUsertoken = SlugChessService.Client.UserData.Usertoken,
-                    ReciverUsertoken = "system"
+                    ReciverUsertoken = OpponentUsertoken ?? "system"
                 });
                 MessageText = "";
             }, this.WhenAnyValue((x)=> x.MessageText, (messageText) => !string.IsNullOrWhiteSpace(messageText)));

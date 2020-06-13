@@ -11,13 +11,14 @@ namespace SlugChessAval.Views
     {
         public LoginView()
         {
+
+            AvaloniaXamlLoader.Load(this);
             this.WhenActivated(disposables =>
             {
                 // Bind the 'ExampleCommand' to 'ExampleButton' defined above.
                 //this.BindCommand(ViewModel, x => x.ClickShit, x => x.ExampleGrid)
                 //    .DisposeWith(disposables);
             });
-            AvaloniaXamlLoader.Load(this);
         }
 
     }

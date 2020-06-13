@@ -36,8 +36,8 @@ Game breaking changes but no changes to the chesscom communication api or functi
 Changes to chesscom commuication api or underlating function.
 
 ## BUGS:
-- GameState from server does not clear all previuos moves even though the pice has moved
--
+- in 0.10.0 stack overflow in SelectedItem in Chessboard when pressing Browse Game after previus game done
+- 
 
 
 

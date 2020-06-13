@@ -37,6 +37,13 @@ namespace SlugChessAval.ViewModels
         }
         private CapturedPicesViewModel _capturedPices;
 
+        public ChatboxViewModel Chatbox
+        {
+            get => _chatbox;
+            set => this.RaiseAndSetIfChanged(ref _chatbox, value);
+        }
+        private ChatboxViewModel _chatbox;
+
         private GameBrowserViewModel _vmGameBrowser { get; }
         private CreateGameViewModel _vmCreateGame { get; }
 
@@ -129,6 +136,7 @@ namespace SlugChessAval.ViewModels
 
             _vmGameBrowser = new GameBrowserViewModel { };
             _vmCreateGame = new CreateGameViewModel { };
+            Chatbox = new ChatboxViewModel { };
 
             Observable.Merge(
                 _vmCreateGame.HostGame, _vmGameBrowser.JoinGame)
@@ -216,6 +224,7 @@ namespace SlugChessAval.ViewModels
             //TODO play found game audio clip
             var matchObservable = SlugChessService.Client.GetMatchListener(result.MatchToken);
             CapturedPices = new CapturedPicesViewModel(matchObservable);
+            Chatbox.OpponentUsertoken = result.OpponentUserData.Usertoken;
             matchObservable.Subscribe(
             (moveResult) => Dispatcher.UIThread.InvokeAsync(() =>
             {
@@ -255,8 +264,8 @@ namespace SlugChessAval.ViewModels
                     ChessClock.StopTimer();
                     OngoingGame = false;
                     _playerIs = PlayerIs.Oberserver;
-                    //TODO print message to chat
-                    //string popupText = "UnexpextedClosing";
+                    SlugChessService.Client.MessageToLocal("Opponent unexpectedly quit the match.", "system");
+                    ((MainWindowViewModel)HostScreen).Notification = "UnexpextedClosing";
                     //string textBoxText = "Opponents client unexpectedly closed";
 
                 }
@@ -267,6 +276,10 @@ namespace SlugChessAval.ViewModels
                     _playerIs = PlayerIs.Oberserver;
                     //TODO print in log who won
                     //And send som motification shit
+                }
+                else
+                {
+
                 }
             }), (error) => Dispatcher.UIThread.InvokeAsync(() =>
             {
@@ -279,6 +292,7 @@ namespace SlugChessAval.ViewModels
             {
                 _playerIs = PlayerIs.Non;
                 OngoingGame = false;
+                Chatbox.OpponentUsertoken = null;
             }));
         }
 
