@@ -107,7 +107,7 @@ namespace SlugChessAval.ViewModels
             var ver = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
             Title = $"Slug Chess v{ver.FileMajorPart}.{ver.FileMinorPart}.{ver.FileBuildPart}";
 
-            _notiTimer = new System.Timers.Timer(6000);
+            _notiTimer = new System.Timers.Timer(9000);
             _notiTimer.Elapsed += (Object source, ElapsedEventArgs e) => Notification = "";
 
             //Application.Current.Ex

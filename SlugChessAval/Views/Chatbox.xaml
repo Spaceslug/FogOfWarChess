@@ -10,9 +10,10 @@
       <TextBlock Grid.Column="0" Text="Chatroom: " />
       <TextBlock Grid.Column="1" Text="{Binding ChatroomName}" />
     </Grid>
-    <TextBox Grid.Row="1"  Text="{Binding RecivedMessagesText}" IsReadOnly="true" TextWrapping="Wrap" AcceptsReturn="True" />
+    <TextBox Grid.Row="1" Name="messages" Text="{Binding RecivedMessagesText}" 
+             IsReadOnly="true" TextWrapping="Wrap" AcceptsReturn="True" CaretIndex="{Binding CaretIndex}"/>
     <Grid Grid.Row="2" ColumnDefinitions="*,auto">
-      <TextBox Grid.Column="0" Text="{Binding MessageText}" />
+      <TextBox Grid.Column="0" Text="{Binding MessageText}"  />
       <Button Grid.Column="1" Classes="normal"
               Command="{Binding SendTextCommand}"
               Content="Send" HotKey="Enter" />

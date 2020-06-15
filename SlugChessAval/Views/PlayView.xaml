@@ -12,12 +12,16 @@
     <Grid Grid.Row="0" Grid.Column="1" ColumnDefinitions="*" RowDefinitions="auto,auto,*"  Margin="5" Width="380">
       <views:CapturedPices Grid.Row="0" DataContext="{Binding CapturedPices}" Width="380" />
       <views:ChessClock Grid.Row="1" DataContext="{Binding ChessClock}"/>
-      <views:Chatbox Grid.Row="2" />
+      <views:Chatbox Grid.Row="2" DataContext="{Binding Chatbox}" />
     </Grid>
     
     <WrapPanel Grid.Row="1" Grid.Column="0">
-      <Button Command="{Binding MoveToCreateGame}" Content="Host Game" Margin="5"/>
-      <Button Command="{Binding MoveToGameBrowser}" Content="Browse Games" Margin="5" />
+      <Button Command="{Binding MoveToCreateGame}" Content="Host Game" IsVisible="{Binding !OngoingGame}" Margin="5"/>
+      <Button Command="{Binding MoveToGameBrowser}" Content="Browse Games" IsVisible="{Binding !OngoingGame}" Margin="5" />
+      <Button Classes="normal" Command="{Binding BackEnd}" Content="&#60;&#60;" IsVisible="{Binding OngoingGame}" Margin="5" />
+      <Button Classes="normal" Command="{Binding BackOne}" Content="&#60;" IsVisible="{Binding OngoingGame}" Margin="5" />
+      <Button Classes="normal" Command="{Binding ForwardOne}" Content="&#62;" IsVisible="{Binding OngoingGame}" Margin="5" />
+      <Button Classes="normal" Command="{Binding ForwardEnd}" Content="&#62;&#62;" IsVisible="{Binding OngoingGame}" Margin="5" />
     </WrapPanel>
     <WrapPanel Grid.Row="1" Grid.Column="1">
 

@@ -10,9 +10,11 @@ namespace SlugChessAval.ViewModels
 {
     public class ChatboxViewModel : ViewModelBase, IActivatableViewModel
     {
-        public ViewModelActivator Activator { get; }
+        public ViewModelActivator Activator { get; } = new ViewModelActivator();
 
         public ReactiveCommand<Unit, Unit> SendTextCommand { get; }
+
+        public string? OpponentUsertoken { get; set; } = null;
 
         public string ChatroomName
         {
@@ -33,10 +35,15 @@ namespace SlugChessAval.ViewModels
             set => this.RaiseAndSetIfChanged(ref _recivedMessagesText, value);
         }
         private string _recivedMessagesText = "";
+        public int CaretIndex
+        {
+            get => _caretIndex;
+            set => this.RaiseAndSetIfChanged(ref _caretIndex, value);
+        }
+        private int _caretIndex = 0;
 
         public ChatboxViewModel()
         {
-            Activator = new ViewModelActivator();
             ChatroomName = "system/CurrentMatch";
             SendTextCommand = ReactiveCommand.Create(() => 
             {
@@ -45,21 +52,22 @@ namespace SlugChessAval.ViewModels
                     Message = MessageText,
                     SenderUsername = SlugChessService.Client.UserData.Username,
                     SenderUsertoken = SlugChessService.Client.UserData.Usertoken,
-                    ReciverUsertoken = "system"
+                    ReciverUsertoken = OpponentUsertoken ?? "system"
                 });
                 MessageText = "";
             }, this.WhenAnyValue((x)=> x.MessageText, (messageText) => !string.IsNullOrWhiteSpace(messageText)));
             this.WhenActivated(disposables =>
             {
-                SlugChessService.Client.Messages.Subscribe(x => RecivedMessagesText = RecivedMessagesText + "\n" + x).DisposeWith(disposables);
+                SlugChessService.Client.Messages.Subscribe(x => { 
+                    RecivedMessagesText = RecivedMessagesText + "\n" + x; 
+                    CaretIndex = RecivedMessagesText.Length;
+                }).DisposeWith(disposables);
                 
                 Disposable.Create(() =>
                 {
 
                 }).DisposeWith(disposables);
             });
-
-            RecivedMessagesText = "This text thing\nBringst slo t  snew sktawd kosad bnefe\nAnd manny line og tezt\nHahaha\nThis text thing\nBringst slo t  snew sktawd kosad bnefe\nAnd manny line og tezt\nHahahaThis text thing\nBringst slo t  snew sktawd kosad bnefe\nAnd manny line og tezt\nHahaha\nThis text thing\nBringst slo t  snew sktawd kosad bnefe\nAnd manny line og tezt\nHahaha\nThis text thing\nBringst slo t  snew sktawd kosad bnefe\nAnd manny line og tezt\nHahaha\nThis text thing\nBringst slo t  snew sktawd kosad bnefe\nAnd manny line og tezt\nHahaha\nThis text thing\nBringst slo t  snew sktawd kosad bnefe\nAnd manny line og tezt\nHahaha\n";
         }
     }
 }

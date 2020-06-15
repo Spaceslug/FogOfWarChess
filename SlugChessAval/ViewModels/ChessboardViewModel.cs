@@ -33,7 +33,6 @@ namespace SlugChessAval.ViewModels
         }
         private List<Field> _fieldBoard;
 
-
         //[DataMember]
         public ChessboardModel CbModel
         {
@@ -49,6 +48,13 @@ namespace SlugChessAval.ViewModels
             set => this.RaiseAndSetIfChanged(ref _selected, value);
         }
         private string _selected = "";
+
+        public bool AllowedToSelect
+        {
+            get => _allowedToSelect;
+            set => this.RaiseAndSetIfChanged(ref _allowedToSelect, value);
+        }
+        private bool _allowedToSelect;
 
         public ReactiveCommand<(string from, string to), (string from, string to)> MoveFromTo;
 
@@ -101,6 +107,7 @@ namespace SlugChessAval.ViewModels
             //   () => new TodoItem { Description = Description },
             //   okEnabled);
             //Cancel = ReactiveCommand.Create(() => { });
+            this.WhenAnyValue(x => x.AllowedToSelect).Where(x => !x).Subscribe(x => Selected = "");
             this.WhenAnyValue(x => x.CbModel).Subscribe(x => UpdateBoard(x));
             this.WhenAnyValue(x => x.Selected).Subscribe(x => UpdateSelected(x));
             //Task.Run(() => { Thread.Sleep(2000); CbModel = ChessboardModel.FromTestData();  });
@@ -110,6 +117,7 @@ namespace SlugChessAval.ViewModels
 
         public void ChessfieldClicked(Border border)
         {
+            if (!AllowedToSelect) return;
             if (Selected == "") Selected = border.Name;
             if(CbModel.Moves.ContainsKey(Selected) && CbModel.Moves[Selected].Contains(border.Name))
             {

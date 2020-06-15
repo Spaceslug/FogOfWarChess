@@ -36,8 +36,8 @@ Game breaking changes but no changes to the chesscom communication api or functi
 Changes to chesscom commuication api or underlating function.
 
 ## BUGS:
-- GameState from server does not clear all previuos moves even though the pice has moved
--
+- in 0.10.0 stack overflow in SelectedItem in Chessboard when pressing Browse Game after previus game done
+- 
 
 
 
@@ -48,22 +48,24 @@ Changes to chesscom commuication api or underlating function.
 - Print rules
 
 ### version 0.12.0
-- add audio to Aval
-- python script for uploading new versions of Aval and maintain a manifest of versions for updator
-- auto updator for Aval
+- [] add audio to Aval
+- [] python script for uploading new versions of Aval and maintain a manifest of versions for updator
+- [] auto updator for Aval
 
 ### version 0.11.0
-- a worker that periodicly run tasks on server
-  - Task: Check last hearbeat on logged in
-  - Task: Remove matches that should no longer run
-  - Task: Log metrics like ammout of logged in users, current matches
-- Do the things that should happen when user i logged out e.g stop matches, end all log calls
+- [] a worker that periodicly run tasks on server
+  - [] Task: Check last hearbeat on logged in
+  - [] Task: Remove matches that should no longer run
+  - [] Task: Log metrics like ammout of logged in users, current matches
+- [] Do the things that should happen when user i logged out e.g stop matches, end all log calls
 
 ### version 0.10.0
-- back and forward in match( clients are sendt state so should be easy)
-- a way to see where and when pices died
-- switch to aval with all the same features as client
-  - Alive heartbeat must be fixed. Make sure it works as intended.
+- [x] back and forward in match( clients are sendt state so should be easy)
+- [x] a way to see where and when pices died
+- [ ] switch to aval with all the same features as client
+  - [ ] Alive heartbeat must be fixed. Make sure it works as intended.
+  - [x] Fix match terminating when one player exits client
+  - [x] Messages not sent between players in a match
   
 ### version 0.9.0 (Done)
 - [x] implement double fisher random

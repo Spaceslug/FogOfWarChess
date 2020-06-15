@@ -41,7 +41,7 @@ namespace SlugChessAval.ViewModels
             if (observableResult != null)
             {
                 observableResult.Subscribe(x => {
-                    Items = new ObservableCollection<CapturedPice>( x.GameState.CapturedPices.Select(x => new CapturedPice(x))); 
+                    Items = new ObservableCollection<CapturedPice>( x.GameState?.CapturedPices?.Select(x => new CapturedPice(x)) ?? Items); 
                 });
             }
             else

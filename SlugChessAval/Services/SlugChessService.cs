@@ -8,6 +8,7 @@ using System.Reactive.Subjects;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SlugChessAval.Services
@@ -52,10 +53,11 @@ namespace SlugChessAval.Services
                     _heartbeatTimer.Start();
                     Task.Run(() =>
                     {
-                        var stream = Call.ChatMessageListenter(UserData);
+                        var stream = Call.ChatMessageListener(UserData);
                         while (stream.ResponseStream.MoveNext().Result)
                         {
-                            _messages.OnNext(DateTime.Now.ToString("HH:mm:ss") + " "+ stream.ResponseStream.Current.SenderUsername + ": " + stream.ResponseStream.Current.Message);
+                            //while (_messages.HasObservers == false) Thread.Sleep(500);
+                            MessageToLocal(stream.ResponseStream.Current.Message, stream.ResponseStream.Current.SenderUsername);
                         }
                         stream.Dispose();
                     });
@@ -88,8 +90,11 @@ namespace SlugChessAval.Services
         private bool _connectionAlive = false;
 
         public Subject<bool> UserLoggedIn { get; set; } = new Subject<bool>();
+
+        public void MessageToLocal(string message, string sender) => _messages.OnNext(
+            DateTime.Now.ToString("HH:mm:ss") + " " + sender + ": " + message);
         public IObservable<string> Messages => _messages;
-        private Subject<string> _messages = new Subject<string>();
+        private ReplaySubject<string> _messages = new ReplaySubject<string>();
         public UserData? UserData
         {
             get { return _userData; }
@@ -100,7 +105,7 @@ namespace SlugChessAval.Services
         private System.Timers.Timer _heartbeatTimer = new System.Timers.Timer(60*1000);
 
 
-        public Task<bool> LoginInUserAsync(string username, string password) => Task.Run<bool>(() => 
+        public Task<LoginResult> LoginInUserAsync(string username, string password) => Task.Run<LoginResult>(() => 
             {
                 var ver = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
                 var result = Client.Call.Login(new LoginForm { Username = username, MajorVersion = ver.FileMajorPart.ToString(), MinorVersion = ver.FileMinorPart.ToString(), BuildVersion = ver.FileBuildPart.ToString() });
@@ -113,9 +118,8 @@ namespace SlugChessAval.Services
                         Elo = result.UserData.Elo
                     };
                     UserLoggedIn.OnNext(true);
-                    
-                    Serilog.Log.Information("Logged in as " + result.UserData.Username);
-                    if (result.LoginMessage != "") Serilog.Log.Information("Login Message: " + result.LoginMessage);
+
+
                     //foreach (var item in ((MenuItem)TopMenu.Items[0]).Items)
                     //{
                     //    if (item is MenuItem menuitem)
@@ -140,12 +144,12 @@ namespace SlugChessAval.Services
                     //};
                     ////TODO recive message callback
                     ////TODO handle shutdown of message
-                    return true;
+                    return result;
                 }
                 else
                 {
                     Serilog.Log.Information("Login failed. " + result.LoginMessage);
-                    return false;
+                    return result;
                 }
             });
 
@@ -159,7 +163,7 @@ namespace SlugChessAval.Services
                 while (stream.ResponseStream.MoveNext().Result)
                 {
                     subject.OnNext(stream.ResponseStream.Current);
-                    //Close stream if end of match event
+                    //Close stream if end of match event. Nooo don't. Server  
                     if (stream.ResponseStream.Current.MatchEvent switch
                     {
                         MatchEvent.Draw => true,
