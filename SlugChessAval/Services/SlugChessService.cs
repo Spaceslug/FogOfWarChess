@@ -163,7 +163,7 @@ namespace SlugChessAval.Services
                 while (stream.ResponseStream.MoveNext().Result)
                 {
                     subject.OnNext(stream.ResponseStream.Current);
-                    //Close stream if end of match event
+                    //Close stream if end of match event. Nooo don't. Server  
                     if (stream.ResponseStream.Current.MatchEvent switch
                     {
                         MatchEvent.Draw => true,

@@ -12,12 +12,14 @@ using ChessCom;
 using SlugChessAval.Services;
 using Avalonia.Threading;
 using Google.Protobuf.WellKnownTypes;
+using System.Reactive.Disposables;
 
 namespace SlugChessAval.ViewModels
 {
     [DataContract]
-    public class PlayViewModel : ViewModelBase, IRoutableViewModel
+    public class PlayViewModel : ViewModelBase, IRoutableViewModel, IActivatableViewModel
     {
+        public ViewModelActivator Activator { get; } = new ViewModelActivator();
         public string UrlPathSegment => "/play";
         public IScreen HostScreen { get; }
 
@@ -136,7 +138,7 @@ namespace SlugChessAval.ViewModels
 
             _vmGameBrowser = new GameBrowserViewModel { };
             _vmCreateGame = new CreateGameViewModel { };
-            Chatbox = new ChatboxViewModel { };
+            _chatbox = new ChatboxViewModel { };
 
             Observable.Merge(
                 _vmCreateGame.HostGame, _vmGameBrowser.JoinGame)
@@ -204,6 +206,14 @@ namespace SlugChessAval.ViewModels
                 () => { _shiftToMove.Execute(int.MaxValue).Subscribe(); },
                 moveIndexNotMax
                 );
+            this.WhenActivated(disposables =>
+            {
+
+                Disposable.Create(() =>
+                {
+
+                }).DisposeWith(disposables);
+            });
         }
 
         /// <summary>
@@ -225,17 +235,30 @@ namespace SlugChessAval.ViewModels
             var matchObservable = SlugChessService.Client.GetMatchListener(result.MatchToken);
             CapturedPices = new CapturedPicesViewModel(matchObservable);
             Chatbox.OpponentUsertoken = result.OpponentUserData.Usertoken;
+            var disposerForEndMatchWhenViewDeactivated = Activator.Deactivated.Subscribe((u) =>
+            {
+                SlugChessService.Client.Call.SendMoveAsync(new MovePacket
+                {
+                    CheatMatchevent = MatchEvent.ExpectedClosing,
+                    DoingMove = false,
+                    MatchToken = _matchToken,
+                    Usertoken = SlugChessService.Usertoken,
+                });
+            });
             matchObservable.Subscribe(
             (moveResult) => Dispatcher.UIThread.InvokeAsync(() =>
             {
 
-                if (moveResult.GameState.CurrentTurnIsWhite) _currentTurnPlayer = PlayerIs.White; else _currentTurnPlayer = PlayerIs.Black;
-                if (moveResult.MoveHappned)
-                {
-                    ChessClock.SetTime(TimeSpan.FromSeconds(moveResult.ChessClock.WhiteSecondsLeft), TimeSpan.FromSeconds(moveResult.ChessClock.BlackSecondsLeft), moveResult.GameState.CurrentTurnIsWhite, moveResult.ChessClock.TimerTicking);
-                }
                 if (moveResult.GameState != null)
                 {
+
+                    if (moveResult.MoveHappned && moveResult.ChessClock != null)
+                    {
+                        ChessClock.SetTime(TimeSpan.FromSeconds(moveResult.ChessClock.WhiteSecondsLeft), TimeSpan.FromSeconds(moveResult.ChessClock.BlackSecondsLeft), moveResult.GameState.CurrentTurnIsWhite, moveResult.ChessClock.TimerTicking);
+                    }
+
+                    //if (moveResult.GameState.CurrentTurnIsWhite) _currentTurnPlayer = PlayerIs.White; else _currentTurnPlayer = PlayerIs.Black;
+                    _currentTurnPlayer = moveResult.GameState.CurrentTurnIsWhite ? PlayerIs.White : _currentTurnPlayer = PlayerIs.Black;
                     _chessboardPositions.Add(ChessboardModel.FromChesscomGamestate(moveResult.GameState));
                     MoveDisplayIndex = _chessboardPositions.Count - 1;
                     WaitingOnMoveReply = false;
@@ -259,40 +282,39 @@ namespace SlugChessAval.ViewModels
                 //        }
                 //    });
                 //} else if
-                if (moveResult.MatchEvent == MatchEvent.UnexpectedClosing)
-                {
-                    ChessClock.StopTimer();
-                    OngoingGame = false;
-                    _playerIs = PlayerIs.Oberserver;
-                    SlugChessService.Client.MessageToLocal("Opponent unexpectedly quit the match.", "system");
-                    ((MainWindowViewModel)HostScreen).Notification = "UnexpextedClosing";
-                    //string textBoxText = "Opponents client unexpectedly closed";
 
+                // Don't need to do closing here as server will terminate stream next, causing OnCompletet to be called 
+                if (moveResult.MatchEvent == MatchEvent.ExpectedClosing)
+                {
+                    SlugChessService.Client.MessageToLocal("Opponent left the match. I suppose you won. Congratulations!", "system");
+                    ((MainWindowViewModel)HostScreen).Notification = "Opponent left match";
+                }
+                else if (moveResult.MatchEvent == MatchEvent.UnexpectedClosing)
+                {
+                    SlugChessService.Client.MessageToLocal("Opponent unexpectedly disconnect. Match ended", "system");
+                    ((MainWindowViewModel)HostScreen).Notification = "Opponent disconnected";
                 }
                 else if (moveResult.MatchEvent == ChessCom.MatchEvent.WhiteWin || moveResult.MatchEvent == ChessCom.MatchEvent.BlackWin)
                 {
-                    ChessClock.StopTimer();
-                    OngoingGame = false;
-                    _playerIs = PlayerIs.Oberserver;
-                    //TODO print in log who won
-                    //And send som motification shit
-                }
-                else
-                {
-
+                    SlugChessService.Client.MessageToLocal($"{(moveResult.MatchEvent == MatchEvent.WhiteWin?"White":"Black")} won the match", "system");
+                    ((MainWindowViewModel)HostScreen).Notification = $"{(moveResult.MatchEvent == MatchEvent.WhiteWin ? "White" : "Black")} won";
                 }
             }), (error) => Dispatcher.UIThread.InvokeAsync(() =>
             {
-
-                //TODO Print error to chatbox
-                ((MainWindowViewModel)HostScreen).Notification = "Connection error:  " + error.ToString();
-                _playerIs = PlayerIs.Non;
-                OngoingGame = false;
-            }), () => Dispatcher.UIThread.InvokeAsync(() =>
-            {
+                ((MainWindowViewModel)HostScreen).Notification = "Connection error";
+                SlugChessService.Client.MessageToLocal("Connection error:  " + error.ToString(), "system");
+                ChessClock.StopTimer();
                 _playerIs = PlayerIs.Non;
                 OngoingGame = false;
                 Chatbox.OpponentUsertoken = null;
+                disposerForEndMatchWhenViewDeactivated.Dispose();
+            }), () => Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                ChessClock.StopTimer();
+                _playerIs = PlayerIs.Non;
+                OngoingGame = false;
+                Chatbox.OpponentUsertoken = null;
+                disposerForEndMatchWhenViewDeactivated.Dispose();
             }));
         }
 

@@ -64,8 +64,8 @@ Changes to chesscom commuication api or underlating function.
 - [x] a way to see where and when pices died
 - [ ] switch to aval with all the same features as client
   - [ ] Alive heartbeat must be fixed. Make sure it works as intended.
-  - [ ] Fix match terminating when one player exits client
-  - [ ] Messages not sent between players in a match
+  - [x] Fix match terminating when one player exits client
+  - [x] Messages not sent between players in a match
   
 ### version 0.9.0 (Done)
 - [x] implement double fisher random

@@ -10,7 +10,7 @@ namespace SlugChessAval.ViewModels
 {
     public class ChatboxViewModel : ViewModelBase, IActivatableViewModel
     {
-        public ViewModelActivator Activator { get; }
+        public ViewModelActivator Activator { get; } = new ViewModelActivator();
 
         public ReactiveCommand<Unit, Unit> SendTextCommand { get; }
 
@@ -44,7 +44,6 @@ namespace SlugChessAval.ViewModels
 
         public ChatboxViewModel()
         {
-            Activator = new ViewModelActivator();
             ChatroomName = "system/CurrentMatch";
             SendTextCommand = ReactiveCommand.Create(() => 
             {
