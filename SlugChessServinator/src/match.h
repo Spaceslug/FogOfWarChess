@@ -97,10 +97,11 @@ public:
         }
     }
 
-    void PlayerDisconnected(const std::string& usertoken)
+    void PlayerDisconnected(const std::string& usertoken, chesscom::MatchEvent matchEventType)
     {
         std::unique_lock<std::mutex> scopeLock (mutex);
-        matchEvents.push_back(chesscom::MatchEvent::UnexpectedClosing);
+        matchEvents.push_back(matchEventType);
+        cv.notify_all();
     }
 	
     bool askingForDraw = false;

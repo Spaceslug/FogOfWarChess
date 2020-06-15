@@ -162,6 +162,17 @@ void MatchManager::MatchListenLoop(
                     loop = false;
                     //continue;
                 }
+                else if(matchPtr->matchEvents[lastEventNum] == chesscom::MatchEvent::ExpectedClosing)
+                {
+                    std::cout  << matchPtr->matchToken << " " <<  listenerUsertoken << " Opponent ExpectedClosing" << std::endl << std::flush;
+                    moveResultPkt.set_move_happned(false);
+                    moveResultPkt.set_opponent_asking_for_draw(false);
+                    //moveResultPkt.set_allocated_move(matchPtr->moves.back().get());
+                    moveResultPkt.set_match_event(chesscom::MatchEvent::ExpectedClosing);
+                    writerPtr->Write(moveResultPkt);
+                    loop = false;
+                    //continue;
+                }
                 else if(matchPtr->matchEvents[lastEventNum] == chesscom::MatchEvent::WhiteWin || matchPtr->matchEvents[lastEventNum] == chesscom::MatchEvent::BlackWin)
                 {
                     std::cout  << " Going to send other move " << std::endl << std::flush;
@@ -230,13 +241,13 @@ void MatchManager::DoMoveInMatch(
     case chesscom::MatchEvent::UnexpectedClosing:
     {
         //std::cout << request->match_token() << " " <<  request->usertoken()<< " Got UnexpectedClosing" << std::endl << std::flush;
-        matchPtr->PlayerDisconnected(usertoken);
+        matchPtr->PlayerDisconnected(usertoken, event);
     }
         break;
     case chesscom::MatchEvent::ExpectedClosing:
     {
-        //std::cout << request->match_token() << " " <<  request->usertoken()<< " Got ExpectedClosing" << std::endl << std::flush;
-        matchPtr->PlayerDisconnected(usertoken);
+        //TODO make non disconnecting player win the match
+        matchPtr->PlayerDisconnected(usertoken, event);
     }
         break;
     default:

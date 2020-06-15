@@ -449,10 +449,10 @@ void SlugChess::DoMove(const std::string& from, const std::string& to){
         _lastCaptureField = -1;
     }
     if(_lastCaptured == ChessPice::WhiteKing){
-        _gameEnd = EndResult::WhiteWin;
+        _gameEnd = EndResult::BlackWin;
     }
     if(_lastCaptured == ChessPice::BlackKing){
-        _gameEnd = EndResult::BlackWin;
+        _gameEnd = EndResult::WhiteWin;
     }
     CalculateVision();
     CalculateLegalMoves();
