@@ -39,12 +39,12 @@ namespace SlugChessAval.ViewModels
         }
         private MatchModel? _selectedItem;
 
-        public int SelectedIndex
-        {
-            get => _selectedIndex;
-            set => this.RaiseAndSetIfChanged(ref _selectedIndex, value);
-        }
-        private int _selectedIndex = -1;
+        //public int SelectedIndex
+        //{
+        //    get => _selectedIndex;
+        //    set => this.RaiseAndSetIfChanged(ref _selectedIndex, value);
+        //}
+        //private int _selectedIndex = -1;
 
         public GameBrowserViewModel(IScreen? screen = null)
         {
@@ -113,8 +113,9 @@ namespace SlugChessAval.ViewModels
         }
 
         private void HandleDeactivation() 
-        { 
-
+        {
+            MatchModels.Clear();
+            SelectedItem = null;
         }
 
         //private void dgMatchesDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)

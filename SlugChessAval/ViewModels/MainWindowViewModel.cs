@@ -133,12 +133,17 @@ namespace SlugChessAval.ViewModels
             //    canSearch);
             //Router.Navigate.Execute(new PlayViewModel());
 
-
 #if DEBUG
             int port = 43326;
 #else
             int port = 43327;
 #endif
+
+            if(Program.LaunchedWithParam("--port"))
+            {
+                port = Convert.ToInt32(Program.GetParamValue("--port"));
+            }
+
             Notification = "Connecting to server";
             SlugChessService.Instanciate("hive.spaceslug.no", port);
             SlugChessService.Client.UserLoggedIn.Subscribe(userLoggenIn => 

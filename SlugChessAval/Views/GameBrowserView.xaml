@@ -21,8 +21,7 @@
         		  Name="dgMatchesDataGrid" 
                   AutoGenerateColumns="True" 
                   SelectionMode="Single" 
-                  SelectedItem="{Binding SelectedItem, Mode=OneWayToSource}"
-                  SelectedIndex="{Binding SelectedIndex, Mode=OneWayToSource}"
+                  SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
                   Items="{Binding MatchModels}"
                   CanUserReorderColumns="False" CanUserResizeColumns="True" 
                   CanUserSortColumns="True" IsReadOnly="True"  /> 

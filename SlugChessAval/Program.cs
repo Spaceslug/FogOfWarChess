@@ -21,6 +21,10 @@ namespace SlugChessAval
         // yet and stuff might break.
         public static void Main(string[] args) {
             _launchParms = new List<string>(args);
+            if (LaunchedWithParam("--help"))
+            {
+                PrintHelpTextToConsole();
+            }
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         } 
 
@@ -30,5 +34,14 @@ namespace SlugChessAval
                 .UsePlatformDetect()
                 .LogToDebug()
                 .UseReactiveUI();
+
+
+        public static void PrintHelpTextToConsole()
+        {
+            Console.WriteLine("SlugChess launch parameters:");
+            Console.WriteLine("--help ;prints this text and prevents the launch of SlugChess ");
+            Console.WriteLine("--debugLogin [username] ;automaticly logs you in as username with the debug password");
+            Console.WriteLine("--port [port] ;sets the portnumber of the SlugChess server to connect to");
+        }
     }
 }

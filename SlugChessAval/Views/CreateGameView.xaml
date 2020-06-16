@@ -43,7 +43,7 @@
 	  <TextBox  Grid.Row="4" Grid.Column="2"  Text="{Binding ExtraTimeSec, Mode=TwoWay}" IsEnabled="{Binding !HostGame.IsExecuting^}" Margin="3" />
 	  <TextBlock  Grid.Row="4" Grid.Column="3" Text="sec" Margin="3"/>
 	  <TextBlock  Grid.Row="5" Grid.Column="1" Text="Vision Rules" Margin="3" />
-	  <ComboBox  Grid.Row="5" Grid.Column="2" SelectedIndex="0" IsEnabled="{Binding !HostGame.IsExecuting^}" Margin="5">
+	  <ComboBox  Grid.Row="5" Grid.Column="2" SelectedIndex="{Binding VisionRulesSelectedIndex}" IsEnabled="{Binding !HostGame.IsExecuting^}" Margin="5">
 	      <ComboBoxItem >SlugChess Standard</ComboBoxItem>
 	      <ComboBoxItem >SlugChess Sea</ComboBoxItem>
 	      <ComboBoxItem >No Vision Rules</ComboBoxItem>

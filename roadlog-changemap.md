@@ -47,23 +47,33 @@ Changes to chesscom commuication api or underlating function.
 - full PGN support ()
 - Print rules
 
+### version 0.13.0
+- [ ] save userdata
+- [ ] password system
+- [ ] simple elo system
+- [ ] record games played (PGN)
+
 ### version 0.12.0
-- [] add audio to Aval
-- [] python script for uploading new versions of Aval and maintain a manifest of versions for updator
-- [] auto updator for Aval
+- [ ] add audio to Aval
+- [ ] python script for uploading new versions of Aval and maintain a manifest of versions for updator
+- [ ] auto updator for Aval
 
 ### version 0.11.0
-- [] a worker that periodicly run tasks on server
-  - [] Task: Check last hearbeat on logged in
-  - [] Task: Remove matches that should no longer run
-  - [] Task: Log metrics like ammout of logged in users, current matches
-- [] Do the things that should happen when user i logged out e.g stop matches, end all log calls
+- [ ] a worker that periodicly run tasks on server
+  - [ ] Task: Check last hearbeat on logged in
+  - [ ] Task: Remove matches that should no longer run
+  - [ ] Task: Log metrics like ammout of logged in users, current matches
+- [ ] Do the things that should happen when user i logged out e.g stop matches, end all log calls
+- [ ] Alive heartbeat must be fixed. Make sure it works as intended.
+
+### version 0.10.1
+- [ ] leave game and conced
+- [ ] ask for and accept draw
 
 ### version 0.10.0
 - [x] back and forward in match( clients are sendt state so should be easy)
 - [x] a way to see where and when pices died
-- [ ] switch to aval with all the same features as client
-  - [ ] Alive heartbeat must be fixed. Make sure it works as intended.
+- [x] switch to aval with all the same features as client
   - [x] Fix match terminating when one player exits client
   - [x] Messages not sent between players in a match
   

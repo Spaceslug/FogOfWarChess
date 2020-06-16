@@ -40,7 +40,7 @@ namespace SlugChessAval.ViewModels
                 () => { HostScreen.Router.Navigate.Execute(new LoginViewModel()).Subscribe(); },
                 canMoveToLogin);
 #if DEBUG
-            if (Program.LaunchedWithParam("-debugLogin"))
+            if (Program.LaunchedWithParam("--debugLogin"))
             {
                 SlugChessService.Client.WhenAnyValue(x => x.ConnectionAlive).Delay(TimeSpan.FromSeconds(0.1)).Subscribe(x => 
                 {

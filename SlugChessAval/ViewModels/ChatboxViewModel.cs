@@ -65,7 +65,7 @@ namespace SlugChessAval.ViewModels
                 
                 Disposable.Create(() =>
                 {
-
+                    RecivedMessagesText = ""; //Clear text as next subscribe to messages will replay all
                 }).DisposeWith(disposables);
             });
         }

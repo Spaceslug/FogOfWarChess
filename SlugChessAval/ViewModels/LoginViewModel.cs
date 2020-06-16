@@ -74,10 +74,10 @@ namespace SlugChessAval.ViewModels
                 HandleLoginAttemptResult(result);
             });
 #if DEBUG
-            if (Program.LaunchedWithParam("-debugLogin"))
+            if (Program.LaunchedWithParam("--debugLogin"))
             {
-                Username = Program.GetParamValue("-debugLogin");
-                Password = Program.GetParamValue("-debugLogin");
+                Username = Program.GetParamValue("--debugLogin");
+                Password = Program.GetParamValue("--debugLogin");
                 _login.Execute().Subscribe();
             }
 
