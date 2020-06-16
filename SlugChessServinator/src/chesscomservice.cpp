@@ -18,7 +18,7 @@ Status ChessComService::Login(ServerContext* context, const chesscom::LoginForm*
         }
         else
         {
-            response->set_login_message("You should upgrade to latest version. Server version " VERSION ", Client version " + request->major_version() + "." + request->minor_version() + "." + request->build_version()+". You can find the latest version at 'http://spaceslug.no/slugchess/list.html'");
+            response->set_login_message("You should upgrade to latest version. Server version " VERSION ", Client version " + request->major_version() + "." + request->minor_version() + "." + request->build_version()+". You can find the latest version at 'http://spaceslug.no/slugchess/'");
         }
         std::string userToken = request->username() + "-" + std::to_string(tokenCounter++);
         //PRETEND TO FERCH USERDATA FROM A USER DATABASE
@@ -31,10 +31,26 @@ Status ChessComService::Login(ServerContext* context, const chesscom::LoginForm*
         std::cout << "User " << response->user_data().username() << " " << response->user_data().usertoken() << " logged in" << std::endl << std::flush;
         response->set_successfull_login(true);
     }
+    else if(request->major_version() < MAJOR_VER || (request->major_version() == MAJOR_VER && request->minor_version() < MINOR_VER))
+    {
+        response->set_successfull_login(false);
+        response->set_login_message("Login failed because version missmatch. Server version " VERSION ", Client version " + request->major_version() + "." + request->minor_version() + "." + request->build_version()+". You can find the latest version at 'http://spaceslug.no/slugchess/'");
+    }
+    else if(request->major_version() > MAJOR_VER || (request->major_version() == MAJOR_VER && request->minor_version() > MINOR_VER))
+    {
+        response->set_login_message("Client version higher then server. Assuming you are dev or something. Server version " VERSION ", Client version " + request->major_version() + "." + request->minor_version() + "." + request->build_version()+".");
+        std::string userToken = request->username() + "-" + std::to_string(tokenCounter++);
+        //PRETEND TO FERCH USERDATA FROM A USER DATABASE
+        auto& userData = *response->mutable_user_data();
+        userData.set_username(request->username());
+        userData.set_usertoken(userToken);
+        userData.set_elo(9999);
+        userManager.LogInUser(userToken, userData);
+    }
     else
     {
         response->set_successfull_login(false);
-        response->set_login_message("Login failed because version missmatch. Server version " VERSION ", Client version " + request->major_version() + "." + request->minor_version() + "." + request->build_version()+". You can find the latest version at 'http://spaceslug.no/slugchess/list.html'");
+        response->set_login_message("Login failed because unhandled version case. Server version " VERSION ", Client version " + request->major_version() + "." + request->minor_version() + "." + request->build_version());
     }
     return Status::OK;
 }
