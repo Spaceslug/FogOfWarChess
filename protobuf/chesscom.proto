@@ -35,8 +35,8 @@ enum MatchEvent {
 	BlackWin = 2;
 	Draw = 3;
 	UnexpectedClosing = 4;
-	WhiteAskingForDraw = 5;
-	BlackAskingForDraw = 6;
+	AskingForDraw = 5;
+	AcceptingDraw = 6;
 	ExpectedClosing = 7;
 	//AcceptingDraw = 6;
 }
