@@ -69,6 +69,9 @@ Changes to chesscom commuication api or underlating function.
 ### version 0.10.1
 - [ ] leave game and conced
 - [ ] ask for and accept draw
+- [ ] see if Draw commands can be made with async commands istead of callin UIAsync https://reactiveui.net/docs/guidelines/framework/asynchronous-commands
+- [ ] need to separate messages to player. Both can't listen to match_events because they sometime need differert events
+- [ ] make messager globaly available in SCS so messages can be sent to a user anywhere in the code
 
 ### version 0.10.0
 - [x] back and forward in match( clients are sendt state so should be easy)

@@ -13,6 +13,7 @@ using SlugChessAval.Services;
 using Avalonia.Threading;
 using Google.Protobuf.WellKnownTypes;
 using System.Reactive.Disposables;
+using System.Threading;
 
 namespace SlugChessAval.ViewModels
 {
@@ -79,10 +80,31 @@ namespace SlugChessAval.ViewModels
         }
         private int _moveDisplayIndex = -1;
 
+        public bool OpponentAskingForDraw
+        {
+            get => _opponentAskingForDraw;
+            set => this.RaiseAndSetIfChanged(ref _opponentAskingForDraw, value);
+        }
+        private bool _opponentAskingForDraw;
+
+        public bool MeAskingForDraw
+        {
+            get => _meAskingForDraw;
+            set => this.RaiseAndSetIfChanged(ref _meAskingForDraw, value);
+        }
+        private bool _meAskingForDraw;
+
         public string PlayingAs => _playerIs switch { PlayerIs.White => "Playing as White", PlayerIs.Black => "Playing as Black", PlayerIs.Both => "Playing yourself", PlayerIs.Oberserver => "Watching as Observer", _ => "No game active" };
         public PlayerIs _playerIs = PlayerIs.Non;
 
+        public readonly IObservable<bool> IsCurrentPlayersTurn;
+        public PlayerIs CurrentTurnPlayer
+        {
+            get => _currentTurnPlayer;
+            set => this.RaiseAndSetIfChanged(ref _currentTurnPlayer, value);
+        }
         private PlayerIs _currentTurnPlayer = PlayerIs.Non;
+
         private string _matchToken { get; set; } = "0000";
 
         public ICommand MoveToCreateGame => _moveToCreateGame;
@@ -108,16 +130,25 @@ namespace SlugChessAval.ViewModels
         public ICommand ForwardEnd=> _forwardEnd;
         private readonly ReactiveCommand<Unit, Unit> _forwardEnd;
 
+
+        public ICommand AskForDraw => _askForDraw;
+        private readonly ReactiveCommand<Unit, Unit> _askForDraw;
+        public ICommand AcceptDraw => _acceptDraw;
+        private readonly ReactiveCommand<Unit, Unit> _acceptDraw;
+        public ICommand Surrender => _surrender;
+        private readonly ReactiveCommand<Unit, Unit> _surrender;
+
         //public ReactiveCommand<Unit, LookForMatchResult> ConnectToGame { get; }
 
         public PlayViewModel(IScreen? screen = null)
         {
             HostScreen = screen ?? Locator.Current.GetService<IScreen>();
             MoveDisplayIndex = -1;
+            IsCurrentPlayersTurn = this.WhenAnyValue(x => x.CurrentTurnPlayer, x => x == _playerIs);
             Chessboard = new ChessboardViewModel { CbModel = ChessboardModel.FromDefault() };
             Chessboard.MoveFromTo.Subscribe(t => {
                 //LastMove = $"From={t.from}, To={t.to}";
-                if(OngoingGame && (_playerIs == _currentTurnPlayer))
+                if(OngoingGame && (_playerIs == CurrentTurnPlayer))
                 {
                     SlugChessService.Client.Call.SendMoveAsync( new MovePacket
                     {
@@ -139,6 +170,7 @@ namespace SlugChessAval.ViewModels
             _vmGameBrowser = new GameBrowserViewModel { };
             _vmCreateGame = new CreateGameViewModel { };
             _chatbox = new ChatboxViewModel { };
+
 
             Observable.Merge(
                 _vmCreateGame.HostGame, _vmGameBrowser.JoinGame)
@@ -206,6 +238,51 @@ namespace SlugChessAval.ViewModels
                 () => { _shiftToMove.Execute(int.MaxValue).Subscribe(); },
                 moveIndexNotMax
                 );
+            //Draw and Surrender
+            _acceptDraw = ReactiveCommand.Create(
+                () => {
+                    SlugChessService.Client.Call.SendMoveAsync(new MovePacket
+                    {
+                        CheatMatchevent = MatchEvent.AcceptingDraw,
+                        DoingMove = false,
+                        MatchToken = _matchToken,
+                        Usertoken = SlugChessService.Usertoken,
+                    });
+                    OpponentAskingForDraw = false;
+                }, this.WhenAnyValue(x => x.OpponentAskingForDraw)
+            );
+            _askForDraw = ReactiveCommand.Create(
+                () => {
+                    SlugChessService.Client.Call.SendMoveAsync(new MovePacket
+                    {
+                        CheatMatchevent = MatchEvent.AskingForDraw,
+                        DoingMove = false,
+                        MatchToken = _matchToken,
+                        Usertoken = SlugChessService.Usertoken,
+                    });
+                    MeAskingForDraw = true;
+                    DispatcherTimer.RunOnce(() => { MeAskingForDraw = false; }, TimeSpan.FromSeconds(5));
+                }, Observable.CombineLatest(
+                    this.WhenAnyValue(x => x.OpponentAskingForDraw, x => !x), 
+                    IsCurrentPlayersTurn,
+                    this.WhenAnyValue(x => x.MeAskingForDraw, x => !x),
+                    (x,y,z) => x && y && z)
+            );
+            _surrender = ReactiveCommand.Create(
+                () => {
+                    SlugChessService.Client.MessageToLocal("You surredered", "system");
+                    SlugChessService.Client.Call.SendMoveAsync(new MovePacket
+                    {
+                        CheatMatchevent = MatchEvent.ExpectedClosing,
+                        DoingMove = false,
+                        MatchToken = _matchToken,
+                        Usertoken = SlugChessService.Usertoken,
+                    });
+                   
+                }, this.WhenAnyValue(x => x.OngoingGame)
+            );
+
+
             this.WhenActivated(disposables =>
             {
 
@@ -258,7 +335,7 @@ namespace SlugChessAval.ViewModels
                     }
 
                     //if (moveResult.GameState.CurrentTurnIsWhite) _currentTurnPlayer = PlayerIs.White; else _currentTurnPlayer = PlayerIs.Black;
-                    _currentTurnPlayer = moveResult.GameState.CurrentTurnIsWhite ? PlayerIs.White : _currentTurnPlayer = PlayerIs.Black;
+                    CurrentTurnPlayer = moveResult.GameState.CurrentTurnIsWhite ? PlayerIs.White : PlayerIs.Black;
                     _chessboardPositions.Add(ChessboardModel.FromChesscomGamestate(moveResult.GameState));
                     MoveDisplayIndex = _chessboardPositions.Count - 1;
                     WaitingOnMoveReply = false;
@@ -282,22 +359,56 @@ namespace SlugChessAval.ViewModels
                 //        }
                 //    });
                 //} else if
+                switch (moveResult.MatchEvent)
+                {
+                    // Don't need to do closing here as server will terminate stream next, causing OnCompletet to be called 
+                    case MatchEvent.ExpectedClosing:
+                        {
+                            SlugChessService.Client.MessageToLocal("Opponent left the match. I suppose you won. Congratulations!", "system");
+                            ((MainWindowViewModel)HostScreen).Notification = "Opponent left match";
+                        }
+                        break;
+                    case MatchEvent.UnexpectedClosing:
+                        {
+                            SlugChessService.Client.MessageToLocal("Opponent unexpectedly disconnect. Match ended", "system");
+                            ((MainWindowViewModel)HostScreen).Notification = "Opponent disconnected";
+                        }
+                        break;
+                    case MatchEvent.WhiteWin:
+                    case MatchEvent.BlackWin:
+                        {
+                            SlugChessService.Client.MessageToLocal($"{(moveResult.MatchEvent == MatchEvent.WhiteWin ? "White" : "Black")} won the match", "system");
+                            ((MainWindowViewModel)HostScreen).Notification = $"{(moveResult.MatchEvent == MatchEvent.WhiteWin ? "White" : "Black")} won";
+                        }
+                        break;
+                    case MatchEvent.Draw:
+                        {
+                            SlugChessService.Client.MessageToLocal("Match ended in draw", "system");
+                            ((MainWindowViewModel)HostScreen).Notification = "Draw";
+                        }
+                        break;
+                    case MatchEvent.AskingForDraw:
+                        {
+                            if (!MeAskingForDraw)
+                            {
+                                SlugChessService.Client.MessageToLocal("Opponent requesting Draw", "system");
+                                ((MainWindowViewModel)HostScreen).Notification = "Opponent requesting Draw";
+                                OpponentAskingForDraw = true;
+                                DispatcherTimer.RunOnce(() => { OpponentAskingForDraw = false; }, TimeSpan.FromSeconds(5));
+                            }
+                            
+                        }
+                        break;
+                    case MatchEvent.AcceptingDraw:
+                        {
+                            SlugChessService.Client.MessageToLocal("Opponent accepted Draw", "system");
+                        }
+                        break;
+                    case MatchEvent.Non:
+                        {
 
-                // Don't need to do closing here as server will terminate stream next, causing OnCompletet to be called 
-                if (moveResult.MatchEvent == MatchEvent.ExpectedClosing)
-                {
-                    SlugChessService.Client.MessageToLocal("Opponent left the match. I suppose you won. Congratulations!", "system");
-                    ((MainWindowViewModel)HostScreen).Notification = "Opponent left match";
-                }
-                else if (moveResult.MatchEvent == MatchEvent.UnexpectedClosing)
-                {
-                    SlugChessService.Client.MessageToLocal("Opponent unexpectedly disconnect. Match ended", "system");
-                    ((MainWindowViewModel)HostScreen).Notification = "Opponent disconnected";
-                }
-                else if (moveResult.MatchEvent == ChessCom.MatchEvent.WhiteWin || moveResult.MatchEvent == ChessCom.MatchEvent.BlackWin)
-                {
-                    SlugChessService.Client.MessageToLocal($"{(moveResult.MatchEvent == MatchEvent.WhiteWin?"White":"Black")} won the match", "system");
-                    ((MainWindowViewModel)HostScreen).Notification = $"{(moveResult.MatchEvent == MatchEvent.WhiteWin ? "White" : "Black")} won";
+                        }
+                        break;
                 }
             }), (error) => Dispatcher.UIThread.InvokeAsync(() =>
             {
