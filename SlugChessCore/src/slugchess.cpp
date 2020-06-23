@@ -280,8 +280,8 @@ std::set<int> SlugChess::Checks(Perspective perspective){
     std::set<int> set;
     if(perspective != Perspective::Both){
         bool whitePerspec = perspective == Perspective::White;
-        if(whitePerspec)std::cout << "!!!!white prespec check" << std::endl << std::flush;
-        if(!whitePerspec)std::cout << "!!!!black prespec check" << std::endl << std::flush;
+        //if(whitePerspec)std::cout << "!!!!white prespec check" << std::endl << std::flush;
+        //if(!whitePerspec)std::cout << "!!!!black prespec check" << std::endl << std::flush;
         auto moves = whitePerspec?_legalWhiteMoves:_legalBlackMoves;
         auto shadowMoves = whitePerspec?_shadowBlackMoves:_shadowWhiteMoves;
         int kingPespective = GetFieldWithPice(whitePerspec?ChessPice::WhiteKing:ChessPice::BlackKing);

@@ -13,7 +13,7 @@ class SlugChessConverter
 {
     public:
     static void SetGameState(std::shared_ptr<SlugChess> game, chesscom::GameState* gameState, bool isWhitePlayer){
-        std::cout  << " set game stat " << std::endl << std::flush;
+        //std::cout  << " set game stat " << std::endl << std::flush;
         auto vision = isWhitePlayer?game->GetWhiteVision():game->GetBlackVision(); 
         auto pices = game->GetPices(); 
         auto captured = game->KilledPices();

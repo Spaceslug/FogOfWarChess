@@ -196,6 +196,36 @@ void MatchManager::MatchListenLoop(
                     loop = false;
                     continue;
                 }
+                else if(matchPtr->matchEvents[lastEventNum] == chesscom::MatchEvent::Draw)
+                {
+                    std::cout  << " Sending asking for draw " << std::endl << std::flush;
+                    moveResultPkt.set_move_happned(false);
+                    moveResultPkt.set_match_event(chesscom::MatchEvent::Draw);
+                     std::stringstream ss;
+                    ss << "Moves of the game in SAN:" << std::endl;
+                    matchPtr->game->PrintSanMoves(ss);
+                    std::string message = ss.str();
+                    //TODO this chat message to user should be handles somewhere else
+                    //messenger.SendServerMessage(listenerUsertoken, message);
+                    writerPtr->Write(moveResultPkt);
+                    loop = false;
+                    continue;
+                }
+                else if(matchPtr->matchEvents[lastEventNum] == chesscom::MatchEvent::AskingForDraw)
+                {
+                    std::cout  << " Sending asking for draw " << std::endl << std::flush;
+                    moveResultPkt.set_move_happned(false);
+                    //moveResultPkt.set_allocated_move(matchPtr->moves.back().get());
+                    moveResultPkt.set_match_event(chesscom::MatchEvent::AskingForDraw);
+                    writerPtr->Write(moveResultPkt);
+                }
+                else if(matchPtr->matchEvents[lastEventNum] == chesscom::MatchEvent::AcceptingDraw)
+                {
+                    moveResultPkt.set_move_happned(false);
+                    //moveResultPkt.set_allocated_move(matchPtr->moves.back().get());
+                    moveResultPkt.set_match_event(chesscom::MatchEvent::AcceptingDraw);
+                    writerPtr->Write(moveResultPkt);
+                }
                 else
                 {
                     std::cout  << " Going to send move " << std::endl << std::flush;
@@ -241,13 +271,42 @@ void MatchManager::DoMoveInMatch(
     case chesscom::MatchEvent::UnexpectedClosing:
     {
         //std::cout << request->match_token() << " " <<  request->usertoken()<< " Got UnexpectedClosing" << std::endl << std::flush;
-        matchPtr->PlayerDisconnected(usertoken, event);
+        if(matchPtr->whitePlayer == usertoken)
+        {
+            matchPtr->PlayerDisconnected(usertoken, chesscom::MatchEvent::BlackWin);
+        }
+        else if(matchPtr->blackPlayer == usertoken)
+        {
+            matchPtr->PlayerDisconnected(usertoken, chesscom::MatchEvent::WhiteWin);
+        }else{
+            matchPtr->PlayerDisconnected(usertoken, event);
+        }
+        
     }
         break;
     case chesscom::MatchEvent::ExpectedClosing:
     {
+        if(matchPtr->whitePlayer == usertoken)
+        {
+            matchPtr->PlayerDisconnected(usertoken, chesscom::MatchEvent::BlackWin);
+        }
+        else if(matchPtr->blackPlayer == usertoken)
+        {
+            matchPtr->PlayerDisconnected(usertoken, chesscom::MatchEvent::WhiteWin);
+        }else{
+            matchPtr->PlayerDisconnected(usertoken, event);
+        }
         //TODO make non disconnecting player win the match
-        matchPtr->PlayerDisconnected(usertoken, event);
+    }
+        break;
+    case chesscom::MatchEvent::AskingForDraw:
+    {
+        matchPtr->PlayerAskingForDraw(usertoken);
+    }
+        break;
+    case chesscom::MatchEvent::AcceptingDraw:
+    {
+        matchPtr->PlayerAcceptingDraw(usertoken);
     }
         break;
     default:
