@@ -5,6 +5,7 @@ using Splat;
 using System;
 using System.Collections.Generic;
 using System.Reactive;
+using System.Reactive.Disposables;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,19 +13,21 @@ using System.Windows.Input;
 
 namespace SlugChessAval.ViewModels
 {
-    public class CreateGameViewModel : ViewModelBase, IRoutableViewModel
+    public class CreateGameViewModel : ViewModelBase, IRoutableViewModel, IActivatableViewModel 
     {
         public const int DEFAULT_START_TIME_MIN = 5;
         public const int DEFAULT_EXTRA_TIME_SEC = 6;
         public const int DEFAULT_CHESSTYPE_INDEX = 2;
-        public const int DEFAULT_VISION_RULES_INDEX = 0;
+        public const int DEFAULT_VISION_RULES_INDEX = 1;
         public const int DEFAULT_HOST_COLOR_INDEX = 2;
+
+        public ViewModelActivator Activator { get; } = new ViewModelActivator();
         public string UrlPathSegment => "/creategame";
         public IScreen HostScreen { get; }
 
         private CancellationTokenSource _hostGameTokenSource = new CancellationTokenSource();
 
-        public ICommand Cancel => ((MainWindowViewModel)HostScreen).Cancel;
+        public ReactiveCommand<Unit,Unit> Cancel => ((MainWindowViewModel)HostScreen).Cancel;
 
         public ReactiveCommand<Unit, LookForMatchResult> HostGame { get; }
 
@@ -68,15 +71,25 @@ namespace SlugChessAval.ViewModels
 
             HostGame = ReactiveCommand.CreateFromTask(() => HostGameRequest());
 
-            HostGame.Subscribe(result => 
-            {
-                if (result.Succes)
-                {
+            //Cancel.Subscribe(x =>
+            //{
+            //    _hostGameTokenSource.Cancel();
+            //});
 
-                }
+            this.WhenActivated(disposables =>
+            {
+                _hostGameTokenSource = new CancellationTokenSource();
+                //disposables.Add(Cancel.Subscribe(x =>
+                //{
+                //    _hostGameTokenSource.Cancel();
+                //}));
+                Disposable.Create(() =>
+                {
+                    _hostGameTokenSource.Cancel();
+                }).DisposeWith(disposables);
             });
-            
-            
+
+
         }
 
         private Task<LookForMatchResult> HostGameRequest() => Task.Run(() =>

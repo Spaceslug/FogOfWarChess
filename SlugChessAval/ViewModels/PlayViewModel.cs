@@ -94,6 +94,9 @@ namespace SlugChessAval.ViewModels
         }
         private bool _meAskingForDraw;
 
+        private readonly ObservableAsPropertyHelper<bool> _askingForDrawExecuting;
+        public bool AskingForDrawExecuting => _askingForDrawExecuting.Value;
+
         public string PlayingAs => _playerIs switch { PlayerIs.White => "Playing as White", PlayerIs.Black => "Playing as Black", PlayerIs.Both => "Playing yourself", PlayerIs.Oberserver => "Watching as Observer", _ => "No game active" };
         public PlayerIs _playerIs = PlayerIs.Non;
 
@@ -145,7 +148,7 @@ namespace SlugChessAval.ViewModels
             HostScreen = screen ?? Locator.Current.GetService<IScreen>();
             MoveDisplayIndex = -1;
             IsCurrentPlayersTurn = this.WhenAnyValue(x => x.CurrentTurnPlayer, x => x == _playerIs);
-            Chessboard = new ChessboardViewModel { CbModel = ChessboardModel.FromDefault() };
+            Chessboard = new ChessboardViewModel{ CbModel = ChessboardModel.FromDefault()};
             Chessboard.MoveFromTo.Subscribe(t => {
                 //LastMove = $"From={t.from}, To={t.to}";
                 if(OngoingGame && (_playerIs == CurrentTurnPlayer))
@@ -160,8 +163,6 @@ namespace SlugChessAval.ViewModels
                         Move = new Move { From=t.from, To=t.to, SecSpent=ChessClock.GetSecondsSpent(), Timestamp=Timestamp.FromDateTime(DateTime.UtcNow)},
                     });
                     WaitingOnMoveReply = true;
-                    //TODO prevent Chessboard from selecting until server has responded with a MoveResult
-
                 }
             });
             _chessClock = new ChessClockViewModel(new TimeSpan(), new TimeSpan(), 0);
@@ -239,48 +240,16 @@ namespace SlugChessAval.ViewModels
                 moveIndexNotMax
                 );
             //Draw and Surrender
-            _acceptDraw = ReactiveCommand.Create(
-                () => {
-                    SlugChessService.Client.Call.SendMoveAsync(new MovePacket
-                    {
-                        CheatMatchevent = MatchEvent.AcceptingDraw,
-                        DoingMove = false,
-                        MatchToken = _matchToken,
-                        Usertoken = SlugChessService.Usertoken,
-                    });
-                    OpponentAskingForDraw = false;
-                }, this.WhenAnyValue(x => x.OpponentAskingForDraw)
-            );
-            _askForDraw = ReactiveCommand.Create(
-                () => {
-                    SlugChessService.Client.Call.SendMoveAsync(new MovePacket
-                    {
-                        CheatMatchevent = MatchEvent.AskingForDraw,
-                        DoingMove = false,
-                        MatchToken = _matchToken,
-                        Usertoken = SlugChessService.Usertoken,
-                    });
-                    MeAskingForDraw = true;
-                    DispatcherTimer.RunOnce(() => { MeAskingForDraw = false; }, TimeSpan.FromSeconds(5));
-                }, Observable.CombineLatest(
+            _acceptDraw = ReactiveCommand.CreateFromObservable(AcceptDrawImpl, this.WhenAnyValue(x => x.OpponentAskingForDraw));
+            _askForDraw = ReactiveCommand.CreateFromObservable(AskForDrawImpl, 
+                Observable.CombineLatest(
                     this.WhenAnyValue(x => x.OpponentAskingForDraw, x => !x), 
                     IsCurrentPlayersTurn,
-                    this.WhenAnyValue(x => x.MeAskingForDraw, x => !x),
-                    (x,y,z) => x && y && z)
+                    (x,y) => x && y)
             );
-            _surrender = ReactiveCommand.Create(
-                () => {
-                    SlugChessService.Client.MessageToLocal("You surredered", "system");
-                    SlugChessService.Client.Call.SendMoveAsync(new MovePacket
-                    {
-                        CheatMatchevent = MatchEvent.ExpectedClosing,
-                        DoingMove = false,
-                        MatchToken = _matchToken,
-                        Usertoken = SlugChessService.Usertoken,
-                    });
-                   
-                }, this.WhenAnyValue(x => x.OngoingGame)
-            );
+            _askingForDrawExecuting = _askForDraw.IsExecuting.ToProperty(this, nameof(AskingForDrawExecuting));
+
+            _surrender = ReactiveCommand.CreateFromObservable(SurrenderImpl, this.WhenAnyValue(x => x.OngoingGame));
 
 
             this.WhenActivated(disposables =>
@@ -292,6 +261,41 @@ namespace SlugChessAval.ViewModels
                 }).DisposeWith(disposables);
             });
         }
+        private IObservable<Unit> AcceptDrawImpl() => Observable.Start(() =>
+        {
+            SlugChessService.Client.Call.SendMoveAsync(new MovePacket
+            {
+                CheatMatchevent = MatchEvent.AcceptingDraw,
+                DoingMove = false,
+                MatchToken = _matchToken,
+                Usertoken = SlugChessService.Usertoken,
+            });
+            OpponentAskingForDraw = false;
+        });
+
+        private IObservable<Unit> AskForDrawImpl() => Observable.Start(() => 
+        {
+            SlugChessService.Client.Call.SendMoveAsync(new MovePacket
+            {
+                CheatMatchevent = MatchEvent.AskingForDraw,
+                DoingMove = false,
+                MatchToken = _matchToken,
+                Usertoken = SlugChessService.Usertoken,
+            });
+            Thread.Sleep(5000); //Holding the call for 5 sec prevents button form being pressed again 
+        });
+
+        private IObservable<Unit> SurrenderImpl() => Observable.Start(() =>
+        {
+            SlugChessService.Client.MessageToLocal("You surredered", "system");
+            SlugChessService.Client.Call.SendMoveAsync(new MovePacket
+            {
+                CheatMatchevent = MatchEvent.ExpectedClosing,
+                DoingMove = false,
+                MatchToken = _matchToken,
+                Usertoken = SlugChessService.Usertoken,
+            });
+        });
 
         /// <summary>
         /// Allready determined result.Success is true
@@ -341,24 +345,6 @@ namespace SlugChessAval.ViewModels
                     WaitingOnMoveReply = false;
                 }
 
-
-                //Not yet implemented on server
-                //if (move.OpponentAskingForDraw) 
-                //{
-                //    Instance.Dispatcher.Invoke(() =>
-                //    {
-                //        string popupText = "Draw?";
-                //        string textBoxText = "Opponent is asking for draw. Do you accept?";
-                //        MessageBoxButton button = MessageBoxButton.YesNo;
-                //        MessageBoxImage icon = MessageBoxImage.Error;
-                //        var drawResult = MessageBox.Show(textBoxText, popupText, button, icon);
-                //        if (drawResult == MessageBoxResult.Yes)
-                //        {
-                //            _matchStream.RequestStream.WriteAsync(new ChessCom.MovePacket { AskingForDraw = true });
-                //            matchEnded = true;
-                //        }
-                //    });
-                //} else if
                 switch (moveResult.MatchEvent)
                 {
                     // Don't need to do closing here as server will terminate stream next, causing OnCompletet to be called 
@@ -389,7 +375,7 @@ namespace SlugChessAval.ViewModels
                         break;
                     case MatchEvent.AskingForDraw:
                         {
-                            if (!MeAskingForDraw)
+                            if (!AskingForDrawExecuting)
                             {
                                 SlugChessService.Client.MessageToLocal("Opponent requesting Draw", "system");
                                 ((MainWindowViewModel)HostScreen).Notification = "Opponent requesting Draw";
