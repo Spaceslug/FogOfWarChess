@@ -44,6 +44,11 @@ void SigintHandler (int param)
 
 
 void Run(std::string port) {
+    //Booting up singeltons
+    MatchManager::Get();
+    UserManager::Get();
+    GameBrowser::Get();
+
     std::string address("0.0.0.0:" + port);
     ChessComService service;
 

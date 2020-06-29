@@ -3,6 +3,8 @@
 #include <random>
 #include <exception>
 
+MatchManager* MatchManager::_instance = 0;
+
 std::string MatchManager::CreateMatch(std::string& player1Token, std::string& player2Token)
 {
     std::string matchToken = "match"+ std::to_string(_tokenCounter++);

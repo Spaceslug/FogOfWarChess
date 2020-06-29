@@ -44,10 +44,6 @@ public:
     std::queue<std::string> lookingForMatchQueue;
     std::map<std::string, std::string> foundMatchReply;
     //std::map<std::string, std::shared_ptr<::Match>> matches;
-    Messenger messenger;
-    GameBrowser gameBrowser;
-    MatchManager matchManager;
-    UserManager userManager;
 
     ChessComService();
     grpc::Status Login(ServerContext* context, const chesscom::LoginForm* request, chesscom::LoginResult* response) override;

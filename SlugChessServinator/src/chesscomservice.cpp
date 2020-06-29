@@ -4,7 +4,6 @@ const int ChessComService::SHUTDOWN_WAIT_MS = ChessComService::MAX_SLEEP_MS*2.5;
 
 ChessComService::ChessComService()
 {
-    gameBrowser._matchManager = &matchManager;
     tokenCounter = 1;
 }
 Status ChessComService::Login(ServerContext* context, const chesscom::LoginForm* request, chesscom::LoginResult* response) 
@@ -26,7 +25,7 @@ Status ChessComService::Login(ServerContext* context, const chesscom::LoginForm*
         userData.set_username(request->username());
         userData.set_usertoken(userToken);
         userData.set_elo(9999);
-        userManager.LogInUser(userToken, userData);
+        UserManager::Get()->LogInUser(userToken, userData);
 
         std::cout << "User " << response->user_data().username() << " " << response->user_data().usertoken() << " logged in" << std::endl << std::flush;
         response->set_successfull_login(true);
@@ -45,7 +44,7 @@ Status ChessComService::Login(ServerContext* context, const chesscom::LoginForm*
         userData.set_username(request->username());
         userData.set_usertoken(userToken);
         userData.set_elo(9999);
-        userManager.LogInUser(userToken, userData);
+        UserManager::Get()->LogInUser(userToken, userData);
     }
     else
     {
@@ -66,7 +65,7 @@ Status ChessComService::LookForMatch(ServerContext* context, const chesscom::Use
         if(!lookingForMatchQueue.empty()){
             std::string opponent = lookingForMatchQueue.front();
             lookingForMatchQueue.pop();
-            match_token = matchManager.CreateMatch(userToken, opponent);
+            match_token = MatchManager::Get()->CreateMatch(userToken, opponent);
             foundMatchReply[opponent] = match_token;
             loop = false;
         }
@@ -90,7 +89,7 @@ Status ChessComService::LookForMatch(ServerContext* context, const chesscom::Use
             }
         }
     }
-    auto matPtr = matchManager.GetMatch(match_token);
+    auto matPtr = MatchManager::Get()->GetMatch(match_token);
     {
         std::unique_lock<std::mutex> scopeLock (lock);
         std::cout << userToken << " found match " <<  match_token << std::endl << std::flush;
@@ -100,13 +99,13 @@ Status ChessComService::LookForMatch(ServerContext* context, const chesscom::Use
     response->set_succes(true);
     response->set_match_token(match_token);
     response->set_is_white_player(matPtr->whitePlayer == userToken);
-    response->mutable_opponent_user_data()->CopyFrom(userManager.Getuser_data(response->is_white_player()?matPtr->blackPlayer:matPtr->whitePlayer));
+    response->mutable_opponent_user_data()->CopyFrom(*UserManager::Get()->GetUserData(response->is_white_player()?matPtr->blackPlayer:matPtr->whitePlayer).get());
     response->mutable_game_rules()->set_chess_type(chesscom::ChessType::Classic);
     response->mutable_game_rules()->set_side_type(chesscom::SideType::Random);
     
     
     chesscom::VisionRules* vrPtr = response->mutable_game_rules()->mutable_vision_rules();
-    auto serverVisionRules = matchManager.ServerVisionRules();
+    auto serverVisionRules = MatchManager::Get()->ServerVisionRules();
     vrPtr->set_enabled(serverVisionRules.enabled);
     vrPtr->set_view_move_fields(serverVisionRules.globalRules.ViewMoveFields);
     vrPtr->set_view_range(serverVisionRules.globalRules.ViewRange);
@@ -122,7 +121,7 @@ Status ChessComService::LookForMatch(ServerContext* context, const chesscom::Use
         (*override)[piceRulesPar.first] = special;
     }
     chesscom::TimeRules* trPtr = response->mutable_game_rules()->mutable_time_rules();
-    trPtr->CopyFrom(matchManager.ServerTimeRules());
+    trPtr->CopyFrom(MatchManager::Get()->ServerTimeRules());
     //dsa = serverVisionRules;
     return Status::OK;
 }
@@ -166,7 +165,7 @@ Status ChessComService::Match(ServerContext* context, grpc::ServerReaderWriter< 
     }
     std::cout << "Opening matchstream for " << movePkt.match_token() << " " <<  movePkt.usertoken() << std::endl << std::flush;
     std::string userToken = movePkt.usertoken();
-    std::shared_ptr<::Match> matchPtr = matchManager.GetMatch(movePkt.match_token());
+    std::shared_ptr<::Match> matchPtr = MatchManager::Get()->GetMatch(movePkt.match_token());
     std::cout  << movePkt.match_token() << " " <<  movePkt.usertoken()<< " Starting read thread " << std::endl << std::flush;
     std::thread t1([this, context, matchPtr, stream](){
         this->MatchReadLoop(context, matchPtr, stream);
@@ -179,7 +178,7 @@ Status ChessComService::Match(ServerContext* context, grpc::ServerReaderWriter< 
         return grpc::Status::OK;
     }
     t1.join();
-    matchManager.EraseMatch(movePkt.match_token());
+    MatchManager::Get()->EraseMatch(movePkt.match_token());
     std::cout  << movePkt.match_token() << " " <<  movePkt.usertoken()<< " Matchstream ended." << std::endl << std::flush;
     return Status::OK;
 }
@@ -187,14 +186,14 @@ Status ChessComService::Match(ServerContext* context, grpc::ServerReaderWriter< 
 grpc::Status ChessComService::MatchEventListener(grpc::ServerContext *context, const chesscom::MatchObserver* request, grpc::ServerWriter<chesscom::MoveResult> *writer)
 {
     std::cout << "Opening MatchEventListener for " << request->match_id() << " " <<  request->usertoken() << std::endl << std::flush;
-    std::shared_ptr<::Match> matchPtr = matchManager.GetMatch(request->match_id());
+    std::shared_ptr<::Match> matchPtr = MatchManager::Get()->GetMatch(request->match_id());
     //Blocks until match is over
     MatchManager::MatchListenLoop(request->usertoken(), matchPtr, context, writer);
     if(context->IsCancelled()) {
         std::cout  << request->match_id() << " " <<  request->usertoken()<< " MatchEventListener cancelled " << std::endl << std::flush;
         return grpc::Status::OK;
     }
-    matchManager.EraseMatch(request->match_id());
+    MatchManager::Get()->EraseMatch(request->match_id());
     std::cout  << request->match_id() << " " <<  request->usertoken()<< " MatchEventListener ended." << std::endl << std::flush;
     return Status::OK;
 }
@@ -210,7 +209,7 @@ grpc::Status ChessComService::SendMove(grpc::ServerContext* context, const chess
         return grpc::Status::CANCELLED;
     }
     if(request->asking_for_draw())throw "draw not implemented";
-    std::shared_ptr<::Match> matchPtr = matchManager.GetMatch(request->match_token());
+    std::shared_ptr<::Match> matchPtr = MatchManager::Get()->GetMatch(request->match_token());
     std::shared_ptr<chesscom::Move> movePtr = std::make_shared<chesscom::Move>(request->move());
     MatchManager::DoMoveInMatch(request->cheat_matchevent(), request->usertoken(), matchPtr, movePtr);
     
@@ -236,7 +235,7 @@ void ChessComService::ChatMessageStreamLoop(ServerContext* context, std::string&
             else
             {
                 std::cout << usertoken << " Prossesing massage to " << chatPkt.reciver_usertoken() << std::endl << std::flush;
-                messenger.SendMessage(*chatPkt.mutable_reciver_usertoken(), *chatPkt.mutable_sender_username(), *chatPkt.mutable_message());                
+                Messenger::SendMessage(*chatPkt.mutable_reciver_usertoken(), *chatPkt.mutable_sender_username(), *chatPkt.mutable_message());                
             }
             
         }
@@ -258,21 +257,21 @@ Status ChessComService::ChatMessageStream(ServerContext* context, grpc::ServerRe
     std::thread t1([this, context, &userToken, stream](){
         this->ChatMessageStreamLoop(context, userToken, stream);
     });
-    messenger.AddMessageStream(userToken, &(*stream));
+    UserManager::Get()->AddMessageStream(userToken, &(*stream));
     bool loop = true;
     while (loop)
     {
         if(context->IsCancelled()) {
             std::cout <<  userToken<< " ChatMessageStream cancelled " << std::endl << std::flush;
             t1.join();
-            messenger.RemoveMessageStream(userToken);
+            UserManager::Get()->RemoveMessageStream(userToken);
             return grpc::Status::OK;
         }
         
         std::this_thread::sleep_for(std::chrono::milliseconds(MAX_SLEEP_MS));
     }
     t1.join();
-    messenger.RemoveMessageStream(userToken);
+    UserManager::Get()->RemoveMessageStream(userToken);
     std::cout  <<  userToken << " ChatMessageStream ended." << std::endl << std::flush;
     return Status::OK;
 }
@@ -280,13 +279,13 @@ Status ChessComService::ChatMessageStream(ServerContext* context, grpc::ServerRe
 grpc::Status ChessComService::HostGame(grpc::ServerContext *context, const chesscom::HostedGame *request, chesscom::LookForMatchResult *response)
 {
     //TODO: check if the useroken set by host acctually exitst. Make user manager
-    if(!userManager.UsertokenLoggedIn(request->host().usertoken())) return grpc::Status::CANCELLED;
+    if(!UserManager::Get()->UsertokenLoggedIn(request->host().usertoken())) return grpc::Status::CANCELLED;
     std::cout << " hosting game enter:"<< std::endl << std::flush;
     std::mutex mutex;
     std::condition_variable cv;
     std::unique_lock<std::mutex> lk(mutex);
     bool finished = false;
-    int id = gameBrowser.HostGame(*request, response, &cv, &finished);
+    int id = GameBrowser::Get()->HostGame(*request, response, &cv, &finished);
     while (!context->IsCancelled())
     {
         if(finished){
@@ -296,25 +295,25 @@ grpc::Status ChessComService::HostGame(grpc::ServerContext *context, const chess
         cv.wait_for(lk, std::chrono::milliseconds(MAX_SLEEP_MS));
     }
     std::cout << "Stopped hosting game id:" << std::to_string(id)<< std::endl << std::flush;
-    gameBrowser.CancelHostGame(id);
+    GameBrowser::Get()->CancelHostGame(id);
     return grpc::Status::OK;
 }
 
 grpc::Status ChessComService::AvailableGames(grpc::ServerContext *context, const chesscom::Void *request, chesscom::HostedGamesMap *response) 
 {
-    gameBrowser.WriteAvailableGames(*response);
+    GameBrowser::Get()->WriteAvailableGames(*response);
     return grpc::Status::OK;
 }
 
 grpc::Status ChessComService::JoinGame(grpc::ServerContext *context, const chesscom::JoinGameRequest *request, chesscom::LookForMatchResult *response) 
 {
-    gameBrowser.JoinGame(request->id(), request->joiner(), response);
+    GameBrowser::Get()->JoinGame(request->id(), request->joiner(), response);
     return grpc::Status::OK;
 }
 
 grpc::Status ChessComService::Alive(grpc::ServerContext* context, const chesscom::Heartbeat* request, chesscom::Heartbeat* response)
 {
-    if(userManager.Heartbeat(request->usertoken()))
+    if(UserManager::Get()->Heartbeat(request->usertoken()))
     {
         response->set_alive(true);
         response->set_usertoken(request->usertoken());
@@ -323,9 +322,9 @@ grpc::Status ChessComService::Alive(grpc::ServerContext* context, const chesscom
     else
     {
         std::cout << request->usertoken() << " failed heartbeat test and was force logged out" <<  std::endl << std::flush;       
-        userManager.Logout(request->usertoken());
+        UserManager::Get()->Logout(request->usertoken());
         //TODO MUST DO NESSESARY ACTIONS IE STOP MATCES THAT INCLUDES THIS USER
-        messenger.RemoveMessageStream(request->usertoken());
+        UserManager::Get()->RemoveMessageStream(request->usertoken());
         response->set_alive(false);
         response->set_usertoken(request->usertoken());
         return grpc::Status::OK;
@@ -336,21 +335,21 @@ grpc::Status ChessComService::Alive(grpc::ServerContext* context, const chesscom
 grpc::Status ChessComService::ChatMessageListener(grpc::ServerContext* context, const chesscom::UserData* request, grpc::ServerWriter< ::chesscom::ChatMessage>* writer) 
 {
     std::cout << "Opening ChatMessageStream for "  <<  request->usertoken() << std::endl << std::flush;
-    messenger.AddMessageStream(request->usertoken(), writer);
-    messenger.SendMessage(request->usertoken(), "system", "Welcome " + request->username() + " to SlugChess. You are now connected to the chat system.");
-    messenger.SendMessage(request->usertoken(), "system", "Type '/help' from more info on commands");
+    UserManager::Get()->AddMessageStream(request->usertoken(), writer);
+    Messenger::SendMessage(request->usertoken(), "system", "Welcome " + request->username() + " to SlugChess. You are now connected to the chat system.");
+    Messenger::SendMessage(request->usertoken(), "system", "Type '/help' from more info on commands");
     bool loop = true;
     while (loop)
     {
         if(context->IsCancelled()) {
             std::cout <<  request->usertoken() << " ChatMessageStream cancelled " << std::endl << std::flush;
-            messenger.RemoveMessageStream(request->usertoken());
+            UserManager::Get()->RemoveMessageStream(request->usertoken());
             return grpc::Status::OK;
         }
         
         std::this_thread::sleep_for(std::chrono::milliseconds(MAX_SLEEP_MS));
     }
-    messenger.RemoveMessageStream(request->usertoken());
+    UserManager::Get()->RemoveMessageStream(request->usertoken());
     std::cout  <<  request->usertoken() << " ChatMessageStream ended." << std::endl << std::flush;
     return grpc::Status::OK;
 }
@@ -359,7 +358,7 @@ grpc::Status ChessComService::SendChatMessage(grpc::ServerContext* context, cons
 {
     //Also sending the message back to sender so it shows up in their log
     //TODO: verify username is usertoken. In general usertoken should only be unique user id or user verification.
-    messenger.SendMessage(request->reciver_usertoken(), request->sender_username(), request->message());
-    messenger.SendMessage(request->sender_usertoken(), request->sender_username(), request->message());
+    Messenger::SendMessage(request->reciver_usertoken(), request->sender_username(), request->message());
+    Messenger::SendMessage(request->sender_usertoken(), request->sender_username(), request->message());
     return grpc::Status::OK;
 }

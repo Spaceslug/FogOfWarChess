@@ -1,4 +1,7 @@
-#include "gamebrowser.h" 
+#include "gamebrowser.h"
+#include "matchmanager.h"
+
+GameBrowser* GameBrowser::_instance = 0;
 
 int GameBrowser::HostGame(const chesscom::HostedGame& hostGame, chesscom::LookForMatchResult* matchResult, std::condition_variable* hostCV, bool* finished)
 {
@@ -61,8 +64,8 @@ void GameBrowser::JoinGame(int32_t id, const chesscom::UserData& joinerData, che
         hostMatchResult->mutable_game_rules()->CopyFrom(hostedGame.game_rules());
         joinerMatchResult->mutable_opponent_user_data()->CopyFrom(hostedGame.host());
         hostMatchResult->mutable_opponent_user_data()->CopyFrom(hostedGame.joiner());
-        std::string matchId = _matchManager->CreateMatch(hostedGame);
-        bool hostWhite = _matchManager->GetMatch(matchId)->getWhitePlayer() == hostedGame.host().usertoken();
+        std::string matchId = MatchManager::Get()->CreateMatch(hostedGame);
+        bool hostWhite = MatchManager::Get()->GetMatch(matchId)->getWhitePlayer() == hostedGame.host().usertoken();
         joinerMatchResult->set_match_token(matchId);
         hostMatchResult->set_match_token(matchId);
         joinerMatchResult->set_is_white_player(!hostWhite);

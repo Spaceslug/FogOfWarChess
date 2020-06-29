@@ -5,7 +5,29 @@
 
 class MatchManager
 {
+    private:
+    static MatchManager* _instance;
+    MatchManager() 
+    {
+        defaultVisionRules = ServerVisionRules();
+        defaultTimeRules = ServerTimeRules();
+    }
+
+    std::mutex _matchesMutex;
+    std::map<std::string, std::shared_ptr<::Match>> _matches;
+    std::atomic<int> _tokenCounter;
+    chesscom::TimeRules defaultTimeRules;
+    VisionRules defaultVisionRules;
+
+    std::pair<std::string,std::string> RandomSort(const std::string& first, const std::string& second);
+
     public:
+    static MatchManager* Get()
+    {
+        if (!_instance)
+        _instance = new MatchManager();
+        return _instance;
+    }
     static void MatchListenLoop(std::string listenerUsertoken, 
         std::shared_ptr<Match> matchPtr,
         grpc::ServerContext* contextPtr,
@@ -45,17 +67,4 @@ class MatchManager
 	
         return rules;
     }
-
-    MatchManager(){
-        defaultVisionRules = ServerVisionRules();
-        defaultTimeRules = ServerTimeRules();
-    }
-    private:
-    std::mutex _matchesMutex;
-    std::map<std::string, std::shared_ptr<::Match>> _matches;
-    std::atomic<int> _tokenCounter;
-    chesscom::TimeRules defaultTimeRules;
-    VisionRules defaultVisionRules;
-
-    std::pair<std::string,std::string> RandomSort(const std::string& first, const std::string& second);
 };
