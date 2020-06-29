@@ -24,7 +24,7 @@
       <Button Classes="normal" Command="{Binding ForwardEnd}" Content="&#62;&#62;" IsVisible="{Binding OngoingGame}" Margin="5" />
       <Button Classes="normal" Command="{Binding AskForDraw}" Content="Ask for Draw" IsVisible="{Binding OngoingGame}"/>
       <Button Classes="normal" Command="{Binding AcceptDraw}" Content="Accept Draw" IsVisible="{Binding OngoingGame}"/>
-      <Button Classes="normal" Command="{Binding Surrender}" Content="Surrender" IsVisible="{Binding OngoingGame}"/>
+      <Button Classes="normal" Command="{Binding Surrender}" IsEnabled="{Binding !AskingForDrawExecuting}" Content="Surrender" IsVisible="{Binding OngoingGame}"/>
     </WrapPanel>
     <WrapPanel Grid.Row="1" Grid.Column="1">
 

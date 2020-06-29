@@ -17,6 +17,7 @@
 - password and name on hosted games
 - elo system 
 - matchmaker using elo
+- use json save app state on Aval
 
 ## What does the versions mean (only from v1.0.0 and onwards)
 The client and server versions follow eachother. It is impossible to use a release client with 
@@ -54,6 +55,7 @@ Changes to chesscom commuication api or underlating function.
 - [ ] record games played (PGN)
 
 ### version 0.12.0
+- [ ] move match logic to MatchModel. Ex: IsCurrentPlayersTurn obs lives there, code for match events is there and the Chesscom call
 - [ ] add audio to Aval
 - [ ] python script for uploading new versions of Aval and maintain a manifest of versions for updator
 - [ ] auto updator for Aval
@@ -66,14 +68,18 @@ Changes to chesscom commuication api or underlating function.
 - [ ] Do the things that should happen when user i logged out e.g stop matches, end all log calls
 - [ ] Alive heartbeat must be fixed. Make sure it works as intended.
 
-### version 0.10.1
-- [ ] leave game and conced
-- [ ] ask for and accept draw
-- [ ] see if Draw commands can be made with async commands istead of callin UIAsync https://reactiveui.net/docs/guidelines/framework/asynchronous-commands
+### version 0.10.2
 - [ ] need to separate messages to player. Both can't listen to match_events because they sometime need differert events
 - [ ] make messager globaly available in SCS so messages can be sent to a user anywhere in the code
+- [ ] clean up TODOs on servinator
 
-### version 0.10.0
+### version 0.10.1
+- [x] leave game and conced
+- [x] ask for and accept draw
+- [x] see if Draw commands can be made with async commands istead of callin UIAsync https://reactiveui.net/docs/guidelines/framework/asynchronous-commands
+- [x] fix cancel on hosting not canceling hosting
+
+### version 0.10.0 (Done)
 - [x] back and forward in match( clients are sendt state so should be easy)
 - [x] a way to see where and when pices died
 - [x] switch to aval with all the same features as client

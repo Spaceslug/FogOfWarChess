@@ -82,8 +82,7 @@ namespace SlugChessAval.ViewModels
         public ICommand Exit => _exit;
         private readonly ReactiveCommand<Unit, Unit> _exit;
 
-        public ICommand Cancel => _cancel;
-        private readonly ReactiveCommand<Unit, Unit> _cancel;
+        public readonly ReactiveCommand<Unit, Unit> Cancel;
 
 
         public bool ClientActive
@@ -112,7 +111,7 @@ namespace SlugChessAval.ViewModels
 
             //Application.Current.Ex
             //_exit = ReactiveCommand.Create(() => this.)
-            _cancel = ReactiveCommand.Create(() => { Router.NavigateBack.Execute().Subscribe(); });
+            Cancel = ReactiveCommand.Create(() => { Router.NavigateBack.Execute().Subscribe(); });
             // If the authorization page is currently shown, then
             // we disable the "Open authorization view" button.
             //var canLogin = this.WhenAnyValue(x => x.ClientActive)

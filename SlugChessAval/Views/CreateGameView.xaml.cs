@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
+using ReactiveUI;
 using SlugChessAval.ViewModels;
 
 namespace SlugChessAval.Views
@@ -10,12 +11,11 @@ namespace SlugChessAval.Views
     {
         public CreateGameView()
         {
-            this.InitializeComponent();
-        }
-
-        private void InitializeComponent()
-        {
             AvaloniaXamlLoader.Load(this);
+            this.WhenActivated(disposables =>
+            {
+
+            });
         }
     }
 }

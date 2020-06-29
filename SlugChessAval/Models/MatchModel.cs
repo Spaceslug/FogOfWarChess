@@ -77,7 +77,5 @@ namespace SlugChessAval.Models
             return $"{timeRules.PlayerTime.Minutes}min + {timeRules.SecondsPerMove}s";
         }
 
-
-
     }
 }
