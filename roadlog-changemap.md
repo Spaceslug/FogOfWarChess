@@ -60,18 +60,19 @@ Changes to chesscom commuication api or underlating function.
 - [ ] python script for uploading new versions of Aval and maintain a manifest of versions for updator
 - [ ] auto updator for Aval
 
+### version 0.11.1
+- [ ] clean up TODOs on servinator
+- [ ] Alive heartbeat must be fixed. Make sure it works as intended.
+
 ### version 0.11.0
+- [ ] make messager globaly available in SCS so messages can be sent to a user anywhere in the code
 - [ ] a worker that periodicly run tasks on server
   - [ ] Task: Check last hearbeat on logged in
   - [ ] Task: Remove matches that should no longer run
   - [ ] Task: Log metrics like ammout of logged in users, current matches
 - [ ] Do the things that should happen when user i logged out e.g stop matches, end all log calls
-- [ ] Alive heartbeat must be fixed. Make sure it works as intended.
-
-### version 0.10.2
 - [ ] need to separate messages to player. Both can't listen to match_events because they sometime need differert events
-- [ ] make messager globaly available in SCS so messages can be sent to a user anywhere in the code
-- [ ] clean up TODOs on servinator
+
 
 ### version 0.10.1
 - [x] leave game and conced
