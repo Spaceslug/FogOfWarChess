@@ -65,12 +65,12 @@ Changes to chesscom commuication api or underlating function.
 - [ ] Alive heartbeat must be fixed. Make sure it works as intended.
 
 ### version 0.11.0
-- [ ] make messager globaly available in SCS so messages can be sent to a user anywhere in the code
-- [ ] a worker that periodicly run tasks on server
-  - [ ] Task: Check last hearbeat on logged in
-  - [ ] Task: Remove matches that should no longer run
-  - [ ] Task: Log metrics like ammout of logged in users, current matches
-- [ ] Do the things that should happen when user i logged out e.g stop matches, end all log calls
+- [x] make messager globaly available in SCS so messages can be sent to a user anywhere in the code
+- [x] a worker that periodicly run tasks on server
+  - [x] Task: Check last hearbeat on logged in
+  - [x] Task: Remove matches that should no longer run
+  - [x] Task: Log metrics like ammout of logged in users, current matches
+- [ ] (needs testing)Do the things that should happen when user is logged out e.g stop matches, end all log calls
 - [ ] need to separate messages to player. Both can't listen to match_events because they sometime need differert events
 
 
