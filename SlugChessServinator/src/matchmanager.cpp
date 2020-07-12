@@ -2,6 +2,7 @@
 #include "slugchesscoverter.h"
 #include <random>
 #include <exception>
+#include <string>
 
 MatchManager* MatchManager::_instance = 0;
 
@@ -21,7 +22,7 @@ std::string MatchManager::CreateMatch(std::string& player1Token, std::string& pl
     _matches[matchToken] = match;
     std::cout << "  checing match " << " black sec left " << std::to_string(match->clock->blackSecLeft) << " white sec left " << std::to_string(match->clock->whiteSecLeft) << std::endl << std::flush;
     auto matPtr = _matches[matchToken];
-    std::cout << "  white player " <<  matPtr->whitePlayer << std::endl << std::flush;
+    std::cout << "  white player " <<  matPtr->getWhitePlayer() << std::endl << std::flush;
     return matchToken;
 }
 std::string MatchManager::CreateMatch(chesscom::HostedGame& hostedGame)
@@ -86,6 +87,25 @@ void MatchManager::EraseMatch(const std::string& matchId)
     _matches.erase(matchId);
 }
 
+void MatchManager::UserLoggedOut(const std::string& token, std::shared_ptr<chesscom::UserData> userData)
+{
+    std::unique_lock<std::mutex> lk(_matchesMutex);
+    for(auto& [matchId, matchPtr] : _matches)
+    {
+        if(matchPtr->getWhitePlayer() == token)
+        {
+            std::cout << "Ended match " << matchId << " because " << token << " got logged out" << std::endl << std::flush;
+            matchPtr->PlayerDisconnected(token, chesscom::MatchEvent::BlackWin);
+        }
+        else if(matchPtr->getBlackPlayer() == token)
+        {
+            std::cout << "Ended match " << matchId << " because " << token << " got logged out" << std::endl << std::flush;
+            matchPtr->PlayerDisconnected(token, chesscom::MatchEvent::WhiteWin);
+        }
+    }
+    
+}
+
 VisionRules MatchManager::FromChesscomVisionRules(const chesscom::VisionRules& chesscomVision)
 {
     VisionRules visionRules;
@@ -127,10 +147,11 @@ void MatchManager::MatchListenLoop(
 {
     chesscom::MoveResult moveResultPkt;
     chesscom::GameState state;
-    bool playerIsWhite = matchPtr->whitePlayer == listenerUsertoken;
+    bool playerIsWhite = matchPtr->getWhitePlayer() == listenerUsertoken;
     bool loop = true;
     uint lastEventNum = 0;
-    std::unique_lock<std::mutex> lk(matchPtr->mutex);
+    std::mutex mutex;
+    std::unique_lock<std::mutex> lk(mutex);
     //Sending init
     std::cout  << " Sending init gamestate to  " << listenerUsertoken << std::endl << std::flush;
     moveResultPkt.set_move_happned(false);
@@ -144,7 +165,14 @@ void MatchManager::MatchListenLoop(
     writerPtr->Write(moveResultPkt);
     moveResultPkt.release_game_state();
 
-    while (loop)
+    matchPtr->PlayerListenerJoin(listenerUsertoken, writerPtr);
+    while(matchPtr->Ongoing())
+    {
+        matchPtr->matchDoneCV.wait(lk);
+    }
+    matchPtr->PlayerListenerDisconnected(listenerUsertoken);
+
+    /*while (loop)
     {
         if(contextPtr->IsCancelled()) {
             return;
@@ -248,7 +276,7 @@ void MatchManager::MatchListenLoop(
         }
         matchPtr->cv.wait(lk);
 
-    }
+    }*/
 }
 
 void MatchManager::DoMoveInMatch(
@@ -264,7 +292,7 @@ void MatchManager::DoMoveInMatch(
     {
         //std::cout  << request->match_token() << " " <<  request->usertoken()<< " Got move " << request->move().from() << " " << request->move().to() << " secspent " << std::to_string(movePtr->sec_spent()) << std::endl << std::flush;
         //TODO fix time spent to somehow match timepoint. This is why sec_spent is sent separeatly from the move
-        bool didMove = matchPtr->DoMove(usertoken, movePtr, movePtr->sec_spent());
+        bool didMove = matchPtr->DoMove(usertoken, movePtr);
         if(didMove){
             std::cout << "adding ChessMove2" << std::endl << std::flush;
         }
@@ -273,11 +301,11 @@ void MatchManager::DoMoveInMatch(
     case chesscom::MatchEvent::UnexpectedClosing:
     {
         //std::cout << request->match_token() << " " <<  request->usertoken()<< " Got UnexpectedClosing" << std::endl << std::flush;
-        if(matchPtr->whitePlayer == usertoken)
+        if(matchPtr->getWhitePlayer() == usertoken)
         {
             matchPtr->PlayerDisconnected(usertoken, chesscom::MatchEvent::BlackWin);
         }
-        else if(matchPtr->blackPlayer == usertoken)
+        else if(matchPtr->getBlackPlayer() == usertoken)
         {
             matchPtr->PlayerDisconnected(usertoken, chesscom::MatchEvent::WhiteWin);
         }else{
@@ -288,11 +316,11 @@ void MatchManager::DoMoveInMatch(
         break;
     case chesscom::MatchEvent::ExpectedClosing:
     {
-        if(matchPtr->whitePlayer == usertoken)
+        if(matchPtr->getWhitePlayer() == usertoken)
         {
             matchPtr->PlayerDisconnected(usertoken, chesscom::MatchEvent::BlackWin);
         }
-        else if(matchPtr->blackPlayer == usertoken)
+        else if(matchPtr->getBlackPlayer() == usertoken)
         {
             matchPtr->PlayerDisconnected(usertoken, chesscom::MatchEvent::WhiteWin);
         }else{

@@ -20,6 +20,7 @@
 #include "../../SlugChessCore/src/slugchess.h"
 #include "version.h"
 #include "chesscomservice.h"
+#include "worker.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;
@@ -45,9 +46,25 @@ void SigintHandler (int param)
 
 void Run(std::string port) {
     //Booting up singeltons
+    Worker::Start(); //Kick of work thread.
     MatchManager::Get();
     UserManager::Get();
     GameBrowser::Get();
+    //Add summart every 10 minutes
+    Worker::AddWork(std::make_shared<Work>("summary", std::chrono::minutes(1), []()
+    {
+        time_t curettTime = time(0);
+        std::cout << "Summary - " << ctime(&curettTime)
+            << "\tCurrent users: " << std::to_string(UserManager::Get()->ActiveUsers()) << std::endl
+            << "\tCurrent matches: " << std::to_string(MatchManager::Get()->OngoingMatches()) << std::endl
+            << std::flush;   
+    }));
+    //Check heartbeat every 2 minutes
+    Worker::AddWork(std::make_shared<Work>("heartbeat_check", std::chrono::minutes(2), []()
+    {
+        std::cout << "Checking Heartbeats" << std::endl << std::flush;
+        UserManager::Get()->CheckHeartbeat();
+    }));
 
     std::string address("0.0.0.0:" + port);
     ChessComService service;
@@ -80,6 +97,7 @@ int main(int argc, char** argv) {
         port = argv[1];
         std::cout << "Custom port '" << port << "'" << std::flush << std::endl;
     }
+
     Run(port);
     logFile << "Exiting\n";
     logFile.close();

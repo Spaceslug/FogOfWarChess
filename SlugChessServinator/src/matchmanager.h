@@ -42,7 +42,9 @@ class MatchManager
     std::string CreateMatch(chesscom::HostedGame& hostedGame);
     std::shared_ptr<Match> GetMatch(const std::string& matchId);
     void EraseMatch(const std::string& matchId);
+    int OngoingMatches() { return _matches.size(); }
     VisionRules FromChesscomVisionRules(const chesscom::VisionRules& chesscomVision);
+    void UserLoggedOut(const std::string& token, std::shared_ptr<chesscom::UserData> userData);
 
     chesscom::TimeRules ServerTimeRules()
     {
