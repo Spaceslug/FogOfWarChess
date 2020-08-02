@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="$(ProjectDir)..\protobuf\gen_chesscom_files_csharplib.bat $(ProjectDir)..\protobuf" />
+    <!--Exec Command="$(ProjectDir)..\protobuf\gen_chesscom_files_csharplib.bat $(ProjectDir)..\protobuf" /-->
   </Target>
 
 </Project>

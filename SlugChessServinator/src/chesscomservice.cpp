@@ -94,12 +94,12 @@ Status ChessComService::LookForMatch(ServerContext* context, const chesscom::Use
         std::unique_lock<std::mutex> scopeLock (lock);
         std::cout << userToken << " found match " <<  match_token << std::endl << std::flush;
         std::cout << "  checing match" << std::endl << std::flush;
-        std::cout << "  white player " <<  matPtr->whitePlayer << std::endl << std::flush;
+        std::cout << "  white player " <<  matPtr->getWhitePlayer() << std::endl << std::flush;
     }
     response->set_succes(true);
     response->set_match_token(match_token);
-    response->set_is_white_player(matPtr->whitePlayer == userToken);
-    response->mutable_opponent_user_data()->CopyFrom(*UserManager::Get()->GetUserData(response->is_white_player()?matPtr->blackPlayer:matPtr->whitePlayer).get());
+    response->set_is_white_player(matPtr->getWhitePlayer() == userToken);
+    response->mutable_opponent_user_data()->CopyFrom(*UserManager::Get()->GetUserData(response->is_white_player()?matPtr->getBlackPlayer():matPtr->getWhitePlayer()).get());
     response->mutable_game_rules()->set_chess_type(chesscom::ChessType::Classic);
     response->mutable_game_rules()->set_side_type(chesscom::SideType::Random);
     
@@ -336,21 +336,26 @@ grpc::Status ChessComService::ChatMessageListener(grpc::ServerContext* context, 
 {
     std::cout << "Opening ChatMessageStream for "  <<  request->usertoken() << std::endl << std::flush;
     UserManager::Get()->AddMessageStream(request->usertoken(), writer);
+    std::condition_variable& changedCV =  UserManager::Get()->GetUser(request->usertoken())->changedCV;
+    std::mutex mutex;
+    std::unique_lock<std::mutex> lk(mutex);
     Messenger::SendMessage(request->usertoken(), "system", "Welcome " + request->username() + " to SlugChess. You are now connected to the chat system.");
     Messenger::SendMessage(request->usertoken(), "system", "Type '/help' from more info on commands");
-    bool loop = true;
-    while (loop)
+    while (true)
     {
         if(context->IsCancelled()) {
             std::cout <<  request->usertoken() << " ChatMessageStream cancelled " << std::endl << std::flush;
             UserManager::Get()->RemoveMessageStream(request->usertoken());
             return grpc::Status::OK;
         }
-        
-        std::this_thread::sleep_for(std::chrono::milliseconds(MAX_SLEEP_MS));
+        if(!UserManager::Get()->UsertokenLoggedIn(request->usertoken()))
+        {
+            std::cout << "ChatMessage stream ended because user logged out" << std::endl << std::flush;
+            return grpc::Status::OK;
+        }
+        changedCV.wait_for(lk, std::chrono::milliseconds(MAX_SLEEP_MS));
+//        std::this_thread::sleep_for(std::chrono::milliseconds(MAX_SLEEP_MS));
     }
-    UserManager::Get()->RemoveMessageStream(request->usertoken());
-    std::cout  <<  request->usertoken() << " ChatMessageStream ended." << std::endl << std::flush;
     return grpc::Status::OK;
 }
 

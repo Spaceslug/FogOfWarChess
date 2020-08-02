@@ -1,0 +1,65 @@
+FROM ubuntu:bionic as cpp-env
+
+WORKDIR /cmake
+
+RUN apt update && \
+apt install -y wget build-essential autoconf cmake libtool pkg-config git curl libssl-dev
+#Often the cmake version is to old. Must be 3.13. This is why seperate download of cmake
+RUN wget -q -O cmake-linux.sh https://github.com/Kitware/CMake/releases/download/v3.17.0/cmake-3.17.0-Linux-x86_64.sh \
+ && sh cmake-linux.sh -- --skip-license --prefix=/usr/local \
+ && rm cmake-linux.sh 
+RUN cmake --version
+
+#################################################################
+
+FROM cpp-env as grpc-env
+
+WORKDIR /additions
+
+RUN git clone --recurse-submodules -b $(curl -L https://grpc.io/release) https://github.com/grpc/grpc 
+
+RUN cd grpc && ls .
+
+RUN cd grpc && mkdir -p cmake/build && cd cmake/build && \
+cmake -DCMAKE_BUILD_TYPE=Release \
+      -DgRPC_INSTALL=ON          \
+#      -DCMAKE_INSTALL_PREFIX=/usr/local \
+      -DgRPC_BUILD_TESTS=OFF     \
+      ../..                      \
+       && make -j4 && make install && cd ../..
+
+
+RUN cp grpc/cmake/build/grpc_* /usr/local/bin 
+
+ 
+RUN echo plugin location: `which grpc_cpp_plugin`
+RUN echo "grpc/protobuf location: " && pkg-config --libs protobuf grpc++
+
+###########################################################
+
+FROM grpc-env as build
+
+WORKDIR /src
+#RUN 
+
+COPY ./protobuf ./protobuf
+COPY ./SlugChessCore ./SlugChessCore
+COPY ./SlugChessServinator ./SlugChessServinator
+
+#RUN ls . && echo xxxx && ls .. && echo xxxx && ls ../.. && echo xxxx && 
+RUN cd SlugChessServinator && make 
+RUN echo Build Complete
+
+############################################################
+
+FROM ubuntu:bionic as prod
+
+WORKDIR /opt/SlugChessServinator
+
+COPY --from=build /usr/local/lib/* /usr/local/lib/
+COPY --from=build /src/SlugChessServinator/output/* ./
+
+CMD ["./server"]
+
+
+

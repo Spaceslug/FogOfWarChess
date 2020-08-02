@@ -29,7 +29,7 @@ class GameBrowser{
     void WriteAvailableGames(chesscom::HostedGamesMap& gamesList);
     void JoinGame(int32_t id, const chesscom::UserData& joinerData, chesscom::LookForMatchResult* joinerMatchResult);
     void CancelHostGame(int id);
-    
+    void UserLoggedOut(const std::string& token, std::shared_ptr<chesscom::UserData> userData);
 
 
 

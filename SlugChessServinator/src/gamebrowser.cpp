@@ -95,3 +95,25 @@ void GameBrowser::CancelHostGame(int id)
         cvPtr->notify_all();        
     }
 }
+
+void GameBrowser::UserLoggedOut(const std::string& token, std::shared_ptr<chesscom::UserData> userData)
+{
+    int idToRemove = -1;
+    {
+        std::unique_lock<std::mutex> lk (_waitingHostsMutex);
+        for(auto& [id, hostedGame] :  _availableGames)
+        {
+//            int id = keyVal.first;
+//            chesscom::HostedGame& hostedGame = ;
+              if(hostedGame.host().usertoken() == token)
+              {
+                  idToRemove = id;
+                  break;
+              }
+        }
+    }
+    if(idToRemove > 0)
+    {
+        CancelHostGame(idToRemove);
+    }
+}
