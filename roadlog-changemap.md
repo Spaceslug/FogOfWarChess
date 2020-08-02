@@ -38,7 +38,8 @@ Changes to chesscom commuication api or underlating function.
 
 ## BUGS:
 - in 0.10.0 stack overflow in SelectedItem in Chessboard when pressing Browse Game after previus game done
-- 
+- might be race condition when surrendering
+- client can be lagging behind 1 message when finishing matches
 
 
 
@@ -71,14 +72,14 @@ Changes to chesscom commuication api or underlating function.
   - [x] Task: Remove matches that should no longer run
   - [x] Task: Log metrics like ammout of logged in users, current matches
 - [ ] (needs testing)Do the things that should happen when user is logged out e.g stop matches, end all log calls
-- [ ] need to separate messages to player. Both can't listen to match_events because they sometime need differert events
+- [x] need to separate messages to player. Both can't listen to match_events because they sometime need differert events
 
 
 ### version 0.10.1
 - [x] leave game and conced
 - [x] ask for and accept draw
 - [x] see if Draw commands can be made with async commands istead of callin UIAsync https://reactiveui.net/docs/guidelines/framework/asynchronous-commands
-- [x] fix cancel on hosting not canceling hosting
+- [x] fix cancel on hosting not can   celing hosting
 
 ### version 0.10.0 (Done)
 - [x] back and forward in match( clients are sendt state so should be easy)
