@@ -9,6 +9,7 @@ SRC  = src
 OUT = output
 OBJ = object
 DEP = depends
+SHARED_LIB_OUT = /usr/local/lib
 $(shell mkdir -p $(OUT) )
 $(shell mkdir -p $(OBJ) )
 $(shell mkdir -p $(DEP) )
@@ -29,16 +30,21 @@ wild:
 	@echo $(DEPENDS)
 
 libslugchess: $(OUT)/libslugchess.so
+export: $(SHARED_LIB_OUT)/libslugchess.so
 slugchesstest: $(OUT)/slugchesstest
 
 $(OUT)/libslugchess.so: $(OBJECTS)
-	$(CXX) -shared -fPIC  -o $@ $^
+	$(CXX) -shared -fPIC  -o $(OUT)/libslugchess.so $^
 
-$(OUT)/slugchesstest: $(OUT)/libslugchess.so
-	$(CXX) $(CXXFLAGS) -L$(ROOT_DIR)/$(OUT) -Wl,-rpath=$(ROOT_DIR)/$(OUT) -o $@ $(SRC)/slugchesstest.cpp -lslugchess
+$(SHARED_LIB_OUT)/libslugchess.so: libslugchess
+	cp $(OUT)/libslugchess.so $@.0.0.1
+	ln -sf $@.0.0.1 $@
+
+$(OUT)/slugchesstest: $(SHARED_LIB_OUT)/libslugchess.so
+	$(CXX) $(CXXFLAGS) -Wl,-rpath=$(SHARED_LIB_OUT) -o $@ $(SRC)/slugchesstest.cpp -lslugchess
 	
 runtest: slugchesstest
-	./$(OUT)/slugchesstest
+	cd $(OUT) && ls . && ./slugchesstest
 
 -include $(DEPENDS)
 

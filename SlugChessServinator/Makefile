@@ -13,6 +13,7 @@ PROTOS_PATH = ../protobuf
 vpath %.proto $(PROTOS_PATH)
 ROOT_DIR=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 SC_LIB = $(ROOT_DIR)/../SlugChessCore/output
+SHARED_LIB_OUT = /usr/local/lib
 SRC  = src
 OUT = output
 OBJ = object
@@ -35,13 +36,13 @@ all: server
 
 server: $(CHESSCOM_OBJ) $(OUT)/server
 
-$(SC_LIB)/libslugchess.so: 
+$(SHARED_LIB_OUT)/libslugchess.so: 
 	echo Building SlugChess shared lib
-	cd ../SlugChessCore && $(MAKE) libslugchess
+	cd ../SlugChessCore && $(MAKE) export  
 
 
-$(OUT)/server: $(SC_LIB)/libslugchess.so $(OBJECTS) $(CHESSCOM_OBJ)
-	$(CXX) $^ $(LDFLAGS) -L$(SC_LIB) -Wl,-rpath=$(SC_LIB) -o $@ -lslugchess
+$(OUT)/server: $(SHARED_LIB_OUT)/libslugchess.so $(OBJECTS) $(CHESSCOM_OBJ)
+	$(CXX) $^ $(LDFLAGS) -Wl,-rpath=$(SHARED_LIB_OUT) -o $@ -lslugchess
 
 
 runserver: server
@@ -62,10 +63,10 @@ $(CHESSCOM)/%.pb.cc: %.proto
 clean:
 	rm -rf $(OBJ)/* $(DEP)/* $(CHESSCOM)/* $(OUT)/* *.log
 	
-$(OBJ)/%.pb.o: $(CHESSCOM)/%.pb.cc Makefile
+$(OBJ)/%.pb.o: $(CHESSCOM)/%.pb.cc Makefile 
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -MMD -MP -c $< -o $@
 
-$(OBJ)/%.o: $(SRC)/%.cpp Makefile
+$(OBJ)/%.o: $(SRC)/%.cpp Makefile $(CHESSCOM_OBJ)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -MMD -MP -c $< -o $@
 
 
