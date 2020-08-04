@@ -31,6 +31,8 @@ wild:
 
 libslugchess: $(OUT)/libslugchess.so
 export: $(SHARED_LIB_OUT)/libslugchess.so
+sudo_export: libslugchess
+	sudo $(MAKE) export
 slugchesstest: $(OUT)/slugchesstest
 
 $(OUT)/libslugchess.so: $(OBJECTS)

@@ -1,0 +1,39 @@
+FROM ubuntu:focal as cpp-env
+
+WORKDIR /cmake
+#cmake need this garbage to install tzdata
+ENV DEBIAN_FRONTEND=noninteractive 
+
+RUN apt-get update && apt-get upgrade -y \
+ && apt-get install -y build-essential autoconf cmake libtool pkg-config git curl libssl-dev
+
+#################################################################
+
+FROM cpp-env as grpc-env
+
+WORKDIR /additions
+
+# All in one command to make rm acctually make the image smaller
+
+#RUN du -sh / 2>/dev/null || :
+RUN git clone --recurse-submodules -b $(curl -L https://grpc.io/release) https://github.com/grpc/grpc \
+  && cd grpc && mkdir -p cmake/build && cd cmake/build \
+  && cmake \ 
+       -DCMAKE_BUILD_TYPE=Release  \
+       -DgRPC_INSTALL=ON           \
+       -DgRPC_BUILD_TESTS=OFF      \
+       ../..                       \
+       && make -j8 && make install \
+  && cp ./grpc_* /usr/local/bin    \
+  && rm -rf /additions/*
+ 
+#RUN echo plugin location: `which grpc_cpp_plugin`
+#RUN echo "grpc/protobuf location: " && pkg-config --libs protobuf grpc++
+
+
+
+
+
+
+
+

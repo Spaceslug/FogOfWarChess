@@ -48,8 +48,7 @@ void Worker::WorkLoop()
 
 bool Worker::NeedIteration()
 {
-    return true;
-    //return UserManager::Get()->ActiveUsers() > 0;
+    return UserManager::Get()->ActiveUsers() > 0;
 }
 
 bool Worker::AddWork(std::shared_ptr<Work> work)

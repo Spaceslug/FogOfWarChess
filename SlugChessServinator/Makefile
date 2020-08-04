@@ -33,12 +33,15 @@ CHESSCOM_OBJ = $(OBJ)/chesscom.pb.o $(OBJ)/chesscom.grpc.pb.o
 .PHONY: all clean
 
 all: server
+dockerlib: 
+	cd ../SlugChessCore && $(MAKE) export  
+docker: dockerlib server
 
 server: $(CHESSCOM_OBJ) $(OUT)/server
 
 $(SHARED_LIB_OUT)/libslugchess.so: 
 	echo Building SlugChess shared lib
-	cd ../SlugChessCore && $(MAKE) export  
+	cd ../SlugChessCore && $(MAKE) sudo_export  
 
 
 $(OUT)/server: $(SHARED_LIB_OUT)/libslugchess.so $(OBJECTS) $(CHESSCOM_OBJ)
@@ -46,7 +49,7 @@ $(OUT)/server: $(SHARED_LIB_OUT)/libslugchess.so $(OBJECTS) $(CHESSCOM_OBJ)
 
 
 runserver: server
-	./$(OUT)/server
+	./$(OUT)/server 43326
 
 -include $(DEPENDS)
 
