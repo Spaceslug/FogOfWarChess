@@ -48,6 +48,8 @@ Changes to chesscom commuication api or underlating function.
 - spectate a PGN (PGNs on server)
 - full PGN support ()
 - Print rules
+- make a propper logger on server. Write to log file and console. Delete logfile on restart
+- a check to evaluate the validity of time spent on move. Change the value if it seems wrong. 
 
 ### version 0.13.0
 - [ ] save userdata
@@ -62,8 +64,8 @@ Changes to chesscom commuication api or underlating function.
 - [ ] auto updator for Aval
 
 ### version 0.11.1
-- [ ] clean up TODOs on servinator
-- [ ] Alive heartbeat must be fixed. Make sure it works as intended.
+- [x] clean up TODOs on servinator
+- [x] Alive heartbeat must be fixed. Make sure it works as intended.
 
 ### version 0.11.0
 - [x] make messager globaly available in SCS so messages can be sent to a user anywhere in the code

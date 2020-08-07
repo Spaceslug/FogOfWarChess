@@ -10,7 +10,7 @@ fi
 echo "Moving SlugChess Server files to /opt/slugchess"
 sudo mkdir -p /opt/slugchess
 sudo rm -R /opt/slugchess/*
-sudo cp -R output /opt/slugchess
+sudo cp -R output/* /opt/slugchess
 sudo chown -R slugchess:slugchess /opt/slugchess
 echo "Installing and starting SlugChess Server demon"
 sudo cp slugchess.service /etc/systemd/system/slugchess.service

@@ -18,13 +18,13 @@ void Match::PlayerDisconnected(const std::string& usertoken, chesscom::MatchEven
      }
 }
 
-void Match::PlayerListenerJoin(const std::string& usertoken, grpc::internal::WriterInterface<chesscom::MoveResult>* streamPtr)
+void Match::PlayerListenerJoin(const std::string& usertoken, std::shared_ptr<MoveResultStream> resultStream )
 {
     if(usertoken == _whitePlayer || usertoken == _blackPlayer)
     {
         //Allready have token and type
         std::unique_lock<std::mutex> scopeLock (_mutex);
-        _players.at(usertoken).streamPtr = streamPtr;
+        _players.at(usertoken).resultStream = resultStream;
     }
     else
     {
@@ -32,7 +32,7 @@ void Match::PlayerListenerJoin(const std::string& usertoken, grpc::internal::Wri
         std::unique_lock<std::mutex> scopeLock (_mutex);
         _players[usertoken].usertoken = usertoken;
         _players[usertoken].type = PlayerTypes::Observer;
-        _players[usertoken].streamPtr = streamPtr;
+        _players[usertoken].resultStream = resultStream;
     }
 }
 
@@ -41,7 +41,7 @@ void Match::PlayerListenerDisconnected(const std::string& usertoken)
     std::unique_lock<std::mutex> scopeLock (_mutex);
     if(_players.count(usertoken) > 0)
     {
-        _players.at(usertoken).streamPtr = nullptr;
+        _players.at(usertoken).resultStream = nullptr;
     }
 }
 
@@ -54,7 +54,7 @@ void Match::nl_SendMessageAllPlayers(const std::string& message)
 {
     for(auto& [usertoken, player]  : _players)
     {
-        if(player.streamPtr != nullptr) //Indicates player is connected to match and wants to listen
+        if(player.resultStream != nullptr) //Indicates player is connected to match and wants to listen
         {
             Messenger::SendServerMessage(usertoken, message);
         }

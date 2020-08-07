@@ -10,12 +10,27 @@ void Worker::Start()
         _instance = new Worker();
         _instance->_worker = std::thread([](){_instance->WorkLoop();});
     }
+    _instance->_stop_worker = false;
+}
+
+void Worker::Stop()
+{
+    if(_instance){ 
+        _instance->_stop_worker = true;
+    }
+}
+
+void Worker::Join()
+{
+    if(_instance && _instance->_worker.joinable()){ 
+        _instance->_worker.join();
+    }
 }
 
 void Worker::WorkLoop()
 {
     std::chrono::time_point runStart = std::chrono::system_clock::now();
-    while(true)
+    while(!_instance->_stop_worker)
     {
         runStart = std::chrono::system_clock::now();
         if(_addWorkList.size() > 0){

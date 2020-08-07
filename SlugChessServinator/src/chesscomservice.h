@@ -20,6 +20,7 @@
 #include "../../SlugChessCore/src/slugchess.h"
 #include "version.h"
 #include "match.h"
+#include "consts.h"
 #include "messenger.h"
 #include "gamebrowser.h"
 #include "matchmanager.h"
@@ -34,8 +35,6 @@ using grpc::Status;
 
 class ChessComService final : public chesscom::ChessCom::Service {
 public:
-    static const int MAX_SLEEP_MS;
-    static const int SHUTDOWN_WAIT_MS;
     
     //string is userToken
     

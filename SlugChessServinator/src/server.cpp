@@ -19,6 +19,7 @@
 #include "../chesscom/chesscom.grpc.pb.h"
 #include "../../SlugChessCore/src/slugchess.h"
 #include "version.h"
+#include "consts.h"
 #include "chesscomservice.h"
 #include "worker.h"
 
@@ -39,8 +40,10 @@ void SigintHandler (int param)
     signaled = 1;
     std::cout << "Signal interupt. Fuck yeah\n";
     logFile << "signal interut shutdown\n";
-    auto deadline = std::chrono::system_clock::now() +   std::chrono::milliseconds(ChessComService::SHUTDOWN_WAIT_MS);
+    Worker::Stop();
+    auto deadline = std::chrono::system_clock::now() + std::chrono::milliseconds(SHUTDOWN_WAIT_MS);
     server->Shutdown(deadline);
+    Worker::Join();
 }
 
 
@@ -84,9 +87,9 @@ void Run(std::string port) {
 }
 
 int main(int argc, char** argv) {
-    //TODO: reenable signal handling
     //void (*prev_handler)(int);
-    //prev_handler = signal(SIGINT, SigintHandler);
+    //prev_handler = 
+    signal(SIGINT, SigintHandler);
     logFile.open ("server.log", std::ios::out | std::ios::trunc);
     logFile << "Writing this to a file.\n"<< std::flush;
     
