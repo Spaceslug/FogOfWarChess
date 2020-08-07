@@ -148,8 +148,8 @@ void MatchManager::MatchListenLoop(
     chesscom::MoveResult moveResultPkt;
     chesscom::GameState state;
     bool playerIsWhite = matchPtr->getWhitePlayer() == listenerUsertoken;
-    bool loop = true;
-    uint lastEventNum = 0;
+    //bool loop = true;
+    //uint lastEventNum = 0;
     std::mutex mutex;
     std::unique_lock<std::mutex> lk(mutex);
     //Sending init
@@ -164,12 +164,15 @@ void MatchManager::MatchListenLoop(
     moveResultPkt.mutable_chess_clock()->set_timer_ticking(matchPtr->clock->is_ticking);
     writerPtr->Write(moveResultPkt);
     moveResultPkt.release_game_state();
-
-    matchPtr->PlayerListenerJoin(listenerUsertoken, writerPtr);
-    while(matchPtr->Ongoing())
+    std::shared_ptr<MoveResultStream> resultStream = std::make_shared<MoveResultStream>();
+    resultStream->streamPtr = writerPtr;
+    resultStream->alive = true;
+    matchPtr->PlayerListenerJoin(listenerUsertoken, resultStream);
+    while(matchPtr->Ongoing() && !contextPtr->IsCancelled())
     {
-        matchPtr->matchDoneCV.wait(lk);
+        matchPtr->matchDoneCV.wait_for(lk, std::chrono::milliseconds(MAX_SLEEP_MS));
     }
+    resultStream->alive = false;
     matchPtr->PlayerListenerDisconnected(listenerUsertoken);
 
     /*while (loop)
@@ -219,7 +222,6 @@ void MatchManager::MatchListenLoop(
                     ss << "Moves of the game in SAN:" << std::endl;
                     matchPtr->game->PrintSanMoves(ss);
                     std::string message = ss.str();
-                    //TODO this chat message to user should be handles somewhere else
                     //messenger.SendServerMessage(listenerUsertoken, message);
                     writerPtr->Write(moveResultPkt);
                     moveResultPkt.release_game_state();
@@ -235,7 +237,6 @@ void MatchManager::MatchListenLoop(
                     ss << "Moves of the game in SAN:" << std::endl;
                     matchPtr->game->PrintSanMoves(ss);
                     std::string message = ss.str();
-                    //TODO this chat message to user should be handles somewhere else
                     //messenger.SendServerMessage(listenerUsertoken, message);
                     writerPtr->Write(moveResultPkt);
                     loop = false;
@@ -326,7 +327,6 @@ void MatchManager::DoMoveInMatch(
         }else{
             matchPtr->PlayerDisconnected(usertoken, event);
         }
-        //TODO make non disconnecting player win the match
     }
         break;
     case chesscom::MatchEvent::AskingForDraw:

@@ -12,6 +12,10 @@ enum PlayerTypes{
     Black,
     Observer
 };
+struct MoveResultStream {
+    bool alive;
+    grpc::internal::WriterInterface<chesscom::MoveResult>* streamPtr;
+};
 struct ChessClock {
     int blackSecLeft;
     int whiteSecLeft;
@@ -28,8 +32,7 @@ struct Player
 {
     PlayerTypes type;
     std::string usertoken;
-    //TODO: fix: If listener thread is cancelled by client writer interface will be invalid
-    grpc::internal::WriterInterface<chesscom::MoveResult>* streamPtr;
+    std::shared_ptr<MoveResultStream> resultStream;
     bool askingForDraw = false;
     std::chrono::time_point<std::chrono::system_clock> askingForDrawTimstamp;
     int64_t SecSinceAskedForDraw() { 
@@ -120,7 +123,7 @@ public:
     }
 
     void PlayerDisconnected(const std::string& usertoken, chesscom::MatchEvent matchEventType);
-    void PlayerListenerJoin(const std::string& usertoken, grpc::internal::WriterInterface<chesscom::MoveResult>* streamPtr);
+    void PlayerListenerJoin(const std::string& usertoken, std::shared_ptr<MoveResultStream> resultStream);
     void PlayerListenerDisconnected(const std::string& usertoken);
 
     void PlayerAskingForDraw(const std::string& usertoken)
@@ -233,9 +236,9 @@ public:
 
         if(_players.count(usertoken) > 0)
         {
-            if(_players.at(usertoken).streamPtr != nullptr) 
+            if(_players.at(usertoken).resultStream != nullptr && _players.at(usertoken).resultStream->alive ) 
             {
-                _players.at(usertoken).streamPtr->Write(mrPkt);
+                _players.at(usertoken).resultStream->streamPtr->Write(mrPkt);
             }
         }
     }
@@ -249,9 +252,9 @@ public:
         for(auto& [usertoken, player]  : _players)
         {
             (void)usertoken;//To suppress unused variable warning
-            if(player.streamPtr != nullptr) 
+            if(player.resultStream != nullptr && player.resultStream->alive) 
             {
-                player.streamPtr->Write(mrPkt);
+                player.resultStream->streamPtr->Write(mrPkt);
             }
         }
     }
@@ -275,11 +278,11 @@ public:
         for(auto& [usertoken, player]  : _players)
         {
             (void)usertoken;//To suppress unused variable warning
-            if(player.streamPtr != nullptr) 
+            if(player.resultStream != nullptr && player.resultStream->alive) 
             {
                 mrPkt.set_allocated_game_state(&(player.type == PlayerTypes::White?whiteGS:
                                                 player.type == PlayerTypes::Black?blackGS:observerGS));
-                player.streamPtr->Write(mrPkt);
+                player.resultStream->streamPtr->Write(mrPkt);
                 mrPkt.release_game_state();
             }
         }

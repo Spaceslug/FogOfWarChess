@@ -1,7 +1,7 @@
 #pragma once
 #include "../chesscom/chesscom.grpc.pb.h"
 #include "match.h"
-
+#include "consts.h"
 
 class MatchManager
 {

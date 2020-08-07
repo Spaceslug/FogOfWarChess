@@ -34,6 +34,7 @@ class Worker
     std::mutex _workLock;
     //std::map<std::string, std::function<void()>> _workFunctions;
     std::thread _worker;
+    bool _stop_worker = false;
 
     std::list<std::shared_ptr<Work>> _workList;
     std::map<std::string, std::chrono::time_point<std::chrono::system_clock>> _lastTimeWorkedOn;
@@ -48,6 +49,9 @@ class Worker
     void w_AddRemoveFunctions();
     public:
     static void Start();
+    static void Stop();
+    static void Join();
+    //static void ClearWork();
     static bool AddWork(std::shared_ptr<Work>);
     //static void RemoveWork(std::function<void()> func);
 

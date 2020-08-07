@@ -1,6 +1,4 @@
 #include "chesscomservice.h"
-const int ChessComService::MAX_SLEEP_MS = 1000;
-const int ChessComService::SHUTDOWN_WAIT_MS = ChessComService::MAX_SLEEP_MS*2.5;
 
 ChessComService::ChessComService()
 {
@@ -278,7 +276,6 @@ Status ChessComService::ChatMessageStream(ServerContext* context, grpc::ServerRe
 
 grpc::Status ChessComService::HostGame(grpc::ServerContext *context, const chesscom::HostedGame *request, chesscom::LookForMatchResult *response)
 {
-    //TODO: check if the useroken set by host acctually exitst. Make user manager
     if(!UserManager::Get()->UsertokenLoggedIn(request->host().usertoken())) return grpc::Status::CANCELLED;
     std::cout << " hosting game enter:"<< std::endl << std::flush;
     std::mutex mutex;
@@ -323,7 +320,6 @@ grpc::Status ChessComService::Alive(grpc::ServerContext* context, const chesscom
     {
         std::cout << request->usertoken() << " failed heartbeat test and was force logged out" <<  std::endl << std::flush;       
         UserManager::Get()->Logout(request->usertoken());
-        //TODO MUST DO NESSESARY ACTIONS IE STOP MATCES THAT INCLUDES THIS USER
         UserManager::Get()->RemoveMessageStream(request->usertoken());
         response->set_alive(false);
         response->set_usertoken(request->usertoken());
@@ -362,7 +358,6 @@ grpc::Status ChessComService::ChatMessageListener(grpc::ServerContext* context, 
 grpc::Status ChessComService::SendChatMessage(grpc::ServerContext* context, const chesscom::ChatMessage* request, chesscom::Void* response)
 {
     //Also sending the message back to sender so it shows up in their log
-    //TODO: verify username is usertoken. In general usertoken should only be unique user id or user verification.
     Messenger::SendMessage(request->reciver_usertoken(), request->sender_username(), request->message());
     Messenger::SendMessage(request->sender_usertoken(), request->sender_username(), request->message());
     return grpc::Status::OK;
