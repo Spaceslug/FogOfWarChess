@@ -1,13 +1,84 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Logging.Serilog;
 using Avalonia.ReactiveUI;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using Serilog;
+using Serilog.Filters;
+using Avalonia.Logging;
 
 namespace SlugChessAval
 {
 
+    public static class ShellHelper
+    {
+        public static void PlaySoundFile(string soundFile)
+        {
+            Task.Run(() => {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    $"aplay \"{soundFile}\"".Bash();
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    //string SoundLocation = "Assets\\sounds\\time_running_out.wav";
+                    $"$PlayWav=New-Object System.Media.SoundPlayer\n$PlayWav.SoundLocation=\"{soundFile}\" \n$PlayWav.playsync()".PowerShell();
+                }
+                else
+                {
+                    Console.WriteLine("Not implemented on this platform");
+                }
+            });
+            
+
+        }
+            
+        public static string Bash(this string cmd)
+        {
+            var escapedArgs = cmd.Replace("\"", "\\\"");
+                
+            var process = new Process()
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "/bin/bash",
+                    Arguments = $"-c \"{escapedArgs}\"",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                }
+            };
+            process.Start();
+            string result = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+            return result;
+        }
+
+        public static string PowerShell(this string cmd)
+        {
+            var escapedArgs = cmd.Replace("\"", "\\\"");
+                
+            var process = new Process()
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "powershell.exe",
+                    Arguments = $"-NoProfile -ExecutionPolicy unrestricted  {escapedArgs}",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                }
+            };
+            process.Start();
+            string result = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+            return result;
+        }
+    }
 
     class Program
     {
@@ -25,6 +96,8 @@ namespace SlugChessAval
             {
                 PrintHelpTextToConsole();
             }
+            Log.Information("WEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
+
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         } 
 

@@ -14,6 +14,7 @@ using Avalonia.Threading;
 using Google.Protobuf.WellKnownTypes;
 using System.Reactive.Disposables;
 using System.Threading;
+using Serilog;
 
 namespace SlugChessAval.ViewModels
 {
@@ -101,6 +102,7 @@ namespace SlugChessAval.ViewModels
         public PlayerIs _playerIs = PlayerIs.Non;
 
         public readonly IObservable<bool> IsCurrentPlayersTurn;
+        private bool _isCurrentPlayersTurn => CurrentTurnPlayer == _playerIs;
         public PlayerIs CurrentTurnPlayer
         {
             get => _currentTurnPlayer;
@@ -165,7 +167,7 @@ namespace SlugChessAval.ViewModels
                     WaitingOnMoveReply = true;
                 }
             });
-            _chessClock = new ChessClockViewModel(new TimeSpan(), new TimeSpan(), 0);
+            _chessClock = new ChessClockViewModel(new TimeSpan(), new TimeSpan(), 0, IsCurrentPlayersTurn);
             _capturedPices = new CapturedPicesViewModel();
 
             _vmGameBrowser = new GameBrowserViewModel { };
@@ -254,6 +256,7 @@ namespace SlugChessAval.ViewModels
 
             this.WhenActivated(disposables =>
             {
+                
 
                 Disposable.Create(() =>
                 {
@@ -311,12 +314,14 @@ namespace SlugChessAval.ViewModels
             ((MainWindowViewModel)HostScreen).Notification = "You are playing agains " + result.OpponentUserData.Username + " as " + (result.IsWhitePlayer?"white":"black");
             _playerIs = result.IsWhitePlayer ? PlayerIs.White : PlayerIs.Black;
             var playerTime = new TimeSpan(0, result.GameRules.TimeRules.PlayerTime.Minutes, result.GameRules.TimeRules.PlayerTime.Seconds);
-            ChessClock = new ChessClockViewModel(playerTime, playerTime, result.GameRules.TimeRules.SecondsPerMove);
+            ChessClock = new ChessClockViewModel(playerTime, playerTime, result.GameRules.TimeRules.SecondsPerMove, IsCurrentPlayersTurn);
             //TODO play found game audio clip
+            ShellHelper.PlaySoundFile("Assets/sounds/match_start.wav");
             var matchObservable = SlugChessService.Client.GetMatchListener(result.MatchToken);
             CapturedPices = new CapturedPicesViewModel(matchObservable);
             Chatbox.OpponentUsertoken = result.OpponentUserData.Usertoken;
-            var disposerForEndMatchWhenViewDeactivated = Activator.Deactivated.Subscribe((u) =>
+            CompositeDisposable disposablesForEndMatchWhenViewDeactivated = new CompositeDisposable();
+            Activator.Deactivated.Subscribe((u) =>
             {
                 SlugChessService.Client.Call.SendMoveAsync(new MovePacket
                 {
@@ -325,7 +330,8 @@ namespace SlugChessAval.ViewModels
                     MatchToken = _matchToken,
                     Usertoken = SlugChessService.Usertoken,
                 });
-            });
+            }).DisposeWith(disposablesForEndMatchWhenViewDeactivated);
+
             matchObservable.Subscribe(
             (moveResult) => Dispatcher.UIThread.InvokeAsync(() =>
             {
@@ -343,6 +349,10 @@ namespace SlugChessAval.ViewModels
                     _chessboardPositions.Add(ChessboardModel.FromChesscomGamestate(moveResult.GameState));
                     MoveDisplayIndex = _chessboardPositions.Count - 1;
                     WaitingOnMoveReply = false;
+                    if(_isCurrentPlayersTurn && moveResult.MoveHappned)
+                    {
+                        ShellHelper.PlaySoundFile("Assets/sounds/move.wav");
+                    }
                 }
 
                 switch (moveResult.MatchEvent)
@@ -404,14 +414,14 @@ namespace SlugChessAval.ViewModels
                 _playerIs = PlayerIs.Non;
                 OngoingGame = false;
                 Chatbox.OpponentUsertoken = null;
-                disposerForEndMatchWhenViewDeactivated.Dispose();
+                disposablesForEndMatchWhenViewDeactivated.Dispose();
             }), () => Dispatcher.UIThread.InvokeAsync(() =>
             {
                 ChessClock.StopTimer();
                 _playerIs = PlayerIs.Non;
                 OngoingGame = false;
                 Chatbox.OpponentUsertoken = null;
-                disposerForEndMatchWhenViewDeactivated.Dispose();
+                disposablesForEndMatchWhenViewDeactivated.Dispose();
             }));
         }
 

@@ -25,6 +25,11 @@ namespace SlugChessAval.ViewModels
         //public string UserSignatureLabel => "Enter Signature here";
         //public string UserSignature { get; set; }
         //public TodoListViewModel List { get; }
+        private static MainWindowViewModel _mainWindowViewModel;
+        public static void SendNotification(string noti)
+        {
+            _mainWindowViewModel.Notification = noti;
+        }
 
 
         public TimeSpan WhiteTimeLeft => new TimeSpan(0, 5, 6);
@@ -158,6 +163,7 @@ namespace SlugChessAval.ViewModels
             });
             //.;
             Router.Navigate.Execute(new StartMenuViewModel(this));
+            _mainWindowViewModel = this;
         }
 
 

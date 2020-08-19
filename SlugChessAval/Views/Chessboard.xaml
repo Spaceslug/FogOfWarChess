@@ -9,7 +9,7 @@
     <SolidColorBrush x:Key="WhiteField" Color="#FF6F6F6F" />
     <SolidColorBrush x:Key="BlackField" Color="#FFFFFFFF" />
     <SolidColorBrush x:Key="ImageBackground" Color="#FF33AA22" Opacity="0.8" />
-    <ImageBrush x:Key="Fog" Source="avares://SlugChessAval/Assets/fog.png" Stretch="Fill"/>
+    <ImageBrush x:Key="Fog" Source="avares://SlugChessAval/Assets/images/fog.png" Stretch="Fill"/>
     <RadialGradientBrush x:Key="Move" GradientOrigin="0.5,0.5" Radius="0.7" Opacity="0.8" SpreadMethod="Pad">
       <GradientStop Color="Red" Offset="0" />
       <GradientStop Color="Transparent" Offset="0,5" />

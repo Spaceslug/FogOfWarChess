@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading;
 
@@ -43,6 +45,10 @@ namespace SlugChessAval.ViewModels
         public string WhiteSecPerMove { get; } = "+00s";
         public string BlackSecPerMove { get; } = "+00s";
 
+        public IObservable<int> SecLeft => _secLeft;
+        public IObservable<bool> IsCurrentPlayersTurn;
+
+        private Subject<int> _secLeft = new Subject<int>();
         private bool _blockTicker = true;
         private TimeSpan _lastTimeWhite;
         private TimeSpan _lastTimeBlack;
@@ -50,9 +56,10 @@ namespace SlugChessAval.ViewModels
         private bool _currentTurnWhite;
         private readonly TimeSpan _interval = new TimeSpan(0, 0, 1);
 
-        public ChessClockViewModel(TimeSpan whiteTimeLeft, TimeSpan blackTimeLeft, int secPerMove)
+        public ChessClockViewModel(TimeSpan whiteTimeLeft, TimeSpan blackTimeLeft, int secPerMove, IObservable<bool> isCurrentPlayersTurn)
         {
             Activator = new ViewModelActivator();
+            IsCurrentPlayersTurn = isCurrentPlayersTurn;
 
             WhiteSecPerMove = $"+{secPerMove:D2}s";
             BlackSecPerMove = $"+{secPerMove:D2}s";
@@ -62,6 +69,13 @@ namespace SlugChessAval.ViewModels
 
             this.WhenActivated(disposables =>
             {
+                Observable.CombineLatest(
+                    SecLeft,
+                    IsCurrentPlayersTurn,
+                    (x, y) =>  x < 6 && y
+                ).Subscribe(both => {
+                    if (both) ShellHelper.PlaySoundFile("Assets/sounds/time_running_out.wav");
+                }).DisposeWith(disposables);
 
                 _timer = new DispatcherTimer();
                 _timer.Interval = _interval;
@@ -71,16 +85,20 @@ namespace SlugChessAval.ViewModels
                     if (_currentTurnWhite)
                     {
                         WhiteTimeLeft = _whiteTimeLeft.Subtract(_interval);
+                        _secLeft.OnNext((int)WhiteTimeLeft.TotalSeconds);
                     }
                     else
                     {
                         BlackTimeLeft = _blackTimeLeft.Subtract(_interval);
+                        _secLeft.OnNext((int)BlackTimeLeft.TotalSeconds);
                     }
                 };
                 _timer.Start();
                 // Or use WhenActivated to execute logic
                 // when the view model gets deactivated.
-                Disposable.Create(() => { _timer.Stop();  }).DisposeWith(disposables);
+                Disposable.Create(() => { 
+                    _timer.Stop();
+                }).DisposeWith(disposables);
             });
         }
 

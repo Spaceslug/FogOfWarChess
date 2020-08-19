@@ -26,6 +26,8 @@
       <SubType>Designer</SubType>
     </AvaloniaResource>
     <AvaloniaResource Include="Assets\*" />
+    <AvaloniaResource Include="Assets\images\*" />
+    <AvaloniaResource Include="Assets\sounds\*" />
   </ItemGroup>
   <ItemGroup>
     <AvaloniaResource Remove="Views\CapturedPices.xaml" />
@@ -65,6 +67,7 @@
     <PackageReference Include="SkiaSharp" Version="1.68.0" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="TempSound\" />
     <Folder Include="Test\" />
   </ItemGroup>
   <ItemGroup>
@@ -120,5 +123,19 @@
     <Compile Update="Views\GameBrowserView.xaml.cs">
       <DependentUpon>GameBrowserView.xaml</DependentUpon>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Assets\sounds\match_start.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\sounds\move.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\sounds\playsound.bat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\sounds\time_running_out.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

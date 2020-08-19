@@ -59,7 +59,7 @@ Changes to chesscom commuication api or underlating function.
 
 ### version 0.12.0
 - [ ] move match logic to MatchModel. Ex: IsCurrentPlayersTurn obs lives there, code for match events is there and the Chesscom call
-- [ ] add audio to Aval
+- [ ] add audio to Aval (need to test linux)
 - [ ] python script for uploading new versions of Aval and maintain a manifest of versions for updator
 - [ ] auto updator for Aval
 
