@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Serilog;
 using Serilog.Filters;
 using Avalonia.Logging;
+using System.Reflection;
 
 namespace SlugChessAval
 {
@@ -95,6 +96,30 @@ namespace SlugChessAval
             if (LaunchedWithParam("--help"))
             {
                 PrintHelpTextToConsole();
+                return;
+            }
+            if (!LaunchedWithParam("--no-updatecheck"))
+            {
+                var result = GetUpdateNeededFromUpdater();
+                switch (result)
+                {
+                    case "0":
+                        Log.Information("Version is up to date");
+                        break;
+                    case "1":
+                        Log.Information("Version out of date. Starting updater and exiting");
+                        StartUpdaterUpdate();
+                        return;
+                    case "2":
+                        Log.Information("New Version availeble and you should update");
+                        break;
+                    case "3":
+                        Log.Information("New Version availeble. You must manualy download new version. Copy over appstate.json to preserve settings");
+                        break;
+                    default:
+                        Log.Error(result);
+                        break;
+                }
             }
             Log.Information("WEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
 
@@ -112,9 +137,76 @@ namespace SlugChessAval
         public static void PrintHelpTextToConsole()
         {
             Console.WriteLine("SlugChess launch parameters:");
-            Console.WriteLine("--help ;prints this text and prevents the launch of SlugChess ");
-            Console.WriteLine("--debugLogin [username] ;automaticly logs you in as username with the debug password");
-            Console.WriteLine("--port [port] ;sets the portnumber of the SlugChess server to connect to");
+            Console.WriteLine("--help                  ;prints this text and prevents the launch of ");
+            Console.WriteLine("   SlugChess ");
+            Console.WriteLine("--debugLogin [username] ;automaticly logs you in as username with the");
+            Console.WriteLine("   debug password");
+            Console.WriteLine("--port [port]           ;sets the portnumber of the SlugChess server ");
+            Console.WriteLine("   to connect to");
+            Console.WriteLine("--no-updatecheck        ;prevent update check from running");
+        }
+
+        public static string UpdaterFilename()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                return "SlugChessUpdater";
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return "SlugChessUpdater.exe";
+            }
+            else
+            {
+                throw new PlatformNotSupportedException("fuck this. I'm out");
+            }
+        }
+
+        public static string GetSlugChessVersion()
+        {
+            var ver = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
+            return $"{ver.FileMajorPart}.{ver.FileMinorPart}.{ver.FileBuildPart}";
+        }
+
+        public static string GetUpdateNeededFromUpdater()
+        {
+            
+            var proc = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = UpdaterFilename(),
+                    Arguments = $"--check-version {GetSlugChessVersion()}" ,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = true
+                }
+            };
+            string line = "";
+            proc.Start();
+            while (!proc.StandardOutput.EndOfStream)
+            {
+                line += proc.StandardOutput.ReadLine();
+                // do something with line
+            }
+            proc.Close();
+            return line;
+        }
+
+        public static void StartUpdaterUpdate()
+        {
+            var proc = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = UpdaterFilename(),
+                    Arguments = $"--run-update",
+                    UseShellExecute = true,
+                    RedirectStandardOutput = false,
+                    CreateNoWindow = false
+                }
+            };
+            proc.Start();
         }
     }
 }

@@ -12,6 +12,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SlugChessAval", "SlugChessA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChesscomCSharpLib", "ChesscomCSharpLib\ChesscomCSharpLib.csproj", "{0F4BBC4E-3708-49B5-B592-0EED244E850E}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SlugChessUpdater", "SlugChessUpdater\SlugChessUpdater.csproj", "{94B1993C-FCF3-483F-AD6D-A5603F8FC9EE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +44,14 @@ Global
 		{0F4BBC4E-3708-49B5-B592-0EED244E850E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0F4BBC4E-3708-49B5-B592-0EED244E850E}.Release|x64.ActiveCfg = Release|Any CPU
 		{0F4BBC4E-3708-49B5-B592-0EED244E850E}.Release|x64.Build.0 = Release|Any CPU
+		{94B1993C-FCF3-483F-AD6D-A5603F8FC9EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94B1993C-FCF3-483F-AD6D-A5603F8FC9EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94B1993C-FCF3-483F-AD6D-A5603F8FC9EE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{94B1993C-FCF3-483F-AD6D-A5603F8FC9EE}.Debug|x64.Build.0 = Debug|Any CPU
+		{94B1993C-FCF3-483F-AD6D-A5603F8FC9EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94B1993C-FCF3-483F-AD6D-A5603F8FC9EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94B1993C-FCF3-483F-AD6D-A5603F8FC9EE}.Release|x64.ActiveCfg = Release|Any CPU
+		{94B1993C-FCF3-483F-AD6D-A5603F8FC9EE}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

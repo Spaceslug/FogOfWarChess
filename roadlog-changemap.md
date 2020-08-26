@@ -51,19 +51,33 @@ Changes to chesscom commuication api or underlating function.
 - make a propper logger on server. Write to log file and console. Delete logfile on restart
 - a check to evaluate the validity of time spent on move. Change the value if it seems wrong. 
 
-### version 0.13.0
+### version 0.15.0
 - [ ] save userdata
 - [ ] password system
 - [ ] simple elo system
-- [ ] record games played (PGN)
+- [ ] load up and click through PGNs.
 
-### version 0.12.0
+### version 0.14.0
+- [ ] auto updator can update to spesific version. A command line option. Mayby post link to available releases page
+- [ ] record games played (PGN). In a replay folder for users and a replay folder on server
+
+### version 0.13.0
 - [ ] move match logic to MatchModel. Ex: IsCurrentPlayersTurn obs lives there, code for match events is there and the Chesscom call
-- [ ] add audio to Aval (need to test linux)
-- [ ] python script for uploading new versions of Aval and maintain a manifest of versions for updator
-- [ ] auto updator for Aval
+- [ ] if server is wrong version or not there at all. Show a propper message to the user trying to log on
 
-### version 0.11.1
+
+### version 0.12.1
+- [ ] finish install.sh for linux. make seperate for debug also
+- [ ] click again on a pice to deselect
+
+
+### version 0.12.0 (Done)
+- [x] add audio to Aval 
+- [x] python script for uploading new versions of Aval and maintain a manifest of versions for updater
+- [x] auto updator for Aval
+
+
+### version 0.11.1 (Done)
 - [x] clean up TODOs on servinator
 - [x] Alive heartbeat must be fixed. Make sure it works as intended.
 

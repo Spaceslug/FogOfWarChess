@@ -2,7 +2,7 @@
   "profiles": {
     "SlugChessAval": {
       "commandName": "Project",
-      "commandLineArgs": "--debugLogin debugman  --port 43326"
+      "commandLineArgs": "--debugLogin debugman  --port 43326 --no-updatecheck"
     }
   }
 }

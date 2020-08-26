@@ -8,45 +8,50 @@ shutil.register_unpack_format('7zip', ['.7z'], py7zr.unpack_7zarchive)
 rootDir = os.path.dirname(__file__)
 projectDir = os.path.join(rootDir, '..')
 releaseDir = os.path.join(projectDir, 'bin/Release/netcoreapp3.1')
+debugDir = os.path.join(projectDir, 'bin/Debug/netcoreapp3.1')
 tempDir = os.path.join(projectDir, 'temp')
 
 
-def prepereAndUpload(version):
+def prepereAndUpload(version, targets, debug=False):
     print('Preping archives')
+    os.makedirs('{}/'.format(tempDir), 0o777, True)
     version = version.replace('.', '_')
-    print(releaseDir)
+    #print(releaseDir)
+    for target in targets:
+        archive(version, target, debug)
 
-    archive(version, 'win-x64')
-    archive(version, 'linux-x64')
-    archive(version, 'osx-x64')
-    uploadArchive(['win-x64', 'linux-x64', 'osx-x64'], version)
+    uploadArchive(targets, version, debug)
+    shutil.rmtree(tempDir)
 
 
-def archive(version, target):
-    targetDir = os.path.join(releaseDir, target)
+def archive(version, target, debug):
+    if debug:
+        targetDir = os.path.join(debugDir, target)
+    else:
+        targetDir = os.path.join(releaseDir, target)
     
     os.makedirs('{}/{}/'.format(tempDir,target), 0o777, True)
     print('Archiving ' + target)
     os.rename(targetDir + '/publish', targetDir + '/SlugChess')
     #//shutil.make_archive(rootDir + '..\\temp\\win-64\\SlugChess_'+version, '7zip', releaseDir+'\\win-64\\', 'publish')
     #shutil.make_archive(tempDir + '/'+ target + '/SlugChess_'+version, '7zip', 'publish' , releaseDir + '/'+ target +'/publish')
-    make_archive('{}/{}/SlugChess'.format(releaseDir, target), '{}/{}/SlugChess_{}'.format(tempDir,target,version))
+    make_archive(targetDir + '/SlugChess', '{}/{}/SlugChess_{}'.format(tempDir,target,version))
     os.rename(targetDir + '/SlugChess', targetDir + '/publish')
 
 
 def make_archive(source, destination):
-        base = os.path.basename(destination)
+    base = os.path.basename(destination)
 
-        archive_from = os.path.dirname(source)
-        archive_to = os.path.basename(source.strip(os.sep))
-        print(source, destination, archive_from, archive_to)
-        shutil.make_archive(base, '7zip', archive_from, archive_to)
-        shutil.move('%s.%s'%(base,'7z'), destination + '.7z')
+    archive_from = os.path.dirname(source)
+    archive_to = os.path.basename(source.strip(os.sep))
+    print(source, destination, archive_from, archive_to)
+    shutil.make_archive(base, '7zip', archive_from, archive_to)
+    shutil.move('%s.%s'%(base,'7z'), destination + '.7z')
 
 
-def uploadArchive(targets, version):
-    hostname = "ssh.spaceslug.no"
-    username = "spaceslug.no"
+def uploadArchive(targets, version, debug=False):
+    hostname = open(projectDir + '/../../spaceslug.no_SFTP_hostname.txt', 'r').read()
+    username = open(projectDir + '/../../spaceslug.no_SFTP_username.txt', 'r').read()
     password = open(projectDir + '/../../spaceslug.no_SFTP_passord.txt', 'r').read()
     #since pysftp is shit on windows and can not find known_hosts from putty i must disable the security feature
     cnopts = pysftp.CnOpts()
@@ -59,12 +64,23 @@ def uploadArchive(targets, version):
         # Print data
         #for attr in directory_structure:
         #     print(attr.filename, attr)
-        for target in targets:
+        if debug:
+            bType = 'slugchess-debug' 
+        else:
+            bType = 'slugchess'
 
-            sftp.makedirs('./slugchess/releases/'+target, 774)
-            sftp.makedirs('./slugchess/latest/'+target, 774)
-            sftp.put('{}/{}/{}'.format(tempDir,target,filename), './slugchess/releases/{}/{}'.format(target, filename))
-            sftp.put('{}/{}/{}'.format(tempDir,target,filename), './slugchess/latest/{}/{}'.format(target, 'SlugChess_latest.7z'))
+        for target in targets:
+            #sftp.makedirs('./{}/releases/{}'.format(bType, target), 774)
+            #sftp.makedirs('./{}/latest/{}'.format(bType, target), 774)
+            #sftp.remove('./{}/latest/version.txt'.format(bType))
+            f = open('{}/version.txt'.format(tempDir),"w+")
+            f.write(version.replace('_', '.'))
+            f.close()
+            sftp.put('{}/version.txt'.format(tempDir), './{}/latest/version.txt'.format(bType))
+            #sftp.remove('./{}/releases/{}/{}'.format(bType, target, filename))
+            #sftp.remove('./{}/latest/{}/{}'.format(bType, target, 'SlugChess_latest.7z'))
+            sftp.put('{}/{}/{}'.format(tempDir,target,filename), './{}/releases/{}/{}'.format(bType, target, filename))
+            sftp.put('{}/{}/{}'.format(tempDir,target,filename), './{}/latest/{}/{}'.format(bType, target, 'SlugChess_latest.7z'))
             print('Uploaded '+target+' SlugChess_'+version)
      
 # connection closed automatically at the end of the with-block
