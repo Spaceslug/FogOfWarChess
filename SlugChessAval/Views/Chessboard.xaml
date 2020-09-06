@@ -22,7 +22,7 @@
   </Control.Styles>
   <Grid Name="mainChessboardGrid" Width="{Binding #mainChessboardGrid.Bounds.Height}" ColumnDefinitions="Auto,1*" RowDefinitions="1*,Auto" Margin="5,5,5,5">
     <Grid Name="BoardGrid" Grid.Row="0" Grid.Column="1"  Background="{DynamicResource Fog}" ColumnDefinitions="*,*,*,*,*,*,*,*" RowDefinitions="*,*,*,*,*,*,*,*">
-      <Border Name="a8" Grid.Row="0" Grid.Column="0" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="a8" Grid.Row="0" Grid.Column="0" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[56].BorderBrush}"
         BorderThickness="{Binding FieldBoard[56].BorderThickness}"
         Opacity=        "{Binding FieldBoard[56].Opacity}"
@@ -31,7 +31,7 @@
           <Image Source="{Binding FieldBoard[56].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="b8" Grid.Row="0" Grid.Column="1" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="b8" Grid.Row="0" Grid.Column="1" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[57].BorderBrush}"
         BorderThickness="{Binding FieldBoard[57].BorderThickness}"
         Opacity=        "{Binding FieldBoard[57].Opacity}"
@@ -40,7 +40,7 @@
           <Image Source="{Binding FieldBoard[57].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="c8" Grid.Row="0" Grid.Column="2" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="c8" Grid.Row="0" Grid.Column="2" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[58].BorderBrush}"
         BorderThickness="{Binding FieldBoard[58].BorderThickness}"
         Opacity=        "{Binding FieldBoard[58].Opacity}"
@@ -49,7 +49,7 @@
           <Image Source="{Binding FieldBoard[58].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="d8" Grid.Row="0" Grid.Column="3" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="d8" Grid.Row="0" Grid.Column="3" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[59].BorderBrush}"
         BorderThickness="{Binding FieldBoard[59].BorderThickness}"
         Opacity=        "{Binding FieldBoard[59].Opacity}"
@@ -58,7 +58,7 @@
           <Image Source="{Binding FieldBoard[59].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="e8" Grid.Row="0" Grid.Column="4" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="e8" Grid.Row="0" Grid.Column="4" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[60].BorderBrush}"
         BorderThickness="{Binding FieldBoard[60].BorderThickness}"
         Opacity=        "{Binding FieldBoard[60].Opacity}"
@@ -67,7 +67,7 @@
           <Image Source="{Binding FieldBoard[60].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="f8" Grid.Row="0" Grid.Column="5" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="f8" Grid.Row="0" Grid.Column="5" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[61].BorderBrush}"
         BorderThickness="{Binding FieldBoard[61].BorderThickness}"
         Opacity=        "{Binding FieldBoard[61].Opacity}"
@@ -76,7 +76,7 @@
           <Image Source="{Binding FieldBoard[61].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="g8" Grid.Row="0" Grid.Column="6" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="g8" Grid.Row="0" Grid.Column="6" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[62].BorderBrush}"
         BorderThickness="{Binding FieldBoard[62].BorderThickness}"
         Opacity=        "{Binding FieldBoard[62].Opacity}"
@@ -85,7 +85,7 @@
           <Image Source="{Binding FieldBoard[62].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="h8" Grid.Row="0" Grid.Column="7" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="h8" Grid.Row="0" Grid.Column="7" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[63].BorderBrush}"
         BorderThickness="{Binding FieldBoard[63].BorderThickness}"
         Opacity=        "{Binding FieldBoard[63].Opacity}"
@@ -94,7 +94,7 @@
           <Image Source="{Binding FieldBoard[63].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="a7" Grid.Row="1" Grid.Column="0" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="a7" Grid.Row="1" Grid.Column="0" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[48].BorderBrush}"
         BorderThickness="{Binding FieldBoard[48].BorderThickness}"
         Opacity=        "{Binding FieldBoard[48].Opacity}"
@@ -103,7 +103,7 @@
           <Image Source="{Binding FieldBoard[48].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="b7" Grid.Row="1" Grid.Column="1" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="b7" Grid.Row="1" Grid.Column="1" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[49].BorderBrush}"
         BorderThickness="{Binding FieldBoard[49].BorderThickness}"
         Opacity=        "{Binding FieldBoard[49].Opacity}"
@@ -112,7 +112,7 @@
           <Image Source="{Binding FieldBoard[49].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="c7" Grid.Row="1" Grid.Column="2" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="c7" Grid.Row="1" Grid.Column="2" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[50].BorderBrush}"
         BorderThickness="{Binding FieldBoard[50].BorderThickness}"
         Opacity=        "{Binding FieldBoard[50].Opacity}"
@@ -121,7 +121,7 @@
           <Image Source="{Binding FieldBoard[50].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="d7" Grid.Row="1" Grid.Column="3" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="d7" Grid.Row="1" Grid.Column="3" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[51].BorderBrush}"
         BorderThickness="{Binding FieldBoard[51].BorderThickness}"
         Opacity=        "{Binding FieldBoard[51].Opacity}"
@@ -130,7 +130,7 @@
           <Image Source="{Binding FieldBoard[51].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="e7" Grid.Row="1" Grid.Column="4" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="e7" Grid.Row="1" Grid.Column="4" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[52].BorderBrush}"
         BorderThickness="{Binding FieldBoard[52].BorderThickness}"
         Opacity=        "{Binding FieldBoard[52].Opacity}"
@@ -139,7 +139,7 @@
           <Image Source="{Binding FieldBoard[52].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="f7" Grid.Row="1" Grid.Column="5" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="f7" Grid.Row="1" Grid.Column="5" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[53].BorderBrush}"
         BorderThickness="{Binding FieldBoard[53].BorderThickness}"
         Opacity=        "{Binding FieldBoard[53].Opacity}"
@@ -148,7 +148,7 @@
           <Image Source="{Binding FieldBoard[53].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="g7" Grid.Row="1" Grid.Column="6" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="g7" Grid.Row="1" Grid.Column="6" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[54].BorderBrush}"
         BorderThickness="{Binding FieldBoard[54].BorderThickness}"
         Opacity=        "{Binding FieldBoard[54].Opacity}"
@@ -157,7 +157,7 @@
           <Image Source="{Binding FieldBoard[54].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="h7" Grid.Row="1" Grid.Column="7" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="h7" Grid.Row="1" Grid.Column="7" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[55].BorderBrush}"
         BorderThickness="{Binding FieldBoard[55].BorderThickness}"
         Opacity=        "{Binding FieldBoard[55].Opacity}"
@@ -166,7 +166,7 @@
           <Image Source="{Binding FieldBoard[55].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="a6" Grid.Row="2" Grid.Column="0" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="a6" Grid.Row="2" Grid.Column="0" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[40].BorderBrush}"
         BorderThickness="{Binding FieldBoard[40].BorderThickness}"
         Opacity=        "{Binding FieldBoard[40].Opacity}"
@@ -175,7 +175,7 @@
           <Image Source="{Binding FieldBoard[40].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="b6" Grid.Row="2" Grid.Column="1" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="b6" Grid.Row="2" Grid.Column="1" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[41].BorderBrush}"
         BorderThickness="{Binding FieldBoard[41].BorderThickness}"
         Opacity=        "{Binding FieldBoard[41].Opacity}"
@@ -184,7 +184,7 @@
           <Image Source="{Binding FieldBoard[41].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="c6" Grid.Row="2" Grid.Column="2" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="c6" Grid.Row="2" Grid.Column="2" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[42].BorderBrush}"
         BorderThickness="{Binding FieldBoard[42].BorderThickness}"
         Opacity=        "{Binding FieldBoard[42].Opacity}"
@@ -193,7 +193,7 @@
           <Image Source="{Binding FieldBoard[42].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="d6" Grid.Row="2" Grid.Column="3" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="d6" Grid.Row="2" Grid.Column="3" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[43].BorderBrush}"
         BorderThickness="{Binding FieldBoard[43].BorderThickness}"
         Opacity=        "{Binding FieldBoard[43].Opacity}"
@@ -202,7 +202,7 @@
           <Image Source="{Binding FieldBoard[43].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="e6" Grid.Row="2" Grid.Column="4" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="e6" Grid.Row="2" Grid.Column="4" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[44].BorderBrush}"
         BorderThickness="{Binding FieldBoard[44].BorderThickness}"
         Opacity=        "{Binding FieldBoard[44].Opacity}"
@@ -211,7 +211,7 @@
           <Image Source="{Binding FieldBoard[44].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="f6" Grid.Row="2" Grid.Column="5" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="f6" Grid.Row="2" Grid.Column="5" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[45].BorderBrush}"
         BorderThickness="{Binding FieldBoard[45].BorderThickness}"
         Opacity=        "{Binding FieldBoard[45].Opacity}"
@@ -220,7 +220,7 @@
           <Image Source="{Binding FieldBoard[45].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="g6" Grid.Row="2" Grid.Column="6" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="g6" Grid.Row="2" Grid.Column="6" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[46].BorderBrush}"
         BorderThickness="{Binding FieldBoard[46].BorderThickness}"
         Opacity=        "{Binding FieldBoard[46].Opacity}"
@@ -229,7 +229,7 @@
           <Image Source="{Binding FieldBoard[46].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="h6" Grid.Row="2" Grid.Column="7" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="h6" Grid.Row="2" Grid.Column="7" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[47].BorderBrush}"
         BorderThickness="{Binding FieldBoard[47].BorderThickness}"
         Opacity=        "{Binding FieldBoard[47].Opacity}"
@@ -238,7 +238,7 @@
           <Image Source="{Binding FieldBoard[47].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="a5" Grid.Row="3" Grid.Column="0" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="a5" Grid.Row="3" Grid.Column="0" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[32].BorderBrush}"
         BorderThickness="{Binding FieldBoard[32].BorderThickness}"
         Opacity=        "{Binding FieldBoard[32].Opacity}"
@@ -247,7 +247,7 @@
           <Image Source="{Binding FieldBoard[32].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="b5" Grid.Row="3" Grid.Column="1" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="b5" Grid.Row="3" Grid.Column="1" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[33].BorderBrush}"
         BorderThickness="{Binding FieldBoard[33].BorderThickness}"
         Opacity=        "{Binding FieldBoard[33].Opacity}"
@@ -256,7 +256,7 @@
           <Image Source="{Binding FieldBoard[33].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="c5" Grid.Row="3" Grid.Column="2" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="c5" Grid.Row="3" Grid.Column="2" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[34].BorderBrush}"
         BorderThickness="{Binding FieldBoard[34].BorderThickness}"
         Opacity=        "{Binding FieldBoard[34].Opacity}"
@@ -265,7 +265,7 @@
           <Image Source="{Binding FieldBoard[34].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="d5" Grid.Row="3" Grid.Column="3" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="d5" Grid.Row="3" Grid.Column="3" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[35].BorderBrush}"
         BorderThickness="{Binding FieldBoard[35].BorderThickness}"
         Opacity=        "{Binding FieldBoard[35].Opacity}"
@@ -274,7 +274,7 @@
           <Image Source="{Binding FieldBoard[35].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="e5" Grid.Row="3" Grid.Column="4" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="e5" Grid.Row="3" Grid.Column="4" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[36].BorderBrush}"
         BorderThickness="{Binding FieldBoard[36].BorderThickness}"
         Opacity=        "{Binding FieldBoard[36].Opacity}"
@@ -283,7 +283,7 @@
           <Image Source="{Binding FieldBoard[36].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="f5" Grid.Row="3" Grid.Column="5" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="f5" Grid.Row="3" Grid.Column="5" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[37].BorderBrush}"
         BorderThickness="{Binding FieldBoard[37].BorderThickness}"
         Opacity=        "{Binding FieldBoard[37].Opacity}"
@@ -292,7 +292,7 @@
           <Image Source="{Binding FieldBoard[37].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="g5" Grid.Row="3" Grid.Column="6" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="g5" Grid.Row="3" Grid.Column="6" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[38].BorderBrush}"
         BorderThickness="{Binding FieldBoard[38].BorderThickness}"
         Opacity=        "{Binding FieldBoard[38].Opacity}"
@@ -301,7 +301,7 @@
           <Image Source="{Binding FieldBoard[38].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="h5" Grid.Row="3" Grid.Column="7" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="h5" Grid.Row="3" Grid.Column="7" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[39].BorderBrush}"
         BorderThickness="{Binding FieldBoard[39].BorderThickness}"
         Opacity=        "{Binding FieldBoard[39].Opacity}"
@@ -310,7 +310,7 @@
           <Image Source="{Binding FieldBoard[39].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="a4" Grid.Row="4" Grid.Column="0" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="a4" Grid.Row="4" Grid.Column="0" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[24].BorderBrush}"
         BorderThickness="{Binding FieldBoard[24].BorderThickness}"
         Opacity=        "{Binding FieldBoard[24].Opacity}"
@@ -319,7 +319,7 @@
           <Image Source="{Binding FieldBoard[24].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="b4" Grid.Row="4" Grid.Column="1" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="b4" Grid.Row="4" Grid.Column="1" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[25].BorderBrush}"
         BorderThickness="{Binding FieldBoard[25].BorderThickness}"
         Opacity=        "{Binding FieldBoard[25].Opacity}"
@@ -328,7 +328,7 @@
           <Image Source="{Binding FieldBoard[25].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="c4" Grid.Row="4" Grid.Column="2" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="c4" Grid.Row="4" Grid.Column="2" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[26].BorderBrush}"
         BorderThickness="{Binding FieldBoard[26].BorderThickness}"
         Opacity=        "{Binding FieldBoard[26].Opacity}"
@@ -337,7 +337,7 @@
           <Image Source="{Binding FieldBoard[26].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="d4" Grid.Row="4" Grid.Column="3" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="d4" Grid.Row="4" Grid.Column="3" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[27].BorderBrush}"
         BorderThickness="{Binding FieldBoard[27].BorderThickness}"
         Opacity=        "{Binding FieldBoard[27].Opacity}"
@@ -346,7 +346,7 @@
           <Image Source="{Binding FieldBoard[27].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="e4" Grid.Row="4" Grid.Column="4" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="e4" Grid.Row="4" Grid.Column="4" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[28].BorderBrush}"
         BorderThickness="{Binding FieldBoard[28].BorderThickness}"
         Opacity=        "{Binding FieldBoard[28].Opacity}"
@@ -355,7 +355,7 @@
           <Image Source="{Binding FieldBoard[28].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="f4" Grid.Row="4" Grid.Column="5" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="f4" Grid.Row="4" Grid.Column="5" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[29].BorderBrush}"
         BorderThickness="{Binding FieldBoard[29].BorderThickness}"
         Opacity=        "{Binding FieldBoard[29].Opacity}"
@@ -364,7 +364,7 @@
           <Image Source="{Binding FieldBoard[29].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="g4" Grid.Row="4" Grid.Column="6" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="g4" Grid.Row="4" Grid.Column="6" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[30].BorderBrush}"
         BorderThickness="{Binding FieldBoard[30].BorderThickness}"
         Opacity=        "{Binding FieldBoard[30].Opacity}"
@@ -373,7 +373,7 @@
           <Image Source="{Binding FieldBoard[30].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="h4" Grid.Row="4" Grid.Column="7" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="h4" Grid.Row="4" Grid.Column="7" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[31].BorderBrush}"
         BorderThickness="{Binding FieldBoard[31].BorderThickness}"
         Opacity=        "{Binding FieldBoard[31].Opacity}"
@@ -382,7 +382,7 @@
           <Image Source="{Binding FieldBoard[31].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="a3" Grid.Row="5" Grid.Column="0" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="a3" Grid.Row="5" Grid.Column="0" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[16].BorderBrush}"
         BorderThickness="{Binding FieldBoard[16].BorderThickness}"
         Opacity=        "{Binding FieldBoard[16].Opacity}"
@@ -391,7 +391,7 @@
           <Image Source="{Binding FieldBoard[16].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="b3" Grid.Row="5" Grid.Column="1" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="b3" Grid.Row="5" Grid.Column="1" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[17].BorderBrush}"
         BorderThickness="{Binding FieldBoard[17].BorderThickness}"
         Opacity=        "{Binding FieldBoard[17].Opacity}"
@@ -400,7 +400,7 @@
           <Image Source="{Binding FieldBoard[17].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="c3" Grid.Row="5" Grid.Column="2" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="c3" Grid.Row="5" Grid.Column="2" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[18].BorderBrush}"
         BorderThickness="{Binding FieldBoard[18].BorderThickness}"
         Opacity=        "{Binding FieldBoard[18].Opacity}"
@@ -409,7 +409,7 @@
           <Image Source="{Binding FieldBoard[18].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="d3" Grid.Row="5" Grid.Column="3" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="d3" Grid.Row="5" Grid.Column="3" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[19].BorderBrush}"
         BorderThickness="{Binding FieldBoard[19].BorderThickness}"
         Opacity=        "{Binding FieldBoard[19].Opacity}"
@@ -418,7 +418,7 @@
           <Image Source="{Binding FieldBoard[19].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="e3" Grid.Row="5" Grid.Column="4" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="e3" Grid.Row="5" Grid.Column="4" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[20].BorderBrush}"
         BorderThickness="{Binding FieldBoard[20].BorderThickness}"
         Opacity=        "{Binding FieldBoard[20].Opacity}"
@@ -427,7 +427,7 @@
           <Image Source="{Binding FieldBoard[20].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="f3" Grid.Row="5" Grid.Column="5" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="f3" Grid.Row="5" Grid.Column="5" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[21].BorderBrush}"
         BorderThickness="{Binding FieldBoard[21].BorderThickness}"
         Opacity=        "{Binding FieldBoard[21].Opacity}"
@@ -436,7 +436,7 @@
           <Image Source="{Binding FieldBoard[21].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="g3" Grid.Row="5" Grid.Column="6" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="g3" Grid.Row="5" Grid.Column="6" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[22].BorderBrush}"
         BorderThickness="{Binding FieldBoard[22].BorderThickness}"
         Opacity=        "{Binding FieldBoard[22].Opacity}"
@@ -445,7 +445,7 @@
           <Image Source="{Binding FieldBoard[22].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="h3" Grid.Row="5" Grid.Column="7" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="h3" Grid.Row="5" Grid.Column="7" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[23].BorderBrush}"
         BorderThickness="{Binding FieldBoard[23].BorderThickness}"
         Opacity=        "{Binding FieldBoard[23].Opacity}"
@@ -454,7 +454,7 @@
           <Image Source="{Binding FieldBoard[23].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="a2" Grid.Row="6" Grid.Column="0" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="a2" Grid.Row="6" Grid.Column="0" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[8].BorderBrush}"
         BorderThickness="{Binding FieldBoard[8].BorderThickness}"
         Opacity=        "{Binding FieldBoard[8].Opacity}"
@@ -463,7 +463,7 @@
           <Image Source="{Binding FieldBoard[8].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="b2" Grid.Row="6" Grid.Column="1" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="b2" Grid.Row="6" Grid.Column="1" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[9].BorderBrush}"
         BorderThickness="{Binding FieldBoard[9].BorderThickness}"
         Opacity=        "{Binding FieldBoard[9].Opacity}"
@@ -472,7 +472,7 @@
           <Image Source="{Binding FieldBoard[9].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="c2" Grid.Row="6" Grid.Column="2" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="c2" Grid.Row="6" Grid.Column="2" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[10].BorderBrush}"
         BorderThickness="{Binding FieldBoard[10].BorderThickness}"
         Opacity=        "{Binding FieldBoard[10].Opacity}"
@@ -481,7 +481,7 @@
           <Image Source="{Binding FieldBoard[10].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="d2" Grid.Row="6" Grid.Column="3" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="d2" Grid.Row="6" Grid.Column="3" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[11].BorderBrush}"
         BorderThickness="{Binding FieldBoard[11].BorderThickness}"
         Opacity=        "{Binding FieldBoard[11].Opacity}"
@@ -490,7 +490,7 @@
           <Image Source="{Binding FieldBoard[11].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="e2" Grid.Row="6" Grid.Column="4" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="e2" Grid.Row="6" Grid.Column="4" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[12].BorderBrush}"
         BorderThickness="{Binding FieldBoard[12].BorderThickness}"
         Opacity=        "{Binding FieldBoard[12].Opacity}"
@@ -499,7 +499,7 @@
           <Image Source="{Binding FieldBoard[12].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="f2" Grid.Row="6" Grid.Column="5" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="f2" Grid.Row="6" Grid.Column="5" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[13].BorderBrush}"
         BorderThickness="{Binding FieldBoard[13].BorderThickness}"
         Opacity=        "{Binding FieldBoard[13].Opacity}"
@@ -508,7 +508,7 @@
           <Image Source="{Binding FieldBoard[13].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="g2" Grid.Row="6" Grid.Column="6" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="g2" Grid.Row="6" Grid.Column="6" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[14].BorderBrush}"
         BorderThickness="{Binding FieldBoard[14].BorderThickness}"
         Opacity=        "{Binding FieldBoard[14].Opacity}"
@@ -517,7 +517,7 @@
           <Image Source="{Binding FieldBoard[14].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="h2" Grid.Row="6" Grid.Column="7" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="h2" Grid.Row="6" Grid.Column="7" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[15].BorderBrush}"
         BorderThickness="{Binding FieldBoard[15].BorderThickness}"
         Opacity=        "{Binding FieldBoard[15].Opacity}"
@@ -526,7 +526,7 @@
           <Image Source="{Binding FieldBoard[15].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="a1" Grid.Row="7" Grid.Column="0" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="a1" Grid.Row="7" Grid.Column="0" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[0].BorderBrush}"
         BorderThickness="{Binding FieldBoard[0].BorderThickness}"
         Opacity=        "{Binding FieldBoard[0].Opacity}"
@@ -535,7 +535,7 @@
           <Image Source="{Binding FieldBoard[0].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="b1" Grid.Row="7" Grid.Column="1" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="b1" Grid.Row="7" Grid.Column="1" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[1].BorderBrush}"
         BorderThickness="{Binding FieldBoard[1].BorderThickness}"
         Opacity=        "{Binding FieldBoard[1].Opacity}"
@@ -544,7 +544,7 @@
           <Image Source="{Binding FieldBoard[1].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="c1" Grid.Row="7" Grid.Column="2" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="c1" Grid.Row="7" Grid.Column="2" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[2].BorderBrush}"
         BorderThickness="{Binding FieldBoard[2].BorderThickness}"
         Opacity=        "{Binding FieldBoard[2].Opacity}"
@@ -553,7 +553,7 @@
           <Image Source="{Binding FieldBoard[2].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="d1" Grid.Row="7" Grid.Column="3" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="d1" Grid.Row="7" Grid.Column="3" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[3].BorderBrush}"
         BorderThickness="{Binding FieldBoard[3].BorderThickness}"
         Opacity=        "{Binding FieldBoard[3].Opacity}"
@@ -562,7 +562,7 @@
           <Image Source="{Binding FieldBoard[3].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="e1" Grid.Row="7" Grid.Column="4" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="e1" Grid.Row="7" Grid.Column="4" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[4].BorderBrush}"
         BorderThickness="{Binding FieldBoard[4].BorderThickness}"
         Opacity=        "{Binding FieldBoard[4].Opacity}"
@@ -571,7 +571,7 @@
           <Image Source="{Binding FieldBoard[4].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="f1" Grid.Row="7" Grid.Column="5" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="f1" Grid.Row="7" Grid.Column="5" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[5].BorderBrush}"
         BorderThickness="{Binding FieldBoard[5].BorderThickness}"
         Opacity=        "{Binding FieldBoard[5].Opacity}"
@@ -580,7 +580,7 @@
           <Image Source="{Binding FieldBoard[5].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="g1" Grid.Row="7" Grid.Column="6" PointerReleased="ChessfieldClicked" Background="{DynamicResource WhiteField}"
+      <Border Name="g1" Grid.Row="7" Grid.Column="6" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource WhiteField}"
         BorderBrush=    "{Binding FieldBoard[6].BorderBrush}"
         BorderThickness="{Binding FieldBoard[6].BorderThickness}"
         Opacity=        "{Binding FieldBoard[6].Opacity}"
@@ -589,7 +589,7 @@
           <Image Source="{Binding FieldBoard[6].Image}" />
         </DockPanel>
       </Border>
-      <Border Name="h1" Grid.Row="7" Grid.Column="7" PointerReleased="ChessfieldClicked" Background="{DynamicResource BlackField}"
+      <Border Name="h1" Grid.Row="7" Grid.Column="7" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"
         BorderBrush=    "{Binding FieldBoard[7].BorderBrush}"
         BorderThickness="{Binding FieldBoard[7].BorderThickness}"
         Opacity=        "{Binding FieldBoard[7].Opacity}"

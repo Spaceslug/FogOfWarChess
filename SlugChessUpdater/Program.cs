@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 
@@ -43,6 +44,8 @@ namespace SlugChessUpdater
         private static bool _downloadCompleted;
         private static string _downloadName = "non";
         private static int _downloadPercent = 0;
+
+        public static string RootDir = (Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location) ?? ".") + "/";
         static void Main(string[] args)
         {
             try
@@ -135,7 +138,7 @@ namespace SlugChessUpdater
         static void DeleteFiles()
         {
             Console.WriteLine("Deleting old version");
-            string[] filePaths = Directory.GetFiles("./");
+            string[] filePaths = Directory.GetFiles($"{RootDir}");
             foreach (string filePath in filePaths)
             {
                 var name = new FileInfo(filePath).Name;
@@ -146,7 +149,7 @@ namespace SlugChessUpdater
                     File.Delete(filePath);
                 }
             }
-            if(Directory.Exists("./Assets")) Directory.Delete("./Assets", true);
+            if(Directory.Exists($"{RootDir}Assets")) Directory.Delete($"{RootDir}Assets", true);
 
             Console.WriteLine("Deleting old files complete");
 
@@ -155,10 +158,10 @@ namespace SlugChessUpdater
         static void DownloadAndExtractNewVersion(string adressOfLatestVersion, string latestVersion)
         {
             Console.WriteLine("Downloading SlugChess " + latestVersion + ": " + adressOfLatestVersion);
-            Directory.CreateDirectory("temp");
+            Directory.CreateDirectory($"{RootDir}temp");
 
             WebClient myWebClient = new WebClient();
-            myWebClient.DownloadFile(adressOfLatestVersion, "temp/latest.7z");
+            //myWebClient.DownloadFile(adressOfLatestVersion, $"{RootDir}temp/latest.7z");
 
             // Specify that the DownloadFileCallback method gets called
             // when the download completes.
@@ -168,13 +171,13 @@ namespace SlugChessUpdater
             _downloadName = "SlugChess " + latestVersion;
             _downloadCompleted = false;
             _downloadPercent = 0;
-            myWebClient.DownloadFileAsync(new Uri(adressOfLatestVersion), "temp/latest.7z");
+            myWebClient.DownloadFileAsync(new Uri(adressOfLatestVersion), $"{RootDir}temp/latest.7z");
 
             //Wait until download completed
             while (!_downloadCompleted) Thread.Sleep(250);
             Console.WriteLine("Extracting SlugChess " + latestVersion);
-            Console.WriteLine("Size of achive: " + new FileInfo("temp/latest.7z").Length);
-            using (var archive = SevenZipArchive.Open("temp/latest.7z"))
+            Console.WriteLine("Size of achive: " + new FileInfo($"{RootDir}temp/latest.7z").Length);
+            using (var archive = SevenZipArchive.Open($"{RootDir}temp/latest.7z"))
             {
                 var reader = archive.ExtractAllEntries();
                 reader.CompressedBytesRead += new EventHandler<CompressedBytesReadEventArgs>(CompressedBytesReadCallback);
@@ -182,29 +185,32 @@ namespace SlugChessUpdater
                 {
                     if (!reader.Entry.IsDirectory)
                     {
-                        reader.WriteEntryToDirectory("temp", new ExtractionOptions() { ExtractFullPath = true, Overwrite = true });
+                        reader.WriteEntryToDirectory($"{RootDir}temp", new ExtractionOptions() { ExtractFullPath = true, Overwrite = true });
                     }
                 }
             }
             Console.WriteLine("Moving files");
-            foreach (var file in new DirectoryInfo("temp/SlugChess/").GetFiles())
+            foreach (var file in new DirectoryInfo($"{RootDir}temp/SlugChess/").GetFiles())
             {
-                if (File.Exists($"./{file.Name}"))
+                if (File.Exists($"{RootDir}{file.Name}"))
                 {
                     Console.WriteLine("File allready exists: " + file.Name);
-                    Console.ReadKey();
+                    if(file.Name == "SlugChessUpdater.exe")
+                    {
+                        file.MoveTo($"{RootDir}{file.Name}.new");
+                    }
                 }
                 else
                 {
-                    file.MoveTo($"./{file.Name}");
+                    file.MoveTo($"{RootDir}{file.Name}");
                 }
             }
-            foreach (var dir in new DirectoryInfo("temp/SlugChess/").GetDirectories())
+            foreach (var dir in new DirectoryInfo($"{RootDir}temp/SlugChess/").GetDirectories())
             {
-                dir.MoveTo($"./{dir.Name}");
+                dir.MoveTo($"{RootDir}{dir.Name}");
             }
             Console.WriteLine("Deleting temp files");
-            Directory.Delete("temp", true);
+            Directory.Delete($"{RootDir}temp", true);
         }
 
         static void LaunchAval()

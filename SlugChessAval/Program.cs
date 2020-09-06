@@ -11,6 +11,8 @@ using Serilog;
 using Serilog.Filters;
 using Avalonia.Logging;
 using System.Reflection;
+using System.IO;
+using System.Threading;
 
 namespace SlugChessAval
 {
@@ -87,6 +89,8 @@ namespace SlugChessAval
         public static bool LaunchedWithParam(string s) => _launchParms.Contains(s);
         public static string GetParamValue(string s) => _launchParms[_launchParms.IndexOf(s)+1];
 
+        public static string RootDir = (Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location) ?? ".") + "/";
+
 
         // Initialization code. Don't use any Avalonia, third-party APIs or any
         // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
@@ -97,6 +101,12 @@ namespace SlugChessAval
             {
                 PrintHelpTextToConsole();
                 return;
+            }
+            if (File.Exists($"{RootDir}{UpdaterFilename()}.new"))
+            {
+                Thread.Sleep(100);
+                File.Delete($"{RootDir}{UpdaterFilename()}");
+                File.Move($"{RootDir}{UpdaterFilename()}.new", $"{RootDir}{UpdaterFilename()}");
             }
             if (!LaunchedWithParam("--no-updatecheck"))
             {

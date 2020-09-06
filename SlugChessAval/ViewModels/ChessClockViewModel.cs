@@ -74,7 +74,7 @@ namespace SlugChessAval.ViewModels
                     IsCurrentPlayersTurn,
                     (x, y) =>  x < 6 && y
                 ).Subscribe(both => {
-                    if (both) ShellHelper.PlaySoundFile("Assets/sounds/time_running_out.wav");
+                    if (both) ShellHelper.PlaySoundFile(Program.RootDir + "Assets/sounds/time_running_out.wav");
                 }).DisposeWith(disposables);
 
                 _timer = new DispatcherTimer();

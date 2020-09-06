@@ -24,7 +24,7 @@ namespace SlugChessAval.ViewModels
     [DataContract]
     public class ChessboardViewModel : ViewModelBase
     {
-        
+
 
         public List<Field> FieldBoard
         {
@@ -32,6 +32,8 @@ namespace SlugChessAval.ViewModels
             private set => this.RaiseAndSetIfChanged(ref _fieldBoard, value);
         }
         private List<Field> _fieldBoard;
+
+        private List<Field> _baseFieldBoard;
 
         //[DataMember]
         public ChessboardModel CbModel
@@ -48,6 +50,12 @@ namespace SlugChessAval.ViewModels
             set => this.RaiseAndSetIfChanged(ref _selected, value);
         }
         private string _selected = "";
+        public string Hover
+        {
+            get => _hover;
+            set => this.RaiseAndSetIfChanged(ref _hover, value);
+        }
+        private string _hover = "";
 
         public bool AllowedToSelect
         {
@@ -72,6 +80,7 @@ namespace SlugChessAval.ViewModels
         public ChessboardViewModel()
         {
             _fieldBoard = Enumerable.Repeat(new Field {  }, 64).ToList();
+            _baseFieldBoard = Enumerable.Repeat(new Field { }, 64).ToList();
             _cbModel = ChessboardModel.FromDefault();
             MoveFromTo = ReactiveCommand.Create<(string from, string to),(string from, string to)>( t => t);
             //MoveFromTo.Select(t => $"From={t.from}, To={t.to}").Subscribe(s => A = s);
@@ -109,17 +118,27 @@ namespace SlugChessAval.ViewModels
             //Cancel = ReactiveCommand.Create(() => { });
             this.WhenAnyValue(x => x.AllowedToSelect).Where(x => !x).Subscribe(x => Selected = "");
             this.WhenAnyValue(x => x.CbModel).Subscribe(x => UpdateBoard(x));
-            this.WhenAnyValue(x => x.Selected).Subscribe(x => UpdateSelected(x));
+            Observable.Merge(
+                this.WhenAnyValue(x => x.Selected),
+                this.WhenAnyValue(x => x.Hover)
+                ).Subscribe(x => UpdateSelected());
             //Task.Run(() => { Thread.Sleep(2000); CbModel = ChessboardModel.FromTestData();  });
             //Task.Run(() => { Thread.Sleep(8000); Students = new List<Student> { new Student { Name = "aperrer" }, new Student { Name = "bitchface" } }; });
-            
+
         }
 
         public void ChessfieldClicked(Border border)
         {
             if (!AllowedToSelect) return;
-            if (Selected == "") Selected = border.Name;
-            if(CbModel.Moves.ContainsKey(Selected) && CbModel.Moves[Selected].Contains(border.Name))
+            if (Selected == "") 
+            {
+                Selected = border.Name;
+            }
+            else if (Selected == border.Name)
+            {
+                Selected = "";
+            }
+            else if(CbModel.Moves.ContainsKey(Selected) && CbModel.Moves[Selected].Contains(border.Name))
             {
                 var from = Selected;
                 Selected = "";
@@ -128,6 +147,24 @@ namespace SlugChessAval.ViewModels
             else
             {
                 Selected = border.Name;
+            }
+        }
+
+        public void ChessfieldEnter(Border border)
+        {
+            if (!AllowedToSelect) return;
+            if (Selected == "")
+            {
+                Hover = border.Name;
+            }
+        }
+
+        public void ChessfieldLeave(Border border)
+        {
+            if (!AllowedToSelect) return;
+            if (Hover == border.Name)
+            {
+                Hover = "";
             }
         }
 
@@ -146,16 +183,13 @@ namespace SlugChessAval.ViewModels
                     newField.Opacity = 1.0d;
                     if (ChessboardModel.BoardPos[i] == model.From || ChessboardModel.BoardPos[i] == model.To)
                     {
-                        newField.BorderThickness = Field.LastMove.BorderThickness;
-                        newField.BorderBrush = Field.LastMove.BorderBrush;
-                        newField.CornerRadius = Field.LastMove.CornerRadius;
+                        newField.ImageBackgroundBrush = Field.LastMove.ImageBackgroundBrush;
                     }
-                    else if(model.InACheck(ChessboardModel.BoardPos[i]))
+                    if(model.InACheck(ChessboardModel.BoardPos[i]))
                     {
                         newField.BorderThickness = Field.Check.BorderThickness;
                         newField.BorderBrush = Field.Check.BorderBrush;
                         newField.CornerRadius = Field.Check.CornerRadius;
-                        newField.ImageBackgroundBrush = Field.MoveToShadow.ImageBackgroundBrush;
                     }
                     else
                     {
@@ -174,28 +208,42 @@ namespace SlugChessAval.ViewModels
                 FieldBoard[i] = newField;
             }
             FieldBoard = new List<Field>(FieldBoard);
+            _baseFieldBoard.Clear();
+            _baseFieldBoard.AddRange(FieldBoard);
         }
 
-        private void UpdateSelected(string selected)
+        private void UpdateSelected()
         {
             if (_cbModel == null) return;
+            var selected = Selected;
+            bool hoverMode = false;
+            if (Selected == "")
+            {
+                selected = Hover;
+                hoverMode = true;
+            }
             for (int i = 0; i < FieldBoard.Count; i++)
             {
-                var oldField = FieldBoard[i];
                 FieldBoard[i] = new Field
                 {
-                    BorderBrush = oldField.BorderBrush,
-                    BorderThickness = oldField.BorderThickness,
-                    Image = oldField.Image,
-                    CornerRadius = oldField.CornerRadius,
-                    Opacity = oldField.Opacity,
-                    ImageBackgroundBrush = Field.None.ImageBackgroundBrush
+                    BorderBrush = _baseFieldBoard[i].BorderBrush,
+                    BorderThickness = _baseFieldBoard[i].BorderThickness,
+                    Image = _baseFieldBoard[i].Image,
+                    CornerRadius = _baseFieldBoard[i].CornerRadius,
+                    Opacity = _baseFieldBoard[i].Opacity,
+                    ImageBackgroundBrush = _baseFieldBoard[i].ImageBackgroundBrush
                 };
             }
             if (CbModel.Moves.ContainsKey(selected))
             {
-                FieldBoard[ChessboardModel.BoardPosToIndex[selected]].ImageBackgroundBrush = Field.Selected.ImageBackgroundBrush;
-                foreach(var moveTo in CbModel.Moves[selected])
+                if(hoverMode == false)
+                {
+                    FieldBoard[ChessboardModel.BoardPosToIndex[selected]].BorderThickness = Field.Selected.BorderThickness;
+                    FieldBoard[ChessboardModel.BoardPosToIndex[selected]].BorderBrush = Field.Selected.BorderBrush;
+                    FieldBoard[ChessboardModel.BoardPosToIndex[selected]].CornerRadius = Field.Selected.CornerRadius;
+                    FieldBoard[ChessboardModel.BoardPosToIndex[selected]].ImageBackgroundBrush = Field.Selected.ImageBackgroundBrush;
+                }
+                foreach (var moveTo in CbModel.Moves[selected])
                 {
                     FieldBoard[ChessboardModel.BoardPosToIndex[moveTo]].ImageBackgroundBrush = Field.MoveTo.ImageBackgroundBrush;
                 }
@@ -221,6 +269,11 @@ namespace SlugChessAval.ViewModels
 
         public class Field
         {
+            public static uint ColorSolidRedHex = 0xAADD2222;
+            public static uint ColorSolidGreenHex = 0xAA22DD22;
+            public static uint ColorSoftYellowHex = 0xAADDDD66;
+            public static uint ColorSoftGreenHex = 0xAA66DD66;
+
             public IBitmap? Image { get; set; } = null;
             public Thickness BorderThickness { get; set; } = new Thickness(0.0d);
             public IBrush BorderBrush { get; set; } = ColorNull;
@@ -244,24 +297,39 @@ namespace SlugChessAval.ViewModels
             public static readonly Field Check = new Field
             {
                 BorderThickness = new Thickness(3.0d),
-                BorderBrush = new SolidColorBrush(0xFFFFFF00),
+                BorderBrush = new SolidColorBrush(ColorSolidRedHex),
                 CornerRadius = new CornerRadius(3.0d),
             };
             public static readonly Field LastMove = new Field
             {
-                BorderThickness = new Thickness(3.0d),
-                BorderBrush = new SolidColorBrush(0xFF33FF00),
-                CornerRadius = new CornerRadius(3.0d),
+                ImageBackgroundBrush = new SolidColorBrush { Color = Color.FromUInt32(ColorSoftYellowHex), Opacity = 1.0d }
             };
+
             public static readonly Field Selected = new Field
             {
-                ImageBackgroundBrush = new SolidColorBrush { Color = Color.FromUInt32(0x6633AA22), Opacity = 1.0d }
+                BorderThickness = new Thickness(3.0d),
+                BorderBrush = new SolidColorBrush(ColorSolidGreenHex),
+                CornerRadius = new CornerRadius(3.0d),
             };
             public static readonly Field SelectedShadow = new Field
             {
-                ImageBackgroundBrush = new SolidColorBrush { Color = Color.FromUInt32(0x66555511), Opacity = 1.0d }
+                BorderThickness = new Thickness(3.0d),
+                BorderBrush = new SolidColorBrush(ColorSolidGreenHex),
+                CornerRadius = new CornerRadius(3.0d),
             };
             public static readonly Field MoveTo = new Field
+            {
+                ImageBackgroundBrush = new SolidColorBrush { Color = Color.FromUInt32(ColorSoftGreenHex), Opacity = 1.0d }
+            };
+            public static readonly Field MoveToShadow = new Field
+            {
+                ImageBackgroundBrush = new SolidColorBrush { Color = Color.FromUInt32(ColorSoftGreenHex), Opacity = 1.0d }
+            };
+            public static readonly Field OldSelected = new Field
+            {
+                ImageBackgroundBrush = new SolidColorBrush { Color = Color.FromUInt32(0x6633AA22), Opacity = 1.0d }
+            };
+            public static readonly Field OldMoveTo = new Field
             {
                 ImageBackgroundBrush = new RadialGradientBrush { GradientOrigin = RelativePoint.Center, Radius = 0.5d, Opacity = 1.0d, SpreadMethod = GradientSpreadMethod.Pad, 
                     GradientStops = new GradientStops { 
@@ -271,7 +339,7 @@ namespace SlugChessAval.ViewModels
                     } 
                 }
             };
-            public static readonly Field MoveToShadow = new Field
+            public static readonly Field OldMoveToShadow = new Field
             {
                 ImageBackgroundBrush = new RadialGradientBrush
                 {

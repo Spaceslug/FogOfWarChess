@@ -316,7 +316,7 @@ namespace SlugChessAval.ViewModels
             var playerTime = new TimeSpan(0, result.GameRules.TimeRules.PlayerTime.Minutes, result.GameRules.TimeRules.PlayerTime.Seconds);
             ChessClock = new ChessClockViewModel(playerTime, playerTime, result.GameRules.TimeRules.SecondsPerMove, IsCurrentPlayersTurn);
             //TODO play found game audio clip
-            ShellHelper.PlaySoundFile("Assets/sounds/match_start.wav");
+            ShellHelper.PlaySoundFile(Program.RootDir + "Assets/sounds/match_start.wav");
             var matchObservable = SlugChessService.Client.GetMatchListener(result.MatchToken);
             CapturedPices = new CapturedPicesViewModel(matchObservable);
             Chatbox.OpponentUsertoken = result.OpponentUserData.Usertoken;
@@ -351,7 +351,7 @@ namespace SlugChessAval.ViewModels
                     WaitingOnMoveReply = false;
                     if(_isCurrentPlayersTurn && moveResult.MoveHappned)
                     {
-                        ShellHelper.PlaySoundFile("Assets/sounds/move.wav");
+                        ShellHelper.PlaySoundFile(Program.RootDir + "Assets/sounds/move.wav");
                     }
                 }
 

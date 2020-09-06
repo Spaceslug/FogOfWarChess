@@ -63,12 +63,13 @@ Changes to chesscom commuication api or underlating function.
 
 ### version 0.13.0
 - [ ] move match logic to MatchModel. Ex: IsCurrentPlayersTurn obs lives there, code for match events is there and the Chesscom call
-- [ ] if server is wrong version or not there at all. Show a propper message to the user trying to log on
+- [ ] if server is wrong version or is not there at all. Show a propper message to the user trying to log on
 
 
 ### version 0.12.1
-- [ ] finish install.sh for linux. make seperate for debug also
-- [ ] click again on a pice to deselect
+- [x] finish install.sh for linux. make seperate for debug also
+- [x] click again on a pice to deselect
+- [x] clean up selection colors
 
 
 ### version 0.12.0 (Done)
