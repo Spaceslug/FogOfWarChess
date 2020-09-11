@@ -31,13 +31,13 @@ namespace SlugChessAval.ViewModels
         public ReactiveCommand<Unit, HostedGamesMap> RefreshGamesList { get; }
         public ReactiveCommand<Unit, LookForMatchResult> JoinGame { get; }
 
-        public ObservableCollection<MatchModel> MatchModels { get; }
-        public MatchModel? SelectedItem
+        public ObservableCollection<MatchInfoModel> MatchInfoModels { get; }
+        public MatchInfoModel? SelectedItem
         {
             get => _selectedItem;
             set => this.RaiseAndSetIfChanged(ref _selectedItem, value);
         }
-        private MatchModel? _selectedItem;
+        private MatchInfoModel? _selectedItem;
 
         //public int SelectedIndex
         //{
@@ -51,13 +51,13 @@ namespace SlugChessAval.ViewModels
             HostScreen = screen ?? Locator.Current.GetService<IScreen>();
             Activator = new ViewModelActivator();
 #if DEBUG
-            MatchModels = new ObservableCollection<MatchModel>(MatchModel.FromTestData());
+            MatchInfoModels = new ObservableCollection<MatchInfoModel>(MatchInfoModel.FromTestData());
 #else
             MatchModels = new ObservableCollection<MatchModel>();
 #endif
 
             RefreshGamesList = ReactiveCommand.CreateFromTask(() => SlugChessService.Client.Call.AvailableGamesAsync(new ChessCom.Void()).ResponseAsync);
-            RefreshGamesList.Subscribe(x => { MatchModels.Clear(); MatchModels.AddRange(MatchModel.FromChesscom(x)); });
+            RefreshGamesList.Subscribe(x => { MatchInfoModels.Clear(); MatchInfoModels.AddRange(MatchInfoModel.FromChesscom(x)); });
 
             var canJoin = this.WhenAnyValue(x => x.SelectedItem).Select(o => o != null);
 
@@ -85,7 +85,7 @@ namespace SlugChessAval.ViewModels
         {
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            int selectedId = ((MatchModel)SelectedItem).GetMatchId();
+            int selectedId = ((MatchInfoModel)SelectedItem).GetMatchId();
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
             var token = _joinGameTokenSource.Token;
@@ -114,7 +114,7 @@ namespace SlugChessAval.ViewModels
 
         private void HandleDeactivation() 
         {
-            MatchModels.Clear();
+            MatchInfoModels.Clear();
             SelectedItem = null;
         }
 
