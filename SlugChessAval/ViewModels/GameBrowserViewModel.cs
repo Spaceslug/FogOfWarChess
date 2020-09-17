@@ -56,7 +56,11 @@ namespace SlugChessAval.ViewModels
             MatchModels = new ObservableCollection<MatchModel>();
 #endif
 
-            RefreshGamesList = ReactiveCommand.CreateFromTask(() => SlugChessService.Client.Call.AvailableGamesAsync(new ChessCom.Void()).ResponseAsync);
+            RefreshGamesList = ReactiveCommand.CreateFromTask(() => 
+                {
+                    return SlugChessService.Client.Call.AvailableGamesAsync(new ChessCom.Void()).ResponseAsync;
+                }
+            );
             RefreshGamesList.Subscribe(x => { MatchInfoModels.Clear(); MatchInfoModels.AddRange(MatchInfoModel.FromChesscom(x)); });
 
             var canJoin = this.WhenAnyValue(x => x.SelectedItem).Select(o => o != null);

@@ -42,8 +42,19 @@ namespace SlugChessAval.ViewModels
         }
         private TimeSpan _blackTimeLeft;
 
-        public string WhiteSecPerMove { get; } = "+00s";
-        public string BlackSecPerMove { get; } = "+00s";
+        public string WhiteSecPerMove
+        {
+            get => _whiteSecPerMove;
+            private set => this.RaiseAndSetIfChanged(ref _whiteSecPerMove, value);
+        }
+        private string _whiteSecPerMove = "+00s";
+
+        public string BlackSecPerMove
+        {
+            get => _blackSecPerMove;
+            private set => this.RaiseAndSetIfChanged(ref _blackSecPerMove, value);
+        }
+        private string _blackSecPerMove = "+00s";
 
         public IObservable<int> SecLeft => _secLeft;
         public IObservable<bool> IsCurrentPlayersTurn;
@@ -56,15 +67,12 @@ namespace SlugChessAval.ViewModels
         private bool _currentTurnWhite;
         private readonly TimeSpan _interval = new TimeSpan(0, 0, 1);
 
-        public ChessClockViewModel(TimeSpan whiteTimeLeft, TimeSpan blackTimeLeft, int secPerMove, IObservable<bool> isCurrentPlayersTurn)
+        public ChessClockViewModel(IObservable<bool> isCurrentPlayersTurn)
         {
             Activator = new ViewModelActivator();
             IsCurrentPlayersTurn = isCurrentPlayersTurn;
-
-            WhiteSecPerMove = $"+{secPerMove:D2}s";
-            BlackSecPerMove = $"+{secPerMove:D2}s";
-            WhiteTimeLeft = _lastTimeWhite = whiteTimeLeft;
-            BlackTimeLeft = _lastTimeBlack = blackTimeLeft;
+            WhiteTimeLeft = TimeSpan.Zero;
+            BlackTimeLeft = TimeSpan.Zero;
             _currentTurnWhite = true;
 
             this.WhenActivated(disposables =>
@@ -116,6 +124,15 @@ namespace SlugChessAval.ViewModels
 
         public void StopTimer() => _blockTicker = true;
         public void StartTimer() => _blockTicker = false;
+
+        public void ResetTime(TimeSpan whiteTimeLeft, TimeSpan blackTimeLeft, int secPerMove)
+        {
+            WhiteSecPerMove = $"+{secPerMove:D2}s";
+            BlackSecPerMove = $"+{secPerMove:D2}s";
+            WhiteTimeLeft = _lastTimeWhite = whiteTimeLeft;
+            BlackTimeLeft = _lastTimeBlack = blackTimeLeft;
+            _currentTurnWhite = true;
+        }
 
         public void SetTime(TimeSpan whiteTimeLeft, TimeSpan blackTimeLeft, bool currentTurnWhite, bool ticking)
         {

@@ -112,10 +112,6 @@ namespace SlugChessAval.ViewModels
 
             //Console.WriteLine(" whaaaaah");
 
-            //MoveFromTo = ReactiveCommand.Create(
-            //   () => new TodoItem { Description = Description },
-            //   okEnabled);
-            //Cancel = ReactiveCommand.Create(() => { });
             this.WhenAnyValue(x => x.AllowedToSelect).Where(x => !x).Subscribe(x => Selected = "");
             this.WhenAnyValue(x => x.CbModel).Subscribe(x => UpdateBoard(x));
             Observable.Merge(
