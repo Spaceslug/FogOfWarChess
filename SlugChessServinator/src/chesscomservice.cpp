@@ -31,7 +31,7 @@ Status ChessComService::Login(ServerContext* context, const chesscom::LoginForm*
     else if(request->major_version() < MAJOR_VER || (request->major_version() == MAJOR_VER && request->minor_version() < MINOR_VER))
     {
         response->set_successfull_login(false);
-        response->set_login_message("Login failed because version missmatch. Server version " VERSION ", Client version " + request->major_version() + "." + request->minor_version() + "." + request->build_version()+". You can find the latest version at 'http://spaceslug.no/slugchess/'");
+        response->set_login_message("Login failed because version missmatch. Server version " VERSION ", Client version " + request->major_version() + "." + request->minor_version() + "." + request->build_version()+". Normaly SlugChess Client should autoupdate. You can find the latest version at 'https://spaceslug.no/slugchess/'");
     }
     else if(request->major_version() > MAJOR_VER || (request->major_version() == MAJOR_VER && request->minor_version() > MINOR_VER))
     {
