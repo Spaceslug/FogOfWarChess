@@ -16,15 +16,27 @@
     </Grid>
     
     <WrapPanel Grid.Row="1" Grid.Column="0">
-      <Button Command="{Binding MoveToCreateGame}" Content="Host Game" IsVisible="{Binding !OngoingGame}" Margin="5"/>
-      <Button Command="{Binding MoveToGameBrowser}" Content="Browse Games" IsVisible="{Binding !OngoingGame}" Margin="5" />
-      <Button Classes="normal" Command="{Binding BackEnd}" Content="&#60;&#60;" IsVisible="{Binding OngoingGame}" Margin="5" />
-      <Button Classes="normal" Command="{Binding BackOne}" Content="&#60;" IsVisible="{Binding OngoingGame}" Margin="5" />
-      <Button Classes="normal" Command="{Binding ForwardOne}" Content="&#62;" IsVisible="{Binding OngoingGame}" Margin="5" />
-      <Button Classes="normal" Command="{Binding ForwardEnd}" Content="&#62;&#62;" IsVisible="{Binding OngoingGame}" Margin="5" />
-      <Button Classes="normal" Command="{Binding AskForDraw}" Content="Ask for Draw" IsVisible="{Binding OngoingGame}"/>
-      <Button Classes="normal" Command="{Binding AcceptDraw}" Content="Accept Draw" IsVisible="{Binding OngoingGame}"/>
-      <Button Classes="normal" Command="{Binding Surrender}" IsEnabled="{Binding !AskingForDrawExecuting}" Content="Surrender" IsVisible="{Binding OngoingGame}"/>
+      <Button Command="{Binding MoveToCreateGame}" Content="Host Game" 
+              IsVisible="{Binding !MatchModel.OngoingGame^}" Margin="5"/>
+      <Button Command="{Binding MoveToGameBrowser}" Content="Browse Games" 
+              IsVisible="{Binding !MatchModel.OngoingGame^}" Margin="5" />
+      <TextBlock  Name="dawdwdaw" Text="{Binding MatchModel.TestText2^}" 
+                  IsVisible="{Binding !MatchModel.OngoingGame^}" />
+      <Button Classes="normal" Command="{Binding BackEnd}" Content="&#60;&#60;" 
+              IsVisible="{Binding MatchModel.OngoingGame^}" Margin="5" />
+      <Button Classes="normal" Command="{Binding BackOne}" Content="&#60;" 
+              IsVisible="{Binding MatchModel.OngoingGame^}" Margin="5" />
+      <Button Classes="normal" Command="{Binding ForwardOne}" Content="&#62;" 
+              IsVisible="{Binding MatchModel.OngoingGame^}" Margin="5" />
+      <Button Classes="normal" Command="{Binding ForwardEnd}" Content="&#62;&#62;" 
+              IsVisible="{Binding MatchModel.OngoingGame^}" Margin="5" />
+      <Button Classes="normal" Command="{Binding MatchModel.AskForDraw}" 
+              Content="Ask for Draw" IsVisible="{Binding MatchModel.OngoingGame^}"/>
+      <Button Classes="normal" Command="{Binding MatchModel.AcceptDraw}" 
+              Content="Accept Draw" IsVisible="{Binding MatchModel.OngoingGame^}"/>
+      <Button Classes="normal" Command="{Binding MatchModel.Surrender}" 
+              IsEnabled="{Binding !MatchModel.AskForDraw.IsExecuting^}" 
+              Content="Surrender" IsVisible="{Binding MatchModel.OngoingGame^}"/>
     </WrapPanel>
     <WrapPanel Grid.Row="1" Grid.Column="1">
 

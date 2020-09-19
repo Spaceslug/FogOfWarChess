@@ -16,6 +16,7 @@ using System.Reactive.Disposables;
 using System.Threading;
 using Serilog;
 using System.Reactive.Subjects;
+using SharpDX.Direct2D1.Effects;
 
 namespace SlugChessAval.ViewModels
 {
@@ -61,13 +62,6 @@ namespace SlugChessAval.ViewModels
         }
         private string _lastMove = "...";
 
-        public bool OngoingGame
-        {
-            get => _ongoingGame;
-            set => this.RaiseAndSetIfChanged(ref _ongoingGame, value);
-        }
-        private bool _ongoingGame = false;
-
         public bool WaitingOnMoveReply
         {
             get => _waitingOnMoveReply;
@@ -82,15 +76,10 @@ namespace SlugChessAval.ViewModels
         }
         private int _moveDisplayIndex = -1;
 
-       
-
-
-
-        public string PlayingAs => (_matchModel?.PlayerIs??PlayerIs.Non) switch 
+        public string PlayingAs => (MatchModel?.PlayerIs??PlayerIs.Non) switch 
             { PlayerIs.White => "Playing as White", PlayerIs.Black => "Playing as Black", PlayerIs.Both => "Playing yourself", PlayerIs.Oberserver => "Watching as Observer", _ => "No game active" };
 
-
-        private MatchModel _matchModel;
+        public MatchModel MatchModel { get; }
         private string _matchToken { get; set; } = "0000";
 
         public ICommand MoveToCreateGame => _moveToCreateGame;
@@ -116,35 +105,28 @@ namespace SlugChessAval.ViewModels
         public ICommand ForwardEnd=> _forwardEnd;
         private readonly ReactiveCommand<Unit, Unit> _forwardEnd;
 
-
-        public ICommand AskForDraw;
-        public ICommand AcceptDraw;
-        public ICommand Surrender;
-
         //public ReactiveCommand<Unit, LookForMatchResult> ConnectToGame { get; }
 
         public PlayViewModel(IScreen? screen = null)
         {
             HostScreen = screen ?? Locator.Current.GetService<IScreen>();
             MoveDisplayIndex = -1;
-            _matchModel = new MatchModel();
-
+            MatchModel = new MatchModel();
 
             Chessboard = new ChessboardViewModel{ CbModel = ChessboardModel.FromDefault()};
             
-            _chessClock = new ChessClockViewModel(_matchModel.IsCurrentPlayersTurn);
-            _matchModel.ChessClock.Subscribe(x => ChessClock.SetTime(x.whiteTimeLeft, x.blackTimeLeft, x.currentTurnWhite, x.ticking));
+            _chessClock = new ChessClockViewModel(MatchModel.IsThisPlayersTurn);
+            MatchModel.ChessClock.Subscribe(x => ChessClock.SetTime(x.whiteTimeLeft, x.blackTimeLeft, x.currentTurnWhite, x.ticking));
 
             _capturedPices = new CapturedPicesViewModel();
 
             _vmGameBrowser = new GameBrowserViewModel { };
             _vmCreateGame = new CreateGameViewModel { };
             _chatbox = new ChatboxViewModel { };
-
-            Chessboard.MoveFromTo.Subscribe(t => {
-                //LastMove = $"From={t.from}, To={t.to}";
-                if (OngoingGame && _matchModel.IsCurrentPlayersTurnNow)
-                {
+            Chessboard.MoveFromTo
+                .Where(x => MatchModel.IsThisPlayersTurnNow && MatchModel.OngoingGameNow)
+                .Subscribe(x => {
+                    (string from, string to) = x;
                     SlugChessService.Client.Call.SendMoveAsync(new MovePacket
                     {
                         AskingForDraw = false,
@@ -152,11 +134,11 @@ namespace SlugChessAval.ViewModels
                         DoingMove = true,
                         MatchToken = _matchToken,
                         Usertoken = SlugChessService.Usertoken,
-                        Move = new Move { From = t.from, To = t.to, SecSpent = ChessClock.GetSecondsSpent(), Timestamp = Timestamp.FromDateTime(DateTime.UtcNow) },
+                        Move = new Move { From = from, To = to, SecSpent = ChessClock.GetSecondsSpent(), Timestamp = Timestamp.FromDateTime(DateTime.UtcNow) },
                     });
                     WaitingOnMoveReply = true;
                 }
-            });
+            );
 
             Observable.Merge(
                 _vmCreateGame.HostGame, _vmGameBrowser.JoinGame)
@@ -197,14 +179,13 @@ namespace SlugChessAval.ViewModels
             this.WhenAnyValue(x => x.WaitingOnMoveReply, x => x.MoveDisplayIndex, (b, i) => !b && i == _chessboardPositions.Count - 1)
                 .Subscribe(allowedToSelect => Chessboard.AllowedToSelect = allowedToSelect);
             //Commands for Host and Join game
-            var canMoveToCreateGame = this.WhenAnyValue(vm => vm.OngoingGame, x => !x);
+            var noOngoingGame = MatchModel.OngoingGame.Select(x => !x);
             _moveToCreateGame = ReactiveCommand.Create(
                 () => { HostScreen.Router.Navigate.Execute(_vmCreateGame).Subscribe(); },
-                canMoveToCreateGame);
-            var canMoveToGameBrowser = this.WhenAnyValue(vm => vm.OngoingGame, x => !x);
+                noOngoingGame);
             _moveToGameBrowser = ReactiveCommand.Create(
                 () => { HostScreen.Router.Navigate.Execute(_vmGameBrowser).Subscribe(); },
-                canMoveToGameBrowser);
+                noOngoingGame);
             //Command for back and forward
             var moveIndexNotZero = this.WhenAnyValue(x => x.MoveDisplayIndex, i => i > 0);
             var moveIndexNotMax = this.WhenAnyValue(x => x.MoveDisplayIndex, i => i < _chessboardPositions.Count-1);
@@ -225,9 +206,10 @@ namespace SlugChessAval.ViewModels
                 moveIndexNotMax
                 );
             //Draw and Surrender
-            AskForDraw = _matchModel.AskForDraw;
-            AcceptDraw = _matchModel.AcceptDraw;
-            Surrender = _matchModel.Surrender;
+            //AskForDraw = MatchModel.AskForDraw;
+            //AcceptDraw = MatchModel.AcceptDraw;
+            //Surrender = MatchModel.Surrender;
+            //_surrender = ReactiveCommand.CreateFromObservable(MatchModel.SurrenderImpl, MatchModel.OngoingGame);
 
             this.WhenActivated(disposables =>
             {
@@ -247,7 +229,6 @@ namespace SlugChessAval.ViewModels
         /// <param name="result"></param>
         public void BootUpMatch(LookForMatchResult result)
         {
-            OngoingGame = true;
             _chessboardPositions.Clear();
             _matchToken = result.MatchToken;
             //TODO make game rules display
@@ -262,7 +243,7 @@ namespace SlugChessAval.ViewModels
 
             CompositeDisposable disposablesForEndMatchWhenViewDeactivated = new CompositeDisposable();
 
-            _matchModel.NewMatch(result.MatchToken, matchObservable, result.IsWhitePlayer?PlayerIs.White:PlayerIs.Black, disposablesForEndMatchWhenViewDeactivated);
+            MatchModel.NewMatch(result.MatchToken, matchObservable, result.IsWhitePlayer?PlayerIs.White:PlayerIs.Black, disposablesForEndMatchWhenViewDeactivated);
             Activator.Deactivated.Subscribe((u) =>
             {
                 SlugChessService.Client.Call.SendMoveAsync(new MovePacket
@@ -274,27 +255,26 @@ namespace SlugChessAval.ViewModels
                 });
             }).DisposeWith(disposablesForEndMatchWhenViewDeactivated);
             
-            matchObservable.Subscribe((moveResult) => 
-            {
-                if (moveResult.GameState != null)
+            matchObservable.Subscribe(
+                (moveResult) => Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    _chessboardPositions.Add(ChessboardModel.FromChesscomGamestate(moveResult.GameState));
-                    MoveDisplayIndex = _chessboardPositions.Count - 1;
-                    WaitingOnMoveReply = false;
-                }
-            }, 
+                    if (moveResult.GameState != null)
+                    {
+                        _chessboardPositions.Add(ChessboardModel.FromChesscomGamestate(moveResult.GameState));
+                        MoveDisplayIndex = _chessboardPositions.Count - 1;
+                        WaitingOnMoveReply = false;
+                    }
+                }), 
                 (error) => Dispatcher.UIThread.InvokeAsync(() =>
                 {
                     MainWindowViewModel.SendNotification("Connection error");
                     SlugChessService.Client.MessageToLocal("Connection error:  " + error.ToString(), "system");
                     ChessClock.StopTimer();
-                    OngoingGame = false;
                     Chatbox.OpponentUsertoken = null;
                     disposablesForEndMatchWhenViewDeactivated.Dispose();
                 }), () => Dispatcher.UIThread.InvokeAsync(() =>
                 {
                     ChessClock.StopTimer();
-                    OngoingGame = false;
                     Chatbox.OpponentUsertoken = null;
                     disposablesForEndMatchWhenViewDeactivated.Dispose();
                 }));

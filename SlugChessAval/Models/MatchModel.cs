@@ -27,29 +27,29 @@ namespace SlugChessAval.Models
 
         public PlayerIs PlayerIs { get; private set; }
 
-        public bool IsCurrentPlayersTurnNow => IsCurrentPlayersTurn.Take(1).Wait();
-        public IObservable<bool> IsCurrentPlayersTurn => CurrentTurnPlayer.Select(currentPlayerIs => currentPlayerIs == PlayerIs);
+        public bool IsThisPlayersTurnNow => IsThisPlayersTurn.Take(1).Wait();
+        public IObservable<bool> IsThisPlayersTurn => CurrentTurnPlayer.Select(currentPlayerIs => currentPlayerIs == PlayerIs);
 
         public BehaviorSubject<PlayerIs> CurrentTurnPlayer;
-
-        public bool AskingForDrawExecuting { get; private set; } = false;
 
         public ICommand AskForDraw => _askForDraw;
         private readonly ReactiveCommand<Unit, Unit> _askForDraw;
         public ICommand AcceptDraw => _acceptDraw;
         private readonly ReactiveCommand<Unit, Unit> _acceptDraw;
         public ICommand Surrender => _surrender;
-        private readonly ReactiveCommand<Unit, Unit> _surrender;
+        public readonly ReactiveCommand<Unit, Unit> _surrender;
 
         public IObservable<bool> OpponentAskingForDraw => _opponentAskingForDraw;
-        public Subject<bool> _opponentAskingForDraw = new Subject<bool>();
-        public IObservable<bool> MeAskingForDraw => _meAskingForDraw;
-        public Subject<bool> _meAskingForDraw = new Subject<bool>();
+        public BehaviorSubject<bool> _opponentAskingForDraw;
+
+        public bool OngoingGameNow => IsThisPlayersTurn.Take(1).Wait();
         public IObservable<bool> OngoingGame => _ongoingGame;
-        public Subject<bool> _ongoingGame = new Subject<bool>();
+        public BehaviorSubject<bool> _ongoingGame;
 
         public MatchModel()
         {
+            _opponentAskingForDraw = new BehaviorSubject<bool>(false);
+            _ongoingGame = new BehaviorSubject<bool>(false);
             MoveResults = Observable.Return(new ChessCom.MoveResult());
             MatchToken = "00000";
             PlayerIs = PlayerIs.Both;
@@ -60,22 +60,26 @@ namespace SlugChessAval.Models
             _askForDraw = ReactiveCommand.CreateFromObservable(AskForDrawImpl,
                 Observable.CombineLatest(
                     OpponentAskingForDraw.Select( x => !x),
-                    IsCurrentPlayersTurn,
+                    IsThisPlayersTurn,
                     (x, y) => x && y)
             );
             _surrender = ReactiveCommand.CreateFromObservable(SurrenderImpl, OngoingGame);
 
-            _askForDraw.IsExecuting.Subscribe(x => AskingForDrawExecuting = x);
 
         }
 
 
         public void NewMatch(string matchToken, IObservable<MoveResult> obsMoveResults, PlayerIs playerIs, CompositeDisposable endMatchDisposable)
         {
+            _ongoingGame.OnNext(true);
             MoveResults = obsMoveResults;
             MatchToken = matchToken;
-            PlayerIs = PlayerIs;
-            MoveResults.Subscribe((moveResult) => Dispatcher.UIThread.InvokeAsync(() => MoveResult(moveResult))).DisposeWith(endMatchDisposable);
+            PlayerIs = playerIs;
+            MoveResults.Subscribe(
+                (moveResult) => Dispatcher.UIThread.InvokeAsync(() => MoveResult(moveResult)),
+                (error) => Dispatcher.UIThread.InvokeAsync(() => _ongoingGame.OnNext(false)),
+                () => Dispatcher.UIThread.InvokeAsync(() => _ongoingGame.OnNext(false))
+            ).DisposeWith(endMatchDisposable);
         }
 
 
@@ -93,11 +97,9 @@ namespace SlugChessAval.Models
                         moveResult.ChessClock.TimerTicking)
                     );
                 }
-
-                //if (moveResult.GameState.CurrentTurnIsWhite) _currentTurnPlayer = PlayerIs.White; else _currentTurnPlayer = PlayerIs.Black;
                 CurrentTurnPlayer.OnNext(moveResult.GameState.CurrentTurnIsWhite ? PlayerIs.White : PlayerIs.Black);
 
-                if (IsCurrentPlayersTurnNow && moveResult.MoveHappned)
+                if (IsThisPlayersTurnNow && moveResult.MoveHappned)
                 {
                     ShellHelper.PlaySoundFile(Program.RootDir + "Assets/sounds/move.wav");
                 }
@@ -133,7 +135,7 @@ namespace SlugChessAval.Models
                     break;
                 case MatchEvent.AskingForDraw:
                     {
-                        if (!AskingForDrawExecuting)
+                        if (!_askForDraw.IsExecuting.Take(1).Wait())
                         {
                             SlugChessService.Client.MessageToLocal("Opponent requesting Draw", "system");
                             MainWindowViewModel.SendNotification("Opponent requesting Draw");
@@ -180,7 +182,7 @@ namespace SlugChessAval.Models
             Thread.Sleep(5000); //Holding the call for 5 sec prevents button form being pressed again 
         });
 
-        private IObservable<Unit> SurrenderImpl() => Observable.Start(() =>
+        public IObservable<Unit> SurrenderImpl() => Observable.Start(() =>
         {
             SlugChessService.Client.MessageToLocal("You surredered", "system");
             SlugChessService.Client.Call.SendMoveAsync(new MovePacket

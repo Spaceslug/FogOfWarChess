@@ -22,7 +22,7 @@
                   AutoGenerateColumns="True" 
                   SelectionMode="Single" 
                   SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-                  Items="{Binding MatchModels}"
+                  Items="{Binding MatchInfoModels}"
                   CanUserReorderColumns="False" CanUserResizeColumns="True" 
                   CanUserSortColumns="True" IsReadOnly="True"  /> 
        

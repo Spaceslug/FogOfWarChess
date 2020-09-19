@@ -62,7 +62,6 @@ namespace SlugChessAval.ViewModels
                 }
             );
             RefreshGamesList.Subscribe(x => { MatchInfoModels.Clear(); MatchInfoModels.AddRange(MatchInfoModel.FromChesscom(x)); });
-
             var canJoin = this.WhenAnyValue(x => x.SelectedItem).Select(o => o != null);
 
             JoinGame = ReactiveCommand.CreateFromTask(() =>JoinGameRequest(),

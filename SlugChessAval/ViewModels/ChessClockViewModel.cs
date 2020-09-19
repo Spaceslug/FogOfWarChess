@@ -57,7 +57,7 @@ namespace SlugChessAval.ViewModels
         private string _blackSecPerMove = "+00s";
 
         public IObservable<int> SecLeft => _secLeft;
-        public IObservable<bool> IsCurrentPlayersTurn;
+        public IObservable<bool> IsThisPlayersTurn;
 
         private Subject<int> _secLeft = new Subject<int>();
         private bool _blockTicker = true;
@@ -67,10 +67,10 @@ namespace SlugChessAval.ViewModels
         private bool _currentTurnWhite;
         private readonly TimeSpan _interval = new TimeSpan(0, 0, 1);
 
-        public ChessClockViewModel(IObservable<bool> isCurrentPlayersTurn)
+        public ChessClockViewModel(IObservable<bool> isThisPlayersTurn)
         {
             Activator = new ViewModelActivator();
-            IsCurrentPlayersTurn = isCurrentPlayersTurn;
+            IsThisPlayersTurn = isThisPlayersTurn;
             WhiteTimeLeft = TimeSpan.Zero;
             BlackTimeLeft = TimeSpan.Zero;
             _currentTurnWhite = true;
@@ -79,7 +79,7 @@ namespace SlugChessAval.ViewModels
             {
                 Observable.CombineLatest(
                     SecLeft,
-                    IsCurrentPlayersTurn,
+                    IsThisPlayersTurn,
                     (x, y) =>  x < 6 && y
                 ).Subscribe(both => {
                     if (both) ShellHelper.PlaySoundFile(Program.RootDir + "Assets/sounds/time_running_out.wav");

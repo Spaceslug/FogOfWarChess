@@ -39,8 +39,6 @@ Changes to chesscom commuication api or underlating function.
 ## BUGS:
 - in 0.10.0 stack overflow in SelectedItem in Chessboard when pressing Browse Game after previus game done
 - might be race condition when surrendering
-- client can be lagging behind 1 message when finishing matches
-
 
 
 ### version 1.0.0
@@ -61,8 +59,14 @@ Changes to chesscom commuication api or underlating function.
 - [ ] auto updator can update to spesific version. A command line option. Mayby post link to available releases page
 - [ ] record games played (PGN). In a replay folder for users and a replay folder on server
 
+### version 0.13.1
+- Fix bugs
+- [] client can be lagging behind 1 message when finishing matches
+- [] nothing happens on client when time runs out. When out of time client sends random move
+- [] sort capture pices according to color instead of cronologicaly
+
 ### version 0.13.0
-- [ ] move match logic to MatchModel. Ex: IsCurrentPlayersTurn obs lives there, code for match events is there and the Chesscom call
+- [x] move match logic to MatchModel. Ex: IsCurrentPlayersTurn obs lives there, code for match events is there and the Chesscom call
 - [ ] if server is wrong version or is not there at all. Show a propper message to the user trying to log on
 
 
