@@ -1,5 +1,7 @@
 ﻿using ChessCom;
 using Grpc.Core;
+using SlugChessAval.ViewModels;
+using SlugChessAval.Views;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -108,49 +110,47 @@ namespace SlugChessAval.Services
         public Task<LoginResult> LoginInUserAsync(string username, string password) => Task.Run<LoginResult>(() => 
             {
                 var ver = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
-                var result = Client.Call.Login(new LoginForm { Username = username, MajorVersion = ver.FileMajorPart.ToString(), MinorVersion = ver.FileMinorPart.ToString(), BuildVersion = ver.FileBuildPart.ToString() });
-                if (result.SuccessfullLogin)
+                try
                 {
-                    UserData = new UserData
+                    var result = Client.Call.Login(new LoginForm { Username = username, MajorVersion = ver.FileMajorPart.ToString(), MinorVersion = ver.FileMinorPart.ToString(), BuildVersion = ver.FileBuildPart.ToString() });
+                    if (result.SuccessfullLogin)
                     {
-                        Username = result.UserData.Username,
-                        Usertoken = result.UserData.Usertoken,
-                        Elo = result.UserData.Elo
-                    };
-                    UserLoggedIn.OnNext(true);
+                        UserData = new UserData
+                        {
+                            Username = result.UserData.Username,
+                            Usertoken = result.UserData.Usertoken,
+                            Elo = result.UserData.Elo
+                        };
+                        UserLoggedIn.OnNext(true);
 
-
-                    //foreach (var item in ((MenuItem)TopMenu.Items[0]).Items)
-                    //{
-                    //    if (item is MenuItem menuitem)
-                    //    {
-                    //        if ((string)menuitem.Header != "_Host" || (string)menuitem.Header != "_Browse Games") menuitem.IsEnabled = true;
-                    //    }
-                    //}
-                    //tbLoginStatus.Text = $"{_userdata.Username}";
-
-                    //_matchMessageStream = _connection.Call.ChatMessageStream();
-                    //_matchMessageStream.RequestStream.WriteAsync(new ChessCom.ChatMessage
-                    //{
-                    //    SenderUsertoken = _userdata.Usertoken,
-                    //    ReciverUsertoken = "system",
-                    //    SenderUsername = _userdata.Username,
-                    //    Message = "init"
-                    //});
-                    //Task.Run(() => MessageCallRunner());
-                    //_heartbeatTimer.Elapsed += (obj, e) =>
-                    //{
-                    //    _connection?.Call.Alive(new ChessCom.Heartbeat { Alive = true });
-                    //};
-                    ////TODO recive message callback
-                    ////TODO handle shutdown of message
-                    return result;
+                        return result;
+                    }
+                    else
+                    {
+                        Serilog.Log.Information("Login failed. " + result.LoginMessage);
+                        MainWindowViewModel.SendNotification("Login attempt rejected from server");
+                        return result;
+                    }
                 }
-                else
+                catch(RpcException ex)
                 {
-                    Serilog.Log.Information("Login failed. " + result.LoginMessage);
-                    return result;
+                    if(ex.StatusCode == StatusCode.Unavailable)
+                    {
+                        Serilog.Log.Warning("SlugChessServer Unavailable. " + ex.Message);
+                        MainWindowViewModel.SendNotification("SlugChessServer Unavailable");
+                        return new LoginResult
+                        {
+                            SuccessfullLogin = false,
+                            LoginMessage = "SlugChess Server unavailable. The server might be down or your internet connection interupted\n" +
+                            "Press login button to try again or complain to the SlugChess Server admin at admin@spaceslug.no"
+                        };
+                    }   
+                    else 
+                    {
+                        throw ex;
+                    }
                 }
+                
             });
 
         public IObservable<MoveResult> GetMatchListener(string matchId)
