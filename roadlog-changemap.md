@@ -39,8 +39,6 @@ Changes to chesscom commuication api or underlating function.
 ## BUGS:
 - in 0.10.0 stack overflow in SelectedItem in Chessboard when pressing Browse Game after previus game done
 - might be race condition when surrendering
-- client can be lagging behind 1 message when finishing matches
-
 
 
 ### version 1.0.0
@@ -51,33 +49,54 @@ Changes to chesscom commuication api or underlating function.
 - make a propper logger on server. Write to log file and console. Delete logfile on restart
 - a check to evaluate the validity of time spent on move. Change the value if it seems wrong. 
 
-### version 0.13.0
+### version 0.15.0
 - [ ] save userdata
 - [ ] password system
 - [ ] simple elo system
-- [ ] record games played (PGN)
+- [ ] load up and click through PGNs.
 
-### version 0.12.0
-- [ ] move match logic to MatchModel. Ex: IsCurrentPlayersTurn obs lives there, code for match events is there and the Chesscom call
-- [ ] add audio to Aval
-- [ ] python script for uploading new versions of Aval and maintain a manifest of versions for updator
-- [ ] auto updator for Aval
+### version 0.14.0
+- [ ] auto updator can update to spesific version. A command line option. Mayby post link to available releases page
+- [ ] record games played (PGN). In a replay folder for users and a replay folder on server
 
-### version 0.11.1
+### version 0.13.1
+- Fix bugs
+- [] client can be lagging behind 1 message when finishing matches
+- [] nothing happens on client when time runs out. When out of time client sends random move
+- [] sort capture pices according to color instead of cronologicaly
+
+### version 0.13.0
+- [x] move match logic to MatchModel. Ex: IsCurrentPlayersTurn obs lives there, code for match events is there and the Chesscom call
+- [x] if server is wrong version or is not there at all. Show a propper message to the user trying to log on
+
+
+### version 0.12.1
+- [x] finish install.sh for linux. make seperate for debug also
+- [x] click again on a pice to deselect
+- [x] clean up selection colors
+
+
+### version 0.12.0 (Done)
+- [x] add audio to Aval 
+- [x] python script for uploading new versions of Aval and maintain a manifest of versions for updater
+- [x] auto updator for Aval
+
+
+### version 0.11.1 (Done)
 - [x] clean up TODOs on servinator
 - [x] Alive heartbeat must be fixed. Make sure it works as intended.
 
-### version 0.11.0
+### version 0.11.0 (Done)
 - [x] make messager globaly available in SCS so messages can be sent to a user anywhere in the code
 - [x] a worker that periodicly run tasks on server
   - [x] Task: Check last hearbeat on logged in
   - [x] Task: Remove matches that should no longer run
   - [x] Task: Log metrics like ammout of logged in users, current matches
-- [ ] (needs testing)Do the things that should happen when user is logged out e.g stop matches, end all log calls
+- [x] Do the things that should happen when user is logged out e.g stop matches, end all log calls
 - [x] need to separate messages to player. Both can't listen to match_events because they sometime need differert events
 
 
-### version 0.10.1
+### version 0.10.1 (Done)
 - [x] leave game and conced
 - [x] ask for and accept draw
 - [x] see if Draw commands can be made with async commands istead of callin UIAsync https://reactiveui.net/docs/guidelines/framework/asynchronous-commands

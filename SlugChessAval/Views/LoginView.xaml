@@ -12,13 +12,15 @@
       <RowDefinition Height="48" />
       <RowDefinition Height="48" />
       <RowDefinition Height="48" />
+      <RowDefinition Height="48" />
       <RowDefinition Height="*" />
     </Grid.RowDefinitions>
-    <TextBlock Grid.Row="0" Text="Login view" Margin="5" />
+    <TextBlock Grid.Row="0" Classes="h3" Text="This is login screen. Please login" Margin="5" TextAlignment="Center" />
     <TextBox Grid.Row="1" Text="{Binding Username}" />
-    <TextBox Grid.Row="2" PasswordChar="?"  Text="{Binding Password}" />
-    <Button Grid.Row="3" Height="{Binding #a.Bounds.Width}"  Content="Login" Command="{Binding Login}" />
-    <Button Grid.Row="4" Content="Back" Command="{Binding $parent[Window].Router.NavigateBack}" />
-    <TextBlock Grid.Row="5" Text="PS. In current version no user exists so just write a username and random password" Foreground="LightCyan" />
+    <TextBox Grid.Row="2" PasswordChar="*"  Text="{Binding Password}" />
+    <Button Grid.Row="3" Content="Login" Height="{Binding #a.Bounds.Width}"  Command="{Binding Login}" FontSize="{DynamicResource FontSizeLarge}" />
+    <Button Grid.Row="4" Content="Back" Command="{Binding $parent[Window].Router.NavigateBack}" FontSize="{DynamicResource FontSizeLarge}"  />
+    <TextBlock Grid.Row="5" Text="You must login in order to play SlugChess&#10;&#13;PS. In current version no user exists so just write a username and random password" TextWrapping="Wrap" Foreground="LightCyan" />
+    <TextBlock Grid.Row="6" Text="{Binding LoginMessage}" TextWrapping="Wrap" Foreground="MediumVioletRed" />
   </Grid>
 </UserControl>

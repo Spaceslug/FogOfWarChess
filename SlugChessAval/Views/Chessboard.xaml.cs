@@ -34,6 +34,17 @@ namespace SlugChessAval.Views
             ViewModel.ChessfieldClicked((Border)o);
         }
 
+        private void ChessfieldEnter(object o, PointerEventArgs a)
+        {
+            ViewModel.ChessfieldEnter((Border)o);
+        }
+
+        private void ChessfieldLeave(object o, PointerEventArgs a)
+        {
+            ViewModel.ChessfieldLeave((Border)o);
+        }
+
+
 
     }
 }

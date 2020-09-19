@@ -3,9 +3,9 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <Nullable>enable</Nullable>
-    <AssemblyVersion>0.11.0.0</AssemblyVersion>
-    <FileVersion>0.11.0.0</FileVersion>
-    <Version>0.11.0</Version>
+    <AssemblyVersion>0.13.0.0</AssemblyVersion>
+    <FileVersion>0.13.0.0</FileVersion>
+    <Version>0.13.0</Version>
     <Authors>Spaceslug</Authors>
     <Company>spaceslug.no</Company>
   </PropertyGroup>
@@ -26,6 +26,15 @@
       <SubType>Designer</SubType>
     </AvaloniaResource>
     <AvaloniaResource Include="Assets\*" />
+    <AvaloniaResource Include="Assets\images\*" />
+    <AvaloniaResource Include="Assets\sounds\*" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Remove="TempSound\**" />
+    <AvaloniaXaml Remove="TempSound\**" />
+    <Compile Remove="TempSound\**" />
+    <EmbeddedResource Remove="TempSound\**" />
+    <None Remove="TempSound\**" />
   </ItemGroup>
   <ItemGroup>
     <AvaloniaResource Remove="Views\CapturedPices.xaml" />
@@ -120,5 +129,19 @@
     <Compile Update="Views\GameBrowserView.xaml.cs">
       <DependentUpon>GameBrowserView.xaml</DependentUpon>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Assets\sounds\match_start.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\sounds\move.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\sounds\playsound.bat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\sounds\time_running_out.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

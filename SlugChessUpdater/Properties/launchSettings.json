@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SlugChessUpdater": {
+      "commandName": "Project",
+      "commandLineArgs": "--run-update"
+    }
+  }
+}

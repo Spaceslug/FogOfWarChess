@@ -8,6 +8,8 @@ using ReactiveUI;
 using Splat;
 using Avalonia.ReactiveUI;
 using SlugChessAval.Drivers;
+using System.IO;
+using System.Reflection;
 
 namespace SlugChessAval
 {
@@ -25,7 +27,8 @@ namespace SlugChessAval
             // Initialize suspension hooks.
             var suspension = new AutoSuspendHelper(ApplicationLifetime);
             RxApp.SuspensionHost.CreateNewAppState = () => new MainWindowViewModel();
-            RxApp.SuspensionHost.SetupDefaultSuspendResume(new NewtonsoftJsonSuspensionDriver("appstate.json"));
+            //RxApp.SuspensionHost.SetupDefaultSuspendResume(new NewtonsoftJsonSuspensionDriver("appstate.json"));
+            RxApp.SuspensionHost.SetupDefaultSuspendResume(new NewtonsoftJsonSuspensionDriver(Program.RootDir + "/appstate.json"));
             suspension.OnFrameworkInitializationCompleted();
 
             // Read main view model state from disk.

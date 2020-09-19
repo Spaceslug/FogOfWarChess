@@ -33,7 +33,12 @@ namespace SlugChessAval.ViewModels
         public ICommand Login => _login;
         private readonly ReactiveCommand<Unit, ChessCom.LoginResult> _login;
 
-        //private bool _loginInProgress = false;
+        public string LoginMessage
+        {
+            get => _loginMessage;
+            set => this.RaiseAndSetIfChanged(ref _loginMessage, value);
+        }
+        private string _loginMessage = "";
 
         [DataMember]
         public string Username
@@ -96,7 +101,7 @@ namespace SlugChessAval.ViewModels
         {
             if (result.SuccessfullLogin)
             {
-                ((MainWindowViewModel)HostScreen).Notification = result.UserData.Username + " logged in :>";
+                MainWindowViewModel.SendNotification(result.UserData.Username + " logged in :>");
 
                 SlugChessService.Client.MessageToLocal("Logged in as " + result.UserData.Username, "system");
                 Serilog.Log.Information("Logged in as " + result.UserData.Username);
@@ -104,17 +109,21 @@ namespace SlugChessAval.ViewModels
                 HostScreen.Router.Navigate.Execute(new PlayViewModel()).Subscribe();
                 ////TODO recive message callback
                 ////TODO handle shutdown of message
+
+                if (result.LoginMessage != "")
+                {
+                    Serilog.Log.Information("Login Message: " + result.LoginMessage);
+                    SlugChessService.Client.MessageToLocal("Login Message: " + result.LoginMessage, "system");
+                }
             }
             else
             {
-                ((MainWindowViewModel)HostScreen).Notification = "Login failed: " + result.LoginMessage;
+                // The knower of problem sends the notification
+                //((MainWindowViewModel)HostScreen).Notification = "Login failed: " + result.LoginMessage;
             }
+            LoginMessage = result.LoginMessage;
 
-            if (result.LoginMessage != "")
-            {
-                Serilog.Log.Information("Login Message: " + result.LoginMessage);
-                SlugChessService.Client.MessageToLocal("Login Message: " + result.LoginMessage, "system");
-            }
+
 
             //_loginInProgress = false;
         }

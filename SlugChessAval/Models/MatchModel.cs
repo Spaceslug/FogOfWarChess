@@ -1,81 +1,197 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ChessCom;
+using Grpc.Core;
+using System.Collections.Generic;
+using System.Text;
+using Avalonia.Threading;
+using System.Reactive.Subjects;
+using SlugChessAval.Services;
+using SlugChessAval.ViewModels;
+using System.Reactive;
+using ReactiveUI;
+using System.Reactive.Linq;
+using System.Reactive.Disposables;
+using System.Windows.Input;
+using System.Threading;
 
 namespace SlugChessAval.Models
 {
-    public enum PlayerIs
-    {
-        Non,
-        White,
-        Black,
-        Both,
-        Oberserver
-    }
-
-    public class MatchModel
+    public class MatchModel 
     {
 
-        public string Host { get; set; }
-        public int HostElo { get; set; }
-        public string ChessType { get; set; }
-        public string SideType { get; set; }
-        public string Time { get; set; }
-        public string VisionRules { get; set; }
-        private int _matchId;
-        public int GetMatchId() => _matchId;
-        private string _hostUsertoken;
 
-        private MatchModel(string host, int hostElo, string chessType, string sideType, string time, string visionRules, int matchId, string hostUsertoken)
+
+        public IObservable<MoveResult> MoveResults { get; private set; }
+        public Subject<(TimeSpan whiteTimeLeft, TimeSpan blackTimeLeft, bool currentTurnWhite, bool ticking)> ChessClock { get; private set; }
+        public string MatchToken { get; private set; }
+
+        public PlayerIs PlayerIs { get; private set; }
+
+        public bool IsThisPlayersTurnNow => IsThisPlayersTurn.Take(1).Wait();
+        public IObservable<bool> IsThisPlayersTurn => CurrentTurnPlayer.Select(currentPlayerIs => currentPlayerIs == PlayerIs);
+
+        public BehaviorSubject<PlayerIs> CurrentTurnPlayer;
+
+        public ICommand AskForDraw => _askForDraw;
+        private readonly ReactiveCommand<Unit, Unit> _askForDraw;
+        public ICommand AcceptDraw => _acceptDraw;
+        private readonly ReactiveCommand<Unit, Unit> _acceptDraw;
+        public ICommand Surrender => _surrender;
+        public readonly ReactiveCommand<Unit, Unit> _surrender;
+
+        public IObservable<bool> OpponentAskingForDraw => _opponentAskingForDraw;
+        public BehaviorSubject<bool> _opponentAskingForDraw;
+
+        public bool OngoingGameNow => IsThisPlayersTurn.Take(1).Wait();
+        public IObservable<bool> OngoingGame => _ongoingGame;
+        public BehaviorSubject<bool> _ongoingGame;
+
+        public MatchModel()
         {
-            Host = host;
-            HostElo = hostElo;
-            ChessType = chessType;
-            SideType = sideType;
-            Time = time;
-            VisionRules = visionRules;
-            _matchId = matchId;
-            _hostUsertoken = hostUsertoken;
+            _opponentAskingForDraw = new BehaviorSubject<bool>(false);
+            _ongoingGame = new BehaviorSubject<bool>(false);
+            MoveResults = Observable.Return(new ChessCom.MoveResult());
+            MatchToken = "00000";
+            PlayerIs = PlayerIs.Both;
+            CurrentTurnPlayer = new BehaviorSubject<PlayerIs>(PlayerIs.White);
+            ChessClock = new Subject<(TimeSpan whiteTimeLeft, TimeSpan blackTimeLeft, bool currentTurnWhite, bool ticking)>();
+
+            _acceptDraw = ReactiveCommand.CreateFromObservable(AcceptDrawImpl, OpponentAskingForDraw);
+            _askForDraw = ReactiveCommand.CreateFromObservable(AskForDrawImpl,
+                Observable.CombineLatest(
+                    OpponentAskingForDraw.Select( x => !x),
+                    IsThisPlayersTurn,
+                    (x, y) => x && y)
+            );
+            _surrender = ReactiveCommand.CreateFromObservable(SurrenderImpl, OngoingGame);
+
+
         }
 
-        public string GetHostUsertoken() => _hostUsertoken;
 
-        public static List<MatchModel> FromChesscom(HostedGamesMap hostedGamesMap)
+        public void NewMatch(string matchToken, IObservable<MoveResult> obsMoveResults, PlayerIs playerIs, CompositeDisposable endMatchDisposable)
         {
-            var matches = new List<MatchModel>();
-            foreach (var keyVal in hostedGamesMap.HostedGames)
+            _ongoingGame.OnNext(true);
+            MoveResults = obsMoveResults;
+            MatchToken = matchToken;
+            PlayerIs = playerIs;
+            MoveResults.Subscribe(
+                (moveResult) => Dispatcher.UIThread.InvokeAsync(() => MoveResult(moveResult)),
+                (error) => Dispatcher.UIThread.InvokeAsync(() => _ongoingGame.OnNext(false)),
+                () => Dispatcher.UIThread.InvokeAsync(() => _ongoingGame.OnNext(false))
+            ).DisposeWith(endMatchDisposable);
+        }
+
+
+        private void MoveResult(MoveResult moveResult)
+        {
+            if (moveResult.GameState != null)
             {
-                var vr = keyVal.Value.GameRules.VisionRules;
-                var match = new MatchModel(
-                    keyVal.Value.Host.Username,
-                    keyVal.Value.Host.Elo,
-                    keyVal.Value.GameRules.ChessType.ToString(),
-                    keyVal.Value.GameRules.SideType.ToString(),
-                    TimeRulesToString(keyVal.Value.GameRules.TimeRules),
-                    !vr.Enabled ? "No Vision Rules" : vr.ViewMoveFields ? "SlugChess Sea" : "SlugChess Standard",
-                    keyVal.Value.Id,
-                    keyVal.Value.Host.Usertoken
+
+                if (moveResult.MoveHappned && moveResult.ChessClock != null)
+                {
+                    ChessClock.OnNext(
+                        (TimeSpan.FromSeconds(moveResult.ChessClock.WhiteSecondsLeft),
+                        TimeSpan.FromSeconds(moveResult.ChessClock.BlackSecondsLeft),
+                        moveResult.GameState.CurrentTurnIsWhite,
+                        moveResult.ChessClock.TimerTicking)
                     );
-                matches.Add(match);
+                }
+                CurrentTurnPlayer.OnNext(moveResult.GameState.CurrentTurnIsWhite ? PlayerIs.White : PlayerIs.Black);
+
+                if (IsThisPlayersTurnNow && moveResult.MoveHappned)
+                {
+                    ShellHelper.PlaySoundFile(Program.RootDir + "Assets/sounds/move.wav");
+                }
             }
 
-            return matches;
+            switch (moveResult.MatchEvent)
+            {
+                // Don't need to do closing here as server will terminate stream next, causing OnCompletet to be called 
+                case MatchEvent.ExpectedClosing:
+                    {
+                        SlugChessService.Client.MessageToLocal("Opponent left the match. I suppose you won. Congratulations!", "system");
+                        MainWindowViewModel.SendNotification("Opponent left match");
+                    }
+                    break;
+                case MatchEvent.UnexpectedClosing:
+                    {
+                        SlugChessService.Client.MessageToLocal("Opponent unexpectedly disconnect. Match ended", "system");
+                        MainWindowViewModel.SendNotification("Opponent disconnected");
+                    }
+                    break;
+                case MatchEvent.WhiteWin:
+                case MatchEvent.BlackWin:
+                    {
+                        SlugChessService.Client.MessageToLocal($"{(moveResult.MatchEvent == MatchEvent.WhiteWin ? "White" : "Black")} won the match", "system");
+                        MainWindowViewModel.SendNotification($"{(moveResult.MatchEvent == MatchEvent.WhiteWin ? "White" : "Black")} won");
+                    }
+                    break;
+                case MatchEvent.Draw:
+                    {
+                        SlugChessService.Client.MessageToLocal("Match ended in draw", "system");
+                        MainWindowViewModel.SendNotification("Draw");
+                    }
+                    break;
+                case MatchEvent.AskingForDraw:
+                    {
+                        if (!_askForDraw.IsExecuting.Take(1).Wait())
+                        {
+                            SlugChessService.Client.MessageToLocal("Opponent requesting Draw", "system");
+                            MainWindowViewModel.SendNotification("Opponent requesting Draw");
+                            _opponentAskingForDraw.OnNext(true);
+                            DispatcherTimer.RunOnce(() => { _opponentAskingForDraw.OnNext(false); }, TimeSpan.FromSeconds(5));
+                        }
+
+                    }
+                    break;
+                case MatchEvent.AcceptingDraw:
+                    {
+                        SlugChessService.Client.MessageToLocal("Opponent accepted Draw", "system");
+                    }
+                    break;
+                case MatchEvent.Non:
+                    {
+
+                    }
+                    break;
+            }
         }
 
-        public static List<MatchModel> FromTestData()
+        private IObservable<Unit> AcceptDrawImpl() => Observable.Start(() =>
         {
-            return new List<MatchModel> { new MatchModel("frank", 9999, ChessCom.ChessType.SlugRandom.ToString(), ChessCom.SideType.Random.ToString(), "gucvk all", "blind mand", 153135, "tickenthing")
-                , new MatchModel("dannnr", 8888, ChessCom.ChessType.Classic.ToString(), ChessCom.SideType.Random.ToString(), "gucvk all", "blind mand", 153136, "tickenthing") };
-        }
+            SlugChessService.Client.Call.SendMoveAsync(new MovePacket
+            {
+                CheatMatchevent = MatchEvent.AcceptingDraw,
+                DoingMove = false,
+                MatchToken = MatchToken,
+                Usertoken = SlugChessService.Usertoken,
+            });
+            _opponentAskingForDraw.OnNext(false);
+        });
 
-        public static string TimeRulesToString(TimeRules timeRules)
+        private IObservable<Unit> AskForDrawImpl() => Observable.Start(() =>
         {
-            if (timeRules == null) return "<null>";
-            return $"{timeRules.PlayerTime.Minutes}min + {timeRules.SecondsPerMove}s";
-        }
+            SlugChessService.Client.Call.SendMoveAsync(new MovePacket
+            {
+                CheatMatchevent = MatchEvent.AskingForDraw,
+                DoingMove = false,
+                MatchToken = MatchToken,
+                Usertoken = SlugChessService.Usertoken,
+            });
+            Thread.Sleep(5000); //Holding the call for 5 sec prevents button form being pressed again 
+        });
 
+        public IObservable<Unit> SurrenderImpl() => Observable.Start(() =>
+        {
+            SlugChessService.Client.MessageToLocal("You surredered", "system");
+            SlugChessService.Client.Call.SendMoveAsync(new MovePacket
+            {
+                CheatMatchevent = MatchEvent.ExpectedClosing,
+                DoingMove = false,
+                MatchToken = MatchToken,
+                Usertoken = SlugChessService.Usertoken,
+            });
+        });
     }
 }

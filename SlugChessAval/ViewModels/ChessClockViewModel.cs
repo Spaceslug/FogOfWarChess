@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading;
 
@@ -40,9 +42,24 @@ namespace SlugChessAval.ViewModels
         }
         private TimeSpan _blackTimeLeft;
 
-        public string WhiteSecPerMove { get; } = "+00s";
-        public string BlackSecPerMove { get; } = "+00s";
+        public string WhiteSecPerMove
+        {
+            get => _whiteSecPerMove;
+            private set => this.RaiseAndSetIfChanged(ref _whiteSecPerMove, value);
+        }
+        private string _whiteSecPerMove = "+00s";
 
+        public string BlackSecPerMove
+        {
+            get => _blackSecPerMove;
+            private set => this.RaiseAndSetIfChanged(ref _blackSecPerMove, value);
+        }
+        private string _blackSecPerMove = "+00s";
+
+        public IObservable<int> SecLeft => _secLeft;
+        public IObservable<bool> IsThisPlayersTurn;
+
+        private Subject<int> _secLeft = new Subject<int>();
         private bool _blockTicker = true;
         private TimeSpan _lastTimeWhite;
         private TimeSpan _lastTimeBlack;
@@ -50,18 +67,23 @@ namespace SlugChessAval.ViewModels
         private bool _currentTurnWhite;
         private readonly TimeSpan _interval = new TimeSpan(0, 0, 1);
 
-        public ChessClockViewModel(TimeSpan whiteTimeLeft, TimeSpan blackTimeLeft, int secPerMove)
+        public ChessClockViewModel(IObservable<bool> isThisPlayersTurn)
         {
             Activator = new ViewModelActivator();
-
-            WhiteSecPerMove = $"+{secPerMove:D2}s";
-            BlackSecPerMove = $"+{secPerMove:D2}s";
-            WhiteTimeLeft = _lastTimeWhite = whiteTimeLeft;
-            BlackTimeLeft = _lastTimeBlack = blackTimeLeft;
+            IsThisPlayersTurn = isThisPlayersTurn;
+            WhiteTimeLeft = TimeSpan.Zero;
+            BlackTimeLeft = TimeSpan.Zero;
             _currentTurnWhite = true;
 
             this.WhenActivated(disposables =>
             {
+                Observable.CombineLatest(
+                    SecLeft,
+                    IsThisPlayersTurn,
+                    (x, y) =>  x < 6 && y
+                ).Subscribe(both => {
+                    if (both) ShellHelper.PlaySoundFile(Program.RootDir + "Assets/sounds/time_running_out.wav");
+                }).DisposeWith(disposables);
 
                 _timer = new DispatcherTimer();
                 _timer.Interval = _interval;
@@ -71,16 +93,20 @@ namespace SlugChessAval.ViewModels
                     if (_currentTurnWhite)
                     {
                         WhiteTimeLeft = _whiteTimeLeft.Subtract(_interval);
+                        _secLeft.OnNext((int)WhiteTimeLeft.TotalSeconds);
                     }
                     else
                     {
                         BlackTimeLeft = _blackTimeLeft.Subtract(_interval);
+                        _secLeft.OnNext((int)BlackTimeLeft.TotalSeconds);
                     }
                 };
                 _timer.Start();
                 // Or use WhenActivated to execute logic
                 // when the view model gets deactivated.
-                Disposable.Create(() => { _timer.Stop();  }).DisposeWith(disposables);
+                Disposable.Create(() => { 
+                    _timer.Stop();
+                }).DisposeWith(disposables);
             });
         }
 
@@ -98,6 +124,15 @@ namespace SlugChessAval.ViewModels
 
         public void StopTimer() => _blockTicker = true;
         public void StartTimer() => _blockTicker = false;
+
+        public void ResetTime(TimeSpan whiteTimeLeft, TimeSpan blackTimeLeft, int secPerMove)
+        {
+            WhiteSecPerMove = $"+{secPerMove:D2}s";
+            BlackSecPerMove = $"+{secPerMove:D2}s";
+            WhiteTimeLeft = _lastTimeWhite = whiteTimeLeft;
+            BlackTimeLeft = _lastTimeBlack = blackTimeLeft;
+            _currentTurnWhite = true;
+        }
 
         public void SetTime(TimeSpan whiteTimeLeft, TimeSpan blackTimeLeft, bool currentTurnWhite, bool ticking)
         {
