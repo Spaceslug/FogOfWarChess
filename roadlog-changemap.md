@@ -64,13 +64,14 @@ Changes to chesscom commuication api or underlating function.
 - [] client can be lagging behind 1 message when finishing matches
 - [] nothing happens on client when time runs out. When out of time client sends random move
 - [] sort capture pices according to color instead of cronologicaly
+- [x] auto updator is busted again. looks for files in wring locations
 
-### version 0.13.0
+### version 0.13.0 (Done)
 - [x] move match logic to MatchModel. Ex: IsCurrentPlayersTurn obs lives there, code for match events is there and the Chesscom call
 - [x] if server is wrong version or is not there at all. Show a propper message to the user trying to log on
 
 
-### version 0.12.1
+### version 0.12.1 (Done)
 - [x] finish install.sh for linux. make seperate for debug also
 - [x] click again on a pice to deselect
 - [x] clean up selection colors

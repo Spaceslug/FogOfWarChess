@@ -50,7 +50,7 @@
     </Grid.RowDefinitions>
     <reactiveUi:RoutedViewHost Grid.Row="0" Router="{Binding Router}" PageTransition="{x:Null}" >
       <reactiveUi:RoutedViewHost.DefaultContent>
-       <TextBlock Text="waiting for view"/>
+       <TextBlock Text="{Binding WaitingMessage}"/>
       </reactiveUi:RoutedViewHost.DefaultContent>
     </reactiveUi:RoutedViewHost>
       <Grid Grid.Row="1" RowDefinitions="*,*" ColumnDefinitions="80,1*,80">
