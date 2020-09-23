@@ -202,14 +202,17 @@ void SlugChess::CalculateLegalMoves(){
     _legalBlackMoves.clear();
     for(int i = 0; i < 64;i++){
         if(_board[i].HasWhitePice()){
-            _legalWhiteMoves[i];
-            GameRules::GetLegalMoves(_legalWhiteMoves[i], _board, i, _whiteVision);
+            std::vector<int> movesI;
+            GameRules::GetLegalMoves(movesI, _board, i, _whiteVision);
+            if(movesI.size() > 0) _legalWhiteMoves[i] = movesI;
         }
     }
     for(int i = 0; i < 64;i++){
         if(_board[i].HasBlackPice()){
-            _legalBlackMoves[i];
-            GameRules::GetLegalMoves(_legalBlackMoves[i], _board, i, _blackVision);
+            std::vector<int> movesI;
+            GameRules::GetLegalMoves(movesI, _board, i, _blackVision);
+            if(movesI.size() > 0) _legalBlackMoves[i] = movesI;
+
         }
     }
     _legalMoves = _whiteTurn?_legalWhiteMoves:_legalBlackMoves;
