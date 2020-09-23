@@ -17,6 +17,7 @@ using System.Threading;
 using Serilog;
 using System.Reactive.Subjects;
 using SharpDX.Direct2D1.Effects;
+using System.Linq;
 
 namespace SlugChessAval.ViewModels
 {
@@ -239,9 +240,27 @@ namespace SlugChessAval.ViewModels
             var matchObservable = SlugChessService.Client.GetMatchListener(result.MatchToken);
             CapturedPices = new CapturedPicesViewModel(matchObservable);
             Chatbox.OpponentUsertoken = result.OpponentUserData.Usertoken;
-            _chessClock.ResetTime(playerTime, playerTime, result.GameRules.TimeRules.SecondsPerMove);
-
             CompositeDisposable disposablesForEndMatchWhenViewDeactivated = new CompositeDisposable();
+            _chessClock.ResetTime(playerTime, playerTime, result.GameRules.TimeRules.SecondsPerMove);
+            _chessClock.TimeRanOut.Subscribe((x) =>
+            {
+                if (x) //TODO: this hack should not be nessesary. Server need to detect time ran out itself
+                {
+                    _chessClock.StopTimer();
+                    var firstMove = Chessboard.CbModel.Moves.First((x) => true);
+                    (string from, string to) = (firstMove.Key, firstMove.Value[0]);
+                    SlugChessService.Client.Call.SendMoveAsync(new MovePacket
+                    {
+                        AskingForDraw = false,
+                        CheatMatchevent = MatchEvent.Non,
+                        DoingMove = true,
+                        MatchToken = _matchToken,
+                        Usertoken = SlugChessService.Usertoken,
+                        Move = new Move { From = from, To = to, SecSpent = ChessClock.GetSecondsSpent(), Timestamp = Timestamp.FromDateTime(DateTime.UtcNow) },
+                    });
+                    WaitingOnMoveReply = true;
+                }
+            }).DisposeWith(disposablesForEndMatchWhenViewDeactivated);
 
             MatchModel.NewMatch(result.MatchToken, matchObservable, result.IsWhitePlayer?PlayerIs.White:PlayerIs.Black, disposablesForEndMatchWhenViewDeactivated);
             Activator.Deactivated.Subscribe((u) =>

@@ -89,7 +89,9 @@ namespace SlugChessAval
         public static bool LaunchedWithParam(string s) => _launchParms.Contains(s);
         public static string GetParamValue(string s) => _launchParms[_launchParms.IndexOf(s)+1];
 
-        public static string RootDir = (Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location) ?? ".") + "/";
+        public static string RootDir = (Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) ?? ".") + "/";
+
+        public static string? VersionCheckMessage = null;
 
 
         // Initialization code. Don't use any Avalonia, third-party APIs or any
@@ -124,7 +126,8 @@ namespace SlugChessAval
                         Log.Information("New Version availeble and you should update");
                         break;
                     case "3":
-                        Log.Information("New Version availeble. You must manualy download new version. Copy over appstate.json to preserve settings");
+                        VersionCheckMessage = "New Version availeble. You must manualy download new version. Copy over appstate.json to preserve settings";
+                        Log.Information(VersionCheckMessage);
                         break;
                     default:
                         Log.Error(result);

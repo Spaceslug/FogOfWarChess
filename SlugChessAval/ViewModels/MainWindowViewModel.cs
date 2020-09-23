@@ -84,6 +84,8 @@ namespace SlugChessAval.ViewModels
 
         public int NormalFontSize => Convert.ToInt32(12 * _guiScaling);
 
+        public string WaitingMessage { get; }
+
         public ICommand Exit => _exit;
         private readonly ReactiveCommand<Unit, Unit> _exit;
 
@@ -135,6 +137,14 @@ namespace SlugChessAval.ViewModels
             //    () => { Router.Navigate.Execute(new SearchViewModel()); },
             //    canSearch);
             //Router.Navigate.Execute(new PlayViewModel());
+            _mainWindowViewModel = this;
+
+            if (Program.VersionCheckMessage != null)
+            {
+                WaitingMessage = "Version to old! " + Program.VersionCheckMessage;
+                return;
+            }
+            WaitingMessage = "Waiting on window";
 
 #if DEBUG
             int port = 43326;
@@ -162,7 +172,6 @@ namespace SlugChessAval.ViewModels
             });
             //.;
             Router.Navigate.Execute(new StartMenuViewModel(this));
-            _mainWindowViewModel = this;
         }
 
 

@@ -53,7 +53,7 @@ namespace SlugChessAval.ViewModels
 #if DEBUG
             MatchInfoModels = new ObservableCollection<MatchInfoModel>(MatchInfoModel.FromTestData());
 #else
-            MatchModels = new ObservableCollection<MatchModel>();
+            MatchInfoModels = new ObservableCollection<MatchInfoModel>();
 #endif
 
             RefreshGamesList = ReactiveCommand.CreateFromTask(() => 

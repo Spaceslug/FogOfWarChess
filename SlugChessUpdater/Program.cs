@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -24,6 +25,7 @@ namespace SlugChessUpdater
         public static string VersionUrl = "https://spaceslug.no/slugchess/latest/version.txt";
         public static string SlugChessUrl(int major, int minor, int patch) => $"https://spaceslug.no/slugchess/releases/{PlatformString}/SlugChess_{major}_{minor}_{patch}.7z";
 #endif
+        public static string OldestWorkingAutoupdator = "https://spaceslug.no/slugchess/latest/oldest-working-autoupdater.txt";
         public static string PlatformString 
         { get {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -45,7 +47,7 @@ namespace SlugChessUpdater
         private static string _downloadName = "non";
         private static int _downloadPercent = 0;
 
-        public static string RootDir = (Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location) ?? ".") + "/";
+        public static string RootDir = (Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) ?? ".") + "/";
         static void Main(string[] args)
         {
             try
@@ -68,8 +70,32 @@ namespace SlugChessUpdater
                 }
                 else if(argsList.Contains("--check-version"))
                 {
-                    List<int> latestVersion = WebFetcher.GetLatestVersionString().Split('.').ToList().ConvertAll(Convert.ToInt32);
                     List<int> currentVersion = argsList[argsList.IndexOf("--check-version") + 1].Split('.').ToList().ConvertAll(Convert.ToInt32);
+
+                    List<int> oldestWorkingAutoupdater = WebFetcher.GetOldestWorkingAutoupdator().Split('.').ToList().ConvertAll(Convert.ToInt32);
+                    if (currentVersion[0] == oldestWorkingAutoupdater[0])
+                    {
+                        if(currentVersion[1] == oldestWorkingAutoupdater[1])
+                        {
+                            if(currentVersion[2] < oldestWorkingAutoupdater[2])
+                            {
+                                Console.WriteLine("3");
+                                return;
+                            }
+                        }
+                        else if (currentVersion[1] < oldestWorkingAutoupdater[1])
+                        {
+                            Console.WriteLine("3");
+                            return;
+                        }
+                    }
+                    else if(currentVersion[0] < oldestWorkingAutoupdater[0])
+                    {
+                        Console.WriteLine("3");
+                        return;
+                    }
+
+                    List<int> latestVersion = WebFetcher.GetLatestVersionString().Split('.').ToList().ConvertAll(Convert.ToInt32);
                     if (latestVersion[0] > currentVersion[0])
                     {
                         Console.WriteLine("1");
@@ -119,6 +145,9 @@ namespace SlugChessUpdater
                     DownloadAndExtractNewVersion(WebFetcher.GetLatestVersionAddress(), WebFetcher.GetLatestVersionString());
                     Console.WriteLine("Update complete. Launching SlugChess");
                     LaunchAval();
+                }
+                else if (argsList.Contains("--test"))
+                {
                 }
             }
             catch(PlatformNotSupportedException)
@@ -274,6 +303,13 @@ namespace SlugChessUpdater
 
     public static class WebFetcher
     {
+        public static string GetOldestWorkingAutoupdator()
+        {
+            WebClient client = new WebClient();
+            Stream stream = client.OpenRead(Const.OldestWorkingAutoupdator);
+            StreamReader reader = new StreamReader(stream);
+            return reader.ReadToEnd();
+        }
         public static string GetLatestVersionString()
         {
             WebClient client = new WebClient();

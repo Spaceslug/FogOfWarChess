@@ -14,17 +14,20 @@ namespace SlugChessAval.ViewModels.DataTemplates
         public SolidColorBrush Background { get; }
         public IBitmap? Pice { get; }
         public string Field { get; }
+        public ChessCom.Pices PiceType { get; }
         public CapturedPice(ChessCom.PiceCapture pc)
         {
             Background = (ChessboardModel.FieldColorLight(pc.Location) ? StyleMirror.WhiteField : StyleMirror.BlackField) ?? new SolidColorBrush(Colors.Pink);
             Pice = AssetBank.ImageFromPice(pc.Pice);
             Field = pc.Location;
+            PiceType = pc.Pice;
         }
         private CapturedPice(SolidColorBrush b, IBitmap? p, string f)
         {
             Background = b;
             Pice = p;
             Field = f;
+            PiceType = ChessCom.Pices.None;
         }
 
         public static CapturedPice Empty => new CapturedPice(new SolidColorBrush { Opacity=0}, null, "");

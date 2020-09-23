@@ -58,6 +58,8 @@ namespace SlugChessAval.ViewModels
 
         public IObservable<int> SecLeft => _secLeft;
         public IObservable<bool> IsThisPlayersTurn;
+        public IObservable<bool> TimeRanOut => _timeRanOut;
+        private Subject<bool> _timeRanOut = new Subject<bool>();
 
         private Subject<int> _secLeft = new Subject<int>();
         private bool _blockTicker = true;
@@ -80,10 +82,19 @@ namespace SlugChessAval.ViewModels
                 Observable.CombineLatest(
                     SecLeft,
                     IsThisPlayersTurn,
-                    (x, y) =>  x < 6 && y
+                    (x, y) =>  x < 6 && x > -1 && y
                 ).Subscribe(both => {
                     if (both) ShellHelper.PlaySoundFile(Program.RootDir + "Assets/sounds/time_running_out.wav");
                 }).DisposeWith(disposables);
+
+                Observable.CombineLatest(
+                   SecLeft,
+                   IsThisPlayersTurn,
+                   (x, y) => x < 0 && y
+               ).Subscribe(both => {
+                   if(both)_timeRanOut.OnNext(true);
+               }).DisposeWith(disposables);
+
 
                 _timer = new DispatcherTimer();
                 _timer.Interval = _interval;
