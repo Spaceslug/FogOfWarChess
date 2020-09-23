@@ -62,8 +62,9 @@ Changes to chesscom commuication api or underlating function.
 ### version 0.13.1
 - Fix bugs
 - [] client can be lagging behind 1 message when finishing matches
-- [] nothing happens on client when time runs out. When out of time client sends random move
-- [] sort capture pices according to color instead of cronologicaly
+- [x] nothing happens on client when time runs out. When out of time client sends random move
+- [x] selecteble pices with zero moves are sent from server
+- [x] sort capture pices according to color instead of cronologicaly
 - [x] auto updator is busted again. looks for files in wring locations
 
 ### version 0.13.0 (Done)

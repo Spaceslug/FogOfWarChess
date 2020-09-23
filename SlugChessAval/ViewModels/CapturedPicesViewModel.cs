@@ -41,7 +41,8 @@ namespace SlugChessAval.ViewModels
             if (observableResult != null)
             {
                 observableResult.Subscribe(x => {
-                    Items = new ObservableCollection<CapturedPice>( x.GameState?.CapturedPices?.Select(x => new CapturedPice(x)) ?? Items); 
+                    Items = new ObservableCollection<CapturedPice>(x.GameState?.CapturedPices?.Select(x => new CapturedPice(x)).OrderBy(x => (int)x.PiceType).ToList() ?? Items.ToList()); 
+                    //I hacked this shit by casting everyting to List. Looks bad and should be fixed
                 });
             }
             else
