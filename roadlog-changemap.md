@@ -55,13 +55,17 @@ Changes to chesscom commuication api or underlating function.
 - [ ] simple elo system
 - [ ] load up and click through PGNs.
 
+### version 1.14.1
+- [ ] bug- Server kan motta move etter match er ferdig. Fører til krash
+- [ ] bug- Server fjerner ikke bruker ordentlig ved heartbeat failed
+
 ### version 0.14.0
 - [ ] auto updator can update to spesific version. A command line option. Mayby post link to available releases page
 - [ ] record games played (PGN). In a replay folder for users and a replay folder on server
 
-### version 0.13.1
-- Fix bugs
-- [] client can be lagging behind 1 message when finishing matches
+
+### version 0.13.1 (Done)
+- [x] client can be lagging behind 1 message when finishing matches
 - [x] nothing happens on client when time runs out. When out of time client sends random move
 - [x] selecteble pices with zero moves are sent from server
 - [x] sort capture pices according to color instead of cronologicaly

@@ -45,7 +45,7 @@ namespace SlugChessAval.ViewModels
         public ChatboxViewModel()
         {
             ChatroomName = "system/CurrentMatch";
-            SendTextCommand = ReactiveCommand.Create(() => 
+            SendTextCommand = ReactiveCommand.Create(() =>  
             {
                 SlugChessService.Client.Call.SendChatMessage(new ChessCom.ChatMessage
                 {
