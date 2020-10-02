@@ -9,7 +9,7 @@ Restart=always
 RestartSec=1
 User=slugchess
 WorkingDirectory=/opt/slugchess
-ExecStart=/opt/slugchess/server 43327
+ExecStart=/opt/slugchess/slugchess-server 43327
 
 [Install]
 WantedBy=multi-user.target

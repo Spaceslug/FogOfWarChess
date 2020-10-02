@@ -295,7 +295,8 @@ void MatchManager::DoMoveInMatch(
         //TODO fix time spent to somehow match timepoint. This is why sec_spent is sent separeatly from the move
         bool didMove = matchPtr->DoMove(usertoken, movePtr);
         if(didMove){
-            std::cout << "adding ChessMove2" << std::endl << std::flush;
+            //std::cout << "adding ChessMove2" << std::endl << std::flush;
+            std::cout << "FEN: " << matchPtr->game->GetCurrentFenString() << std::endl << std::flush;
         }
     }
         break;
