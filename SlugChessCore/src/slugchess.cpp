@@ -540,7 +540,7 @@ void SlugChess::WriteMoveSan(const std::string& fromStr, const std::string& toSt
 
 void SlugChess::PrintSanMoves(std::stringstream& ss)
 {
-    ss << _sanMoves.str();
+    ss << _sanMoves.str() << " " << ResultString();
 }
 
 std::string SlugChess::From(Perspective perspective)

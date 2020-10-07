@@ -147,7 +147,7 @@ void ChessComService::MatchReadLoop(ServerContext* context, std::shared_ptr<::Ma
         }
         std::cout  << movePkt.match_token() << " " <<  movePkt.usertoken()<< " ReadThread End" << std::endl << std::flush;
     }
-    catch(std::exception ex)
+    catch(std::exception& ex)
     {
         std::cout  << movePkt.match_token() << " " <<  movePkt.usertoken()<< " Gracefully exit read thread exception: " << ex.what() << std::endl << std::flush;
     }
@@ -239,7 +239,7 @@ void ChessComService::ChatMessageStreamLoop(ServerContext* context, std::string&
         }
         std::cout  <<  usertoken<< " ChatMessageStream End" << std::endl << std::flush;
     }
-    catch(std::exception ex)
+    catch(std::exception& ex)
     {
         std::cout << usertoken << " Gracefully exit ChatMessageStream thread exception: " << ex.what() << std::endl << std::flush;
     }

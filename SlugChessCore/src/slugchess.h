@@ -60,6 +60,8 @@ class SlugChess {
     // "-" if there is no an passant
     const std::string GetAnPassant() {for (auto&& field : _board) {if(field.AnPassan_able){ return *field.fieldname; } }return "-"; }
     const std::string GetCurrentFenString();
+    const std::string ResultString() { return _gameEnd==0?"*": _gameEnd==1? "1/2-1/2": _gameEnd==2?"1-0":"0-1";}
+
 
     static bool visionBoardTrue [64];
     static const int32_t BPToIndx(const std::string& pos){return GameRules::BoardPosToIndex(pos);}
@@ -80,6 +82,7 @@ class SlugChess {
     void FindChecks();
     int GetFieldWithPice(ChessPice pice);
     bool* VisionBoardPerspective(Perspective perspective);
+
  
     static void CalculateLegalMoves(std::vector<Field>& board, bool visionBoard[]);
 

@@ -296,7 +296,7 @@ void MatchManager::DoMoveInMatch(
         bool didMove = matchPtr->DoMove(usertoken, movePtr);
         if(didMove){
             //std::cout << "adding ChessMove2" << std::endl << std::flush;
-            std::cout << "FEN: " << matchPtr->game->GetCurrentFenString() << std::endl << std::flush;
+            //std::cout << "FEN: " << matchPtr->game->GetCurrentFenString() << std::endl << std::flush;
         }
     }
         break;
