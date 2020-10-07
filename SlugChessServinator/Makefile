@@ -32,35 +32,42 @@ CHESSCOM_OBJ = $(OBJ)/chesscom.pb.o $(OBJ)/chesscom.grpc.pb.o
 # files of those names exist.
 .PHONY: all clean
 
-all: server
+all: slugchess-server
 dockerlib: 
 	cd ../SlugChessCore && $(MAKE) export  
-docker: dockerlib server
+docker: dockerlib slugchess-server
 
-server: $(CHESSCOM_OBJ) $(OUT)/server
+slugchess-server: clean-output $(CHESSCOM_OBJ) $(OUT)/slugchess-server
+slugchess-server-dbg: clean-output $(CHESSCOM_OBJ) $(OUT)/slugchess-server-dbg
+clean-output:
+	rm -rf $(OUT)/*
 
 $(SHARED_LIB_OUT)/libslugchess.so: 
 	echo Building SlugChess shared lib
 	cd ../SlugChessCore && $(MAKE) sudo_export  
 
+$(SC_LIB)/libslugchess.so: 
+	echo Building SlugChess local lib
+	cd ../SlugChessCore && $(MAKE) libslugchess  
 
-$(OUT)/server: $(SHARED_LIB_OUT)/libslugchess.so $(OBJECTS) $(CHESSCOM_OBJ)
+$(OUT)/slugchess-server: $(SHARED_LIB_OUT)/libslugchess.so $(OBJECTS) $(CHESSCOM_OBJ)
 	$(CXX) $^ $(LDFLAGS) -Wl,-rpath=$(SHARED_LIB_OUT) -o $@ -lslugchess
 
+$(OUT)/slugchess-server-dbg: $(SC_LIB)/libslugchess.so $(OBJECTS) $(CHESSCOM_OBJ)
+	$(CXX) $^ $(LDFLAGS) -Wl,-rpath=$(SC_LIB) -o $@ -lslugchess
 
-runserver: server
-	./$(OUT)/server 43326
+
+run-debugserver: slugchess-server-dbg
+	./$(OUT)/slugchess-server-dbg 43326
 
 -include $(DEPENDS)
 
 .PRECIOUS: $(CHESSCOM)/%.grpc.pb.cc
 $(CHESSCOM)/%.grpc.pb.cc: %.proto
-	echo i am aslp run
 	protoc -I $(PROTOS_PATH)  --grpc_out=$(CHESSCOM) --plugin=protoc-gen-grpc=$(GRPC_CPP_PLUGIN_PATH) $<
 
 .PRECIOUS: $(CHESSCOM)/%.pb.cc
 $(CHESSCOM)/%.pb.cc: %.proto
-	echo i am run
 	protoc -I $(PROTOS_PATH)  --cpp_out=$(CHESSCOM) $<
 
 clean:

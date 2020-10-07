@@ -1,3 +1,4 @@
+
 LDFLAGS = -ldl 
 
 CXX = g++
@@ -5,7 +6,7 @@ CXXFLAGS += -std=c++1z -Wall
 
 ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
-SRC  = src
+SRC = src
 OUT = output
 OBJ = object
 DEP = depends
@@ -42,11 +43,11 @@ $(SHARED_LIB_OUT)/libslugchess.so: libslugchess
 	cp $(OUT)/libslugchess.so $@.0.0.1
 	ln -sf $@.0.0.1 $@
 
-$(OUT)/slugchesstest: $(SHARED_LIB_OUT)/libslugchess.so
-	$(CXX) $(CXXFLAGS) -Wl,-rpath=$(SHARED_LIB_OUT) -o $@ $(SRC)/slugchesstest.cpp -lslugchess
+$(OUT)/slugchesstest: $(OUT)/libslugchess.so
+	$(CXX) $(CXXFLAGS) -Wl,-rpath=$(OUT) -o $@ $(SRC)/slugchesstest.cpp -lslugchess
 	
 runtest: slugchesstest
-	cd $(OUT) && ls . && ./slugchesstest
+	$(OUT)/slugchesstest
 
 -include $(DEPENDS)
 

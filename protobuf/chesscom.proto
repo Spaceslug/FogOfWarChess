@@ -157,6 +157,10 @@ message GameState{
 	bool current_turn_is_white = 17;
 }
 
+message GameResult {
+	string png = 1;
+}
+
 message LoginForm {
 	string username = 1;
 	string encrypted_password = 5;
@@ -203,9 +207,10 @@ message MoveResult{
 	bool move_happned = 1;
 	//Move move = 2;
 	GameState game_state = 2;
-	bool opponent_asking_for_draw = 4;
+	//bool opponent_asking_for_draw = 4;
 	MatchEvent match_event = 5;
 	ChessClock chess_clock = 7;
+	GameResult game_result = 8;
 }
 
 message JoinGameRequest 

@@ -27,7 +27,6 @@ class SlugChess {
     SlugChess(const std::string& sfenString, const VisionRules& visionRules);
 
     void DoMove(const std::string& from, const std::string& to);
-    const std::string ToFenString();
 
     void PrintBoard(std::stringstream& ss, bool whitePlayer);
     void PrintDebugBoard(std::stringstream& ss);
@@ -58,8 +57,11 @@ class SlugChess {
     bool WhitesTurn(){return _whiteTurn; }
     ChessPice LastCaptured(){ return _lastCaptured; }
     std::list<std::pair<ChessPice,int>>* KilledPices(){ return &_killedPices; }
-    void CalPossibleCastles();
-    void CleanAnPassants();
+    // "-" if there is no an passant
+    const std::string GetAnPassant() {for (auto&& field : _board) {if(field.AnPassan_able){ return *field.fieldname; } }return "-"; }
+    const std::string GetCurrentFenString();
+    const std::string ResultString() { return _gameEnd==0?"*": _gameEnd==1? "1/2-1/2": _gameEnd==2?"1-0":"0-1";}
+
 
     static bool visionBoardTrue [64];
     static const int32_t BPToIndx(const std::string& pos){return GameRules::BoardPosToIndex(pos);}
@@ -75,9 +77,12 @@ class SlugChess {
     void CalculateVision();
     void CalculateLegalMoves();
     void CalculateLegalShadowMoves();
+    void CalPossibleCastles();
+    void CleanAnPassants();
     void FindChecks();
     int GetFieldWithPice(ChessPice pice);
     bool* VisionBoardPerspective(Perspective perspective);
+
  
     static void CalculateLegalMoves(std::vector<Field>& board, bool visionBoard[]);
 
@@ -86,7 +91,7 @@ class SlugChess {
     std::list<std::pair<int, int>> _moves;
     std::stringstream _sanMoves;
     EndResult _gameEnd;
-    int _halfTurnSinceCapture = 0;
+    int _halfTurnSinceCaptureOrPawnMove = 0;
     int _turn = 1;
     bool _whiteTurn;
     VisionRules _rules; 

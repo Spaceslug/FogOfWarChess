@@ -1,5 +1,4 @@
 #include <string>
-#include <iostream>
 #include <csignal>
 #include <unordered_map>
 #include <iostream>
@@ -10,10 +9,10 @@
 #include <mutex>
 #include <random>
 #include <chrono>
+#include <filesystem>
 #include <thread>
 #include <condition_variable>
 #include <google/protobuf/util/time_util.h>
-
 
 #include <grpcpp/grpcpp.h>
 #include "../chesscom/chesscom.grpc.pb.h"
@@ -22,6 +21,7 @@
 #include "consts.h"
 #include "chesscomservice.h"
 #include "worker.h"
+#include "filesystem.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;
@@ -100,6 +100,9 @@ int main(int argc, char** argv) {
         port = argv[1];
         std::cout << "Custom port '" << port << "'" << std::flush << std::endl;
     }
+
+
+    std::cout << "Root dir path  '" << Filesystem::RootDir() << "' " << std::flush << std::endl;
 
     Run(port);
     logFile << "Exiting\n";

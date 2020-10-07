@@ -43,17 +43,19 @@ class Messenger {
 
     static void Log(const std::string& message)
     {
-        Log(std::make_shared<std::string>(message));
+        //Log(std::make_shared<std::string>(message));
+        //std::lock_guard<std::mutex> lock(_logMutex);
+        std::cout << message << std::endl << std::flush;
     }
 
     static void Log(std::shared_ptr<std::string> message)
     {
         //TODO
         //if(_logMutex.try_lock())
-        std::cout << *message << std::endl << std::flush;
+        //std::cout << *message << std::endl << std::flush;
     }
 
     private:
-    static std::mutex _logMutex;
+    //static std::mutex _logMutex; //static requires init on messanger.cpp
     
 };

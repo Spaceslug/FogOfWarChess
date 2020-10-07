@@ -155,7 +155,6 @@ void MatchManager::MatchListenLoop(
     //Sending init
     std::cout  << " Sending init gamestate to  " << listenerUsertoken << std::endl << std::flush;
     moveResultPkt.set_move_happned(false);
-    moveResultPkt.set_opponent_asking_for_draw(false);
     SlugChessConverter::SetGameState(matchPtr->game, &state, playerIsWhite);
     moveResultPkt.set_allocated_game_state(&state);
     moveResultPkt.set_match_event(chesscom::MatchEvent::Non);
@@ -295,7 +294,8 @@ void MatchManager::DoMoveInMatch(
         //TODO fix time spent to somehow match timepoint. This is why sec_spent is sent separeatly from the move
         bool didMove = matchPtr->DoMove(usertoken, movePtr);
         if(didMove){
-            std::cout << "adding ChessMove2" << std::endl << std::flush;
+            //std::cout << "adding ChessMove2" << std::endl << std::flush;
+            //std::cout << "FEN: " << matchPtr->game->GetCurrentFenString() << std::endl << std::flush;
         }
     }
         break;

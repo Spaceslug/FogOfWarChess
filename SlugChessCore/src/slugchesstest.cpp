@@ -77,6 +77,12 @@ void GameLoop(){
 
             game->PrintSanMoves(ss);        
             std::cout << ss.str() << std::endl;
+        }else if(s == "fen"){
+            std::stringstream ss;
+            std::cout << "Printing fen" << std::endl;
+
+            game->PrintSanMoves(ss);        
+            std::cout << game->GetCurrentFenString() << std::endl;
         }else if(s == "check"){ 
             std::stringstream ss;
             //std::cout << "Printing moves" << std::endl;

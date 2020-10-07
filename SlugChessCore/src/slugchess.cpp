@@ -30,7 +30,7 @@ SlugChess::SlugChess(const std::string& sfenString, const VisionRules& visionRul
     _whiteTurn = true;
     _gameEnd = EndResult::StillPlaying;
     _turn = 1;
-    _halfTurnSinceCapture = 0;
+    _halfTurnSinceCaptureOrPawnMove = 0;
     Sfen::WriteSfenPicesToBoard(_board, sfenString);
     CalculateVision();
     CalculateLegalMoves();
@@ -39,8 +39,49 @@ SlugChess::SlugChess(const std::string& sfenString, const VisionRules& visionRul
 }
 
 
-const std::string SlugChess::ToFenString(){
-	return "";
+const std::string SlugChess::GetCurrentFenString(){
+    // rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1
+    std::stringstream ss, resultSS;
+    //Row is from bottom to top of board
+    int row = 1, column = 1, emptyCount = 0;
+    std::cout << "start" << std::endl;
+    while (row < 9)
+    {
+        int i = column-1 + (row-1)*8;
+        if(_board[i].Pice == ChessPice::Non){
+            emptyCount += 1;
+            if(column == 8){
+                ss << std::to_string(emptyCount);
+                emptyCount = 0;
+            }
+        }else{
+            if(emptyCount > 0){
+                ss << std::to_string(emptyCount);
+                emptyCount = 0;
+            }
+            ss << Field::PiceChar(_board[i].Pice);
+        }
+        if(column == 8){
+            if(row > 1) ss << '/';
+            //std::cout << ss.str() << std::endl;
+            ss << resultSS.str();
+            resultSS = std::move(ss);
+            ss.str("");
+            column = 1;
+            row += 1;
+        }else{
+            column += 1;
+        }
+    }
+    resultSS << ' ' << (_whiteTurn?'w':'b') << ' ';
+    for(int i : _possibleCastles){
+        resultSS << Field::PiceChar(_board[i].Pice);
+    }
+    if(_possibleCastles.size() == 0) resultSS << '-';
+    resultSS << ' ' << GetAnPassant() << ' ' << std::to_string(_halfTurnSinceCaptureOrPawnMove)
+        << ' ' << std::to_string(_turn);
+    
+	return resultSS.str();
 }
 
 void SlugChess::PrintBoard(std::stringstream& ss, bool whiteplayer){
@@ -98,14 +139,7 @@ void SlugChess::PrintDebugBoard(std::stringstream& ss, bool visionboard[]){
         }
     }
     ss << std::endl;
-    std::string anPass = "-";
-    for (auto&& field : _board)
-    {
-        if(field.AnPassan_able){
-            anPass = *field.fieldname;
-            break;
-        }
-    }
+    std::string anPass = GetAnPassant();
     ss << "An Passant: " << anPass << std::endl;
 }
 
@@ -448,8 +482,10 @@ void SlugChess::DoMove(const std::string& from, const std::string& to){
         //std::cout << "Killed pice " << Field::PiceChar(attackedField.Pice) << " at " << *attackedField.fieldname << std::endl;
         _lastCaptureField = GameRules::BoardPosToIndex(*attackedField.fieldname);
         _killedPices.push_back(std::pair<ChessPice,int>(attackedField.Pice, GameRules::BoardPosToIndex(*attackedField.fieldname)));
+        _halfTurnSinceCaptureOrPawnMove = 0;
     }else{
         _lastCaptureField = -1;
+        _halfTurnSinceCaptureOrPawnMove++;
     }
     if(_lastCaptured == ChessPice::WhiteKing){
         _gameEnd = EndResult::BlackWin;
@@ -457,6 +493,7 @@ void SlugChess::DoMove(const std::string& from, const std::string& to){
     if(_lastCaptured == ChessPice::BlackKing){
         _gameEnd = EndResult::WhiteWin;
     }
+    if(Field::IsPawn(_board[BPToIndx(to)])) _halfTurnSinceCaptureOrPawnMove = 0;
     CalculateVision();
     CalculateLegalMoves();
     CalculateLegalShadowMoves();
@@ -503,7 +540,7 @@ void SlugChess::WriteMoveSan(const std::string& fromStr, const std::string& toSt
 
 void SlugChess::PrintSanMoves(std::stringstream& ss)
 {
-    ss << _sanMoves.str();
+    ss << _sanMoves.str() << " " << ResultString();
 }
 
 std::string SlugChess::From(Perspective perspective)
