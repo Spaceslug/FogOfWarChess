@@ -48,6 +48,13 @@ Changes to chesscom commuication api or underlating function.
 - Print rules
 - make a propper logger on server. Write to log file and console. Delete logfile on restart
 - a check to evaluate the validity of time spent on move. Change the value if it seems wrong. 
+- go over what lines are logged on the server
+- make a propper logging system
+
+### version 0.16.0
+- [ ] make a propper version system for slugchesscore shared lib. A build of slugchess server needs a spesific version of core. When you publish server release you supply a core version (think more on it). symlink to more spsific version to support multiple versions
+- [ ] makefile SlugChessServer have a define for debug build. Compile different .o files for debug and regular
+- [ ] rename 'libslugchess.so' to 'libslugchess-core.so'
 
 ### version 0.15.0
 - [ ] save userdata
