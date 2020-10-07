@@ -1,4 +1,5 @@
-﻿using ChessCom;
+﻿using Avalonia.Threading;
+using ChessCom;
 using Grpc.Core;
 using SlugChessAval.ViewModels;
 using SlugChessAval.Views;
@@ -45,6 +46,7 @@ namespace SlugChessAval.Services
             throw new NotImplementedException();
 
         }
+        public object temp;
         private SlugChessService(string adress, int port)
         {
             _channel = new Channel(adress, port, ChannelCredentials.Insecure);
@@ -59,8 +61,11 @@ namespace SlugChessAval.Services
                         var stream = Call.ChatMessageListener(UserData);
                         while (stream.ResponseStream.MoveNext().Result)
                         {
-                            //while (_messages.HasObservers == false) Thread.Sleep(500);
-                            MessageToLocal(stream.ResponseStream.Current.Message, stream.ResponseStream.Current.SenderUsername);
+                            //Send the message to UI thread to avoid weird race conditions. Rx should be single threaded.
+                            Dispatcher.UIThread.InvokeAsync(() =>
+                            {
+                                MessageToLocal(stream.ResponseStream.Current.Message, stream.ResponseStream.Current.SenderUsername);
+                            });
                         }
                         stream.Dispose();
                     });
