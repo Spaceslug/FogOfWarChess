@@ -68,7 +68,7 @@ public:
     void PlayerListenerDisconnected(const std::string& usertoken);
     void PlayerAskingForDraw(const std::string& usertoken);
     void PlayerAcceptingDraw(const std::string& usertoken);
-    std::string GetPgnString();
+    std::string GetPgnString(time_t& ttime);
 
     void SendMessageAllPlayers(const std::string& message);
     bool Ongoing(){ return !_matchFinished; }
@@ -92,10 +92,10 @@ public:
     std::string _matchToken;
     std::map<std::string, Player> _players;
     std::mutex _mutex;
+    std::string _pgn = "";
 
     void nl_SendMessageAllPlayers(const std::string& message);
     void nl_MatchFinished();
-    void nl_MatchEvent(chesscom::MatchEvent matchEvent, std::string& usertoken);
-    void nl_MatchEventAll(chesscom::MatchEvent matchEvent);
-    void nl_MatchEventAllWithMove(chesscom::MatchEvent matchEvent);
+    void nl_MatchEventAskingForDraw(chesscom::MatchEvent matchEvent, std::string& usertoken);
+    void nl_MatchEventAll(chesscom::MatchEvent matchEvent, bool moveHappened);
 };

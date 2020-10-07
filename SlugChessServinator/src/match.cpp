@@ -1,6 +1,7 @@
 #include "match.h"
 #include "messenger.h"
 #include "usermanager.h"
+#include "filesystem.h"
 
 bool Match::DoMove(const std::string& usertoken, std::shared_ptr<chesscom::Move> move) 
 {
@@ -51,7 +52,7 @@ bool Match::DoMove(const std::string& usertoken, std::shared_ptr<chesscom::Move>
         moves.push_back(move);
         cv.notify_all();
         //TORM newSystem
-        nl_MatchEventAllWithMove(expectedmatch_event);
+        nl_MatchEventAll(expectedmatch_event, true);
         if(expectedmatch_event != chesscom::Non) nl_MatchFinished();
         
         return true;
@@ -74,7 +75,7 @@ void Match::PlayerDisconnected(const std::string& usertoken, chesscom::MatchEven
     if(matchEventType == chesscom::MatchEvent::WhiteWin || matchEventType == chesscom::MatchEvent::BlackWin ||
      matchEventType == chesscom::MatchEvent::Draw )
      {
-         nl_MatchEventAll(matchEventType);
+         nl_MatchEventAll(matchEventType, false);
          nl_MatchFinished();
      }
 }
@@ -128,7 +129,7 @@ void Match::PlayerAskingForDraw(const std::string& usertoken)
         matchEvents.push_back(chesscom::MatchEvent::Draw);
         cv.notify_all();
         //TORM newSystem
-        nl_MatchEventAll(chesscom::MatchEvent::Draw);
+        nl_MatchEventAll(chesscom::MatchEvent::Draw, false);
         nl_MatchFinished();
         std::cout  <<  usertoken << " op allready asking for draw. SecSinceAsked " << std::to_string(_players[opponentUsertoken].SecSinceAskedForDraw()) << std::endl << std::flush;
     }
@@ -138,7 +139,7 @@ void Match::PlayerAskingForDraw(const std::string& usertoken)
         matchEvents.push_back(chesscom::MatchEvent::AskingForDraw);
         cv.notify_all();
         //TORM newSystem
-        nl_MatchEvent(chesscom::MatchEvent::AskingForDraw, opponentUsertoken);
+        nl_MatchEventAskingForDraw(chesscom::MatchEvent::AskingForDraw, opponentUsertoken);
         std::cout  <<  usertoken << " asking for draw" << std::endl << std::flush;
         _players.at(playerUsertoken).SecSinceAskedForDraw();
     }else{
@@ -166,21 +167,22 @@ void Match::PlayerAcceptingDraw(const std::string& usertoken)
         matchEvents.push_back(chesscom::MatchEvent::Draw);
         cv.notify_all();
         //TORM newSystem
-        nl_MatchEventAll(chesscom::MatchEvent::Draw);
+        nl_MatchEventAll(chesscom::MatchEvent::Draw, false);
         nl_MatchFinished();
         std::cout  <<  usertoken << " accepted draw for draw" << std::endl << std::flush;
     }else{
         std::cout <<  usertoken << "acept draw failed. To many Sec since opp asked draw: " << std::to_string(_players.at(opponentUsertoken).SecSinceAskedForDraw()) << std::endl << std::flush;
     }
 }
-
-std::string Match::GetPgnString()
+/**
+ *  ttime is official end of match time 
+ */
+std::string Match::GetPgnString(time_t& ttime)
 {
     std::stringstream ss;
     ss << "[Event \"Custom SlugChess game\"]" << std::endl; //TODO: Games can not be custom when ladder is up
     ss << "[Site \"REDACTED, REDACTED NOR\"]" << std::endl;
-    time_t ttime = time(0);
-    tm *local_time = localtime(&ttime);
+    tm *local_time = gmtime(&ttime);
     ss << "[Date \""<< 1900 + local_time->tm_year << "." 
         << 1 + local_time->tm_mon << "." << local_time->tm_mday << "\"]" << std::endl;
     ss << "[Round \"1\"]" << std::endl;
@@ -218,11 +220,11 @@ void Match::nl_MatchFinished()
     Messenger::Log(_matchToken + " match finished");
     std::stringstream ss;
     ss << "PGN of the game:" << std::endl;
-    nl_SendMessageAllPlayers(GetPgnString());
+    nl_SendMessageAllPlayers(_pgn);
     _matchFinished = true;
     matchDoneCV.notify_all();
 }
-void Match::nl_MatchEvent(chesscom::MatchEvent matchEvent, std::string& usertoken)
+void Match::nl_MatchEventAskingForDraw(chesscom::MatchEvent matchEvent, std::string& usertoken)
 {
     chesscom::MoveResult mrPkt;
     mrPkt.set_move_happned(false);
@@ -236,35 +238,36 @@ void Match::nl_MatchEvent(chesscom::MatchEvent matchEvent, std::string& usertoke
         }
     }
 }
-void Match::nl_MatchEventAll(chesscom::MatchEvent matchEvent)
-{
-    Messenger::Log("MatchEventAll " + std::to_string(matchEvent));
-    chesscom::MoveResult mrPkt;
-    mrPkt.set_move_happned(false);
-    mrPkt.set_match_event(matchEvent);
 
-    for(auto& [usertoken, player]  : _players)
-    {
-        (void)usertoken;//To suppress unused variable warning
-        if(player.resultStream != nullptr && player.resultStream->alive) 
-        {
-            player.resultStream->streamPtr->Write(mrPkt);
-        }
-    }
-}
-void Match::nl_MatchEventAllWithMove(chesscom::MatchEvent matchEvent)
+void Match::nl_MatchEventAll(chesscom::MatchEvent matchEvent, bool moveHappened)
 {
-    Messenger::Log(GetPgnString());
+    Messenger::Log("MatchEvent " + std::to_string(matchEvent));
+    //Messenger::Log(GetPgnString());
     chesscom::MoveResult mrPkt;
+
     chesscom::GameState whiteGS;
-    SlugChessConverter::SetGameState(game, &whiteGS, true);
     chesscom::GameState blackGS;
-    SlugChessConverter::SetGameState(game, &blackGS, false);
     chesscom::GameState observerGS;
-    //SlugChessConverter::SetGameState(game, &whiteGS, true); TODO implement oberserver gamestate
+    if(moveHappened){
+        mrPkt.set_move_happned(true);
+        SlugChessConverter::SetGameState(game, &whiteGS, true);
+        SlugChessConverter::SetGameState(game, &blackGS, false);
+        //SlugChessConverter::SetGameState(game, &whiteGS, true); TODO implement oberserver gamestate
+    }else{
+        mrPkt.set_move_happned(false);
+    }
 
-    mrPkt.set_move_happned(true);
-    mrPkt.set_opponent_asking_for_draw(false);
+    if(matchEvent != chesscom::Non){
+        time_t endOfMatch = time(nullptr);
+        _pgn = GetPgnString(endOfMatch);
+        mrPkt.mutable_game_result()->set_png(_pgn);
+        Filesystem::WriteMatchPgn(
+            UserManager::Get()->GetUserName(_whitePlayer), 
+            UserManager::Get()->GetUserName(_blackPlayer),
+            _pgn,
+            endOfMatch);
+    }
+    
     mrPkt.set_match_event(matchEvent);
     mrPkt.mutable_chess_clock()->set_white_seconds_left(clock->whiteSecLeft);
     mrPkt.mutable_chess_clock()->set_black_seconds_left(clock->blackSecLeft);
@@ -275,10 +278,10 @@ void Match::nl_MatchEventAllWithMove(chesscom::MatchEvent matchEvent)
         (void)usertoken;//To suppress unused variable warning
         if(player.resultStream != nullptr && player.resultStream->alive) 
         {
-            mrPkt.set_allocated_game_state(&(player.type == PlayerTypes::White?whiteGS:
+            if(moveHappened) mrPkt.set_allocated_game_state(&(player.type == PlayerTypes::White?whiteGS:
                                             player.type == PlayerTypes::Black?blackGS:observerGS));
             player.resultStream->streamPtr->Write(mrPkt);
-            mrPkt.release_game_state();
+            if(moveHappened) mrPkt.release_game_state();
         }
     }
 
