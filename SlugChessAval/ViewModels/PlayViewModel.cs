@@ -262,7 +262,7 @@ namespace SlugChessAval.ViewModels
                 }
             }).DisposeWith(disposablesForEndMatchWhenViewDeactivated);
 
-            MatchModel.NewMatch(result.MatchToken, matchObservable, result.IsWhitePlayer?PlayerIs.White:PlayerIs.Black, disposablesForEndMatchWhenViewDeactivated);
+            MatchModel.NewMatch(result.MatchToken, matchObservable, result.IsWhitePlayer?PlayerIs.White:PlayerIs.Black, result.OpponentUserData, disposablesForEndMatchWhenViewDeactivated);
             Activator.Deactivated.Subscribe((u) =>
             {
                 SlugChessService.Client.Call.SendMoveAsync(new MovePacket

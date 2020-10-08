@@ -103,12 +103,12 @@ namespace SlugChessAval.Services
             DateTime.Now.ToString("HH:mm:ss") + " " + sender + ": " + message);
         public IObservable<string> Messages => _messages;
         private ReplaySubject<string> _messages = new ReplaySubject<string>();
-        public UserData? UserData
+        public UserData UserData
         {
             get { return _userData; }
             set { if (value != _userData) { _userData = value; NotifyPropertyChanged(); } }
         }
-        private UserData? _userData = null;
+        private UserData _userData = new UserData();
 
         private System.Timers.Timer _heartbeatTimer = new System.Timers.Timer(60*1000);
 
