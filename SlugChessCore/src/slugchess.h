@@ -59,6 +59,7 @@ class SlugChess {
     std::list<std::pair<ChessPice,int>>* KilledPices(){ return &_killedPices; }
     // "-" if there is no an passant
     const std::string GetAnPassant() {for (auto&& field : _board) {if(field.AnPassan_able){ return *field.fieldname; } }return "-"; }
+    const std::string GetFenString() { return _fenString;}
     const std::string GetCurrentFenString();
     const std::string ResultString() { return _gameEnd==0?"*": _gameEnd==1? "1/2-1/2": _gameEnd==2?"1-0":"0-1";}
 

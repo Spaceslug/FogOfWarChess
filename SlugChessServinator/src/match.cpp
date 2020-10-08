@@ -191,7 +191,7 @@ std::string Match::GetPgnString(time_t& ttime)
     ss << "[Result \"" << game->ResultString() << "\"]" << std::endl;
     ss << "[Time \"" << local_time->tm_hour << ":" << local_time->tm_min << ":" << local_time->tm_sec << "\"]" << std::endl;
     ss << "[Mode \"ICS\"]" << std::endl;
-    ss << "[FEN \"" << game->GetCurrentFenString() << "\"]" << std::endl;
+    ss << "[FEN \"" << game->GetFenString() << "\"]" << std::endl;
     ss << "[SetUp \"1\"]" << std::endl;
     ss << "[Variant \"SlugChess.Torch\"]" << std::endl;
     ss << std::endl;

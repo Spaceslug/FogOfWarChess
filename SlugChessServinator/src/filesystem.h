@@ -4,6 +4,7 @@
 #include <chrono>
 #include <fstream>
 #include <sstream>
+#include <filesystem>
 #include <unistd.h>
 #include <iomanip>
 
@@ -22,10 +23,15 @@ class Filesystem
     static void WriteMatchPgn(const std::string userWhite, const std::string& userBlack, const std::string& pgn, time_t& time_t)
     {
         std::ofstream pgnFile;
+        std::filesystem::create_directories(RootDir() + "games_database");
         std::stringstream ss;ss << RootDir() << "games_database/" << std::put_time(std::gmtime(&time_t), "%Y-%m-%d-%H-%M-%S") << "_" << userWhite << "_" << userBlack << ".pgn";
         pgnFile.open (ss.str(), std::ios::out | std::ios::trunc);
-        pgnFile << pgn;
-        pgnFile.flush();
+        if(pgnFile.is_open()){
+            pgnFile << pgn;
+            std::cout << "Wrote pgn to '" + ss.str() + "' " << pgn << std::endl << std::flush;
+        }
+        
+        pgnFile.close();
     }
 
 };
