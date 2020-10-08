@@ -13,6 +13,9 @@ using System.Reactive.Linq;
 using System.Reactive.Disposables;
 using System.Windows.Input;
 using System.Threading;
+using Google.Protobuf;
+using System.IO;
+using SharpDX.Direct3D11;
 
 namespace SlugChessAval.Models
 {
@@ -24,8 +27,12 @@ namespace SlugChessAval.Models
         public IObservable<MoveResult> MoveResults { get; private set; }
         public Subject<(TimeSpan whiteTimeLeft, TimeSpan blackTimeLeft, bool currentTurnWhite, bool ticking)> ChessClock { get; private set; }
         public string MatchToken { get; private set; }
+        public UserData WhitePlayer { get; private set; }
+
+        public UserData BlackPlayer { get; private set; }
 
         public PlayerIs PlayerIs { get; private set; }
+        public UserData OpponentUserdata { get; private set; }
 
         public bool IsThisPlayersTurnNow => IsThisPlayersTurn.Take(1).Wait();
         public IObservable<bool> IsThisPlayersTurn => CurrentTurnPlayer.Select(currentPlayerIs => currentPlayerIs == PlayerIs);
@@ -69,12 +76,15 @@ namespace SlugChessAval.Models
         }
 
 
-        public void NewMatch(string matchToken, IObservable<MoveResult> obsMoveResults, PlayerIs playerIs, CompositeDisposable endMatchDisposable)
+        public void NewMatch(string matchToken, IObservable<MoveResult> obsMoveResults, PlayerIs playerIs, UserData opponentUserdata, CompositeDisposable endMatchDisposable)
         {
             _ongoingGame.OnNext(true);
             MoveResults = obsMoveResults;
             MatchToken = matchToken;
             PlayerIs = playerIs;
+            OpponentUserdata = opponentUserdata;
+            WhitePlayer = PlayerIs == PlayerIs.White ? SlugChessService.Client.UserData : OpponentUserdata;
+            BlackPlayer = PlayerIs == PlayerIs.Black ? SlugChessService.Client.UserData : OpponentUserdata;
             MoveResults.Subscribe(
                 (moveResult) => Dispatcher.UIThread.InvokeAsync(() => MoveResult(moveResult)),
                 (error) => Dispatcher.UIThread.InvokeAsync(() => _ongoingGame.OnNext(false)),
@@ -103,6 +113,15 @@ namespace SlugChessAval.Models
                 {
                     ShellHelper.PlaySoundFile(Program.RootDir + "Assets/sounds/move.wav");
                 }
+            }
+
+            if(moveResult.GameResult != null)
+            {
+                if (!Directory.Exists(Program.RootDir + "games_database")) Directory.CreateDirectory(Program.RootDir + "games_database");
+                if (!Directory.Exists(Program.RootDir + "games_database/last_few")) Directory.CreateDirectory(Program.RootDir + "games_database/last_few");
+                File.WriteAllText(Program.RootDir+ "games_database/latest.pgn", moveResult.GameResult.Png);
+                File.WriteAllText(Program.RootDir + $"games_database/last_few/{DateTime.Now:yyyy-MM-dd-HH-mm-ss}_{WhitePlayer.Username}_{BlackPlayer.Username}.pgn", moveResult.GameResult.Png);
+
             }
 
             switch (moveResult.MatchEvent)

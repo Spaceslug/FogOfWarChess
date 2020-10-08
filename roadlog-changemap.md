@@ -50,6 +50,11 @@ Changes to chesscom commuication api or underlating function.
 - a check to evaluate the validity of time spent on move. Change the value if it seems wrong. 
 - go over what lines are logged on the server
 - make a propper logging system
+- [ ] auto updator can update to spesific version. A command line option. Mayby post link to available releases page
+
+### version 0.17.0
+- [ ] Formalize Torch and Sight. Both a text and chesscom description of the rules. They should temporerly be known as TorchBeta and SightBeta.
+- [ ] Make Client, Core and Aval use the formal chesscom definition that should exist in Server. Core 
 
 ### version 0.16.0
 - [ ] make a propper version system for slugchesscore shared lib. A build of slugchess server needs a spesific version of core. When you publish server release you supply a core version (think more on it). symlink to more spsific version to support multiple versions
@@ -67,9 +72,7 @@ Changes to chesscom commuication api or underlating function.
 - [ ] bug- Server fjerner ikke bruker ordentlig ved heartbeat failed
 
 ### version 0.14.0
-- [ ] auto updator can update to spesific version. A command line option. Mayby post link to available releases page
-- [ ] record games played (PGN). In a replay folder for users and a replay folder on server
-
+- [x] record games played (PGN). In a replay folder for users and a replay folder on server
 
 ### version 0.13.1 (Done)
 - [x] client can be lagging behind 1 message when finishing matches
