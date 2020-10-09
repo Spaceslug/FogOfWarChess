@@ -70,6 +70,7 @@ Changes to chesscom commuication api or underlating function.
 ### version 1.14.1
 - [ ] bug- Server kan motta move etter match er ferdig. Fører til krash
 - [ ] bug- Server fjerner ikke bruker ordentlig ved heartbeat failed
+- [x] Updater new retries when .7z handle not released during cleanup
 
 ### version 0.14.0
 - [x] record games played (PGN). In a replay folder for users and a replay folder on server

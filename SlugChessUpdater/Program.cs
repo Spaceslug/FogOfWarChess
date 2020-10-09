@@ -239,7 +239,22 @@ namespace SlugChessUpdater
                 dir.MoveTo($"{RootDir}{dir.Name}");
             }
             Console.WriteLine("Deleting temp files");
-            Directory.Delete($"{RootDir}temp", true);
+            int attempts = 0;
+            while(attempts < 3)
+            {
+                attempts++;
+                try
+                {
+                    Directory.Delete($"{RootDir}temp", true);
+                    break;
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    Console.WriteLine("Deleting temp failed. Retrying...");
+                    Thread.Sleep(500);
+                }
+            }
+            
         }
 
         static void LaunchAval()
