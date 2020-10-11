@@ -6,9 +6,14 @@
 bool Match::DoMove(const std::string& usertoken, std::shared_ptr<chesscom::Move> move) 
 {
     //std::cout  << usertoken << " iswhite: " << std::to_string(usertoken == _whitePlayer) << " iswhitesmove" << std::to_string(IsWhitesMove())  << std::endl << std::flush;
+    if(_matchFinished){ 
+        Messenger::Log(usertoken + " ERROR: tried a move when match is finished");
+        return false;
+    }
     if((IsWhitesMove() && _whitePlayer == usertoken)  
         || ((!IsWhitesMove()) && _blackPlayer == usertoken))
     {
+        
         std::unique_lock<std::mutex> scopeLock (_mutex);
         if(!game->LegalMove(move->from(), move->to())){ 
             std::cout  << usertoken << " ERROR: tried a move that is not possible" << std::endl << std::flush;

@@ -68,8 +68,8 @@ Changes to chesscom commuication api or underlating function.
 - [ ] load up and click through PGNs.
 
 ### version 1.14.1
-- [ ] bug- Server kan motta move etter match er ferdig. Fører til krash
-- [ ] bug- Server fjerner ikke bruker ordentlig ved heartbeat failed
+- [x] bug- Server kan motta move etter match er ferdig. Fører til krash
+- [x] (could not replicate)bug- Server fjerner ikke bruker ordentlig ved heartbeat failed
 - [x] Updater new retries when .7z handle not released during cleanup
 
 ### version 0.14.0

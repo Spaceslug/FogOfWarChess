@@ -208,6 +208,10 @@ grpc::Status ChessComService::SendMove(grpc::ServerContext* context, const chess
     }
     if(request->asking_for_draw())throw "draw not implemented";
     std::shared_ptr<::Match> matchPtr = MatchManager::Get()->GetMatch(request->match_token());
+    if(matchPtr.get() == nullptr){
+        Messenger::Log("Got SendMove call with match_token but no match of that token was found" + request->usertoken());
+        return grpc::Status::CANCELLED;
+    }
     std::shared_ptr<chesscom::Move> movePtr = std::make_shared<chesscom::Move>(request->move());
     MatchManager::DoMoveInMatch(request->cheat_matchevent(), request->usertoken(), matchPtr, movePtr);
     

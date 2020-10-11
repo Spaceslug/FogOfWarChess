@@ -77,7 +77,7 @@ std::shared_ptr<Match> MatchManager::GetMatch(const std::string& matchId)
     {
         return _matches[matchId];
     }else{
-        return std::shared_ptr<Match>();
+        return std::shared_ptr<Match>(nullptr);
     }
 }
 
@@ -173,110 +173,6 @@ void MatchManager::MatchListenLoop(
     }
     resultStream->alive = false;
     matchPtr->PlayerListenerDisconnected(listenerUsertoken);
-
-    /*while (loop)
-    {
-        if(contextPtr->IsCancelled()) {
-            return;
-        }
-        bool isUpdate;
-        {
-            isUpdate = matchPtr->matchEvents.size() > lastEventNum;
-            if(isUpdate){
-                if(matchPtr->matchEvents[lastEventNum] == chesscom::MatchEvent::UnexpectedClosing)
-                {
-                    std::cout  << matchPtr->matchToken << " " <<  listenerUsertoken << " Opponent UnexpectedClosing" << std::endl << std::flush;
-                    moveResultPkt.set_move_happned(false);
-                    moveResultPkt.set_opponent_asking_for_draw(false);
-                    //moveResultPkt.set_allocated_move(matchPtr->moves.back().get());
-                    moveResultPkt.set_match_event(chesscom::MatchEvent::UnexpectedClosing);
-                    writerPtr->Write(moveResultPkt);
-                    loop = false;
-                    //continue;
-                }
-                else if(matchPtr->matchEvents[lastEventNum] == chesscom::MatchEvent::ExpectedClosing)
-                {
-                    std::cout  << matchPtr->matchToken << " " <<  listenerUsertoken << " Opponent ExpectedClosing" << std::endl << std::flush;
-                    moveResultPkt.set_move_happned(false);
-                    moveResultPkt.set_opponent_asking_for_draw(false);
-                    //moveResultPkt.set_allocated_move(matchPtr->moves.back().get());
-                    moveResultPkt.set_match_event(chesscom::MatchEvent::ExpectedClosing);
-                    writerPtr->Write(moveResultPkt);
-                    loop = false;
-                    //continue;
-                }
-                else if(matchPtr->matchEvents[lastEventNum] == chesscom::MatchEvent::WhiteWin || matchPtr->matchEvents[lastEventNum] == chesscom::MatchEvent::BlackWin)
-                {
-                    std::cout  << " Going to send other move " << std::endl << std::flush;
-                    std::cout  << matchPtr->matchToken << " " <<  listenerUsertoken << " Someone won!! " << matchPtr->matchEvents[lastEventNum] << std::endl << std::flush;
-                    moveResultPkt.set_move_happned(true);
-                    moveResultPkt.set_opponent_asking_for_draw(false);
-                    SlugChessConverter::SetGameState(matchPtr->game, &state, playerIsWhite);
-                    moveResultPkt.set_allocated_game_state(&state);
-                    moveResultPkt.set_match_event(matchPtr->matchEvents[lastEventNum]);
-                    moveResultPkt.mutable_chess_clock()->set_white_seconds_left(matchPtr->clock->whiteSecLeft);
-                    moveResultPkt.mutable_chess_clock()->set_black_seconds_left(matchPtr->clock->blackSecLeft);
-                    moveResultPkt.mutable_chess_clock()->set_timer_ticking(matchPtr->clock->is_ticking);
-                    std::stringstream ss;
-                    ss << "Moves of the game in SAN:" << std::endl;
-                    matchPtr->game->PrintSanMoves(ss);
-                    std::string message = ss.str();
-                    //messenger.SendServerMessage(listenerUsertoken, message);
-                    writerPtr->Write(moveResultPkt);
-                    moveResultPkt.release_game_state();
-                    loop = false;
-                    continue;
-                }
-                else if(matchPtr->matchEvents[lastEventNum] == chesscom::MatchEvent::Draw)
-                {
-                    std::cout  << " Sending asking for draw " << std::endl << std::flush;
-                    moveResultPkt.set_move_happned(false);
-                    moveResultPkt.set_match_event(chesscom::MatchEvent::Draw);
-                     std::stringstream ss;
-                    ss << "Moves of the game in SAN:" << std::endl;
-                    matchPtr->game->PrintSanMoves(ss);
-                    std::string message = ss.str();
-                    //messenger.SendServerMessage(listenerUsertoken, message);
-                    writerPtr->Write(moveResultPkt);
-                    loop = false;
-                    continue;
-                }
-                else if(matchPtr->matchEvents[lastEventNum] == chesscom::MatchEvent::AskingForDraw)
-                {
-                    std::cout  << " Sending asking for draw " << std::endl << std::flush;
-                    moveResultPkt.set_move_happned(false);
-                    //moveResultPkt.set_allocated_move(matchPtr->moves.back().get());
-                    moveResultPkt.set_match_event(chesscom::MatchEvent::AskingForDraw);
-                    writerPtr->Write(moveResultPkt);
-                }
-                else if(matchPtr->matchEvents[lastEventNum] == chesscom::MatchEvent::AcceptingDraw)
-                {
-                    moveResultPkt.set_move_happned(false);
-                    //moveResultPkt.set_allocated_move(matchPtr->moves.back().get());
-                    moveResultPkt.set_match_event(chesscom::MatchEvent::AcceptingDraw);
-                    writerPtr->Write(moveResultPkt);
-                }
-                else
-                {
-                    std::cout  << " Going to send move " << std::endl << std::flush;
-                    moveResultPkt.set_move_happned(true);
-                    moveResultPkt.set_opponent_asking_for_draw(false);
-                    SlugChessConverter::SetGameState(matchPtr->game, &state, playerIsWhite);
-                    moveResultPkt.set_allocated_game_state(&state);
-                    moveResultPkt.set_match_event(chesscom::MatchEvent::Non);
-                    moveResultPkt.mutable_chess_clock()->set_white_seconds_left(matchPtr->clock->whiteSecLeft);
-                    moveResultPkt.mutable_chess_clock()->set_black_seconds_left(matchPtr->clock->blackSecLeft);
-                    moveResultPkt.mutable_chess_clock()->set_timer_ticking(matchPtr->clock->is_ticking);
-                    writerPtr->Write(moveResultPkt);
-                    moveResultPkt.release_game_state();
-                    std::cout  << matchPtr->matchToken << " " <<  listenerUsertoken << " SentMoveResult " << std::endl << std::flush;
-                }
-                lastEventNum++;
-            }
-        }
-        matchPtr->cv.wait(lk);
-
-    }*/
 }
 
 void MatchManager::DoMoveInMatch(
