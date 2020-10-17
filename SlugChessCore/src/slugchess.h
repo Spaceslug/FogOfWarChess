@@ -8,6 +8,7 @@
 #include <algorithm>
 #include "visionrules.h"
 #include "sfen.h"
+#include "san.h"
 
 #include "shared.h"
 
@@ -27,8 +28,9 @@ class SlugChess {
     SlugChess(const std::string& sfenString, const VisionRules& visionRules);
 
     void DoMove(const std::string& from, const std::string& to);
+    bool DoSanMove(const std::string& san_move);
 
-    void PrintBoard(std::stringstream& ss, bool whitePlayer);
+    void PrintBoard(std::stringstream& ss, bool whitePlayer); 
     void PrintDebugBoard(std::stringstream& ss);
     void PrintWhiteVision(std::stringstream& ss);
     void PrintBlackVision(std::stringstream& ss);

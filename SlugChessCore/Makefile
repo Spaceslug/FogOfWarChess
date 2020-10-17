@@ -44,7 +44,7 @@ $(SHARED_LIB_OUT)/libslugchess.so: libslugchess
 	ln -sf $@.0.0.1 $@
 
 $(OUT)/slugchesstest: $(OUT)/libslugchess.so
-	$(CXX) $(CXXFLAGS) -Wl,-rpath=$(OUT) -o $@ $(SRC)/slugchesstest.cpp -lslugchess
+	$(CXX) $(CXXFLAGS) -Wl,-rpath=$(ROOT_DIR)/$(OUT) -o $@ $(SRC)/slugchesstest.cpp -lslugchess
 	
 runtest: slugchesstest
 	$(OUT)/slugchesstest

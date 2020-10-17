@@ -457,6 +457,10 @@ Field SlugChess::ExecuteMove(int from, int to){
     return tofield;
 }
 
+
+
+
+
 bool SlugChess::LegalMove(const std::string& from, const std::string& to)
 {
     if(from[0] < 'a' || from[0] > 'h' 
@@ -498,6 +502,44 @@ void SlugChess::DoMove(const std::string& from, const std::string& to){
     CalculateLegalMoves();
     CalculateLegalShadowMoves();
     FindChecks();
+}
+
+bool SlugChess::DoSanMove(const std::string& san_move){
+    std::string from = "", to = "";
+    if(isupper(san_move[0])){
+        from = std::string(san_move.c_str()+1, 2);
+        uint32_t offset = san_move[3] == 'x' || san_move[3] == 'X'?4:3;
+        to = std::string(san_move.c_str()+offset, 2);
+        
+    }else{ //This is a pawn move
+        to = std::string(san_move.c_str(), 2);
+        //std::cout << to << std::endl;
+        if(san_move[2] == 'x' || san_move[2] == 'X'){
+            from = to;
+            to = std::string(san_move.c_str()+3, 2);
+        }else{
+
+            auto func = _whiteTurn?GameRules::DownOne:GameRules::UpOne;
+            auto one = func(BPToIndx(to));
+            auto two = func(one);
+            if(GameRules::LegalPos(one) && Field::IsPawn(_board[one])){
+                from = BP(one);
+            }
+            else if(GameRules::LegalPos(two) && Field::IsPawn(_board[two])){
+                from = BP(two);
+            }
+        }
+
+        //std::cout << from << std::to_string( LegalMove(from, to)) << std::endl;
+    }
+    if(from != "" && to != "" && LegalMove(from, to)){
+        DoMove(from, to);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void SlugChess::WriteMoveSan(const std::string& fromStr, const std::string& toStr){
