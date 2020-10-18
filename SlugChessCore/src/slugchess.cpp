@@ -20,6 +20,45 @@ bool SlugChess::visionBoardTrue[] = {
     true, true, true, true, true, true, true, true,
     true, true, true, true, true, true, true, true};
 
+const VisionRules SlugChess::VisionRules_TorchWip = VisionRules{ 
+    true, 
+    {false, true, 2},
+    {
+        {ChessPice::WhitePawn, Rules{false, true, 1}},
+        {ChessPice::BlackPawn, Rules{false, true, 1}},
+        {ChessPice::WhiteKing, Rules{false, true, 1}},
+        {ChessPice::BlackKing, Rules{false, true, 1}},
+    }
+};
+const VisionRules SlugChess::VisionRules_SightWip = VisionRules{ 
+    true, 
+    {true, true, 0},
+    {
+        {ChessPice::WhitePawn, Rules{true, true, 1}},
+        {ChessPice::BlackPawn, Rules{true, true, 1}},
+        {ChessPice::WhiteKnight, Rules{true, true, 1}},
+        {ChessPice::BlackKnight, Rules{true, true, 1}},
+    }
+};
+
+std::map<std::string, const VisionRules*> SlugChess::GetVisionRules()
+{
+    return {{"SightWip", &VisionRules_SightWip}, {"TorchWip", &VisionRules_TorchWip}};
+}
+const VisionRules& SlugChess::GetVisionRule(const std::string vrName)
+{
+    if(vrName == "Sight"){
+        return VisionRules_SightWip;
+    }else if(vrName == "Torch"){
+        return VisionRules_TorchWip;
+    }else if(vrName == "SightWip"){
+        return VisionRules_SightWip;
+    }else if(vrName == "TorchWip"){
+        return VisionRules_TorchWip;
+    }
+    throw new std::invalid_argument("vrName must be a valid VisionRules type");
+}
+
 SlugChess::SlugChess(const std::string& sfenString, const VisionRules& visionRules){
     // rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1
     // normal startingpoint shredder-fen
@@ -340,6 +379,27 @@ std::set<int> SlugChess::Checks(Perspective perspective){
             }
         }
         
+    }else{ //This is a bit hacky function. Checks should be recorded better 
+        auto moves = _whiteTurn?_legalWhiteMoves:_legalBlackMoves;
+        auto shadowMoves = _whiteTurn?_shadowBlackMoves:_shadowWhiteMoves;
+        int kingPespective = GetFieldWithPice(_whiteTurn?ChessPice::WhiteKing:ChessPice::BlackKing);
+        int kingOther = GetFieldWithPice(_whiteTurn?ChessPice::BlackKing:ChessPice::WhiteKing);
+        for (auto &&keyVal : moves)
+        {
+            auto kingIter = std::find(keyVal.second.begin(), keyVal.second.end(), kingOther);
+            if(kingIter != keyVal.second.end()){
+                set.insert(keyVal.first);
+                set.insert(*kingIter);
+            }
+        }
+        for (auto &&keyVal : shadowMoves)
+        {
+            auto kingIter = std::find(keyVal.second.begin(), keyVal.second.end(), kingPespective);
+            if(kingIter != keyVal.second.end()){
+                set.insert(keyVal.first);
+                set.insert(*kingIter);
+            }
+        }
     }
     return set;
 }

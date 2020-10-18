@@ -25,6 +25,7 @@ class SlugChess {
         Black = 1,
         Both = 2,
     };
+
     SlugChess(const std::string& sfenString, const VisionRules& visionRules);
 
     void DoMove(const std::string& from, const std::string& to);
@@ -67,10 +68,15 @@ class SlugChess {
 
 
     static bool visionBoardTrue [64];
+    const static VisionRules VisionRules_TorchWip;
+    const static VisionRules VisionRules_SightWip;
+    static std::map<std::string, const VisionRules*> GetVisionRules();
+    static const VisionRules& GetVisionRule(const std::string vrName);
     static const int32_t BPToIndx(const std::string& pos){return GameRules::BoardPosToIndex(pos);}
     static std::string BP(int index) { return GameRules::BoardPos(index); }
     
     private:
+    SlugChess() {}; //Hiding default constructor
     Field ExecuteMove(const std::string from, const std::string to);
     Field ExecuteMove(int from, int to);
     //void WriteLan(const std::string& from, const std::string& to);
