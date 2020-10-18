@@ -366,3 +366,52 @@ grpc::Status ChessComService::SendChatMessage(grpc::ServerContext* context, cons
     Messenger::SendMessage(request->sender_usertoken(), request->sender_username(), request->message());
     return grpc::Status::OK;
 }
+
+grpc::Status ChessComService::ProcessReplay(grpc::ServerContext* context,  const chesscom::GameResult* request, chesscom::Replay* response)
+{
+    // std::string test = "[Event \"Custom SlugChess game\"]\n" \
+    //                     "[Site \"REDACTED, REDACTED NOR\"]\n" \
+    //                     "[Date \"2020.10.8\"]\n" \
+    //                     "[Round \"1\"]\n" \
+    //                     "[White \"debugman\"]\n" \
+    //                     "[Black \"debug_sexyman\"]\n" \
+    //                     "[Result \"0-1\"]\n" \
+    //                     "[Time \"19:3:23\"]\n" \
+    //                     "[Mode \"ICS\"]\n" \ 
+    //                     "[FEN \"knrqnbbr/pppppppp/8/8/8/8/PPPPPPPP/RQRNNBKB w - - 0 1\"]\n" \
+    //                     "[SetUp \"1\"]\n" \
+    //                     "[Variant \"SlugChess.Torch\"]\n" \
+    //                     "\n" \
+    //                     "1. e3 Nb8c6 2. c4 e5 3. g3 f6 4. Qb1e4 h6 5. Ne1d3 Bg8h7 6. Qe4f3 b6 7. Qf3e4 Qd8e7 8. Nd3c5 Bh7xe4 9. Bh1xe4 Qe7xc5 10. Be4xc6 d7xc6 11. e4 Qc5xf2 12. Kg1xf2 c5 13. b4 c5xb4 14. a3 b4xa3 15. Ra1xa3 c5 16. d3 Bf8d6 17. d4 e5xd4 18. Ra3d3 f5 19. e4xf5 g6 20. f5xg6 Rh8g8 21. Rd3xd4 Rg8xg6 22. Rd4xd6 Ne8xd6 23. Nd1e3 Rg6xg3 24. Kf2xg3 h5 25. Ne3f5 Nd6xf5 26. Bf1d3 Rc8f8 27. Bd3xf5 Rf8e8 28. Rc1b1 b5 29. c4xb5 a6 30. Bf5c8 Re8xc8 31. b5xa6 Rc8g8 32. Kg3h4 Rg8g4 33. Rb1b8 Rg4xh4  0-1";
+    auto pgnMap = Match::ReadSlugChessPgnString(request->pgn());
+    auto sanMoves = San::SanMovesFromSan(pgnMap["San"]);
+    auto game = std::make_shared<SlugChess>(pgnMap["FEN"], SlugChess::GetVisionRule(pgnMap["Variant"].substr(pgnMap["Variant"].find('.')+1)));
+    auto moves = San::SanMovesFromSan(pgnMap["San"]);
+    response->set_white(pgnMap["White"]);
+    response->set_black(pgnMap["Black"]);
+    SlugChessConverter::SetGameState(game, response->add_game_states(), PlayerTypes::Observer);
+
+    for(auto& move : moves){
+        game->DoSanMove(move);
+        SlugChessConverter::SetGameState(game, response->add_game_states(), PlayerTypes::Observer);
+    }
+    switch (game->Result())
+    {
+    case SlugChess::EndResult::StillPlaying:
+            response->set_match_event(chesscom::MatchEvent::Non);
+        break;
+    case SlugChess::EndResult::Draw:
+            response->set_match_event(chesscom::MatchEvent::Draw);
+        break;
+    case SlugChess::EndResult::WhiteWin:
+            response->set_match_event(chesscom::MatchEvent::WhiteWin);
+        break;
+    case SlugChess::EndResult::BlackWin:
+            response->set_match_event(chesscom::MatchEvent::BlackWin);
+        break;
+    default:
+        throw std::invalid_argument("WTF man. What the hell have you done??");
+    }
+
+    return grpc::Status::OK;
+}

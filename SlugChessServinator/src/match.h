@@ -4,61 +4,14 @@
 #include <chrono>
 #include <memory>
 #include "messenger.h"
+#include "common.h"
 #include "slugchesscoverter.h"
 #include "../../SlugChessCore/src/slugchess.h"
 
-enum PlayerTypes{
-    White,
-    Black,
-    Observer
-};
-struct MoveResultStream {
-    bool alive;
-    grpc::internal::WriterInterface<chesscom::MoveResult>* streamPtr;
-};
-struct ChessClock {
-    int blackSecLeft;
-    int whiteSecLeft;
-    int secsPerMove;
-    bool is_ticking;
-    std::chrono::time_point<std::chrono::system_clock> lastMove; //TODO start using 
-//    std::chrono::time_point<std::chrono::system_clock> lastBlackMove;
-};
-struct ChessMove {
-    std::string from;
-    std::string to;
-};
-struct Player
-{
-    PlayerTypes type;
-    std::string usertoken;
-    std::shared_ptr<MoveResultStream> resultStream;
-    bool askingForDraw = false;
-    std::chrono::time_point<std::chrono::system_clock> askingForDrawTimstamp;
-    int64_t SecSinceAskedForDraw() { 
-        //std::cout << usertoken << "Now: " << std::to_string(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()) << "Last: " << std::to_string(std::chrono::duration_cast<std::chrono::seconds>(askingForDrawTimstamp.time_since_epoch()).count()) << std::endl << std::flush;
-        return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - askingForDrawTimstamp).count(); }
-};
 class Match {
 public:
-#define TIMEOUT_FOR_DRAW 5
-#define EXTRATIME_FOR_DRAW 1
-#define MOVE_TIME_DELAY_ALLOWED_MILLISEC 1000
-    Match(const std::string& token, const std::string& whitePlayerToken, const std::string& blackPlayerToken, const std::string& fenString, VisionRules& visionRules)
-    {
-        _matchToken = token;
-        _whitePlayer = whitePlayerToken;
-        _blackPlayer = blackPlayerToken;
-        _players[whitePlayerToken].usertoken = whitePlayerToken;
-        _players[whitePlayerToken].type = PlayerTypes::White;
-        _players[whitePlayerToken].askingForDrawTimstamp = std::chrono::system_clock::now();
-        _players[blackPlayerToken].usertoken = blackPlayerToken;
-        _players[blackPlayerToken].type = PlayerTypes::Black; 
-        _players[blackPlayerToken].askingForDrawTimstamp = std::chrono::system_clock::now();
-        clock = std::make_shared<ChessClock>();
-        game = std::make_shared<SlugChess>(fenString, visionRules);
-        std::cout  << "Creating match: " << _matchToken << " white: " << whitePlayerToken << " black:" << blackPlayerToken  << std::endl << std::flush;
-    }
+
+    Match(const std::string& token, const std::string& whitePlayerToken, const std::string& blackPlayerToken, const std::string& fenString, VisionRules& visionRules);
 
     bool IsWhitesMove() { return moves.size()%2 == 0; }
 
@@ -69,6 +22,7 @@ public:
     void PlayerAskingForDraw(const std::string& usertoken);
     void PlayerAcceptingDraw(const std::string& usertoken);
     std::string GetPgnString(time_t& ttime);
+    static std::map<std::string, std::string> ReadSlugChessPgnString(const std::string& pgn);
 
     void SendMessageAllPlayers(const std::string& message);
     bool Ongoing(){ return !_matchFinished; }
@@ -79,6 +33,7 @@ public:
     std::string& getWhitePlayer(){return _whitePlayer;}
     std::string& getBlackPlayer(){return _blackPlayer;}
     std::string& getMatchToken(){return _matchToken;}
+    PlayerTypes getPlayerType(const std::string& usertoken){ return _players.at(usertoken).type; }
     std::shared_ptr<ChessClock> clock;
     std::shared_ptr<SlugChess> game;
     std::condition_variable cv;

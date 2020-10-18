@@ -22,7 +22,7 @@ std::string MatchManager::CreateMatch(std::string& player1Token, std::string& pl
     _matches[matchToken] = match;
     std::cout << "  checing match " << " black sec left " << std::to_string(match->clock->blackSecLeft) << " white sec left " << std::to_string(match->clock->whiteSecLeft) << std::endl << std::flush;
     auto matPtr = _matches[matchToken];
-    std::cout << "  white player " <<  matPtr->getWhitePlayer() << std::endl << std::flush;
+    //std::cout << "  white player " <<  matPtr->getWhitePlayer() << std::endl << std::flush;
     return matchToken;
 }
 std::string MatchManager::CreateMatch(chesscom::HostedGame& hostedGame)
@@ -147,7 +147,8 @@ void MatchManager::MatchListenLoop(
 {
     chesscom::MoveResult moveResultPkt;
     chesscom::GameState state;
-    bool playerIsWhite = matchPtr->getWhitePlayer() == listenerUsertoken;
+    //bool playerIsWhite = matchPtr->getWhitePlayer() == listenerUsertoken;
+    PlayerTypes playerType = matchPtr->getPlayerType(listenerUsertoken);
     //bool loop = true;
     //uint lastEventNum = 0;
     std::mutex mutex;
@@ -155,7 +156,7 @@ void MatchManager::MatchListenLoop(
     //Sending init
     std::cout  << " Sending init gamestate to  " << listenerUsertoken << std::endl << std::flush;
     moveResultPkt.set_move_happned(false);
-    SlugChessConverter::SetGameState(matchPtr->game, &state, playerIsWhite);
+    SlugChessConverter::SetGameState(matchPtr->game, &state, playerType);
     moveResultPkt.set_allocated_game_state(&state);
     moveResultPkt.set_match_event(chesscom::MatchEvent::Non);
     moveResultPkt.mutable_chess_clock()->set_white_seconds_left(matchPtr->clock->whiteSecLeft);

@@ -1,7 +1,23 @@
 #include "match.h"
-#include "messenger.h"
 #include "usermanager.h"
 #include "filesystem.h"
+#include <algorithm>
+
+Match::Match(const std::string& token, const std::string& whitePlayerToken, const std::string& blackPlayerToken, const std::string& fenString, VisionRules& visionRules)
+{
+    _matchToken = token;
+    _whitePlayer = whitePlayerToken;
+    _blackPlayer = blackPlayerToken;
+    _players[whitePlayerToken].usertoken = whitePlayerToken;
+    _players[whitePlayerToken].type = PlayerTypes::White;
+    _players[whitePlayerToken].askingForDrawTimstamp = std::chrono::system_clock::now();
+    _players[blackPlayerToken].usertoken = blackPlayerToken;
+    _players[blackPlayerToken].type = PlayerTypes::Black; 
+    _players[blackPlayerToken].askingForDrawTimstamp = std::chrono::system_clock::now();
+    clock = std::make_shared<ChessClock>();
+    game = std::make_shared<SlugChess>(fenString, visionRules);
+    std::cout  << "Creating match: " << _matchToken << " white: " << whitePlayerToken << " black:" << blackPlayerToken  << std::endl << std::flush;
+}
 
 bool Match::DoMove(const std::string& usertoken, std::shared_ptr<chesscom::Move> move) 
 {
@@ -188,8 +204,8 @@ std::string Match::GetPgnString(time_t& ttime)
     ss << "[Event \"Custom SlugChess game\"]" << std::endl; //TODO: Games can not be custom when ladder is up
     ss << "[Site \"REDACTED, REDACTED NOR\"]" << std::endl;
     tm *local_time = gmtime(&ttime);
-    ss << "[Date \""<< 1900 + local_time->tm_year << "." 
-        << 1 + local_time->tm_mon << "." << local_time->tm_mday << "\"]" << std::endl;
+    ss << "[Date \""<< 1900 + local_time->tm_year << "." << std::setw(2) << std::setfill('0')
+        << 1 + local_time->tm_mon << "." << local_time->tm_mday << "\"]" << std::setfill(' ') << std::endl;
     ss << "[Round \"1\"]" << std::endl;
     ss << "[White \"" << UserManager::Get()->GetUserName(_whitePlayer) << "\"]" << std::endl;
     ss << "[Black \"" << UserManager::Get()->GetUserName(_blackPlayer) << "\"]" << std::endl;
@@ -202,6 +218,41 @@ std::string Match::GetPgnString(time_t& ttime)
     ss << std::endl;
     game->PrintSanMoves(ss);
     return ss.str();
+}
+
+/**
+ *  ttime is official end of match time TODO: move to better location. Dossent fitt in match
+ */
+std::map<std::string, std::string> Match::ReadSlugChessPgnString(const std::string& pgn)
+{
+    std::map<std::string, std::string> map;
+    std::istringstream istream(pgn);
+    while (!istream.eof())
+    {
+        std::string line;
+        std::getline(istream, line);
+        if(istream.fail())return map;
+        if(line[0] == '['){
+            auto nameEndPos = line.find(' ', 1);
+            auto startValue =  1 + line.find('"', nameEndPos);
+            auto endValue =   line.find('"', startValue);
+            map[line.substr(1, nameEndPos-1)] = line.substr(startValue, endValue-startValue);
+        }
+        else if(line[0] == '1')
+        {
+            std::string more_line;
+            while (!istream.eof())
+            {
+                std::getline(istream, more_line);
+                line = line + more_line;
+            }
+            map["San"] = line;            
+        }
+    }
+    // for (auto& [name, value] : map){
+    //         Messenger::Log( name + " " + value);
+    // }
+    return map;
 }
 
 void Match::SendMessageAllPlayers(const std::string& message)
@@ -255,9 +306,9 @@ void Match::nl_MatchEventAll(chesscom::MatchEvent matchEvent, bool moveHappened)
     chesscom::GameState observerGS;
     if(moveHappened){
         mrPkt.set_move_happned(true);
-        SlugChessConverter::SetGameState(game, &whiteGS, true);
-        SlugChessConverter::SetGameState(game, &blackGS, false);
-        //SlugChessConverter::SetGameState(game, &whiteGS, true); TODO implement oberserver gamestate
+        SlugChessConverter::SetGameState(game, &whiteGS, PlayerTypes::White);
+        SlugChessConverter::SetGameState(game, &blackGS, PlayerTypes::Black);
+        SlugChessConverter::SetGameState(game, &whiteGS, PlayerTypes::Observer);
     }else{
         mrPkt.set_move_happned(false);
     }
@@ -265,7 +316,7 @@ void Match::nl_MatchEventAll(chesscom::MatchEvent matchEvent, bool moveHappened)
     if(matchEvent != chesscom::Non){
         time_t endOfMatch = time(nullptr);
         _pgn = GetPgnString(endOfMatch);
-        mrPkt.mutable_game_result()->set_png(_pgn);
+        mrPkt.mutable_game_result()->set_pgn(_pgn);
         Filesystem::WriteMatchPgn(
             UserManager::Get()->GetUserName(_whitePlayer), 
             UserManager::Get()->GetUserName(_blackPlayer),

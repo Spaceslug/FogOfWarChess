@@ -101,7 +101,6 @@ int main(int argc, char** argv) {
         std::cout << "Custom port '" << port << "'" << std::flush << std::endl;
     }
 
-
     std::cout << "Root dir path  '" << Filesystem::RootDir() << "' " << std::flush << std::endl;
 
     Run(port);

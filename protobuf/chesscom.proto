@@ -25,6 +25,7 @@ service ChessCom {
 	rpc SendMove(MovePacket) returns (Void) {}
 	rpc ChatMessageListener(UserData) returns (stream ChatMessage) {}
 	rpc SendChatMessage(ChatMessage) returns (Void) {}
+	rpc ProcessReplay(GameResult) returns (Replay) {}
 }
 
 message Void{}
@@ -148,17 +149,24 @@ message GameState{
 	string from = 2;
 	string to = 3;
 	google.protobuf.Timestamp timestamp = 4;
-	repeated bool player_vision = 7;
-	repeated Pices pices = 8;
+	repeated bool player_vision = 7; //Depricated
+	repeated Pices pices = 8; 
 	map<string, FieldMoves> player_moves = 9;
 	map<string, FieldMoves> shadow_moves = 11;
 	repeated PiceCapture captured_pices = 10;
 	repeated string check = 16;
 	bool current_turn_is_white = 17;
+    VisionState vision_state = 18;
+}
+
+message VisionState { 
+	repeated bool white_vision = 1; //no values means data not available.
+	repeated bool black_vision = 2; //no values means data not available.
+//	repeated bool observer_vision = 3;
 }
 
 message GameResult {
-	string png = 1;
+	string pgn = 1;
 }
 
 message LoginForm {
@@ -203,7 +211,7 @@ message MovePacket{
 	MatchEvent cheat_matchevent = 5;
 	string match_token = 6;
 }
-message MoveResult{
+message MoveResult {
 	bool move_happned = 1;
 	//Move move = 2;
 	GameState game_state = 2;
@@ -211,6 +219,15 @@ message MoveResult{
 	MatchEvent match_event = 5;
 	ChessClock chess_clock = 7;
 	GameResult game_result = 8;
+}
+
+message Replay
+{
+    string white = 4;
+    string black = 5;
+	MatchEvent match_event = 1;  
+	ChessClock chess_clock = 2;
+    repeated GameState game_states = 3;
 }
 
 message JoinGameRequest 

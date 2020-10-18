@@ -12,6 +12,7 @@
 #include <chrono>
 #include <thread>
 #include <condition_variable>
+#include <memory>
 #include <google/protobuf/util/time_util.h>
 
 
@@ -57,6 +58,7 @@ public:
     grpc::Status Alive(grpc::ServerContext* context, const chesscom::Heartbeat* request, chesscom::Heartbeat* response) override;
     grpc::Status ChatMessageListener(grpc::ServerContext* context, const chesscom::UserData* request, grpc::ServerWriter< ::chesscom::ChatMessage>* writer) override;
     grpc::Status SendChatMessage(grpc::ServerContext* context, const chesscom::ChatMessage* request, chesscom::Void* response) override;
+    grpc::Status ProcessReplay(grpc::ServerContext* context,  const chesscom::GameResult* request, chesscom::Replay* response) override;
 
     void ChatMessageStreamLoop(ServerContext* context, std::string& usertoken, grpc::ServerReaderWriter< chesscom::ChatMessage, chesscom::ChatMessage>* stream);
     void MatchReadLoop(ServerContext* context, std::shared_ptr<::Match> matchPtr, grpc::ServerReaderWriter< chesscom::MoveResult, chesscom::MovePacket>* stream);

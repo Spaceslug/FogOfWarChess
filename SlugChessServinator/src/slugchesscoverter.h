@@ -8,13 +8,15 @@
 
 #include "../chesscom/chesscom.grpc.pb.h"
 #include "../../SlugChessCore/src/slugchess.h"
+#include "common.h"
+#include "match.h" 
 
 class SlugChessConverter
 {
     public:
-    static void SetGameState(std::shared_ptr<SlugChess> game, chesscom::GameState* gameState, bool isWhitePlayer){
+    static void SetGameState(std::shared_ptr<SlugChess> game, chesscom::GameState* gameState, PlayerTypes playerType){
         //std::cout  << " set game stat " << std::endl << std::flush;
-        auto vision = isWhitePlayer?game->GetWhiteVision():game->GetBlackVision(); 
+        //auto vision = isWhitePlayer?game->GetWhiteVision():game->GetBlackVision(); 
         auto pices = game->GetPices(); 
         auto captured = game->KilledPices();
         std::vector<chesscom::PiceCapture> capturedTrans{captured->size()}; 
@@ -25,25 +27,53 @@ class SlugChessConverter
             newCP.set_location(SlugChess::BP(cp.second));
             return newCP;
         });
-
-        *gameState->mutable_player_vision() = {vision.begin(), vision.end()};
+        auto vision_state = gameState->mutable_vision_state();
+        switch (playerType)
+        {
+        case PlayerTypes::White:
+            {
+                auto wv = game->GetWhiteVision();
+                *vision_state->mutable_white_vision() = {wv.begin(), wv.end()};
+                CopyToMap(gameState->mutable_player_moves(), game->LegalWhiteMovesRef());
+                CopyToMap(gameState->mutable_shadow_moves(), game->ShadowWhiteMovesRef());
+            }
+            break;
+        case PlayerTypes::Black:
+            {
+                auto bv = game->GetBlackVision();
+                *vision_state->mutable_black_vision() = {bv.begin(), bv.end()};
+                CopyToMap(gameState->mutable_player_moves(), game->LegalBlackMovesRef());
+                CopyToMap(gameState->mutable_shadow_moves(), game->ShadowBlackMovesRef());
+            }
+            break;
+        case PlayerTypes::Observer:
+            {
+                auto wv = game->GetWhiteVision();
+                auto bv = game->GetBlackVision();
+                *vision_state->mutable_white_vision() = {wv.begin(), wv.end()};
+                *vision_state->mutable_black_vision() = {bv.begin(), bv.end()};
+                CopyToMap(gameState->mutable_player_moves(), game->WhitesTurn()?game->LegalWhiteMovesRef():game->LegalBlackMovesRef());
+                CopyToMap(gameState->mutable_shadow_moves(), game->WhitesTurn()?game->ShadowBlackMovesRef():game->ShadowWhiteMovesRef());
+            }
+            break;
+        }
+        //*gameState->mutable_player_vision() = {vision.begin(), vision.end()};
         *gameState->mutable_pices() = {pices.begin(), pices.end()};
         *gameState->mutable_captured_pices() = {capturedTrans.begin(), capturedTrans.end()};
         //gameState->set_captured_pice((chesscom::Pices)game->LastCaptured());
-        gameState->set_from(game->From(isWhitePlayer?SlugChess::Perspective::White:SlugChess::Perspective::Black));
-        gameState->set_to(game->To(isWhitePlayer?SlugChess::Perspective::White:SlugChess::Perspective::Black));
+        gameState->set_from(game->From(static_cast<SlugChess::Perspective>(playerType)));
+        gameState->set_to(game->To(static_cast<SlugChess::Perspective>(playerType)));
         gameState->set_current_turn_is_white(game->WhitesTurn());
         //MOves
         gameState->mutable_player_moves()->clear();
         gameState->mutable_shadow_moves()->clear();
-        CopyToMap(gameState->mutable_player_moves(), isWhitePlayer?game->LegalWhiteMovesRef():game->LegalBlackMovesRef());
-        CopyToMap(gameState->mutable_shadow_moves(), isWhitePlayer?game->ShadowWhiteMovesRef():game->ShadowBlackMovesRef());
+
 
         auto check = gameState->mutable_check();
         check->Clear();
-        for (auto &&index : game->Checks(isWhitePlayer?SlugChess::Perspective::White:SlugChess::Perspective::Black))
+        for (auto &&index : game->Checks(static_cast<SlugChess::Perspective>(playerType)))
         {
-            std::cout  << std::to_string(isWhitePlayer) << " adding check  " << SlugChess::BP(index) << std::endl << std::flush;
+            std::cout  << "playerType:" << std::to_string(playerType) << " adding check  " << SlugChess::BP(index) << std::endl << std::flush;
             check->Add(SlugChess::BP(index)); 
         }
     }
