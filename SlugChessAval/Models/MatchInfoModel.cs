@@ -13,7 +13,7 @@ namespace SlugChessAval.Models
         White,
         Black,
         Both,
-        Oberserver
+        Observer
     }
 
     public class MatchInfoModel

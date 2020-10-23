@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Avalonia.Logging;
+using SlugChessAval.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -9,6 +11,13 @@ namespace SlugChessAval.Models
     [DataContract]
     public class ChessboardModel
     {
+        public enum VisionTypes
+        {
+            White,
+            Black,
+            Observer
+        }
+
         public static readonly IDictionary<string, int> BoardPosToIndex = new Dictionary<string, int>
         {
             { "a1", 0 }, { "b1", 1 }, { "c1", 2 }, { "d1", 3 }, { "e1", 4 }, { "f1", 5 }, { "g1", 6 }, { "h1", 7 },
@@ -37,12 +46,24 @@ namespace SlugChessAval.Models
             return (pos[1] % 2) == (pos[0] % 2);
         }
 
+        public static VisionTypes ToVisionType(PlayerIs player) => player switch
+        {
+            PlayerIs.White => VisionTypes.White,
+            PlayerIs.Black => VisionTypes.Black,
+            PlayerIs.Observer => VisionTypes.Observer,
+            PlayerIs.Both => VisionTypes.Observer,
+            PlayerIs.Non => throw new NotImplementedException(),
+            _ => throw new NotImplementedException()
+        };
+
 
         //public ChessCom.GameState ComGameState;
         [DataMember]
         public IDictionary<string, List<string>> Moves { get; set; } = new Dictionary<string, List<string>>();
         [DataMember]
         public Dictionary<string, List<string>> ShadowMoves { get; set; } = new Dictionary<string, List<string>>();
+        [DataMember]
+        public VisionTypes VisionType { get; private set; } = VisionTypes.Observer;
 
         public ChessCom.Pices GetFieldPice(string fieldname) => _fieldPices[BoardPosToIndex[fieldname]];
         //public IDictionary<string, ChessCom.Pices> FieldPices
@@ -79,9 +100,23 @@ namespace SlugChessAval.Models
             _fieldPices = fieldPices;
         }
 
-        public static ChessboardModel FromChesscomGamestate(ChessCom.GameState gameState)
+        public static ChessboardModel FromChesscomGamestate(ChessCom.GameState gameState, VisionTypes visionType)
         {
-            var chessboard = new ChessboardModel(gameState.PlayerVision, gameState.Check, gameState.Pices);
+            IList<bool> vision = visionType switch
+            { 
+                VisionTypes.White => gameState.VisionState.WhiteVision,
+                VisionTypes.Black => gameState.VisionState.BlackVision,
+                VisionTypes.Observer => Enumerable.Repeat(true, 64).ToList(),
+                _ => new bool[0]
+            }; 
+            if(vision.Count != 64)
+            {
+                MainWindowViewModel.SendNotification("VisionBoard from server invalid");
+                throw new ArgumentException("VisionBoard is ficked");
+            }
+            //     public string PlayingAs => (MatchModel?.PlayerIs??PlayerIs.Non) switch 
+            //{ PlayerIs.White => "Playing as White", PlayerIs.Black => "Playing as Black", PlayerIs.Both => "Playing yourself", PlayerIs.Oberserver => "Watching as Observer", _ => "No game active" };
+            var chessboard = new ChessboardModel(vision, gameState.Check, gameState.Pices);
             foreach(var keyval in gameState.PlayerMoves)
             {
                 chessboard.Moves.Add(keyval.Key, new List<string>(keyval.Value.List));

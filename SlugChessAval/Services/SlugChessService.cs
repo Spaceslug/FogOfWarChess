@@ -46,13 +46,13 @@ namespace SlugChessAval.Services
             throw new NotImplementedException();
 
         }
-        public object temp;
+        //public object temp;
         private SlugChessService(string adress, int port)
         {
             _channel = new Channel(adress, port, ChannelCredentials.Insecure);
             Call = new ChessCom.ChessCom.ChessComClient(_channel);
             _heartbeatTimer.AutoReset = true;
-            _heartbeatTimer.Elapsed += (o, e) => { if (!Call.Alive(new Heartbeat { Alive = true, Usertoken = UserData?.Usertoken ?? "" }).Alive) { UserLoggedIn.OnNext(false); UserData = null; } };
+            _heartbeatTimer.Elapsed += (o, e) => { if (!Call.Alive(new Heartbeat { Alive = true, Usertoken = UserData?.Usertoken ?? "" }).Alive) { UserLoggedIn.OnNext(false); UserData = new UserData(); } };
             UserLoggedIn.Subscribe(loggedIn => { 
                 if (loggedIn) { 
                     _heartbeatTimer.Start();
