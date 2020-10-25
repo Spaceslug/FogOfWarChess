@@ -74,9 +74,6 @@
     <PackageReference Include="SkiaSharp" Version="1.68.0" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Test\" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="SkiaSvg\Extensions.cs" />
     <None Include="SkiaSvg\ISvg.cs" />
     <None Include="SkiaSvg\SvgCustomDrawOperation.cs" />

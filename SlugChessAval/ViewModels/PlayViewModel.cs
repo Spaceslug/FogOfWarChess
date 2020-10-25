@@ -80,7 +80,7 @@ namespace SlugChessAval.ViewModels
         }
         private int _moveDisplayIndex = -1;
 
-        public string PlayingAs => (MatchModel?.PlayerIs??PlayerIs.Non) switch 
+        public string PlayingAs => (MatchModel.ThisPlayer.Take(1).Wait()) switch 
             { PlayerIs.White => "Playing as White", PlayerIs.Black => "Playing as Black", PlayerIs.Both => "Playing yourself", PlayerIs.Observer => "Watching as Observer", _ => "No game active" };
 
         public MatchModel MatchModel { get; }
@@ -222,8 +222,6 @@ namespace SlugChessAval.ViewModels
 
             this.WhenActivated(disposables =>
             {
-                
-
                 Disposable.Create(() =>
                 {
 
