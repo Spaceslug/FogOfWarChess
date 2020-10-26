@@ -45,18 +45,20 @@ std::map<std::string, const VisionRules*> SlugChess::GetVisionRules()
 {
     return {{"SightWip", &VisionRules_SightWip}, {"TorchWip", &VisionRules_TorchWip}};
 }
-const VisionRules& SlugChess::GetVisionRule(const std::string vrName)
+const VisionRules* SlugChess::GetVisionRule(const std::string vrName)
 {
+    std::cout << "Fetching vision " << vrName;
     if(vrName == "Sight"){
-        return VisionRules_SightWip;
+        return &VisionRules_SightWip;
     }else if(vrName == "Torch"){
-        return VisionRules_TorchWip;
+        return &VisionRules_TorchWip;
     }else if(vrName == "SightWip"){
-        return VisionRules_SightWip;
+        return &VisionRules_SightWip;
     }else if(vrName == "TorchWip"){
-        return VisionRules_TorchWip;
+        return &VisionRules_TorchWip;
+    }else{
+        return nullptr;
     }
-    throw new std::invalid_argument("vrName must be a valid VisionRules type");
 }
 
 SlugChess::SlugChess(const std::string& sfenString, const VisionRules& visionRules){
@@ -598,6 +600,7 @@ bool SlugChess::DoSanMove(const std::string& san_move){
     }
     else
     {
+        std::cout << "Error when: " << from << " " << to << std::endl;
         return false;
     }
 }

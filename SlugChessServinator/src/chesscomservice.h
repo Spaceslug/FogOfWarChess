@@ -47,7 +47,7 @@ public:
 
     ChessComService();
     grpc::Status Login(ServerContext* context, const chesscom::LoginForm* request, chesscom::LoginResult* response) override;
-    grpc::Status LookForMatch(ServerContext* context, const chesscom::UserIdentity* request, chesscom::LookForMatchResult* response) override;
+    grpc::Status LookForMatch(ServerContext* context, const chesscom::UserIdentification* request, chesscom::LookForMatchResult* response) override;
     grpc::Status Match(ServerContext* context, grpc::ServerReaderWriter< chesscom::MoveResult, chesscom::MovePacket>* stream) override;
     grpc::Status MatchEventListener(grpc::ServerContext *context, const chesscom::MatchObserver* request, grpc::ServerWriter<chesscom::MoveResult> *writer) override;
     grpc::Status SendMove(grpc::ServerContext* context, const chesscom::MovePacket* request, chesscom::Void* response) override;
@@ -58,7 +58,7 @@ public:
     grpc::Status Alive(grpc::ServerContext* context, const chesscom::Heartbeat* request, chesscom::Heartbeat* response) override;
     grpc::Status ChatMessageListener(grpc::ServerContext* context, const chesscom::UserData* request, grpc::ServerWriter< ::chesscom::ChatMessage>* writer) override;
     grpc::Status SendChatMessage(grpc::ServerContext* context, const chesscom::ChatMessage* request, chesscom::Void* response) override;
-    grpc::Status ProcessReplay(grpc::ServerContext* context,  const chesscom::GameResult* request, chesscom::Replay* response) override;
+    grpc::Status ProcessReplay(grpc::ServerContext* context,  const chesscom::ReplayRequest* request, chesscom::Replay* response) override;
 
     void ChatMessageStreamLoop(ServerContext* context, std::string& usertoken, grpc::ServerReaderWriter< chesscom::ChatMessage, chesscom::ChatMessage>* stream);
     void MatchReadLoop(ServerContext* context, std::shared_ptr<::Match> matchPtr, grpc::ServerReaderWriter< chesscom::MoveResult, chesscom::MovePacket>* stream);

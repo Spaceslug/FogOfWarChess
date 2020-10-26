@@ -71,7 +71,7 @@ class SlugChess {
     const static VisionRules VisionRules_TorchWip;
     const static VisionRules VisionRules_SightWip;
     static std::map<std::string, const VisionRules*> GetVisionRules();
-    static const VisionRules& GetVisionRule(const std::string vrName);
+    static const VisionRules* GetVisionRule(const std::string vrName);
     static const int32_t BPToIndx(const std::string& pos){return GameRules::BoardPosToIndex(pos);}
     static std::string BP(int index) { return GameRules::BoardPos(index); }
     

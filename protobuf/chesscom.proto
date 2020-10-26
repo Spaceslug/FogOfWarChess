@@ -10,7 +10,7 @@ package chesscom;
 service ChessCom {
     // Function invoked to send the request
 	rpc Login(LoginForm) returns (LoginResult) {}
-	rpc LookForMatch(UserIdentity) returns (LookForMatchResult) {}
+	rpc LookForMatch(UserIdentification) returns (LookForMatchResult) {}
 	rpc Match(stream MovePacket) returns (stream MoveResult) {}
 	rpc ChatMessageStream(stream ChatMessage) returns (stream ChatMessage) {}
 	rpc HostGame(HostedGame) returns (LookForMatchResult) {}
@@ -25,7 +25,7 @@ service ChessCom {
 	rpc SendMove(MovePacket) returns (Void) {}
 	rpc ChatMessageListener(UserData) returns (stream ChatMessage) {}
 	rpc SendChatMessage(ChatMessage) returns (Void) {}
-	rpc ProcessReplay(GameResult) returns (Replay) {}
+	rpc ProcessReplay(ReplayRequest) returns (Replay) {}
 }
 
 message Void{}
@@ -185,8 +185,9 @@ message LoginResult {
 	UserData user_data = 5;
 }
 
-message UserIdentity {
+message UserIdentification {
 	string usertoken = 1;
+	string secret = 2;
 }
 
 message UserData {
@@ -221,8 +222,15 @@ message MoveResult {
 	GameResult game_result = 8;
 }
 
+message ReplayRequest
+{
+	UserIdentification user_ident = 1;
+	string pgn = 2;
+}
+
 message Replay
 {
+	bool valid = 6; //true if replay is valid
     string white = 4;
     string black = 5;
 	MatchEvent match_event = 1;  
