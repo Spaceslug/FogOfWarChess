@@ -65,15 +65,14 @@ class SlugChessConverter
         gameState->set_to(game->To(static_cast<SlugChess::Perspective>(playerType)));
         gameState->set_current_turn_is_white(game->WhitesTurn());
         //MOves
-        gameState->mutable_player_moves()->clear();
-        gameState->mutable_shadow_moves()->clear();
+
 
 
         auto check = gameState->mutable_check();
         check->Clear();
         for (auto &&index : game->Checks(static_cast<SlugChess::Perspective>(playerType)))
         {
-            std::cout  << "playerType:" << std::to_string(playerType) << " adding check  " << SlugChess::BP(index) << std::endl << std::flush;
+            //std::cout  << "playerType:" << std::to_string(playerType) << " adding check  " << SlugChess::BP(index) << std::endl << std::flush;
             check->Add(SlugChess::BP(index)); 
         }
     }
