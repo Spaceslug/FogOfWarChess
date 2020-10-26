@@ -1,10 +1,10 @@
-IF "%1"=="" (
-  echo no args
-) ELSE (
-  cd %~1
-  echo %~1
-)
-dir
+::IF "%1"=="" (
+::  echo no args
+::) ELSE (
+::  cd %~1
+::  echo %~1
+::)
+::dir
 
 
 
@@ -16,4 +16,4 @@ protoc.exe chesscom.proto --csharp_out=csharp --proto_path=.\
 
 xcopy /y /s ".\csharp" /d "..\ChesscomCSharpLib"
 
-pause
+::pause

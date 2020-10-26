@@ -25,7 +25,7 @@ namespace SlugChessAval.ViewModels
         //public string UserSignatureLabel => "Enter Signature here";
         //public string UserSignature { get; set; }
         //public TodoListViewModel List { get; }
-        private static MainWindowViewModel _mainWindowViewModel;
+        private static MainWindowViewModel _mainWindowViewModel = new MainWindowViewModel();
         public static void SendNotification(string noti)
         {
             _mainWindowViewModel.Notification = noti;

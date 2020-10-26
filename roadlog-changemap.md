@@ -66,7 +66,9 @@ Changes to chesscom commuication api or underlating function.
 ### version 0.15.0
 - [ ] save userdata {username as id and elo. Passwords come later}
 - [ ] simple elo system (same as FIDE)
-- [ ] load up and click through PGNs.
+- [v] load up and click through PGNs.
+  - [ ] Make Match.Model propper observable type. Less of the properties. More observable.
+  - [ ] Make server set bool if PGN was parsed successfully.
 
 ### version 1.14.1
 - [x] bug- Server kan motta move etter match er ferdig. Fører til krash

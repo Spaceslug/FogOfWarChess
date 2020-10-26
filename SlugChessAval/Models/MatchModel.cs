@@ -16,14 +16,17 @@ using System.Threading;
 using Google.Protobuf;
 using System.IO;
 using SharpDX.Direct3D11;
+using System.Collections.ObjectModel;
+using Avalonia.Collections;
+using DynamicData.Binding;
+using System.Linq;
 
 namespace SlugChessAval.Models
 {
     public class MatchModel 
     {
 
-
-
+    
         public IObservable<MoveResult> MoveResults { get; private set; }
         public Subject<(TimeSpan whiteTimeLeft, TimeSpan blackTimeLeft, bool currentTurnWhite, bool ticking)> ChessClock { get; private set; }
         public string MatchToken { get; private set; }
@@ -31,11 +34,13 @@ namespace SlugChessAval.Models
 
         public UserData BlackPlayer { get; private set; }
 
-        public PlayerIs PlayerIs { get; private set; }
-        public UserData OpponentUserdata { get; private set; }
+        public BehaviorSubject<PlayerIs> ThisPlayer { get; }
+        public IObservable<bool> ThisPlayerColored { get; }
+        public IObservable<bool> PlayerIsActive { get; private set; } 
+        //public UserData OpponentUserdata { get; private set; }
 
         public bool IsThisPlayersTurnNow => IsThisPlayersTurn.Take(1).Wait();
-        public IObservable<bool> IsThisPlayersTurn => CurrentTurnPlayer.Select(currentPlayerIs => currentPlayerIs == PlayerIs);
+        public IObservable<bool> IsThisPlayersTurn { get; } 
 
         public BehaviorSubject<PlayerIs> CurrentTurnPlayer;
 
@@ -49,18 +54,39 @@ namespace SlugChessAval.Models
         public IObservable<bool> OpponentAskingForDraw => _opponentAskingForDraw;
         public BehaviorSubject<bool> _opponentAskingForDraw;
 
-        public bool OngoingGameNow => IsThisPlayersTurn.Take(1).Wait();
+        public bool OngoingGameNow => OngoingGame.Take(1).Wait();
         public IObservable<bool> OngoingGame => _ongoingGame;
         public BehaviorSubject<bool> _ongoingGame;
 
+        public AvaloniaList<ChessboardModel> ChessboardPositions { get; } = new AvaloniaList<ChessboardModel>();
+        public IObservable<bool> ChessboardPositionsEmpty => _chessboardPositionsEmpty;
+        private BehaviorSubject<bool> _chessboardPositionsEmpty { get; } = new BehaviorSubject<bool>(true);
+
         public MatchModel()
         {
+            //ChessboardPositions.
+            ChessboardPositions.ObserveCollectionChanges()
+                .Subscribe(x => _chessboardPositionsEmpty.OnNext(x.EventArgs.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset && (x.EventArgs.NewItems?.Count?? 0) == 0));
+            //ChessboardPositions.ObserveCollectionChanges().Subscribe(x =>
+            //{
+            //    if(x.EventArgs.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset && (x.EventArgs.NewItems?.Count ?? 0) == 0 )
+            //    {
+            //        Serilog.Log.Information("WAEWDAWDW");
+            //    }
+            //});
             _opponentAskingForDraw = new BehaviorSubject<bool>(false);
             _ongoingGame = new BehaviorSubject<bool>(false);
             MoveResults = Observable.Return(new ChessCom.MoveResult());
             MatchToken = "00000";
-            PlayerIs = PlayerIs.Both;
+            ThisPlayer = new BehaviorSubject<PlayerIs>(PlayerIs.Both);
+            ThisPlayerColored = ThisPlayer.Select(x => (x == PlayerIs.White || x == PlayerIs.Black));
+            PlayerIsActive = Observable.CombineLatest(ThisPlayerColored, OngoingGame, (x, y) => x && y);
+            //TODO: HACKED need to be better
+            WhitePlayer = new UserData();
+            BlackPlayer = new UserData();
             CurrentTurnPlayer = new BehaviorSubject<PlayerIs>(PlayerIs.White);
+            IsThisPlayersTurn = Observable.CombineLatest(CurrentTurnPlayer, ThisPlayer,
+                (ctPlayer, thisPlayer) => ctPlayer == thisPlayer).DistinctUntilChanged();
             ChessClock = new Subject<(TimeSpan whiteTimeLeft, TimeSpan blackTimeLeft, bool currentTurnWhite, bool ticking)>();
 
             _acceptDraw = ReactiveCommand.CreateFromObservable(AcceptDrawImpl, OpponentAskingForDraw);
@@ -78,17 +104,18 @@ namespace SlugChessAval.Models
 
         public void NewMatch(string matchToken, IObservable<MoveResult> obsMoveResults, PlayerIs playerIs, UserData opponentUserdata, CompositeDisposable endMatchDisposable)
         {
+            ChessboardPositions.Clear();
             _ongoingGame.OnNext(true);
             MoveResults = obsMoveResults;
             MatchToken = matchToken;
-            PlayerIs = playerIs;
-            OpponentUserdata = opponentUserdata;
-            WhitePlayer = PlayerIs == PlayerIs.White ? SlugChessService.Client.UserData : OpponentUserdata;
-            BlackPlayer = PlayerIs == PlayerIs.Black ? SlugChessService.Client.UserData : OpponentUserdata;
+            ThisPlayer.OnNext(playerIs);
+            //OpponentUserdata = opponentUserdata;
+            WhitePlayer = ThisPlayer.Take(1).Wait() == PlayerIs.White ? SlugChessService.Client.UserData : opponentUserdata;
+            BlackPlayer = ThisPlayer.Take(1).Wait() == PlayerIs.Black ? SlugChessService.Client.UserData : opponentUserdata;
             MoveResults.Subscribe(
                 (moveResult) => Dispatcher.UIThread.InvokeAsync(() => MoveResult(moveResult)),
-                (error) => Dispatcher.UIThread.InvokeAsync(() => _ongoingGame.OnNext(false)),
-                () => Dispatcher.UIThread.InvokeAsync(() => _ongoingGame.OnNext(false))
+                (error) => Dispatcher.UIThread.InvokeAsync(() => { _ongoingGame.OnNext(false); }),
+                () => Dispatcher.UIThread.InvokeAsync(() => {_ongoingGame.OnNext(false); })
             ).DisposeWith(endMatchDisposable);
         }
 
@@ -97,6 +124,7 @@ namespace SlugChessAval.Models
         {
             if (moveResult.GameState != null)
             {
+                ChessboardPositions.Add(ChessboardModel.FromChesscomGamestate(moveResult.GameState, ChessboardModel.ToVisionType(ThisPlayer.Take(1).Wait())));
 
                 if (moveResult.MoveHappned && moveResult.ChessClock != null)
                 {
@@ -115,14 +143,7 @@ namespace SlugChessAval.Models
                 }
             }
 
-            if(moveResult.GameResult != null)
-            {
-                if (!Directory.Exists(Program.RootDir + "games_database")) Directory.CreateDirectory(Program.RootDir + "games_database");
-                if (!Directory.Exists(Program.RootDir + "games_database/last_few")) Directory.CreateDirectory(Program.RootDir + "games_database/last_few");
-                File.WriteAllText(Program.RootDir+ "games_database/latest.pgn", moveResult.GameResult.Png);
-                File.WriteAllText(Program.RootDir + $"games_database/last_few/{DateTime.Now:yyyy-MM-dd-HH-mm-ss}_{WhitePlayer.Username}_{BlackPlayer.Username}.pgn", moveResult.GameResult.Png);
-
-            }
+            
 
             switch (moveResult.MatchEvent)
             {
@@ -201,7 +222,7 @@ namespace SlugChessAval.Models
             Thread.Sleep(5000); //Holding the call for 5 sec prevents button form being pressed again 
         });
 
-        public IObservable<Unit> SurrenderImpl() => Observable.Start(() =>
+        private IObservable<Unit> SurrenderImpl() => Observable.Start(() =>
         {
             SlugChessService.Client.MessageToLocal("You surredered", "system");
             SlugChessService.Client.Call.SendMoveAsync(new MovePacket
