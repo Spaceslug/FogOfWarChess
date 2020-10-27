@@ -427,3 +427,12 @@ grpc::Status ChessComService::ProcessReplay(grpc::ServerContext* context,  const
     response->set_valid(true);
     return grpc::Status::OK;
 }
+
+grpc::Status ChessComService::ServerVisionRulesets(grpc::ServerContext* context, const chesscom::Void *request, chesscom::VisionRuleset* response) 
+{
+    auto visionRules = SlugChess::GetVisionRules();
+    for(auto& [name, scRule] : visionRules){
+        response->mutable_vision_rulesets()->insert({name, MatchManager::Get()->FromSlugChessVisionRules(*scRule)}); 
+    }
+    return grpc::Status::OK;
+}

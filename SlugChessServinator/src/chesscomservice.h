@@ -59,6 +59,7 @@ public:
     grpc::Status ChatMessageListener(grpc::ServerContext* context, const chesscom::UserData* request, grpc::ServerWriter< ::chesscom::ChatMessage>* writer) override;
     grpc::Status SendChatMessage(grpc::ServerContext* context, const chesscom::ChatMessage* request, chesscom::Void* response) override;
     grpc::Status ProcessReplay(grpc::ServerContext* context,  const chesscom::ReplayRequest* request, chesscom::Replay* response) override;
+    grpc::Status ServerVisionRulesets(grpc::ServerContext* context, const chesscom::Void *request, chesscom::VisionRuleset* response) override;
 
     void ChatMessageStreamLoop(ServerContext* context, std::string& usertoken, grpc::ServerReaderWriter< chesscom::ChatMessage, chesscom::ChatMessage>* stream);
     void MatchReadLoop(ServerContext* context, std::shared_ptr<::Match> matchPtr, grpc::ServerReaderWriter< chesscom::MoveResult, chesscom::MovePacket>* stream);

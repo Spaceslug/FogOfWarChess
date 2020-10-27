@@ -26,6 +26,7 @@ service ChessCom {
 	rpc ChatMessageListener(UserData) returns (stream ChatMessage) {}
 	rpc SendChatMessage(ChatMessage) returns (Void) {}
 	rpc ProcessReplay(ReplayRequest) returns (Replay) {}
+	rpc ServerVisionRulesets(Void) returns (VisionRuleset) {}
 }
 
 message Void{}
@@ -90,6 +91,10 @@ message VisionRules {
 	int32 view_range = 3;
 	map<int32, VisionRules> pice_overwriter = 4; //Must be a Pices value
 	bool view_capture_field = 5;
+}
+
+message VisionRuleset {
+	map<string, VisionRules> vision_rulesets = 1;
 }
 
 message TimeRules {

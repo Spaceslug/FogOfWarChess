@@ -124,6 +124,25 @@ VisionRules MatchManager::FromChesscomVisionRules(const chesscom::VisionRules& c
     return visionRules;
 }
 
+chesscom::VisionRules MatchManager::FromSlugChessVisionRules(const VisionRules& vr)
+{
+    chesscom::VisionRules ccVr;
+    ccVr.set_enabled(vr.enabled);
+    ccVr.set_view_move_fields(vr.globalRules.ViewMoveFields);
+    ccVr.set_view_range(vr.globalRules.ViewRange);
+    ccVr.set_view_capture_field(vr.globalRules.ViewCaptureField);
+    //std::cout << " Vision rules" << std::endl << std::flush;
+    for (auto&& [cp, rules] : vr.overWriteRules) {
+        chesscom::Pices pice = (chesscom::Pices)cp;
+        auto& ccOverRule = (*ccVr.mutable_pice_overwriter())[pice];
+        ccOverRule.set_view_range(rules.ViewRange);
+        ccOverRule.set_view_move_fields(rules.ViewMoveFields);
+        ccOverRule.set_view_capture_field(rules.ViewCaptureField);
+    }
+
+    return ccVr;
+}
+
 std::pair<std::string,std::string> MatchManager::RandomSort(const std::string& first,const std::string& second)
 {
     std::random_device rd;

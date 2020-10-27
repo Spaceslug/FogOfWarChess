@@ -45,9 +45,9 @@ std::map<std::string, const VisionRules*> SlugChess::GetVisionRules()
 {
     return {{"SightWip", &VisionRules_SightWip}, {"TorchWip", &VisionRules_TorchWip}};
 }
-const VisionRules* SlugChess::GetVisionRule(const std::string vrName)
+const VisionRules* SlugChess::GetVisionRule(const std::string& vrName)
 {
-    std::cout << "Fetching vision " << vrName;
+    //std::cout << "Fetching vision " << vrName << std::endl;
     if(vrName == "Sight"){
         return &VisionRules_SightWip;
     }else if(vrName == "Torch"){
