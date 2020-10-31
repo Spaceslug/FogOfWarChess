@@ -11,7 +11,8 @@
 class Match {
 public:
 
-    Match(const std::string& token, const std::string& whitePlayerToken, const std::string& blackPlayerToken, const std::string& fenString, VisionRules& visionRules);
+    Match(const std::string& token, const std::string& whitePlayerToken, const std::string& blackPlayerToken, 
+            const std::string& fenString, const std::string& ruleType, VisionRules& visionRules);
 
     bool IsWhitesMove() { return moves.size()%2 == 0; }
 
@@ -48,6 +49,7 @@ public:
     std::map<std::string, Player> _players;
     std::mutex _mutex;
     std::string _pgn = "";
+    std::string _ruleType;
 
     void nl_SendMessageAllPlayers(const std::string& message);
     void nl_MatchFinished();

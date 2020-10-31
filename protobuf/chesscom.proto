@@ -104,7 +104,10 @@ message TimeRules {
 
 message GameRules
 {
-	VisionRules vision_rules = 1;
+	oneof vision_rules{
+		VisionRules custom_rules = 1;
+		string type_rules = 5;
+	}
 	TimeRules time_rules = 2;
 	ChessType chess_type = 3;
 	SideType side_type = 4;

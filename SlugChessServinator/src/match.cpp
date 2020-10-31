@@ -3,7 +3,7 @@
 #include "filesystem.h"
 #include <algorithm>
 
-Match::Match(const std::string& token, const std::string& whitePlayerToken, const std::string& blackPlayerToken, const std::string& fenString, VisionRules& visionRules)
+Match::Match(const std::string& token, const std::string& whitePlayerToken, const std::string& blackPlayerToken, const std::string& fenString, const std::string& ruleType, VisionRules& visionRules)
 {
     _matchToken = token;
     _whitePlayer = whitePlayerToken;
@@ -14,6 +14,7 @@ Match::Match(const std::string& token, const std::string& whitePlayerToken, cons
     _players[blackPlayerToken].usertoken = blackPlayerToken;
     _players[blackPlayerToken].type = PlayerTypes::Black; 
     _players[blackPlayerToken].askingForDrawTimstamp = std::chrono::system_clock::now();
+    _ruleType = ruleType;
     clock = std::make_shared<ChessClock>();
     game = std::make_shared<SlugChess>(fenString, visionRules);
     std::cout  << "Creating match: " << _matchToken << " white: " << whitePlayerToken << " black:" << blackPlayerToken  << std::endl << std::flush;
@@ -214,7 +215,13 @@ std::string Match::GetPgnString(time_t& ttime)
     ss << "[Mode \"ICS\"]" << std::endl;
     ss << "[FEN \"" << game->GetFenString() << "\"]" << std::endl;
     ss << "[SetUp \"1\"]" << std::endl;
-    ss << "[Variant \"SlugChess.Torch\"]" << std::endl;
+    if(_ruleType != "custom")
+    {
+        ss << "[Variant \"SlugChess." << _ruleType << "\"]" << std::endl;
+    } else {
+        ss << "[Variant \"SlugChess." << "custom." << "{}" << "\"]" << std::endl;
+    }
+    
     ss << std::endl;
     game->PrintSanMoves(ss);
     return ss.str();

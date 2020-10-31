@@ -37,6 +37,8 @@ class San
         std::sregex_token_iterator matches(fullmove.begin(), fullmove.end(), regex);
         //std::cout << *matches << std::endl;
         moves.push_back(*matches++);
+        std::string x = *matches;
+        if(x[0] >= '0' && x[0] <= '9') return; //is the score and can reject
         moves.push_back(*matches++);
     }
 
