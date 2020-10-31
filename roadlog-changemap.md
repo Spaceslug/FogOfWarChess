@@ -52,23 +52,29 @@ Changes to chesscom commuication api or underlating function.
 - make a propper logging system
 - [ ] auto updator can update to spesific version. A command line option. Mayby post link to available releases page
 
+### version 0.18.0
+
+
 ### version 0.17.0
-
-
-### version 0.16.0
 - [ ] make a propper version system for slugchesscore shared lib. A build of slugchess server needs a spesific version of core. When you publish server release you supply a core version (think more on it). symlink to more spsific version to support multiple versions. Currently slugchesscoretest rpath does not work and will only use export version of lib
 - [ ] makefile SlugChessServer have a define for debug build. Compile different .o files for debug and regular
 - [ ] rename 'libslugchess.so' to 'libslugchess-core.so'
-- [ ] Formalize Torch and Sight. Both a text and chesscom description of the rules. They should temporerly be known as TorchBeta and SightBeta.
-- [ ] Make Client, Core and Aval use the formal chesscom definition that should exist in Server. Core 
-- [ ] password system
 
-### version 0.15.0
+
+### version 0.16.0
+- [ ] Formalize Torch and Sight. Both a text and chesscom description of the rules. They should temporerly be known as TorchWip and SightWip.
+- [ ] password system
 - [ ] save userdata {username as id and elo. Passwords come later}
 - [ ] simple elo system (same as FIDE)
-- [v] load up and click through PGNs.
-  - [ ] Make Match.Model propper observable type. Less of the properties. More observable.
-  - [ ] Make server set bool if PGN was parsed successfully.
+
+### version 0.15.0
+- [x] load up and click through PGNs.
+  - [x] Make Match.Model propper observable type. Less of the properties. More observable.
+  - [x] Make server set bool if PGN was parsed successfully.
+  - [ ] add captured pices to game_state instead of outside
+  - [ ] select viewpoint when watching replay
+  - [ ] add no_vision_rules as a vision rule to Core
+- [x] Bind ServerVisionRulset with CreateGame view selector. 
 
 ### version 1.14.1
 - [x] bug- Server kan motta move etter match er ferdig. Fører til krash

@@ -1,11 +1,17 @@
-﻿using ChessCom;
+﻿using Avalonia.Collections;
+using ChessCom;
+using DynamicData.Binding;
 using ReactiveUI;
 using SlugChessAval.Services;
 using Splat;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +19,7 @@ using System.Windows.Input;
 
 namespace SlugChessAval.ViewModels
 {
-    public class CreateGameViewModel : ViewModelBase, IRoutableViewModel, IActivatableViewModel 
+    public class CreateGameViewModel : ViewModelBase, IRoutableViewModel, IActivatableViewModel
     {
         public const int DEFAULT_START_TIME_MIN = 5;
         public const int DEFAULT_EXTRA_TIME_SEC = 6;
@@ -27,14 +33,14 @@ namespace SlugChessAval.ViewModels
 
         private CancellationTokenSource _hostGameTokenSource = new CancellationTokenSource();
 
-        public ReactiveCommand<Unit,Unit> Cancel => ((MainWindowViewModel)HostScreen).Cancel;
+        public ReactiveCommand<Unit, Unit> Cancel => ((MainWindowViewModel)HostScreen).Cancel;
 
         public ReactiveCommand<Unit, LookForMatchResult> HostGame { get; }
 
         public string StartTimeMin
         {
             get => _startTimeMin.ToString();
-            set => this.RaiseAndSetIfChanged(ref _startTimeMin, int.TryParse(value, out int n)?n:0);
+            set => this.RaiseAndSetIfChanged(ref _startTimeMin, int.TryParse(value, out int n) ? n : 0);
         }
         private int _startTimeMin = DEFAULT_START_TIME_MIN;
 
@@ -65,24 +71,18 @@ namespace SlugChessAval.ViewModels
         }
         private int _visionRulesSelectedIndex = DEFAULT_VISION_RULES_INDEX;
 
+        public AvaloniaList<KeyValuePair<string, VisionRules>> VisionRuleItems => SlugChessService.Client.ServerVisionRuleset;
+
         public CreateGameViewModel(IScreen? screen = null)
         {
             HostScreen = screen ?? Locator.Current.GetService<IScreen>();
-
+            
             HostGame = ReactiveCommand.CreateFromTask(() => HostGameRequest());
 
-            //Cancel.Subscribe(x =>
-            //{
-            //    _hostGameTokenSource.Cancel();
-            //});
 
             this.WhenActivated(disposables =>
             {
                 _hostGameTokenSource = new CancellationTokenSource();
-                //disposables.Add(Cancel.Subscribe(x =>
-                //{
-                //    _hostGameTokenSource.Cancel();
-                //}));
                 Disposable.Create(() =>
                 {
                     _hostGameTokenSource.Cancel();
@@ -104,49 +104,9 @@ namespace SlugChessAval.ViewModels
                 ChessCom.SideType sideType = _hostColorSelectedIndex == 0 ? ChessCom.SideType.HostIsWhite :
                                                 _hostColorSelectedIndex == 1 ? ChessCom.SideType.HostIsBlack :
                                                 ChessCom.SideType.Random;
-                ChessCom.VisionRules vr = new ChessCom.VisionRules();
-               switch (_visionRulesSelectedIndex)
-               {
-                   case 0: //Standard
-                        {
-                           vr.Enabled = true;
-                           vr.ViewCaptureField = true;
-                           vr.ViewMoveFields = false;
-                           vr.ViewRange = 2;
-                           ChessCom.VisionRules overwrite = new ChessCom.VisionRules
-                           {
-                               ViewRange = 1,
-                               ViewMoveFields = false
-                           };
-                           vr.PiceOverwriter.Add((int)ChessCom.Pices.WhitePawn, overwrite);
-                           vr.PiceOverwriter.Add((int)ChessCom.Pices.BlackPawn, overwrite);
-                       }
-                       break;
-                   case 1: //Sea
-                        {
-                           vr.Enabled = true;
-                           vr.ViewCaptureField = true;
-                           vr.ViewMoveFields = true;
-                           vr.ViewRange = 0;
-                           ChessCom.VisionRules overwrite = new ChessCom.VisionRules
-                           {
-                               ViewRange = 1,
-                               ViewMoveFields = true
-                           };
-                           vr.PiceOverwriter.Add((int)ChessCom.Pices.WhiteKnight, overwrite);
-                           vr.PiceOverwriter.Add((int)ChessCom.Pices.BlackKnight, overwrite);
-                           vr.PiceOverwriter.Add((int)ChessCom.Pices.WhitePawn, overwrite);
-                           vr.PiceOverwriter.Add((int)ChessCom.Pices.BlackPawn, overwrite);
-                       }
-                       break;
-                   case 2: //No Vision
-                        {
-                           vr.Enabled = false;
-                       }
-                       break;
-               }
+               string vrType = VisionRuleItems[_visionRulesSelectedIndex].Key;
 
-                   var token = _hostGameTokenSource.Token;
+                var token = _hostGameTokenSource.Token;
                ((MainWindowViewModel)HostScreen).Notification = "Hosting game";
                try
                    {
@@ -155,10 +115,10 @@ namespace SlugChessAval.ViewModels
                            Host = SlugChessService.Client.UserData,
                            GameRules = new ChessCom.GameRules
                            {
-                               ChessType = chessType,
+                                ChessType = chessType,
                                 SideType = sideType,
-                                VisionRules = vr,
-                               TimeRules = new ChessCom.TimeRules { PlayerTime = new ChessCom.Time { Minutes = starttime }, SecondsPerMove = movetime }
+                                TypeRules = vrType,
+                                TimeRules = new ChessCom.TimeRules { PlayerTime = new ChessCom.Time { Minutes = starttime }, SecondsPerMove = movetime }
                            }
                        }, null, null, _hostGameTokenSource.Token);
                        return matchResult;

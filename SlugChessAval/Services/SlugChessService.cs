@@ -1,16 +1,22 @@
-﻿using Avalonia.Threading;
+﻿using Avalonia.Collections;
+using Avalonia.Threading;
 using ChessCom;
+using Google.Protobuf.Collections;
 using Grpc.Core;
+using ReactiveUI;
 using SlugChessAval.ViewModels;
 using SlugChessAval.Views;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,7 +31,7 @@ namespace SlugChessAval.Services
         public static void Instanciate(string adress, int port)
         {
             //if (Client != null) throw new Exception("Allready initialized");
-            Client._channel.ShutdownAsync().Wait();
+            Client._channel?.ShutdownAsync().Wait();
             Client.ConnectionAlive = false;
             Client = new SlugChessService(adress, port);
             ////Task.Run(ChannelStateListner);
@@ -49,6 +55,7 @@ namespace SlugChessAval.Services
         //public object temp;
         private SlugChessService(string adress, int port)
         {
+            if (port == 9999) return;
             _channel = new Channel(adress, port, ChannelCredentials.Insecure);
             Call = new ChessCom.ChessCom.ChessComClient(_channel);
             _heartbeatTimer.AutoReset = true;
@@ -69,11 +76,11 @@ namespace SlugChessAval.Services
                         }
                         stream.Dispose();
                     });
-
                 } else {
                     _heartbeatTimer.Stop(); 
                 } 
             });
+
         }
         #endregion
 
@@ -96,6 +103,9 @@ namespace SlugChessAval.Services
             set {if (value != _connectionAlive){_connectionAlive = value; NotifyPropertyChanged();} }
         }
         private bool _connectionAlive = false;
+
+        public AvaloniaList<KeyValuePair<string, VisionRules>> ServerVisionRuleset { get; } = new AvaloniaList<KeyValuePair<string, VisionRules>>();
+        //private AvaloniaList<KeyValuePair<string, VisionRules>> _serverVisionRulesetTemp = new AvaloniaList<KeyValuePair<string, VisionRules>>();
 
         public Subject<bool> UserLoggedIn { get; set; } = new Subject<bool>();
 
@@ -128,6 +138,13 @@ namespace SlugChessAval.Services
                             Elo = result.UserData.Elo
                         };
                         UserLoggedIn.OnNext(true);
+                        Call.ServerVisionRulesetsAsync(new ChessCom.Void()).ResponseAsync.ContinueWith(y =>
+                        {
+                            ServerVisionRuleset.Clear();
+                            var a = y.Result.VisionRulesets.ToList();
+                            a.Insert(0, new KeyValuePair<string, VisionRules>("No Vision Rules", new VisionRules { Enabled = false }));
+                            ServerVisionRuleset.AddRange(a);
+                        });
 
                         return result;
                     }

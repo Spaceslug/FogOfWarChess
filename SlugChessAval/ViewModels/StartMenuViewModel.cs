@@ -5,6 +5,7 @@ using Splat;
 using System;
 using System.Collections.Generic;
 using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
@@ -13,10 +14,12 @@ using System.Windows.Input;
 
 namespace SlugChessAval.ViewModels
 {
-    public class StartMenuViewModel : ViewModelBase, IRoutableViewModel
+    public class StartMenuViewModel : ViewModelBase, IRoutableViewModel, IActivatableViewModel
     {
         public string UrlPathSegment => "/startmenu";
         public IScreen HostScreen { get; }
+
+        public ViewModelActivator Activator { get; } = new ViewModelActivator();
 
         public string Test
         {
@@ -26,6 +29,7 @@ namespace SlugChessAval.ViewModels
         private string _test = "...";
 
         public ICommand MoveToLogin => _moveToLogin;
+
         private readonly ReactiveCommand<Unit, Unit> _moveToLogin;
 
         public StartMenuViewModel(IScreen? screen = null)
@@ -39,16 +43,25 @@ namespace SlugChessAval.ViewModels
             _moveToLogin = ReactiveCommand.Create(
                 () => { HostScreen.Router.Navigate.Execute(new LoginViewModel()).Subscribe(); },
                 canMoveToLogin);
-#if DEBUG
-            if (Program.LaunchedWithParam("--debugLogin"))
+            
+            this.WhenActivated(disposables =>
             {
-                SlugChessService.Client.WhenAnyValue(x => x.ConnectionAlive).Delay(TimeSpan.FromSeconds(0.1)).Subscribe(x => 
+#if DEBUG
+
+                if (Program.LaunchedWithParam("--debugLogin"))
                 {
-                    Dispatcher.UIThread.InvokeAsync(() => _moveToLogin.Execute().Subscribe());
-                });
-                
-            }
+                    SlugChessService.Client.WhenAnyValue(x => x.ConnectionAlive).Where(conAlive => conAlive).Delay(TimeSpan.FromSeconds(0.2)).Subscribe(x =>
+                    {
+                        Dispatcher.UIThread.InvokeAsync(() => _moveToLogin.Execute().Subscribe());
+                    }).DisposeWith(disposables);
+
+                }
 #endif
+                Disposable.Create(() =>
+                {
+
+                }).DisposeWith(disposables);
+            });
         }
     }
 }

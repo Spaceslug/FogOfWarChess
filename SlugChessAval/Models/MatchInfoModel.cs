@@ -48,14 +48,15 @@ namespace SlugChessAval.Models
             var matches = new List<MatchInfoModel>();
             foreach (var keyVal in hostedGamesMap.HostedGames)
             {
-                var vr = keyVal.Value.GameRules.VisionRules;
+                var gameRules = keyVal.Value.GameRules;
                 var match = new MatchInfoModel(
                     keyVal.Value.Host.Username,
                     keyVal.Value.Host.Elo,
                     keyVal.Value.GameRules.ChessType.ToString(),
                     keyVal.Value.GameRules.SideType.ToString(),
                     TimeRulesToString(keyVal.Value.GameRules.TimeRules),
-                    !vr.Enabled ? "No Vision Rules" : vr.ViewMoveFields ? "SlugChess Sea" : "SlugChess Standard",
+                    //!vr.Enabled ? "No Vision Rules" : vr.ViewMoveFields ? "SlugChess Sea" : "SlugChess Standard",
+                    gameRules.VisionRulesCase == GameRules.VisionRulesOneofCase.TypeRules?"SlugChess."+ gameRules.TypeRules:throw new NotImplementedException("aaaaaaaaaahahahaaaaaahaaaa"),
                     keyVal.Value.Id,
                     keyVal.Value.Host.Usertoken
                     );

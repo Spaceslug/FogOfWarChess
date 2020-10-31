@@ -43,10 +43,14 @@
 	  <TextBox  Grid.Row="4" Grid.Column="2"  Text="{Binding ExtraTimeSec, Mode=TwoWay}" IsEnabled="{Binding !HostGame.IsExecuting^}" Margin="3" />
 	  <TextBlock  Grid.Row="4" Grid.Column="3" Text="sec" Margin="3"/>
 	  <TextBlock  Grid.Row="5" Grid.Column="1" Text="Vision Rules" Margin="3" />
-	  <ComboBox  Grid.Row="5" Grid.Column="2" SelectedIndex="{Binding VisionRulesSelectedIndex}" IsEnabled="{Binding !HostGame.IsExecuting^}" Margin="5">
-	      <ComboBoxItem >SlugChess Standard</ComboBoxItem>
-	      <ComboBoxItem >SlugChess Sea</ComboBoxItem>
-	      <ComboBoxItem >No Vision Rules</ComboBoxItem>
+	  <ComboBox  Grid.Row="5" Grid.Column="2"  Items="{Binding VisionRuleItems}" 
+               SelectedIndex="{Binding VisionRulesSelectedIndex}" 
+               IsEnabled="{Binding !HostGame.IsExecuting^}" Margin="3">
+        <ComboBox.ItemTemplate>
+            <DataTemplate>
+                <TextBlock Text="{Binding Key}" />
+            </DataTemplate>
+        </ComboBox.ItemTemplate>
 	  </ComboBox> 
 	  <ToolTip  Grid.Row="5" Grid.Column="3" Tip="Non: see all board &#x0a;Standard: 1 VR pawn, 2 VR officer &#x0a;Sea: pices see where they can move, knight and pawn 1 VR" Content="more info" Margin="3"/>
 	  <Button  Grid.Row="7" Grid.Column="1" Classes="normal" Content="Host Game" Command="{Binding HostGame}" IsEnabled="{Binding !HostGame.IsExecuting^}" />

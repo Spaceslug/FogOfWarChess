@@ -322,7 +322,7 @@ namespace SlugChessAval.ViewModels
                 Dispatcher.UIThread.InvokeAsync(() =>
                 {
                     MainWindowViewModel.SendNotification($"PGN filepath '{result[0]}'");
-                    var replay = SlugChessService.Client.Call.ProcessReplay(new GameResult { Pgn = File.ReadAllText(result[0]) });
+                    var replay = SlugChessService.Client.Call.ProcessReplay(new ReplayRequest { Pgn = File.ReadAllText(result[0]), UserIdent = new UserIdentification { Usertoken = SlugChessService.Usertoken } });
                     //if(replay.Valid) TODO: Server must return if replay was valid!
                     MainWindowViewModel.SendNotification("Replay of " + replay.White + " vs " + replay.Black);
                     var playerTime = new TimeSpan(0, 0, 0);
