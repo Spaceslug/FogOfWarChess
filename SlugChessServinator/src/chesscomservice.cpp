@@ -54,73 +54,71 @@ Status ChessComService::Login(ServerContext* context, const chesscom::LoginForm*
 
 Status ChessComService::LookForMatch(ServerContext* context, const chesscom::UserIdentification* request, chesscom::LookForMatchResult* response) 
 {
-    bool loop = true;
-    std::string match_token = "";
-    std::string userToken = request->usertoken();
-    std::cout << userToken << " looking for match"<< std::endl << std::flush;
-    {
-        std::unique_lock<std::mutex> scopeLock (lock);
-        if(!lookingForMatchQueue.empty()){
-            std::string opponent = lookingForMatchQueue.front();
-            lookingForMatchQueue.pop();
-            match_token = MatchManager::Get()->CreateMatch(userToken, opponent);
-            foundMatchReply[opponent] = match_token;
-            loop = false;
-        }
-        else
-        {
-            std::cout << userToken << " entering queue"<< std::endl << std::flush;
-            lookingForMatchQueue.emplace(userToken);
-        }
-    }
-    while(loop){
-        std::this_thread::sleep_for(std::chrono::milliseconds(MAX_SLEEP_MS));
-        if(context->IsCancelled()) return grpc::Status::CANCELLED;
-        {
-            std::unique_lock<std::mutex> scopeLock (lock);
-            //std::cout << userToken << " checking foundMatchReply " << std::flush << std::to_string(foundMatchReply.count(userToken)) << std::endl << std::flush;
-            if(foundMatchReply.count(userToken) > 0){
-                std::cout << userToken << " found match reply MT: " << foundMatchReply[userToken]<< std::endl << std::flush;
-                match_token = foundMatchReply[userToken];
-                foundMatchReply.erase(userToken);
-                loop = false;
-            }
-        }
-    }
-    auto matPtr = MatchManager::Get()->GetMatch(match_token);
-    {
-        std::unique_lock<std::mutex> scopeLock (lock);
-        std::cout << userToken << " found match " <<  match_token << std::endl << std::flush;
-        std::cout << "  checing match" << std::endl << std::flush;
-        std::cout << "  white player " <<  matPtr->getWhitePlayer() << std::endl << std::flush;
-    }
-    response->set_succes(true);
-    response->set_match_token(match_token);
-    response->set_is_white_player(matPtr->getWhitePlayer() == userToken);
-    response->mutable_opponent_user_data()->CopyFrom(*UserManager::Get()->GetUserData(response->is_white_player()?matPtr->getBlackPlayer():matPtr->getWhitePlayer()).get());
-    response->mutable_game_rules()->set_chess_type(chesscom::ChessType::Classic);
-    response->mutable_game_rules()->set_side_type(chesscom::SideType::Random);
+    //////////     TODO: depracated as fuck
+    // bool loop = true;
+    // std::string match_token = "";
+    // std::string userToken = request->usertoken();
+    // std::cout << userToken << " looking for match"<< std::endl << std::flush;
+    // {
+    //     std::unique_lock<std::mutex> scopeLock (lock);
+    //     if(!lookingForMatchQueue.empty()){
+    //         std::string opponent = lookingForMatchQueue.front();
+    //         lookingForMatchQueue.pop();
+    //         match_token = MatchManager::Get()->CreateMatch(userToken, opponent);
+    //         foundMatchReply[opponent] = match_token;
+    //         loop = false;
+    //     }
+    //     else
+    //     {
+    //         std::cout << userToken << " entering queue"<< std::endl << std::flush;
+    //         lookingForMatchQueue.emplace(userToken);
+    //     }
+    // }
+    // while(loop){
+    //     std::this_thread::sleep_for(std::chrono::milliseconds(MAX_SLEEP_MS));
+    //     if(context->IsCancelled()) return grpc::Status::CANCELLED;
+    //     {
+    //         std::unique_lock<std::mutex> scopeLock (lock);
+    //         if(foundMatchReply.count(userToken) > 0){
+    //             std::cout << userToken << " found match reply MT: " << foundMatchReply[userToken]<< std::endl << std::flush;
+    //             match_token = foundMatchReply[userToken];
+    //             foundMatchReply.erase(userToken);
+    //             loop = false;
+    //         }
+    //     }
+    // }
+    // auto matPtr = MatchManager::Get()->GetMatch(match_token);
+    // {
+    //     std::unique_lock<std::mutex> scopeLock (lock);
+    //     std::cout << userToken << " found match " <<  match_token << std::endl << std::flush;
+    //     std::cout << "  checing match" << std::endl << std::flush;
+    //     std::cout << "  white player " <<  matPtr->getWhitePlayer() << std::endl << std::flush;
+    // }
+    // response->set_succes(true);
+    // response->set_match_token(match_token);
+    // response->set_is_white_player(matPtr->getWhitePlayer() == userToken);
+    // response->mutable_opponent_user_data()->CopyFrom(*UserManager::Get()->GetUserData(response->is_white_player()?matPtr->getBlackPlayer():matPtr->getWhitePlayer()).get());
+    // response->mutable_game_rules()->set_chess_type(chesscom::ChessType::Classic);
+    // response->mutable_game_rules()->set_side_type(chesscom::SideType::Random);
     
     
-    chesscom::VisionRules* vrPtr = response->mutable_game_rules()->mutable_vision_rules();
-    auto serverVisionRules = MatchManager::Get()->ServerVisionRules();
-    vrPtr->set_enabled(serverVisionRules.enabled);
-    vrPtr->set_view_move_fields(serverVisionRules.globalRules.ViewMoveFields);
-    vrPtr->set_view_range(serverVisionRules.globalRules.ViewRange);
-    vrPtr->set_view_capture_field(serverVisionRules.globalRules.ViewCaptureField);
-    //std::cout << " Vision rules" << std::endl << std::flush;
-    google::protobuf::Map<int, chesscom::VisionRules>* override = vrPtr->mutable_pice_overwriter();
+    // chesscom::VisionRules* vrPtr = response->mutable_game_rules()->mutable_vision_rules();
+    // auto serverVisionRules = MatchManager::Get()->ServerVisionRules();
+    // vrPtr->set_enabled(serverVisionRules.enabled);
+    // vrPtr->set_view_move_fields(serverVisionRules.globalRules.ViewMoveFields);
+    // vrPtr->set_view_range(serverVisionRules.globalRules.ViewRange);
+    // vrPtr->set_view_capture_field(serverVisionRules.globalRules.ViewCaptureField);
+    // google::protobuf::Map<int, chesscom::VisionRules>* override = vrPtr->mutable_pice_overwriter();
     
-    chesscom::VisionRules special;
-    special.set_enabled(true);
-    for (auto&& piceRulesPar : serverVisionRules.overWriteRules) {
-        special.set_view_range(piceRulesPar.second.ViewRange);
-        special.set_view_move_fields(piceRulesPar.second.ViewMoveFields);
-        (*override)[piceRulesPar.first] = special;
-    }
-    chesscom::TimeRules* trPtr = response->mutable_game_rules()->mutable_time_rules();
-    trPtr->CopyFrom(MatchManager::Get()->ServerTimeRules());
-    //dsa = serverVisionRules;
+    // chesscom::VisionRules special;
+    // special.set_enabled(true);
+    // for (auto&& piceRulesPar : serverVisionRules.overWriteRules) {
+    //     special.set_view_range(piceRulesPar.second.ViewRange);
+    //     special.set_view_move_fields(piceRulesPar.second.ViewMoveFields);
+    //     (*override)[piceRulesPar.first] = special;
+    // }
+    // chesscom::TimeRules* trPtr = response->mutable_game_rules()->mutable_time_rules();
+    // trPtr->CopyFrom(MatchManager::Get()->ServerTimeRules());
     return Status::OK;
 }
 
@@ -385,6 +383,7 @@ grpc::Status ChessComService::ProcessReplay(grpc::ServerContext* context,  const
     //                     "1. e3 Nb8c6 2. c4 e5 3. g3 f6 4. Qb1e4 h6 5. Ne1d3 Bg8h7 6. Qe4f3 b6 7. Qf3e4 Qd8e7 8. Nd3c5 Bh7xe4 9. Bh1xe4 Qe7xc5 10. Be4xc6 d7xc6 11. e4 Qc5xf2 12. Kg1xf2 c5 13. b4 c5xb4 14. a3 b4xa3 15. Ra1xa3 c5 16. d3 Bf8d6 17. d4 e5xd4 18. Ra3d3 f5 19. e4xf5 g6 20. f5xg6 Rh8g8 21. Rd3xd4 Rg8xg6 22. Rd4xd6 Ne8xd6 23. Nd1e3 Rg6xg3 24. Kf2xg3 h5 25. Ne3f5 Nd6xf5 26. Bf1d3 Rc8f8 27. Bd3xf5 Rf8e8 28. Rc1b1 b5 29. c4xb5 a6 30. Bf5c8 Re8xc8 31. b5xa6 Rc8g8 32. Kg3h4 Rg8g4 33. Rb1b8 Rg4xh4  0-1";
     auto pgnMap = Match::ReadSlugChessPgnString(request->pgn());
     auto sanMoves = San::SanMovesFromSan(pgnMap["San"]);
+
     auto* visionRule = SlugChess::GetVisionRule(pgnMap["Variant"].substr(pgnMap["Variant"].find('.')+1));
     if(visionRule == nullptr){
         Messenger::Log("Invalid visionrules '"+ pgnMap["Variant"].substr(pgnMap["Variant"].find('.')+1)+ "' requested");
@@ -398,12 +397,13 @@ grpc::Status ChessComService::ProcessReplay(grpc::ServerContext* context,  const
     response->set_white(pgnMap["White"]);
     response->set_black(pgnMap["Black"]);
     SlugChessConverter::SetGameState(game, response->add_game_states(), PlayerTypes::Observer);
-
     for(auto& move : moves){
         if(!game->DoSanMove(move)){
             Messenger::Log("San move failed '"+move+"'. Replay invalid");
             response->set_valid(false);
             return grpc::Status::OK;
+        }else{
+            Messenger::Log("San move '"+move+"'");
         }
         SlugChessConverter::SetGameState(game, response->add_game_states(), PlayerTypes::Observer);
     }
@@ -424,6 +424,7 @@ grpc::Status ChessComService::ProcessReplay(grpc::ServerContext* context,  const
     default:
         throw std::invalid_argument("WTF man. What the hell have you done??");
     }
+    Messenger::Log("Replay parsed successfully");
     response->set_valid(true);
     return grpc::Status::OK;
 }

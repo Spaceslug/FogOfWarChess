@@ -13,7 +13,7 @@ std::string MatchManager::CreateMatch(std::string& player1Token, std::string& pl
     std::string black; 
     std::tie(white, black) = RandomSort(player1Token, player2Token);
     std::shared_ptr<::Match> match = std::make_shared<::Match>(matchToken, white, black,	 
-        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1", defaultVisionRules);
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1", "custom", defaultVisionRules);
 
     match->clock->blackSecLeft = defaultTimeRules.player_time().minutes() * 60 + defaultTimeRules.player_time().seconds();
     match->clock->whiteSecLeft = match->clock->blackSecLeft;
@@ -55,10 +55,17 @@ std::string MatchManager::CreateMatch(chesscom::HostedGame& hostedGame)
     {
         fenString = Sfen::GenSlugRandom();
     }
-    
-    VisionRules visionRules = FromChesscomVisionRules(hostedGame.game_rules().vision_rules());
+    std::string ruleType;
+    VisionRules visionRules;
+    if(hostedGame.game_rules().has_custom_rules()){
+        ruleType = "custom";
+        visionRules = FromChesscomVisionRules(hostedGame.game_rules().custom_rules());
+    }else{
+        ruleType = hostedGame.game_rules().type_rules();
+        visionRules = *SlugChess::GetVisionRule(hostedGame.game_rules().type_rules());
+    }
     std::shared_ptr<::Match> match = std::make_shared<::Match>(matchToken, white, black, 
-       fenString, visionRules);
+       fenString, ruleType, visionRules);
     match->clock->blackSecLeft = hostedGame.game_rules().time_rules().player_time().minutes() * 60 + hostedGame.game_rules().time_rules().player_time().seconds();
     match->clock->whiteSecLeft = match->clock->blackSecLeft;
     match->clock->secsPerMove = hostedGame.game_rules().time_rules().seconds_per_move();
