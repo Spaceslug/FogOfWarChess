@@ -21,6 +21,7 @@ using System.Linq;
 using Avalonia.Controls;
 using System.IO;
 using DynamicData.Binding;
+using System.ComponentModel.Design;
 
 namespace SlugChessAval.ViewModels
 {
@@ -86,6 +87,10 @@ namespace SlugChessAval.ViewModels
         public MatchModel MatchModel { get; }
         private string _matchToken { get; set; } = "0000";
 
+        public IObservable<bool> CurrentVisionDefault { get; }
+        public IObservable<bool> CurrentVisionWhite{ get; }
+        public IObservable<bool> CurrentVisionBlack{ get; }
+
         public ICommand MoveToCreateGame => _moveToCreateGame;
         private readonly ReactiveCommand<Unit, Unit> _moveToCreateGame;
 
@@ -112,6 +117,9 @@ namespace SlugChessAval.ViewModels
         public ICommand ForwardEnd=> _forwardEnd;
         private readonly ReactiveCommand<Unit, Unit> _forwardEnd;
 
+        public ICommand ChangeChessboardVision => _changeChessboardVision;
+        private readonly ReactiveCommand<string, Unit> _changeChessboardVision;
+
         //public ReactiveCommand<Unit, LookForMatchResult> ConnectToGame { get; }
 
         public PlayViewModel(IScreen? screen = null)
@@ -122,7 +130,16 @@ namespace SlugChessAval.ViewModels
                 .Subscribe(x => MoveDisplayIndex = MatchModel.ChessboardPositions.Count - 1);
 
             Chessboard = new ChessboardViewModel{ CbModel = ChessboardModel.FromDefault()};
-            
+            CurrentVisionDefault = Chessboard.WhenAnyValue(x => x.ViewType).Select(x => x == ChessboardViewModel.ViewTypes.Default);
+            CurrentVisionWhite = Chessboard.WhenAnyValue(x => x.ViewType).Select(x => x == ChessboardViewModel.ViewTypes.White);
+            CurrentVisionBlack = Chessboard.WhenAnyValue(x => x.ViewType).Select(x => x == ChessboardViewModel.ViewTypes.Black);
+            _changeChessboardVision = ReactiveCommand.Create<string>(s =>
+                {
+                    Chessboard.ViewType = s switch { "Default" => ChessboardViewModel.ViewTypes.Default, "White" => ChessboardViewModel.ViewTypes.White, "Black" => ChessboardViewModel.ViewTypes.Black };
+                }, 
+                MatchModel.ThisPlayerColored.Select(x => !x)
+            );
+
             _chessClock = new ChessClockViewModel(MatchModel.IsThisPlayersTurn);
             MatchModel.ChessClock.Subscribe(x => ChessClock.SetTime(x.whiteTimeLeft, x.blackTimeLeft, x.currentTurnWhite, x.ticking));
             _capturedPices = new CapturedPicesViewModel();
@@ -182,7 +199,7 @@ namespace SlugChessAval.ViewModels
             this.WhenAnyValue(x => x.MoveDisplayIndex).Where(i => i >= 0).Subscribe( i => 
             {
                 Chessboard.CbModel = MatchModel.ChessboardPositions[i];
-                CapturedPices.Items = MatchModel.ChessboardPositions[i].CapturedPices.ToList();
+                CapturedPices.Items = MatchModel.ChessboardPositions[i].CapturedPices.OrderByDescending(x => x.PiceType).ToList();
             });
             this.WhenAnyValue(x => x.WaitingOnMoveReply, x => x.MoveDisplayIndex, (b, i) => !b && i == MatchModel.ChessboardPositions.Count - 1)
                 .Subscribe(allowedToSelect => Chessboard.AllowedToSelect = allowedToSelect);
@@ -267,6 +284,7 @@ namespace SlugChessAval.ViewModels
             }).DisposeWith(disposablesForEndMatchWhenViewDeactivated);
 
             MatchModel.NewMatch(result.MatchToken, matchObservable, result.IsWhitePlayer?PlayerIs.White:PlayerIs.Black, result.OpponentUserData, disposablesForEndMatchWhenViewDeactivated);
+            _changeChessboardVision.Execute("Default").Subscribe();
             Activator.Deactivated.Subscribe((u) =>
             {
                 SlugChessService.Client.Call.SendMoveAsync(new MovePacket
@@ -332,6 +350,7 @@ namespace SlugChessAval.ViewModels
                     var matchObservable = new Subject<MoveResult>();
 
                     MatchModel.NewMatch("replay", matchObservable, PlayerIs.Observer, new UserData { Username = "replay" }, disposablesForEndMatchWhenViewDeactivated);
+                    _changeChessboardVision.Execute("Default").Subscribe();
                     matchObservable.Subscribe(
                         (moveResult) => Dispatcher.UIThread.InvokeAsync(() =>
                         {
@@ -341,20 +360,17 @@ namespace SlugChessAval.ViewModels
                             }
                         })
                     );
-                    System.Threading.Tasks.Task.Run(() => Dispatcher.UIThread.InvokeAsync(() =>
+                    for (int i = 0; i < replay.GameStates.Count; i++)
                     {
-                        for (int i = 0; i < replay.GameStates.Count; i++)
+                        matchObservable.OnNext(new MoveResult
                         {
-                            matchObservable.OnNext(new MoveResult
-                            {
-                                GameState = replay.GameStates[i],
-                                MatchEvent = (i + 1 != replay.GameStates.Count ? MatchEvent.Non : replay.MatchEvent),
-                                ChessClock = new ChessClock { BlackSecondsLeft = 0, WhiteSecondsLeft = 0, TimerTicking = false }
-                            });
+                            GameState = replay.GameStates[i],
+                            MatchEvent = (i + 1 != replay.GameStates.Count ? MatchEvent.Non : replay.MatchEvent),
+                            ChessClock = new ChessClock { BlackSecondsLeft = 0, WhiteSecondsLeft = 0, TimerTicking = false }
+                        });
 
-                        }
-                        matchObservable.OnCompleted();
-                    }));
+                    }
+                    matchObservable.OnCompleted();
                 });
                 
 

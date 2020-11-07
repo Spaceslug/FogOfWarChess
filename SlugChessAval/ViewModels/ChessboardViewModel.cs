@@ -24,7 +24,12 @@ namespace SlugChessAval.ViewModels
     [DataContract]
     public class ChessboardViewModel : ViewModelBase
     {
-
+        public enum ViewTypes
+        {
+            Default,
+            White,
+            Black
+        }
 
         public List<Field> FieldBoard
         {
@@ -64,6 +69,13 @@ namespace SlugChessAval.ViewModels
         }
         private bool _allowedToSelect;
 
+        public ViewTypes ViewType
+        {
+            get => _viewType;
+            set => this.RaiseAndSetIfChanged(ref _viewType, value);
+        }
+        private ViewTypes _viewType = ViewTypes.Default;
+
         public ReactiveCommand<(string from, string to), (string from, string to)> MoveFromTo;
 
         public IBrush FogBackground = new ImageBrush(AssetBank.GetImage("fog"));
@@ -83,43 +95,20 @@ namespace SlugChessAval.ViewModels
             _baseFieldBoard = Enumerable.Repeat(new Field { }, 64).ToList();
             _cbModel = ChessboardModel.FromDefault();
             MoveFromTo = ReactiveCommand.Create<(string from, string to),(string from, string to)>( t => t);
-            //MoveFromTo.Select(t => $"From={t.from}, To={t.to}").Subscribe(s => A = s);
-            ////MoveFromTo.Execute(("dad", "aaaa"));
-            ////MoveFromTo.Subscribe(t => A = t.from + " whaaaaah");
-
-            //A = "b";
-            //var command = ReactiveCommand.Create<string, string>(s => { return s; });
-            //command.(s => throw new ArgumentException("ffafafafa"));
-            //command.Select(s => s).Subscribe(s => A = s);
-            //Task.Run(() =>
-            //{
-            //    Thread.Sleep(3000);
-            //    command.Execute("l").Subscribe();
-            //    Thread.Sleep(1000);
-            //    command.Execute("m").Subscribe();
-            //    Thread.Sleep(1000);
-            //    command.Execute("n").Subscribe();
-            //    Thread.Sleep(1000);
-            //    command.Execute("o").Subscribe();
-            //});
-            //command.Execute("f").Subscribe();
-            //command.Subscribe(s => A = "aaddadwawadadwadwadw");
-            //command.Select(s => s).Subscribe(s => A = s);
-            //command.Execute(Unit.Default);
-            //command.Execute(Unit.Default);
-            //command.Execute(Unit.Default);
-
 
             //Console.WriteLine(" whaaaaah");
 
             this.WhenAnyValue(x => x.AllowedToSelect).Where(x => !x).Subscribe(x => Selected = "");
-            this.WhenAnyValue(x => x.CbModel).Subscribe(x => UpdateBoard(x));
+            Observable.CombineLatest(
+                this.WhenAnyValue(x => x.CbModel),
+                this.WhenAnyValue(y => y.ViewType),
+                (x, y) => x
+            ).Subscribe(x => UpdateBoard(x));
+            
             Observable.Merge(
                 this.WhenAnyValue(x => x.Selected),
                 this.WhenAnyValue(x => x.Hover)
-                ).Subscribe(x => UpdateSelected());
-            //Task.Run(() => { Thread.Sleep(2000); CbModel = ChessboardModel.FromTestData();  });
-            //Task.Run(() => { Thread.Sleep(8000); Students = new List<Student> { new Student { Name = "aperrer" }, new Student { Name = "bitchface" } }; });
+            ).Subscribe(x => UpdateSelected());
 
         }
 
@@ -164,6 +153,16 @@ namespace SlugChessAval.ViewModels
             }
         }
 
+        private bool FieldVisible(int i, ChessboardModel model)
+        {
+            return ViewType switch
+            {
+                ViewTypes.Default => model.Visions[model.PlayerVisionType][i],
+                ViewTypes.White => model.Visions[ChessboardModel.VisionTypes.White][i],
+                ViewTypes.Black => model.Visions[ChessboardModel.VisionTypes.Black][i]
+            };
+        }
+
         private void UpdateBoard(ChessboardModel? model)
         {
             if (model == null) return;
@@ -172,8 +171,8 @@ namespace SlugChessAval.ViewModels
             {
                 //var oldField = FieldBoard[i];
                 var newField = new Field();
-
-                if (model.Vision[i])
+                
+                if (FieldVisible(i, model))
                 {
                     newField.Image = AssetBank.ImageFromPice(model.FieldPices[i]);
                     newField.Opacity = 1.0d;
