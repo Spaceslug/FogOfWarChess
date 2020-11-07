@@ -117,7 +117,6 @@ namespace SlugChessAval.ViewModels
         public PlayViewModel(IScreen? screen = null)
         {
             HostScreen = screen ?? Locator.Current.GetService<IScreen>();
-            MoveDisplayIndex = -1;
             MatchModel = new MatchModel();
             MatchModel.ChessboardPositions.ObserveCollectionChanges().Where(x => x.EventArgs.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
                 .Subscribe(x => MoveDisplayIndex = MatchModel.ChessboardPositions.Count - 1);
@@ -180,9 +179,10 @@ namespace SlugChessAval.ViewModels
                 }
             });
 
-            this.WhenAnyValue(x => x.MoveDisplayIndex).Subscribe( i => 
+            this.WhenAnyValue(x => x.MoveDisplayIndex).Where(i => i >= 0).Subscribe( i => 
             {
-                Chessboard.CbModel = (i >= 0 ? MatchModel.ChessboardPositions[i] : ChessboardModel.FromDefault());
+                Chessboard.CbModel = MatchModel.ChessboardPositions[i];
+                CapturedPices.Items = MatchModel.ChessboardPositions[i].CapturedPices.ToList();
             });
             this.WhenAnyValue(x => x.WaitingOnMoveReply, x => x.MoveDisplayIndex, (b, i) => !b && i == MatchModel.ChessboardPositions.Count - 1)
                 .Subscribe(allowedToSelect => Chessboard.AllowedToSelect = allowedToSelect);
@@ -243,7 +243,6 @@ namespace SlugChessAval.ViewModels
             var playerTime = new TimeSpan(0, result.GameRules.TimeRules.PlayerTime.Minutes, result.GameRules.TimeRules.PlayerTime.Seconds);
             ShellHelper.PlaySoundFile(Program.RootDir + "Assets/sounds/match_start.wav");
             var matchObservable = SlugChessService.Client.GetMatchListener(result.MatchToken);
-            CapturedPices = new CapturedPicesViewModel(matchObservable);
             Chatbox.OpponentUsertoken = result.OpponentUserData.Usertoken;
             CompositeDisposable disposablesForEndMatchWhenViewDeactivated = new CompositeDisposable();
             _chessClock.ResetTime(playerTime, playerTime, result.GameRules.TimeRules.SecondsPerMove);
@@ -332,8 +331,6 @@ namespace SlugChessAval.ViewModels
 
                     var matchObservable = new Subject<MoveResult>();
 
-                    CapturedPices = new CapturedPicesViewModel(matchObservable);
-                
                     MatchModel.NewMatch("replay", matchObservable, PlayerIs.Observer, new UserData { Username = "replay" }, disposablesForEndMatchWhenViewDeactivated);
                     matchObservable.Subscribe(
                         (moveResult) => Dispatcher.UIThread.InvokeAsync(() =>
@@ -344,11 +341,10 @@ namespace SlugChessAval.ViewModels
                             }
                         })
                     );
-                    System.Threading.Tasks.Task.Run(() =>
+                    System.Threading.Tasks.Task.Run(() => Dispatcher.UIThread.InvokeAsync(() =>
                     {
                         for (int i = 0; i < replay.GameStates.Count; i++)
                         {
-                            Thread.Sleep(100);
                             matchObservable.OnNext(new MoveResult
                             {
                                 GameState = replay.GameStates[i],
@@ -358,7 +354,7 @@ namespace SlugChessAval.ViewModels
 
                         }
                         matchObservable.OnCompleted();
-                    });
+                    }));
                 });
                 
 

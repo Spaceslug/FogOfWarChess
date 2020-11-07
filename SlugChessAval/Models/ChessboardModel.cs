@@ -2,6 +2,7 @@
 using SlugChessAval.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
@@ -64,6 +65,8 @@ namespace SlugChessAval.Models
         public Dictionary<string, List<string>> ShadowMoves { get; set; } = new Dictionary<string, List<string>>();
         [DataMember]
         public VisionTypes VisionType { get; private set; } = VisionTypes.Observer;
+        [DataMember]
+        public List<ViewModels.DataTemplates.CapturedPice> CapturedPices { get; set; } = new List<ViewModels.DataTemplates.CapturedPice>(new[] { ViewModels.DataTemplates.CapturedPice.Empty });
 
         public ChessCom.Pices GetFieldPice(string fieldname) => _fieldPices[BoardPosToIndex[fieldname]];
         //public IDictionary<string, ChessCom.Pices> FieldPices
@@ -127,6 +130,8 @@ namespace SlugChessAval.Models
             }
             chessboard.From = gameState.From;
             chessboard.To = gameState.To;
+            chessboard.CapturedPices = new List<ViewModels.DataTemplates.CapturedPice>(gameState.CapturedPices.Select(x => new ViewModels.DataTemplates.CapturedPice(x)));
+            
 
             return chessboard;
         }

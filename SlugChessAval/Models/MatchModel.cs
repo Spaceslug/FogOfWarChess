@@ -58,6 +58,8 @@ namespace SlugChessAval.Models
         public IObservable<bool> OngoingGame => _ongoingGame;
         public BehaviorSubject<bool> _ongoingGame;
 
+
+
         public AvaloniaList<ChessboardModel> ChessboardPositions { get; } = new AvaloniaList<ChessboardModel>();
         public IObservable<bool> ChessboardPositionsEmpty => _chessboardPositionsEmpty;
         private BehaviorSubject<bool> _chessboardPositionsEmpty { get; } = new BehaviorSubject<bool>(true);
