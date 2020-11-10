@@ -68,6 +68,7 @@ class SlugChess {
 
 
     static bool visionBoardTrue [64];
+    const static VisionRules VisionRules_NoRules;
     const static VisionRules VisionRules_TorchWip;
     const static VisionRules VisionRules_SightWip;
     static std::map<std::string, const VisionRules*> GetVisionRules();
