@@ -37,7 +37,7 @@
         Opacity=        "{Binding FieldBoard[57].Opacity}"
         CornerRadius=   "{Binding FieldBoard[57].CornerRadius}" >
         <DockPanel Background="{Binding FieldBoard[57].ImageBackgroundBrush}">
-          <Image Source="{Binding FieldBoard[57].Image}" />
+          <Image Source="{Binding FieldBoard[57].Image}"  />
         </DockPanel>
       </Border>
       <Border Name="c8" Grid.Row="0" Grid.Column="2" PointerReleased="ChessfieldClicked" PointerEnter="ChessfieldEnter" PointerLeave="ChessfieldLeave" Background="{DynamicResource BlackField}"

@@ -6,16 +6,24 @@
         	   xmlns:views="clr-namespace:SlugChessAval.Views"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="700"
              x:Class="SlugChessAval.Views.PlayView">
-  <Grid ColumnDefinitions="3*,auto" RowDefinitions="*,auto" Margin="5,5,5,5">
-    <views:Chessboard DataContext="{Binding Chessboard}" Grid.Row="0" Grid.Column="0" />
-
-    <Grid Grid.Row="0" Grid.Column="1" ColumnDefinitions="*" RowDefinitions="auto,auto,*"  Margin="5" Width="380">
+  <Grid ColumnDefinitions="auto,3*,auto" RowDefinitions="*,auto" Margin="5,5,5,5">
+    <WrapPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical" MinWidth="120">
+      <TextBlock Text="Change vision:" IsVisible="{Binding !MatchModel.ThisPlayerColored^}" />
+      <Button Classes="normal" Command="{Binding ChangeChessboardVision}" CommandParameter="Default"
+              Content="Default" IsEnabled="{Binding !CurrentVisionDefault^}" IsVisible="{Binding !MatchModel.ThisPlayerColored^}" />
+      <Button Classes="normal" Command="{Binding ChangeChessboardVision}" CommandParameter="White" 
+              Content="White" IsEnabled="{Binding !CurrentVisionWhite^}" IsVisible="{Binding !MatchModel.ThisPlayerColored^}"/>
+      <Button Classes="normal" Command="{Binding ChangeChessboardVision}" CommandParameter="Black"
+              Content="Black" IsEnabled="{Binding !CurrentVisionBlack^}" IsVisible="{Binding !MatchModel.ThisPlayerColored^}"/>
+    </WrapPanel>
+    <views:Chessboard DataContext="{Binding Chessboard}" Grid.Row="0" Grid.Column="1" />
+    <Grid Grid.Row="0" Grid.Column="2" ColumnDefinitions="*" RowDefinitions="auto,auto,*"  Margin="5" Width="380">
       <views:CapturedPices Grid.Row="0" DataContext="{Binding CapturedPices}" Width="380" />
       <views:ChessClock Grid.Row="1" DataContext="{Binding ChessClock}"/>
       <views:Chatbox Grid.Row="2" DataContext="{Binding Chatbox}" />
     </Grid>
     
-    <WrapPanel Grid.Row="1" Grid.Column="0">
+    <WrapPanel Grid.Row="1" Grid.Column="1">
       <Button Command="{Binding MoveToCreateGame}" Content="Host Game" 
               IsVisible="{Binding !MatchModel.OngoingGame^}" Margin="5"/>
       <Button Command="{Binding MoveToGameBrowser}" Content="Browse Games" 
@@ -38,7 +46,7 @@
               IsEnabled="{Binding !MatchModel.AskForDraw.IsExecuting^}" 
               Content="Surrender" IsVisible="{Binding MatchModel.PlayerIsActive^}"/>
     </WrapPanel>
-    <WrapPanel Grid.Row="1" Grid.Column="1">
+    <WrapPanel Grid.Row="1" Grid.Column="2">
 
     </WrapPanel>
     

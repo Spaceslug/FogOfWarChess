@@ -71,8 +71,7 @@ Changes to chesscom commuication api or underlating function.
 - [x] load up and click through PGNs.
   - [x] Make Match.Model propper observable type. Less of the properties. More observable.
   - [x] Make server set bool if PGN was parsed successfully.
-  - [ ] add captured pices to game_state instead of outside
-  - [ ] select viewpoint when watching replay
+  - [x] select viewpoint when watching replay
   - [ ] add no_vision_rules as a vision rule to Core
 - [x] Bind ServerVisionRulset with CreateGame view selector. 
 

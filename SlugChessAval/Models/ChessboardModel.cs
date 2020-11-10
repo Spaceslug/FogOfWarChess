@@ -2,6 +2,7 @@
 using SlugChessAval.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
@@ -57,24 +58,14 @@ namespace SlugChessAval.Models
         };
 
 
-        //public ChessCom.GameState ComGameState;
         [DataMember]
         public IDictionary<string, List<string>> Moves { get; set; } = new Dictionary<string, List<string>>();
         [DataMember]
         public Dictionary<string, List<string>> ShadowMoves { get; set; } = new Dictionary<string, List<string>>();
         [DataMember]
-        public VisionTypes VisionType { get; private set; } = VisionTypes.Observer;
+        public List<ViewModels.DataTemplates.CapturedPice> CapturedPices { get; set; } = new List<ViewModels.DataTemplates.CapturedPice>(new[] { ViewModels.DataTemplates.CapturedPice.Empty });
 
         public ChessCom.Pices GetFieldPice(string fieldname) => _fieldPices[BoardPosToIndex[fieldname]];
-        //public IDictionary<string, ChessCom.Pices> FieldPices
-        //{
-        //    get
-        //    {
-        //        var d = new Dictionary<string, ChessCom.Pices>();
-        //        for (int i = 0; i < _fieldPices.Count; i++) d[BoardPos[i]] = _fieldPices[i];
-        //        return d;
-        //    }
-        //}
         public IList<ChessCom.Pices> FieldPices => _fieldPices;
         [DataMember]
         private IList<ChessCom.Pices> _fieldPices;
@@ -88,35 +79,24 @@ namespace SlugChessAval.Models
         [DataMember]
         public string To { get; private set; } = "";
 
-        public bool InVision(string fieldname) => _vision[BoardPosToIndex[fieldname]];
-        public IList<bool> Vision => _vision;
-        [DataMember]
-        private IList<bool> _vision;
+        public bool InVision(string fieldname) => Visions[PlayerVisionType][BoardPosToIndex[fieldname]];
 
-        private ChessboardModel(IList<bool> vision, IList<string> checks, IList<ChessCom.Pices> fieldPices)
+        public VisionTypes PlayerVisionType { get; private set; }
+        public IDictionary<VisionTypes, List<bool>> Visions { get; private set; } = new Dictionary<VisionTypes, List<bool>>();
+
+        private ChessboardModel(IList<string> checks, IList<ChessCom.Pices> fieldPices)
         {
-            _vision = vision;
             _checks = checks;
             _fieldPices = fieldPices;
         }
 
         public static ChessboardModel FromChesscomGamestate(ChessCom.GameState gameState, VisionTypes visionType)
         {
-            IList<bool> vision = visionType switch
-            { 
-                VisionTypes.White => gameState.VisionState.WhiteVision,
-                VisionTypes.Black => gameState.VisionState.BlackVision,
-                VisionTypes.Observer => Enumerable.Repeat(true, 64).ToList(),
-                _ => new bool[0]
-            }; 
-            if(vision.Count != 64)
-            {
-                MainWindowViewModel.SendNotification("VisionBoard from server invalid");
-                throw new ArgumentException("VisionBoard is ficked");
-            }
+            
+            
             //     public string PlayingAs => (MatchModel?.PlayerIs??PlayerIs.Non) switch 
             //{ PlayerIs.White => "Playing as White", PlayerIs.Black => "Playing as Black", PlayerIs.Both => "Playing yourself", PlayerIs.Oberserver => "Watching as Observer", _ => "No game active" };
-            var chessboard = new ChessboardModel(vision, gameState.Check, gameState.Pices);
+            var chessboard = new ChessboardModel(gameState.Check, gameState.Pices);
             foreach(var keyval in gameState.PlayerMoves)
             {
                 chessboard.Moves.Add(keyval.Key, new List<string>(keyval.Value.List));
@@ -127,21 +107,44 @@ namespace SlugChessAval.Models
             }
             chessboard.From = gameState.From;
             chessboard.To = gameState.To;
-
+            chessboard.CapturedPices = new List<ViewModels.DataTemplates.CapturedPice>(gameState.CapturedPices.Select(x => new ViewModels.DataTemplates.CapturedPice(x)));
+            chessboard.PlayerVisionType = visionType;
+            if(gameState.VisionState.WhiteVision.Count == 64)
+            {
+                chessboard.Visions.Add(VisionTypes.White, gameState.VisionState.WhiteVision.ToList());
+            }
+            if (gameState.VisionState.BlackVision.Count == 64)
+            {
+                chessboard.Visions.Add(VisionTypes.Black, gameState.VisionState.BlackVision.ToList());
+            }
+            if (visionType == VisionTypes.Observer)
+            {
+                chessboard.Visions.Add(VisionTypes.Observer, Enumerable.Repeat(true, 64).ToList());
+            }
+            if (!chessboard.Visions.ContainsKey(visionType))
+            { 
+                MainWindowViewModel.SendNotification("VisionBoard from server invalid");
+                throw new ArgumentException("VisionBoard is ficked");
+            }
             return chessboard;
         }
 
         public static ChessboardModel FromDefault()
         {
-            var chessboard = new ChessboardModel(Enumerable.Repeat(true, 64).ToList(), new List<string>(), Enumerable.Repeat(ChessCom.Pices.None, 64).ToList());
+            var chessboard = new ChessboardModel(new List<string>(), Enumerable.Repeat(ChessCom.Pices.None, 64).ToList());
             chessboard.From = "";
             chessboard.To = "";
+            chessboard.PlayerVisionType = VisionTypes.Observer;
+            chessboard.Visions.Add(VisionTypes.Observer, Enumerable.Repeat(true, 64).ToList());
             return chessboard;
         }
 
         public static ChessboardModel FromTestData()
         {
-            var chessboard = new ChessboardModel(Enumerable.Repeat(true, 64).ToList(), new List<string> { "d8", "h8" }, Enumerable.Repeat(ChessCom.Pices.None, 64).ToList());
+            var chessboard = new ChessboardModel(new List<string> { "d8", "h8" }, Enumerable.Repeat(ChessCom.Pices.None, 64).ToList());
+            chessboard.PlayerVisionType = VisionTypes.Observer;
+            chessboard.Visions.Add(VisionTypes.Observer, Enumerable.Repeat(true, 64).ToList());
+
             chessboard._fieldPices[59] = ChessCom.Pices.WhiteRook;
             chessboard._fieldPices[63] = ChessCom.Pices.BlackKing;
             chessboard._fieldPices[48] = ChessCom.Pices.BlackPawn;
@@ -158,16 +161,16 @@ namespace SlugChessAval.Models
             chessboard.From = "d2";
             chessboard.To = "d8";
 
-            chessboard._vision[56] = false;
-            chessboard._vision[48] = false;
-            chessboard._vision[40] = false;
-            chessboard._vision[32] = false;
-            chessboard._vision[57] = false;
-            chessboard._vision[58] = false;
-            chessboard._vision[49] = false;
-            chessboard._vision[41] = false;
-            chessboard._vision[33] = false;
-            chessboard._vision[26] = false;
+            chessboard.Visions[VisionTypes.Observer][56] = false;
+            chessboard.Visions[VisionTypes.Observer][48] = false;
+            chessboard.Visions[VisionTypes.Observer][40] = false;
+            chessboard.Visions[VisionTypes.Observer][32] = false;
+            chessboard.Visions[VisionTypes.Observer][57] = false;
+            chessboard.Visions[VisionTypes.Observer][58] = false;
+            chessboard.Visions[VisionTypes.Observer][49] = false;
+            chessboard.Visions[VisionTypes.Observer][41] = false;
+            chessboard.Visions[VisionTypes.Observer][33] = false;
+            chessboard.Visions[VisionTypes.Observer][26] = false;
 
             chessboard.Moves["e7"] = new List<string> { "e8", "e6", "e5", "e4", "e3" };
             chessboard.Moves["g7"] = new List<string> { "g6" };
