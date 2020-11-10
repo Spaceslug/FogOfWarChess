@@ -71,7 +71,7 @@ namespace SlugChessAval.ViewModels
         }
         private int _visionRulesSelectedIndex = DEFAULT_VISION_RULES_INDEX;
 
-        public AvaloniaList<KeyValuePair<string, VisionRules>> VisionRuleItems => SlugChessService.Client.ServerVisionRuleset;
+        public IList<KeyValuePair<string, VisionRules>> VisionRuleItems => SlugChessService.Client.ServerVisionRuleset.OrderByDescending(x => x.Key).ToList();
 
         public CreateGameViewModel(IScreen? screen = null)
         {

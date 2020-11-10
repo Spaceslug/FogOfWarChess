@@ -142,7 +142,7 @@ namespace SlugChessAval.Services
                         {
                             ServerVisionRuleset.Clear();
                             var a = y.Result.VisionRulesets.ToList();
-                            a.Insert(0, new KeyValuePair<string, VisionRules>("No Vision Rules", new VisionRules { Enabled = false }));
+                            //a.Insert(0, new KeyValuePair<string, VisionRules>("No Vision Rules", new VisionRules { Enabled = false }));
                             ServerVisionRuleset.AddRange(a);
                         });
 
