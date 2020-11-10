@@ -20,6 +20,11 @@ bool SlugChess::visionBoardTrue[] = {
     true, true, true, true, true, true, true, true,
     true, true, true, true, true, true, true, true};
 
+const VisionRules SlugChess::VisionRules_NoRules = VisionRules{ 
+    false, 
+    {false, false, 0},
+    {  }
+};
 const VisionRules SlugChess::VisionRules_TorchWip = VisionRules{ 
     true, 
     {false, true, 2},
@@ -43,7 +48,7 @@ const VisionRules SlugChess::VisionRules_SightWip = VisionRules{
 
 std::map<std::string, const VisionRules*> SlugChess::GetVisionRules()
 {
-    return {{"SightWip", &VisionRules_SightWip}, {"TorchWip", &VisionRules_TorchWip}};
+    return {{"NoRules", &VisionRules_NoRules}, {"SightWip", &VisionRules_SightWip}, {"TorchWip", &VisionRules_TorchWip}};
 }
 const VisionRules* SlugChess::GetVisionRule(const std::string& vrName)
 {
