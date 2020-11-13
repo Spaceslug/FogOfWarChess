@@ -94,7 +94,8 @@ int main(int argc, char** argv) {
     logFile << "Writing this to a file.\n"<< std::flush;
     
     //logFile << "---ServerRules---\n" << vrString << "\n";
-    //std::cout << "---ServerRules---\n" << vrString << std::endl << std::flush;
+    std::cout << "SlugChess Server starting" << std::endl 
+        << "Version " << VERSION << std::endl << std::flush;
     std::string port = "43326";
     if(argc == 2){
         port = argv[1];
