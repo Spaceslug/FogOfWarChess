@@ -67,12 +67,17 @@ Changes to chesscom commuication api or underlating function.
 - [ ] save userdata {username as id and elo. Passwords come later}
 - [ ] simple elo system (same as FIDE)
 
-### version 0.15.0
+### version 0.15.1 ()
+- [ ] use NetCoreBeauty to clean up root dir
+- [ ] Updator copy updator to x.new and Aval will rename x.new to x. Thus ensuring updator also gets updated
+
+
+### version 0.15.0 (Done)
 - [x] load up and click through PGNs.
   - [x] Make Match.Model propper observable type. Less of the properties. More observable.
   - [x] Make server set bool if PGN was parsed successfully.
   - [x] select viewpoint when watching replay
-  - [ ] add no_vision_rules as a vision rule to Core
+  - [x] add no_vision_rules as a vision rule to Core
 - [x] Bind ServerVisionRulset with CreateGame view selector. 
 
 ### version 1.14.1

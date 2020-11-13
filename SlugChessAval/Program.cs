@@ -36,8 +36,6 @@ namespace SlugChessAval
                     Console.WriteLine("Not implemented on this platform");
                 }
             });
-            
-
         }
             
         public static string Bash(this string cmd)
@@ -104,6 +102,11 @@ namespace SlugChessAval
                 PrintHelpTextToConsole();
                 return;
             }
+            if (LaunchedWithParam("--version"))
+            {
+                Console.WriteLine(GetSlugChessVersion());
+                return;
+            }
             if (File.Exists($"{RootDir}{UpdaterFilename()}.new"))
             {
                 Thread.Sleep(100);
@@ -152,6 +155,7 @@ namespace SlugChessAval
             Console.WriteLine("SlugChess launch parameters:");
             Console.WriteLine("--help                  ;prints this text and prevents the launch of ");
             Console.WriteLine("   SlugChess ");
+            Console.WriteLine("--version               ;prints the version of SlugChess             ");
             Console.WriteLine("--debugLogin [username] ;automaticly logs you in as username with the");
             Console.WriteLine("   debug password");
             Console.WriteLine("--port [port]           ;sets the portnumber of the SlugChess server ");
@@ -212,7 +216,7 @@ namespace SlugChessAval
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = UpdaterFilename(),
+                    FileName = $"{RootDir}{UpdaterFilename()}",
                     Arguments = $"--run-update",
                     UseShellExecute = true,
                     RedirectStandardOutput = false,

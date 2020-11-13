@@ -57,7 +57,7 @@ namespace SlugChessUpdater
                 if (argsList.Contains("--help"))
                 {
                     Console.WriteLine(
-                        "SlugChessUpdator help \n"+
+                        $"SlugChessUpdator help - version {GetVersion()}\n"+
                         "    All commands retun Error:[message] if something is wrong     \n" +
                         "--help                      - for this message                   \n" +
                         "--check-version xx.xx.xx    - to to check version relative       \n" +
@@ -67,6 +67,10 @@ namespace SlugChessUpdater
                         "    SlugChessAval has 2 sec to quit after starting update,       \n" +
                         "    SlugChessAval will start after update complete               \n" 
                         );
+                }
+                else if (argsList.Contains("--version"))
+                {
+                    Console.WriteLine("SlugChessUpdater " + GetVersion());                
                 }
                 else if(argsList.Contains("--check-version"))
                 {
@@ -164,6 +168,12 @@ namespace SlugChessUpdater
             }
         }
 
+        public static string GetVersion()
+        {
+            var ver = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
+            return $"{ver.FileMajorPart}.{ver.FileMinorPart}.{ver.FileBuildPart}";
+        }
+
         static void DeleteFiles()
         {
             Console.WriteLine("Deleting old version");
@@ -179,6 +189,7 @@ namespace SlugChessUpdater
                 }
             }
             if(Directory.Exists($"{RootDir}Assets")) Directory.Delete($"{RootDir}Assets", true);
+            if(Directory.Exists($"{RootDir}libs")) Directory.Delete($"{RootDir}libs", true);
 
             Console.WriteLine("Deleting old files complete");
 
@@ -224,7 +235,7 @@ namespace SlugChessUpdater
                 if (File.Exists($"{RootDir}{file.Name}"))
                 {
                     Console.WriteLine("File allready exists: " + file.Name);
-                    if(file.Name == "SlugChessUpdater.exe")
+                    if(file.Name == "SlugChessUpdater.exe" || file.Name == "SlugChessUpdater")
                     {
                         file.MoveTo($"{RootDir}{file.Name}.new");
                     }

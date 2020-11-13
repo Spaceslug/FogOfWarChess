@@ -1,4 +1,4 @@
 #!/usr/bin/env python3
 import os, re, publish
 
-publish.publish("Debug", ['win-x64'])
+publish.publish("Debug", ['win-x64', 'linux-x64'])
