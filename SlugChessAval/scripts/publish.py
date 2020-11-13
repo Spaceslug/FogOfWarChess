@@ -18,14 +18,14 @@ def publish(type, targets):
 
 	for target in targets:
 		print('Building {} {}'.format(type, target))
-		stream = os.popen('dotnet publish {}\\SlugChessAval.csproj -c {} -r {} --self-contained true -p:PublishSingleFile=false -p:PublishTrimmed=true'.format(projectDir, type, target))
+		stream = os.popen('dotnet publish {}/SlugChessAval.csproj -c {} -r {} --self-contained true -p:PublishSingleFile=false -p:PublishTrimmed=true'.format(projectDir, type, target))
 		print(stream.read())
 		print('Building {} updater {} '.format(type, target))
-		stream = os.popen('dotnet publish {}\\SlugChessUpdater.csproj -c {} -r {} -p:PublishSingleFile=true -p:PublishTrimmed=true -o {}\\bin\\{}\\netcoreapp3.1\\{}\\publish\\'.format(updaterDir, type, target, projectDir, type, target))
+		stream = os.popen('dotnet publish {}/SlugChessUpdater.csproj -c {} -r {} -p:PublishSingleFile=true -p:PublishTrimmed=true -o {}/bin/{}/netcoreapp3.1/{}/publish/'.format(updaterDir, type, target, projectDir, type, target))
 		print(stream.read())
 
 
-	stream = os.popen('dotnet-version --show --project-file {}\\SlugChessAval.csproj'.format(projectDir))
+	stream = os.popen('dotnet-version --show --project-file {}/SlugChessAval.csproj'.format(projectDir))
 	output = stream.read()
 	version = re.search('[0-9].+.+$',output).group(0)
 	print('Finished publishing SlugChessAval ' + version + ' ' + target)

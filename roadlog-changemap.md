@@ -67,9 +67,9 @@ Changes to chesscom commuication api or underlating function.
 - [ ] save userdata {username as id and elo. Passwords come later}
 - [ ] simple elo system (same as FIDE)
 
-### version 0.15.1 ()
-- [ ] use NetCoreBeauty to clean up root dir
-- [ ] Updator copy updator to x.new and Aval will rename x.new to x. Thus ensuring updator also gets updated
+### version 0.15.1 (Done)
+- [x] use NetCoreBeauty to clean up root dir
+- [x] Updator copy updator to x.new and Aval will rename x.new to x. Thus ensuring updator also gets updated
 
 
 ### version 0.15.0 (Done)

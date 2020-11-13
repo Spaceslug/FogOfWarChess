@@ -41,7 +41,7 @@ namespace SlugChessUpdater
         }
     }
 
-    class Program
+    static class Program
     {
         private static bool _downloadCompleted;
         private static string _downloadName = "non";
@@ -249,6 +249,11 @@ namespace SlugChessUpdater
             {
                 dir.MoveTo($"{RootDir}{dir.Name}");
             }
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)){
+                Bash($"chmod -v -R u+rwX,go+rwX {RootDir} && "+
+                $"chmod -v a+x {RootDir}SlugChessAval && " +
+                $"chmod -v a+x {RootDir}SlugChessUpdater.new");
+            }
             Console.WriteLine("Deleting temp files");
             int attempts = 0;
             while(attempts < 3)
@@ -320,6 +325,27 @@ namespace SlugChessUpdater
         private static void CompressedBytesReadCallback(object? sender, CompressedBytesReadEventArgs e)
         {
             Console.WriteLine("Compressed bytes read: " + e.CompressedBytesRead);
+        }
+
+        private static string Bash(this string cmd)
+        {
+            var escapedArgs = cmd.Replace("\"", "\\\"");
+                
+            var process = new Process()
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "/bin/bash",
+                    Arguments = $"-c \"{escapedArgs}\"",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                }
+            };
+            process.Start();
+            string result = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+            return result;
         }
 
 
