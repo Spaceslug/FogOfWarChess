@@ -1,11 +1,73 @@
 #include "chesscomservice.h"
 
-ChessComService::ChessComService()
+ChessComService::ChessComService() 
 {
     tokenCounter = 1;
 }
+ChessComService::~ChessComService()
+{
+    
+}
+grpc::Status ChessComService::RegisterUser(ServerContext* context, const chesscom::RegiserUserForm* request, chesscom::RegiserUserFormResult* response) 
+{
+    
+    if(Filesystem::UserFileExists(UserStore::UsernameToDataFilename(request->username()))){
+        response->set_success(false);
+        response->set_fail_message("Username '" + request->username() + "' already exists. Choose another one.");
+    }else{
+        auto encry_key = UserStore::EncryptionKeyFromPassword(request->password());
+        chesscom::UserStaticData ud;
+        ud.set_username(request->username());
+        ud.set_elo(1500);
+         try {
+            std::string encrypted = UserStore::encrypt_string(SECRET, encry_key);
+            ud.set_secret(encrypted);
+       
+            Filesystem::WriteUserFile(ud, UserStore::UsernameToDataFilename(ud.username()));
+            response->set_success(true);
+            return Status::OK;
+        }
+        catch (std::invalid_argument& ex){
+            Messenger::Log("Failed to create user:" + std::string(ex.what()));
+            //TODO: delete user data incase it got half writen
+            response->set_success(false);
+            response->set_fail_message("Something whent wring when create user. Please try again with different username or password");
+            return Status::OK;
+        }
+    }
+    return Status::CANCELLED;
+
+}
+
 Status ChessComService::Login(ServerContext* context, const chesscom::LoginForm* request, chesscom::LoginResult* response) 
 {
+    //START BY VALIDATING USER
+    const auto encryption_key = UserStore::EncryptionKeyFromPassword(request->password());
+    const auto filename = UserStore::UsernameToDataFilename(request->username());
+    if(!Filesystem::UserFileExists(filename)){
+        response->set_successfull_login(false);
+        response->set_login_message("Username or password is wrong");
+        return Status::OK;
+    }
+    auto& userData = *response->mutable_user_data();
+    try{
+        auto userdata_static = Filesystem::ReadUserFile(UserStore::UsernameToDataFilename(request->username()));
+        if(SECRET == UserStore::decrypt_string(userdata_static.secret(), encryption_key)){
+            userData.set_username(userdata_static.username());
+            userData.set_elo(userdata_static.elo());
+        }else{
+            response->set_successfull_login(false);
+            response->set_login_message("Username or password is wrong");
+            return Status::OK;
+        }
+
+    } catch(std::invalid_argument& ex){
+        response->set_successfull_login(false);
+        response->set_login_message("Username and password correct, but loading of userdata failed. If trying again dossend wourk you are fucked");
+        return Status::OK;
+    }
+    
+    
     if(request->major_version() == MAJOR_VER && request->minor_version() == MINOR_VER)
     {
         std::cout << "User " << request->major_version() << " " << MAJOR_VER << " " << request->minor_version() << " " << MINOR_VER << " " << request->build_version() << " " << BUILD_VER << std::endl << std::flush;
@@ -18,12 +80,8 @@ Status ChessComService::Login(ServerContext* context, const chesscom::LoginForm*
             response->set_login_message("You should upgrade to latest version. Server version " VERSION ", Client version " + request->major_version() + "." + request->minor_version() + "." + request->build_version()+". You can find the latest version at 'http://spaceslug.no/slugchess/'");
         }
         std::string userToken = request->username() + "-" + std::to_string(tokenCounter++);
-        //PRETEND TO FERCH USERDATA FROM A USER DATABASE
-        auto& userData = *response->mutable_user_data();
-        userData.set_username(request->username());
         userData.set_usertoken(userToken);
-        userData.set_elo(9999);
-        UserManager::Get()->LogInUser(userToken, userData);
+        UserManager::Get()->LogInUser(userToken, userData, encryption_key);
 
         std::cout << "User " << response->user_data().username() << " " << response->user_data().usertoken() << " logged in" << std::endl << std::flush;
         response->set_successfull_login(true);
@@ -37,12 +95,8 @@ Status ChessComService::Login(ServerContext* context, const chesscom::LoginForm*
     {
         response->set_login_message("Client version higher then server. Assuming you are dev or something. Server version " VERSION ", Client version " + request->major_version() + "." + request->minor_version() + "." + request->build_version()+".");
         std::string userToken = request->username() + "-" + std::to_string(tokenCounter++);
-        //PRETEND TO FERCH USERDATA FROM A USER DATABASE
-        auto& userData = *response->mutable_user_data();
-        userData.set_username(request->username());
         userData.set_usertoken(userToken);
-        userData.set_elo(9999);
-        UserManager::Get()->LogInUser(userToken, userData);
+        UserManager::Get()->LogInUser(userToken, userData, encryption_key);
     }
     else
     {

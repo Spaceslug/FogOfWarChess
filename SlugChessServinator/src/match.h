@@ -52,7 +52,8 @@ public:
     std::string _ruleType;
 
     void nl_SendMessageAllPlayers(const std::string& message);
-    void nl_MatchFinished();
+    void nl_MatchCompleted(chesscom::MatchEvent result);
+    void nl_TerminateMatch();
     void nl_MatchEventAskingForDraw(chesscom::MatchEvent matchEvent, std::string& usertoken);
     void nl_MatchEventAll(chesscom::MatchEvent matchEvent, bool moveHappened);
 };

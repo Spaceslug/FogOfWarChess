@@ -26,7 +26,9 @@
 #include "gamebrowser.h"
 #include "matchmanager.h"
 #include "usermanager.h"
+#include "userstore.h"
 #include "slugchesscoverter.h"
+#include "filesystem.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;
@@ -46,6 +48,8 @@ public:
     //std::map<std::string, std::shared_ptr<::Match>> matches;
 
     ChessComService();
+    ~ChessComService();
+    grpc::Status RegisterUser(ServerContext* context, const chesscom::RegiserUserForm* request, chesscom::RegiserUserFormResult* response) override;
     grpc::Status Login(ServerContext* context, const chesscom::LoginForm* request, chesscom::LoginResult* response) override;
     grpc::Status LookForMatch(ServerContext* context, const chesscom::UserIdentification* request, chesscom::LookForMatchResult* response) override;
     grpc::Status Match(ServerContext* context, grpc::ServerReaderWriter< chesscom::MoveResult, chesscom::MovePacket>* stream) override;

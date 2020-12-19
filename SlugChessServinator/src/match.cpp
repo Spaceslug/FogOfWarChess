@@ -74,8 +74,9 @@ bool Match::DoMove(const std::string& usertoken, std::shared_ptr<chesscom::Move>
         moves.push_back(move);
         cv.notify_all();
         //TORM newSystem
+        if(expectedmatch_event != chesscom::Non) nl_MatchCompleted(expectedmatch_event);
         nl_MatchEventAll(expectedmatch_event, true);
-        if(expectedmatch_event != chesscom::Non) nl_MatchFinished();
+        if(expectedmatch_event != chesscom::Non) nl_TerminateMatch();
         
         return true;
     }
@@ -97,8 +98,9 @@ void Match::PlayerDisconnected(const std::string& usertoken, chesscom::MatchEven
     if(matchEventType == chesscom::MatchEvent::WhiteWin || matchEventType == chesscom::MatchEvent::BlackWin ||
      matchEventType == chesscom::MatchEvent::Draw )
      {
+         nl_MatchCompleted(matchEventType);
          nl_MatchEventAll(matchEventType, false);
-         nl_MatchFinished();
+         nl_TerminateMatch();
      }
 }
 
@@ -151,8 +153,9 @@ void Match::PlayerAskingForDraw(const std::string& usertoken)
         matchEvents.push_back(chesscom::MatchEvent::Draw);
         cv.notify_all();
         //TORM newSystem
+        nl_MatchCompleted(chesscom::MatchEvent::Draw);
         nl_MatchEventAll(chesscom::MatchEvent::Draw, false);
-        nl_MatchFinished();
+        nl_TerminateMatch();
         std::cout  <<  usertoken << " op allready asking for draw. SecSinceAsked " << std::to_string(_players[opponentUsertoken].SecSinceAskedForDraw()) << std::endl << std::flush;
     }
     else if(_players.at(playerUsertoken).SecSinceAskedForDraw() > TIMEOUT_FOR_DRAW)
@@ -189,8 +192,9 @@ void Match::PlayerAcceptingDraw(const std::string& usertoken)
         matchEvents.push_back(chesscom::MatchEvent::Draw);
         cv.notify_all();
         //TORM newSystem
+        nl_MatchCompleted(chesscom::MatchEvent::Draw);
         nl_MatchEventAll(chesscom::MatchEvent::Draw, false);
-        nl_MatchFinished();
+        nl_TerminateMatch();
         std::cout  <<  usertoken << " accepted draw for draw" << std::endl << std::flush;
     }else{
         std::cout <<  usertoken << "acept draw failed. To many Sec since opp asked draw: " << std::to_string(_players.at(opponentUsertoken).SecSinceAskedForDraw()) << std::endl << std::flush;
@@ -278,13 +282,22 @@ void Match::nl_SendMessageAllPlayers(const std::string& message)
     }
 }
 
-void Match::nl_MatchFinished()
+void Match::nl_MatchCompleted(chesscom::MatchEvent result)
 {
-    Messenger::Log(_matchToken + " match finished");
-    std::stringstream ss;
-    ss << "PGN of the game:" << std::endl;
-    nl_SendMessageAllPlayers(_pgn);
+    time_t endOfMatch = time(nullptr);
+    _pgn = GetPgnString(endOfMatch);
+    Filesystem::WriteMatchPgn(
+        UserManager::Get()->GetUserName(_whitePlayer), 
+        UserManager::Get()->GetUserName(_blackPlayer),
+        _pgn,
+        endOfMatch);
+    UserManager::Get()->UpdateElo(_whitePlayer, _blackPlayer, result);
     _matchFinished = true;
+}
+
+void Match::nl_TerminateMatch()
+{
+    Messenger::Log(_matchToken + " terminating match");
     matchDoneCV.notify_all();
 }
 void Match::nl_MatchEventAskingForDraw(chesscom::MatchEvent matchEvent, std::string& usertoken)
@@ -319,16 +332,9 @@ void Match::nl_MatchEventAll(chesscom::MatchEvent matchEvent, bool moveHappened)
     }else{
         mrPkt.set_move_happned(false);
     }
-
-    if(matchEvent != chesscom::Non){
-        time_t endOfMatch = time(nullptr);
-        _pgn = GetPgnString(endOfMatch);
+    if(_matchFinished){
         mrPkt.mutable_game_result()->set_pgn(_pgn);
-        Filesystem::WriteMatchPgn(
-            UserManager::Get()->GetUserName(_whitePlayer), 
-            UserManager::Get()->GetUserName(_blackPlayer),
-            _pgn,
-            endOfMatch);
+
     }
     
     mrPkt.set_match_event(matchEvent);

@@ -3,8 +3,10 @@
 #include <string>
 #include <unordered_map>
 #include <condition_variable>
+#include <chrono>
 
 #include "../chesscom/chesscom.grpc.pb.h"
+#include "userstore.h"
 
 /*struct MessagePack
 {
@@ -20,6 +22,8 @@ struct User
     grpc::internal::WriterInterface<chesscom::ChatMessage>* messageStream = nullptr;
     std::mutex messageStreamMutex;
     std::condition_variable changedCV;
+    std::vector<unsigned char> encryptionKey;
+    std::chrono::time_point<std::chrono::system_clock> lastDataUpdate;
 };
 
 //PLEASE NOTE: ONE CAN NOT ASSUME A USER IS LOGGED IN FROM ONE PUBLIC CALL TO ANOTHER
@@ -40,7 +44,7 @@ class UserManager
         return _instance;
     }
 
-    void LogInUser(const std::string& token, const chesscom::UserData& userData);
+    void LogInUser(const std::string& token, const chesscom::UserData& userData, const std::vector<unsigned char>& encryptionKey);
     bool UsertokenLoggedIn(const std::string& token);
     bool Heartbeat(const std::string& token);
     bool TestHeart(const std::string& token);
@@ -48,8 +52,10 @@ class UserManager
     std::shared_ptr<chesscom::UserData> GetUserData(const std::string& token);
     User* GetUser(const std::string& token);
     std::string GetUserName(const std::string& token);
+    const std::vector<unsigned char>& GetEncryptionKey(const std::string& token);
     int ActiveUsers() { return _logedInUsers.size(); }
     void CheckHeartbeat();
+    void UpdateElo(const std::string& white_usertoken, const std::string& black_usertoken, chesscom::MatchEvent result);
 
     void AddMessageStream(const std::string& usertoken, grpc::internal::WriterInterface< chesscom::ChatMessage>* stream);
     void RemoveMessageStream(const std::string& usertoken);

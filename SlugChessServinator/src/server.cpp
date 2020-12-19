@@ -1,3 +1,4 @@
+
 #include <string>
 #include <csignal>
 #include <unordered_map>
@@ -17,6 +18,7 @@
 #include <grpcpp/grpcpp.h>
 #include "../chesscom/chesscom.grpc.pb.h"
 #include "../../SlugChessCore/src/slugchess.h"
+
 #include "version.h"
 #include "consts.h"
 #include "chesscomservice.h"
@@ -103,7 +105,6 @@ int main(int argc, char** argv) {
     }
 
     std::cout << "Root dir path  '" << Filesystem::RootDir() << "' " << std::flush << std::endl;
-
     Run(port);
     logFile << "Exiting\n";
     logFile.close();

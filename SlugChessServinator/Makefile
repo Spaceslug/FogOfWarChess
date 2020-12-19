@@ -38,7 +38,7 @@ dockerlib:
 docker: dockerlib slugchess-server
 
 slugchess-server: clean-output $(CHESSCOM_OBJ) $(OUT)/slugchess-server
-slugchess-server-dbg: clean-output $(CHESSCOM_OBJ) $(OUT)/slugchess-server-dbg
+slugchess-server-dbg:  $(CHESSCOM_OBJ) $(OUT)/slugchess-server-dbg
 clean-output:
 	rm -rf $(OUT)/*
 
