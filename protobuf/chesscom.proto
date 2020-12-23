@@ -8,8 +8,10 @@ package chesscom;
 
 // Defines the service
 service ChessCom {
-    // Function invoked to send the request
+	//Not required to be autentisized
+	rpc RegisterUser(RegiserUserForm) returns (RegiserUserFormResult) {}
 	rpc Login(LoginForm) returns (LoginResult) {}
+	//Required to be autentisized !!!TODO: make sure all have auth check in them
 	rpc LookForMatch(UserIdentification) returns (LookForMatchResult) {}
 	rpc Match(stream MovePacket) returns (stream MoveResult) {}
 	rpc ChatMessageStream(stream ChatMessage) returns (stream ChatMessage) {}
@@ -77,6 +79,14 @@ message Heartbeat
 {
 	bool alive = 1;
 	string usertoken = 2;
+}
+
+message UserStaticData {
+	//string uuid = 1; username is uniq id right now
+	string username = 2;
+	float elo = 3;
+	bytes secret = 4; //the encrypted secret
+	//bytes encryption_key = 4;
 }
 
 message MatchObserver
@@ -177,9 +187,21 @@ message GameResult {
 	string pgn = 1;
 }
 
+message RegiserUserForm 
+{
+	string username = 1; // any utf-8 name
+	string password = 2;
+}
+
+message RegiserUserFormResult
+{
+	bool success = 1;
+	string fail_message = 2;
+}
+
 message LoginForm {
 	string username = 1;
-	string encrypted_password = 5;
+	string password = 5; // The message should be encrypted through HTTPS. password is in clear text
 	string major_version = 2;
 	string minor_version = 3;
 	string build_version = 4;
@@ -201,7 +223,7 @@ message UserIdentification {
 message UserData {
 	string username = 1;
 	string usertoken = 2;
-	int32 elo = 3;
+	float elo = 3;
 }
 
 message LookForMatchResult {
