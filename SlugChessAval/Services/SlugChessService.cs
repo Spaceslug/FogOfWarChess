@@ -128,7 +128,7 @@ namespace SlugChessAval.Services
                 var ver = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
                 try
                 {
-                    var result = Client.Call.Login(new LoginForm { Username = username, MajorVersion = ver.FileMajorPart.ToString(), MinorVersion = ver.FileMinorPart.ToString(), BuildVersion = ver.FileBuildPart.ToString() });
+                    var result = Client.Call.Login(new LoginForm { Username = username, Password = password, MajorVersion = ver.FileMajorPart.ToString(), MinorVersion = ver.FileMinorPart.ToString(), BuildVersion = ver.FileBuildPart.ToString() });
                     if (result.SuccessfullLogin)
                     {
                         UserData = new UserData

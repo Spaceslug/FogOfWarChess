@@ -62,7 +62,7 @@ Changes to chesscom commuication api or underlating function.
 
 
 ### version 0.16.0
-- [ ] Formalize Torch and Sight. Both a text and chesscom description of the rules. They should temporerly be known as TorchWip and SightWip.
+- [ ] Formalize Torch and Sight. Both a text and ~chesscom~ description of the rules. Formalized in SlugChessCore They should temporerly be known as TorchWip and SightWip. 
 - [ ] password system
 - [ ] save userdata {username as id and elo. Passwords come later}
 - [ ] simple elo system (same as FIDE)

@@ -16,6 +16,7 @@ using System.Reflection;
 using Splat;
 using Avalonia;
 using SlugChessAval.Models;
+using System.Reactive.Subjects;
 
 namespace SlugChessAval.ViewModels
 {
@@ -91,6 +92,10 @@ namespace SlugChessAval.ViewModels
 
         public readonly ReactiveCommand<Unit, Unit> Cancel;
 
+        public IObservable<bool> MoveBackEnabled => _moveBackEnabled;
+        BehaviorSubject<bool> _moveBackEnabled = new BehaviorSubject<bool>(false);
+
+
 
         public bool ClientActive
         {
@@ -114,6 +119,22 @@ namespace SlugChessAval.ViewModels
 
             _notiTimer = new System.Timers.Timer(9000);
             _notiTimer.Elapsed += (Object source, ElapsedEventArgs e) => Notification = "";
+
+            Router.NavigationChanged.Subscribe(x =>
+            {
+                if (Router.NavigationStack.Count == 1)
+                {
+                    _moveBackEnabled.OnNext(false);
+                }
+                else if (Router.CurrentViewModel.Take(1).Wait() is PlayViewModel)
+                {
+                    _moveBackEnabled.OnNext(false);
+                } 
+                else 
+                {
+                    _moveBackEnabled.OnNext(true);
+                }
+            });
 
             //Application.Current.Ex
             //_exit = ReactiveCommand.Create(() => this.)

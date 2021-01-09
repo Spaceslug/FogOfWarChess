@@ -56,7 +56,7 @@ namespace SlugChessAval.ViewModels
         }
         private string _password = "";
 
-        public LoginViewModel(IScreen? screen = null)
+        public LoginViewModel(IScreen? screen = null, string? username = null, string? password = null)
         {
             Activator = new ViewModelActivator();
             HostScreen = screen ?? Locator.Current.GetService<IScreen>();
@@ -78,14 +78,13 @@ namespace SlugChessAval.ViewModels
             _login.Subscribe((result) => {
                 HandleLoginAttemptResult(result);
             });
-#if DEBUG
-            if (Program.LaunchedWithParam("--debugLogin"))
+
+            if(username != null && password != null)
             {
-                Username = Program.GetParamValue("--debugLogin");
-                Password = Program.GetParamValue("--debugLogin");
+                Username = username;
+                Password = password;
                 _login.Execute().Subscribe();
             }
-
             this.WhenActivated(disposables =>
             {
 
@@ -94,7 +93,6 @@ namespace SlugChessAval.ViewModels
 
                 }).DisposeWith(disposables);
             });
-#endif
         }
 
         private void HandleLoginAttemptResult(ChessCom.LoginResult result)

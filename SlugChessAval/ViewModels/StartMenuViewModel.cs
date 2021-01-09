@@ -29,8 +29,11 @@ namespace SlugChessAval.ViewModels
         private string _test = "...";
 
         public ICommand MoveToLogin => _moveToLogin;
+        private readonly ReactiveCommand<(string?, string?), (string?, string?)> _moveToLogin;
+        public ICommand MoveToRegister => _moveToRegister;
+        private readonly ReactiveCommand<Unit, Unit> _moveToRegister;
 
-        private readonly ReactiveCommand<Unit, Unit> _moveToLogin;
+        private bool _haveTriedDebugLogin = false;
 
         public StartMenuViewModel(IScreen? screen = null)
         {
@@ -41,18 +44,27 @@ namespace SlugChessAval.ViewModels
             var canMoveToLogin = SlugChessService.Client.WhenAnyValue(x => x.ConnectionAlive);
 
             _moveToLogin = ReactiveCommand.Create(
-                () => { HostScreen.Router.Navigate.Execute(new LoginViewModel()).Subscribe(); },
+                ((string? a, string? b) c) => c,
                 canMoveToLogin);
-            
+            _moveToLogin.Subscribe(((string? a, string? b) c) =>
+            {
+                HostScreen.Router.Navigate.Execute(new LoginViewModel(null, c.a, c.b)).Subscribe();
+            });
+
+            _moveToRegister = ReactiveCommand.Create(
+                () => { HostScreen.Router.Navigate.Execute(new RegisterUserViewModel()).Subscribe(); },
+                canMoveToLogin);
+
             this.WhenActivated(disposables =>
             {
 #if DEBUG
 
-                if (Program.LaunchedWithParam("--debugLogin"))
+                if (Program.LaunchedWithParam("--debugLogin") && !_haveTriedDebugLogin)
                 {
+                    _haveTriedDebugLogin = true;
                     SlugChessService.Client.WhenAnyValue(x => x.ConnectionAlive).Where(conAlive => conAlive).Delay(TimeSpan.FromSeconds(0.2)).Subscribe(x =>
                     {
-                        Dispatcher.UIThread.InvokeAsync(() => _moveToLogin.Execute().Subscribe());
+                        Dispatcher.UIThread.InvokeAsync(() => MoveToLogin.Execute((Program.GetParamValue("--debugLogin"), "dbg_passW0rd")));
                     }).DisposeWith(disposables);
 
                 }

@@ -1,4 +1,5 @@
 ﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:rxui="http://reactiveui.net"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -6,7 +7,6 @@
         xmlns:vm="clr-namespace:SlugChessAval.ViewModels;assembly=SlugChessAval"
         xmlns:views="clr-namespace:SlugChessAval.Views"
         xmlns:converters="clr-namespace:SlugChessAval.Converters"
-        xmlns:reactiveUi="http://reactiveui.net"
         x:Class="SlugChessAval.Views.MainWindow"
         Icon="/Assets/icon.ico"
         Title="{Binding Title}"
@@ -23,12 +23,15 @@
       <Setter Property="FontSize" Value="{DynamicResource FontSizeNormal}"/>
       <Setter Property="Margin" Value="5"/>
     </Style>
-    <Style Selector="TextBox">
-      <Setter Property="FontSize" Value="{DynamicResource FontSizeNormal}"/>
+    <Style Selector="TextBox.large">
+      <Setter Property="FontSize" Value="{DynamicResource FontSizeLarge}"/>
     </Style>
     <Style Selector="TextBlock.h3">
       <Setter Property="FontSize" Value="{DynamicResource FontSizeLarge}"/>
       <Setter Property="Margin" Value="5"/>
+    </Style>
+    <Style Selector="TextBlock">
+      <Setter Property="FontSize" Value="{DynamicResource FontSizeNormal}"/>
     </Style>
     <Style Selector="TextBlock">
       <Setter Property="FontSize" Value="{DynamicResource FontSizeNormal}"/>
@@ -46,16 +49,17 @@
   <Grid>
     <Grid.RowDefinitions>
         <RowDefinition Height="*" />
-        <RowDefinition Height="48" />
+        <RowDefinition Height="100" />
     </Grid.RowDefinitions>
-    <reactiveUi:RoutedViewHost Grid.Row="0" Router="{Binding Router}" PageTransition="{x:Null}" >
-      <reactiveUi:RoutedViewHost.DefaultContent>
+    <rxui:RoutedViewHost Grid.Row="0" Router="{Binding Router}" PageTransition="{x:Null}" >
+      <rxui:RoutedViewHost.DefaultContent>
        <TextBlock Text="{Binding WaitingMessage}"/>
-      </reactiveUi:RoutedViewHost.DefaultContent>
-    </reactiveUi:RoutedViewHost>
-      <Grid Grid.Row="1" RowDefinitions="*,*" ColumnDefinitions="80,1*,80">
+      </rxui:RoutedViewHost.DefaultContent>
+    </rxui:RoutedViewHost>
+      <Grid Grid.Row="1" RowDefinitions="*,*,*" ColumnDefinitions="80,1*,80">
         <TextBlock Grid.Row="0" Grid.Column="1" Text="Welcome to SlugChess" TextAlignment="Center"/>
         <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Notification}" Margin="0,0,0,5" Foreground="LightSalmon" TextAlignment="Center" />
+        <Button Grid.Row="2" Grid.Column="1" Content="Go back" Command="{Binding Router.NavigateBack}" IsEnabled="{Binding MoveBackEnabled^}" />
       </Grid>
     </Grid>
 

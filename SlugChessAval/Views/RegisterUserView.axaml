@@ -1,0 +1,48 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+            xmlns:views="clr-namespace:SlugChessAval.Views"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="SlugChessAval.Views.RegisterUserView">
+  <Grid RowDefinitions="1*, 8* ,1*" MinWidth="400">
+    <Grid Grid.Row="0">
+      <TextBlock Grid.Row="0" Classes="h3" Text="Regiser User" Margin="5" TextAlignment="Center" />
+    </Grid>
+    <Grid Grid.Row="1">
+
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="1*" />
+        <ColumnDefinition Width="2*" />
+        <ColumnDefinition Width="2*" />
+        <ColumnDefinition Width="1*" />
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="48" />
+        <RowDefinition Height="48" />
+        <RowDefinition Height="48" />
+        <RowDefinition Height="48" />
+        <RowDefinition Height="48" />
+        <RowDefinition Height="48" />
+        <RowDefinition Height="48" />
+        <RowDefinition Height="48" />
+      </Grid.RowDefinitions>
+      <TextBlock Grid.Row="1" Grid.Column="1" Text="Username"  Margin="3" Classes="large" />
+      <TextBox Grid.Row="1"  Grid.Column="2" Text="{Binding Username}"  />
+      <TextBlock Grid.Row="2" Grid.Column="1" Text="Password"  Margin="3" />
+      <TextBox Grid.Row="2" Grid.Column="2" PasswordChar="*"  Text="{Binding Password}" />
+      <TextBlock Grid.Row="3" Grid.Column="1" Text="Retype Password"  Margin="3" />
+      <TextBox Grid.Row="3" Grid.Column="2" PasswordChar="*"  Text="{Binding ConfPassword}" />
+      <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding $parent[views:MainWindow].Test}"  Margin="3" />
+      <Button Grid.Row="4" Grid.Column="2" Content="Parent back" Command="{Binding $parent[views:MainWindow].Cancel}" Classes="normal" Margin="3"  />
+      <Button Grid.Row="5" Grid.Column="1" Content="Register"   Command="{Binding RegisterUser}" Classes="normal" Margin="3" />
+      <Button Grid.Row="5" Grid.Column="2" Content="Back" Command="{Binding $parent[Window].Cancel}" Classes="normal" Margin="3" />
+    </Grid>
+    <Grid Grid.Row="2">
+      <TextBlock Margin="3" Text="{Binding LoginMessage}" TextWrapping="Wrap" Foreground="MediumVioletRed" />
+    </Grid>
+  </Grid>
+
+    
+
+</UserControl>
