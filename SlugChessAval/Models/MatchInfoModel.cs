@@ -51,7 +51,7 @@ namespace SlugChessAval.Models
                 var gameRules = keyVal.Value.GameRules;
                 var match = new MatchInfoModel(
                     keyVal.Value.Host.Username,
-                    keyVal.Value.Host.Elo,
+                    (int)Math.Round(keyVal.Value.Host.Elo),
                     keyVal.Value.GameRules.ChessType.ToString(),
                     keyVal.Value.GameRules.SideType.ToString(),
                     TimeRulesToString(keyVal.Value.GameRules.TimeRules),

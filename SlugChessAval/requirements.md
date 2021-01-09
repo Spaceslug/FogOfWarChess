@@ -1,3 +1,6 @@
+# Visual Studio
+You need the Avalonia Visual Studio extention for creating new avalonia views
+
 # dotnetcore
 You need dotnetcore 3.1 to build
 To publish you need the dotnetcore tool DotNetVersion
