@@ -73,8 +73,10 @@ namespace SlugChessAval.ViewModels
             // Buttons bound to the command will stay disabled
             // as long as the command stays disabled.
             _registerUser = ReactiveCommand.CreateFromTask(
-                ((string u, string p) x) => new Task<(ChessCom.RegiserUserFormResult, string, string)>(
-                    () => (SlugChessService.Client.Call.RegisterUser(new ChessCom.RegiserUserForm { Username = Username, Password = Password }), x.u, x.p)),
+                ((string u, string p) x) => Task.Run<(ChessCom.RegiserUserFormResult, string, string)>(
+                    () => {
+                        return (SlugChessService.Client.Call.RegisterUser(new ChessCom.RegiserUserForm { Username = Username, Password = Password }), x.u, x.p);
+                    }),
                 canRegister);
             _registerUser.Subscribe(((ChessCom.RegiserUserFormResult result, string u, string p) x) => {
                 if (x.result.Success)

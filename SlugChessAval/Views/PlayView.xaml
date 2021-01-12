@@ -15,6 +15,13 @@
               Content="White" IsEnabled="{Binding !CurrentVisionWhite^}" IsVisible="{Binding !MatchModel.ThisPlayerColored^}"/>
       <Button Classes="normal" Command="{Binding ChangeChessboardVision}" CommandParameter="Black"
               Content="Black" IsEnabled="{Binding !CurrentVisionBlack^}" IsVisible="{Binding !MatchModel.ThisPlayerColored^}"/>
+      <Panel Width="50" />
+      <TextBlock Text="{Binding SlugChess.UserData.Username}" Classes="normal"></TextBlock>
+      <WrapPanel Orientation="Horizontal">
+        <TextBlock Text="Elo: " Classes="normal"></TextBlock>
+        <TextBlock Text="{Binding SlugChess.UserData.Elo}" Classes="normal"></TextBlock>
+
+      </WrapPanel>
     </WrapPanel>
     <views:Chessboard DataContext="{Binding Chessboard}" Grid.Row="0" Grid.Column="1" />
     <Grid Grid.Row="0" Grid.Column="2" ColumnDefinitions="*" RowDefinitions="auto,auto,*"  Margin="5" Width="380">

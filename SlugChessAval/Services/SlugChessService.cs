@@ -59,7 +59,19 @@ namespace SlugChessAval.Services
             _channel = new Channel(adress, port, ChannelCredentials.Insecure);
             Call = new ChessCom.ChessCom.ChessComClient(_channel);
             _heartbeatTimer.AutoReset = true;
-            _heartbeatTimer.Elapsed += (o, e) => { if (!Call.Alive(new Heartbeat { Alive = true, Usertoken = UserData?.Usertoken ?? "" }).Alive) { UserLoggedIn.OnNext(false); UserData = new UserData(); } };
+            _heartbeatTimer.Elapsed += (o, e) => 
+            {
+                try
+                {
+                    if (!Call.Alive(new Heartbeat { Alive = true, Usertoken = UserData?.Usertoken ?? "" }).Alive) { UserLoggedIn.OnNext(false); UserData = new UserData(); }
+
+                }
+                catch(Grpc.Core.RpcException ex)
+                {
+                    // EX here means Heartbeat failed for some reason.
+                    throw ex;
+                }
+            };
             UserLoggedIn.Subscribe(loggedIn => { 
                 if (loggedIn) { 
                     _heartbeatTimer.Start();
@@ -122,6 +134,10 @@ namespace SlugChessAval.Services
 
         private System.Timers.Timer _heartbeatTimer = new System.Timers.Timer(60*1000);
 
+        public void GetNewUserdata()
+        {
+            UserData = Client.Call.GetPublicUserdata(new UserDataRequest { UserIdent = { Usertoken = UserData.Usertoken, Secret = "????" }, Username = UserData.Username });
+        }
 
         public Task<LoginResult> LoginInUserAsync(string username, string password) => Task.Run<LoginResult>(() => 
             {

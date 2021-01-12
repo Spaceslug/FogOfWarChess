@@ -84,6 +84,8 @@ namespace SlugChessAval.ViewModels
         public string PlayingAs => (MatchModel.ThisPlayer.Take(1).Wait()) switch 
             { PlayerIs.White => "Playing as White", PlayerIs.Black => "Playing as Black", PlayerIs.Both => "Playing yourself", PlayerIs.Observer => "Watching as Observer", _ => "No game active" };
 
+        public SlugChessService SlugChess => SlugChessService.Client;
+
         public MatchModel MatchModel { get; }
         private string _matchToken { get; set; } = "0000";
 
@@ -321,6 +323,7 @@ namespace SlugChessAval.ViewModels
                     ChessClock.StopTimer();
                     Chatbox.OpponentUsertoken = null;
                     disposablesForEndMatchWhenViewDeactivated.Dispose();
+                    SlugChessService.Client.GetNewUserdata();
                 })
             );
         }

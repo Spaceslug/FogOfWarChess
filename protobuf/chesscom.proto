@@ -29,6 +29,7 @@ service ChessCom {
 	rpc SendChatMessage(ChatMessage) returns (Void) {}
 	rpc ProcessReplay(ReplayRequest) returns (Replay) {}
 	rpc ServerVisionRulesets(Void) returns (VisionRuleset) {}
+	rpc GetPublicUserdata(UserDataRequest) returns (UserData) {}				// not have auth check yet
 }
 
 message Void{}
@@ -250,6 +251,12 @@ message MoveResult {
 	MatchEvent match_event = 5;
 	ChessClock chess_clock = 7;
 	GameResult game_result = 8;
+}
+
+message UserDataRequest
+{
+	UserIdentification user_ident = 1;
+	string username = 2;
 }
 
 message ReplayRequest
