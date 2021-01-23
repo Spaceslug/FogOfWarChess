@@ -63,7 +63,11 @@ namespace SlugChessAval.Services
             {
                 try
                 {
-                    if (!Call.Alive(new Heartbeat { Alive = true, Usertoken = UserData?.Usertoken ?? "" }).Alive) { UserLoggedIn.OnNext(false); UserData = new UserData(); }
+                    if (!Call.Alive(new Heartbeat { Alive = true, Usertoken = UserData?.Usertoken ?? "" }).Alive) 
+                    { 
+                        UserLoggedIn.OnNext(false); 
+                        UserData = new UserData(); 
+                    }
 
                 }
                 catch(Grpc.Core.RpcException ex)
@@ -78,7 +82,7 @@ namespace SlugChessAval.Services
                     Task.Run(() =>
                     {
                         var stream = Call.ChatMessageListener(UserData);
-                        while (stream.ResponseStream.MoveNext().Result)
+                        while (stream.ResponseStream.MoveNext().Result) // Gets inner exeption with status code 'Unavailable' when server closes with players logged in
                         {
                             //Send the message to UI thread to avoid weird race conditions. Rx should be single threaded.
                             Dispatcher.UIThread.InvokeAsync(() =>
@@ -136,7 +140,11 @@ namespace SlugChessAval.Services
 
         public void GetNewUserdata()
         {
-            UserData = Client.Call.GetPublicUserdata(new UserDataRequest { UserIdent = { Usertoken = UserData.Usertoken, Secret = "????" }, Username = UserData.Username });
+            var userId = new UserIdentification { Usertoken = UserData.Usertoken, Secret = "????" };
+            var req = new UserDataRequest { UserIdent = userId, Username = UserData.Username };
+            var ud = Client.Call.GetPublicUserdata(req);
+            //WAAAAA. Make sure not to overwrite the usertoken
+            UserData = new UserData { Username=UserData.Username, Usertoken = UserData.Usertoken, Elo = ud.Elo };
         }
 
         public Task<LoginResult> LoginInUserAsync(string username, string password) => Task.Run<LoginResult>(() => 

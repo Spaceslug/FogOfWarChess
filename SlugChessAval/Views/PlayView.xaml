@@ -4,8 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:SlugChessAval.ViewModels;assembly=SlugChessAval"
         	   xmlns:views="clr-namespace:SlugChessAval.Views"
+             xmlns:converters="clr-namespace:SlugChessAval.Converters"
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="700"
              x:Class="SlugChessAval.Views.PlayView">
+  <Control.Resources>
+    <converters:RoundFloat x:Key="roundFloat"/> 
+  </Control.Resources>
   <Grid ColumnDefinitions="auto,3*,auto" RowDefinitions="*,auto" Margin="5,5,5,5">
     <WrapPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical" MinWidth="120">
       <TextBlock Text="Change vision:" IsVisible="{Binding !MatchModel.ThisPlayerColored^}" />
@@ -19,7 +23,7 @@
       <TextBlock Text="{Binding SlugChess.UserData.Username}" Classes="normal"></TextBlock>
       <WrapPanel Orientation="Horizontal">
         <TextBlock Text="Elo: " Classes="normal"></TextBlock>
-        <TextBlock Text="{Binding SlugChess.UserData.Elo}" Classes="normal"></TextBlock>
+        <TextBlock Text="{Binding SlugChess.UserData.Elo, Converter={StaticResource roundFloat}}" Classes="normal"></TextBlock>
 
       </WrapPanel>
     </WrapPanel>
