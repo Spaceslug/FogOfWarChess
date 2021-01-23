@@ -7,6 +7,7 @@
 
 #include "../chesscom/chesscom.grpc.pb.h"
 #include "userstore.h"
+#include "filesystem.h"
 
 /*struct MessagePack
 {
@@ -33,6 +34,7 @@ class UserManager
     private:
     static UserManager* _instance;
     UserManager() {}
+    ~UserManager();
     std::mutex _mutex;
     std::unordered_map<std::string, User> _logedInUsers;
 
@@ -43,6 +45,7 @@ class UserManager
         _instance = new UserManager();
         return _instance;
     }
+    static void DeleteInstance(){ if(_instance != nullptr) {delete _instance; _instance = nullptr;}}
 
     void LogInUser(const std::string& token, const chesscom::UserData& userData, const std::vector<unsigned char>& encryptionKey);
     bool UsertokenLoggedIn(const std::string& token);
@@ -50,6 +53,7 @@ class UserManager
     bool TestHeart(const std::string& token);
     bool Logout(const std::string& token);
     std::shared_ptr<chesscom::UserData> GetUserData(const std::string& token);
+    chesscom::UserData GetPublicUserDataFromUsername(const std::string& username);
     User* GetUser(const std::string& token);
     std::string GetUserName(const std::string& token);
     const std::vector<unsigned char>& GetEncryptionKey(const std::string& token);

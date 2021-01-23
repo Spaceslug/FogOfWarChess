@@ -366,6 +366,13 @@ grpc::Status ChessComService::JoinGame(grpc::ServerContext *context, const chess
 
 grpc::Status ChessComService::Alive(grpc::ServerContext* context, const chesscom::Heartbeat* request, chesscom::Heartbeat* response)
 {
+    if(!UserManager::Get()->UsertokenLoggedIn(request->usertoken()))
+    {
+        Messenger::Log("'"+request->usertoken() + "' is not a logged in user. Heartbeat failed");       
+        response->set_alive(false);
+        response->set_usertoken(request->usertoken());
+        return grpc::Status::OK;
+    }
     if(UserManager::Get()->Heartbeat(request->usertoken()))
     {
         response->set_alive(true);
@@ -374,7 +381,7 @@ grpc::Status ChessComService::Alive(grpc::ServerContext* context, const chesscom
     }
     else
     {
-        std::cout << request->usertoken() << " failed heartbeat test and was force logged out" <<  std::endl << std::flush;       
+        Messenger::Log("'"+request->usertoken() + "' failed heartbeat test and was force logged out");       
         UserManager::Get()->Logout(request->usertoken());
         UserManager::Get()->RemoveMessageStream(request->usertoken());
         response->set_alive(false);
@@ -402,7 +409,7 @@ grpc::Status ChessComService::ChatMessageListener(grpc::ServerContext* context, 
         }
         if(!UserManager::Get()->UsertokenLoggedIn(request->usertoken()))
         {
-            std::cout << "ChatMessage stream ended because user logged out" << std::endl << std::flush;
+            Messenger::Log("ChatMessage stream ended because " + request->usertoken() + " logged out");
             return grpc::Status::OK;
         }
         changedCV.wait_for(lk, std::chrono::milliseconds(MAX_SLEEP_MS));
@@ -488,6 +495,21 @@ grpc::Status ChessComService::ServerVisionRulesets(grpc::ServerContext* context,
     auto visionRules = SlugChess::GetVisionRules();
     for(auto& [name, scRule] : visionRules){
         response->mutable_vision_rulesets()->insert({name, MatchManager::Get()->FromSlugChessVisionRules(*scRule)}); 
+    }
+    return grpc::Status::OK;
+}
+
+grpc::Status ChessComService::GetPublicUserdata(grpc::ServerContext* context, const chesscom::UserDataRequest* request, chesscom::UserData* response)
+{
+    //TODO verify secret
+    std::string usertoken = request->user_ident().usertoken();
+    if(UserManager::Get()->UsertokenLoggedIn(usertoken)){
+        auto userdata = UserManager::Get()->GetPublicUserDataFromUsername(request->username());
+        if(userdata.username() == request->username()){
+            *response = userdata;
+            
+            Messenger::Log("Sending userdata about: " + userdata.username());
+        }
     }
     return grpc::Status::OK;
 }

@@ -84,7 +84,8 @@ void Run(std::string port) {
     std::cout << "SlugChess Server listening on port: " << address << std::endl;
 
     server->Wait();
-    std::cout << "After wait happened" << std::endl;
+    std::cout << "After wait happened. Do cleanup" << std::endl;
+    UserManager::DeleteInstance();
     
 }
 

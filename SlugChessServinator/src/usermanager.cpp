@@ -1,8 +1,16 @@
 #include "usermanager.h"
 #include "matchmanager.h"
 #include "gamebrowser.h"
-UserManager* UserManager::_instance = 0;
+UserManager* UserManager::_instance = nullptr;
 
+UserManager::~UserManager(){
+    for (auto& [usertoken, user] : _logedInUsers)
+    {
+        UserStore::WriteUserEloToFile(user.data, user.encryptionKey);
+        Messenger::Log("Wrote user ELO on quit: " + user.data->username());
+    }
+    
+}
 void UserManager::LogInUser(const std::string& token, const chesscom::UserData& userData, const std::vector<unsigned char>& encryptionKey)
 {
     std::scoped_lock<std::mutex> lock(_mutex);
@@ -61,12 +69,15 @@ bool UserManager::TestHeart(const std::string& token)
 bool UserManager::Logout(const std::string& token)
 {
     std::shared_ptr<chesscom::UserData> userdata;
+    std::vector<uint8_t> encryptionKey;
     {
-    std::scoped_lock<std::mutex> lock(_mutex);
-    userdata = _logedInUsers.at(token).data;
-    _logedInUsers.at(token).changedCV.notify_all();
-    _logedInUsers.erase(token);
+        std::scoped_lock<std::mutex> lock(_mutex);
+        userdata = _logedInUsers.at(token).data;
+        encryptionKey = _logedInUsers.at(token).encryptionKey;
+        _logedInUsers.at(token).changedCV.notify_all();
+        _logedInUsers.erase(token);
     }
+    UserStore::Get()->WriteUserEloToFile(userdata, encryptionKey);
     //Add calls to managers that want to be notified of this
     GameBrowser::Get()->UserLoggedOut(token, userdata);
     MatchManager::Get()->UserLoggedOut(token, userdata);
@@ -82,6 +93,37 @@ std::shared_ptr<chesscom::UserData> UserManager::GetUserData(const std::string& 
     else {
         return std::shared_ptr<chesscom::UserData>();
     }
+}
+
+chesscom::UserData UserManager::GetPublicUserDataFromUsername(const std::string& username)
+{
+    {
+        std::scoped_lock<std::mutex> lock(_mutex);
+        for (auto& [usertoken, user] : _logedInUsers)
+        {
+            if(user.data->username() == username){
+                chesscom::UserData userdata;
+                userdata.set_elo(user.data->elo());
+                userdata.set_username(user.data->username());
+                return userdata;
+            }   
+        }
+    }
+    chesscom::UserData userData;\
+    const auto filename = UserStore::UsernameToDataFilename(username);
+    if(Filesystem::UserFileExists(filename)){
+        try{
+            auto userdata_static = Filesystem::ReadUserFile(UserStore::UsernameToDataFilename(username));
+            userData.set_username(userdata_static.username());
+            userData.set_elo(userdata_static.elo());
+            return userData;
+
+        } catch(std::invalid_argument& ex){
+
+        }
+    }
+    Messenger::Log("Failed to find userdata for '"+username+"'");
+    return userData;
 }
 
 User* UserManager::GetUser(const std::string& token)
@@ -111,7 +153,7 @@ const std::vector<unsigned char>& UserManager::GetEncryptionKey(const std::strin
         return _logedInUsers.at(token).encryptionKey;
     } 
     else {
-        return {};
+        throw std::invalid_argument("token is not a loggen in user -> "+ token);
     }
 }
 
