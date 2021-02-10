@@ -11,7 +11,9 @@ service ChessCom {
 	//Not required to be autentisized
 	rpc RegisterUser(RegiserUserForm) returns (RegiserUserFormResult) {}
 	rpc Login(LoginForm) returns (LoginResult) {}
+	rpc GetNamedVariants(Void) returns (NamedVariants) {}
 	//Required to be autentisized !!!TODO: make sure all have auth check in them
+	rpc Logout(UserIdentification) returns (LogoutResult) {}
 	rpc LookForMatch(UserIdentification) returns (LookForMatchResult) {}
 	rpc Match(stream MovePacket) returns (stream MoveResult) {}
 	rpc ChatMessageStream(stream ChatMessage) returns (stream ChatMessage) {}
@@ -108,19 +110,29 @@ message VisionRuleset {
 	map<string, VisionRules> vision_rulesets = 1;
 }
 
+message NamedVariants {
+	repeated string variants = 1;
+}
+
 message TimeRules {
 	Time player_time = 2;
 	int32 seconds_per_move = 3;
 }
 
+//NOT IMPLEMENTED YET
+message GameRulesCustom
+{
+	ChessType chess_type = 1;
+	VisionRules custom_rules = 2;	
+}
+
 message GameRules
 {
-	oneof vision_rules{
-		VisionRules custom_rules = 1;
-		string type_rules = 5;
+	oneof variant{
+		string named = 5;
+		GameRulesCustom custom = 6;
 	}
 	TimeRules time_rules = 2;
-	ChessType chess_type = 3;
 	SideType side_type = 4;
 }
 
@@ -214,6 +226,11 @@ message LoginResult {
 	//string userToken = 2;
 	string login_message = 4;
 	UserData user_data = 5;
+}
+
+message LogoutResult {
+	bool successfull_logout = 1;
+	string logout_message = 2;
 }
 
 message UserIdentification {

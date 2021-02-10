@@ -59,9 +59,10 @@ Changes to chesscom commuication api or underlating function.
 - [ ] make a propper version system for slugchesscore shared lib. A build of slugchess server needs a spesific version of core. When you publish server release you supply a core version (think more on it). symlink to more spsific version to support multiple versions. Currently slugchesscoretest rpath does not work and will only use export version of lib
 - [ ] makefile SlugChessServer have a define for debug build. Compile different .o files for debug and regular
 - [ ] rename 'libslugchess.so' to 'libslugchess-core.so'
+
+### version 0.16.1
 - [ ] lots of text in aval is wrong. Go through everything
 - [ ] add games played to player data
-
 
 ### version 0.16.0 (Done)
 - [x] Formalize Torch and Sight. Both a text and ~chesscom~ description of the rules. Formalized in SlugChessCore They should temporerly be known as TorchWip and SightWip. 
