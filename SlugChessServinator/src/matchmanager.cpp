@@ -43,29 +43,25 @@ std::string MatchManager::CreateMatch(chesscom::HostedGame& hostedGame)
         std::tie(white, black) = RandomSort(hostedGame.host().usertoken(), hostedGame.joiner().usertoken());
     }
     std::string fenString;
-    if(hostedGame.game_rules().chess_type() == chesscom::ChessType::Classic)
-    {
-        fenString = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1";
-    }
-    else if(hostedGame.game_rules().chess_type() == chesscom::ChessType::FisherRandom)
-    {
-        //throw std::exception("not implemten FisherRandom chess");
-    }
-    else if(hostedGame.game_rules().chess_type() == chesscom::ChessType::SlugRandom)
-    {
-        fenString = Sfen::GenSlugRandom();
-    }
-    std::string ruleType;
+    std::string variant;
     VisionRules visionRules;
-    if(hostedGame.game_rules().has_custom_rules()){
-        ruleType = "custom";
-        visionRules = FromChesscomVisionRules(hostedGame.game_rules().custom_rules());
-    }else{
-        ruleType = hostedGame.game_rules().type_rules();
-        visionRules = *SlugChess::GetVisionRule(hostedGame.game_rules().type_rules());
+    if(hostedGame.game_rules().variant_case() == chesscom::GameRules::VariantCase::kNamed)
+    {
+        variant = hostedGame.game_rules().named();
+        //TODO: make a mapping from named variants string to fen sting
+        if(variant == "Classic"){
+            fenString = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1";
+        }else{
+            fenString = Sfen::GenSlugRandom();
+        }
+        visionRules = *SlugChess::GetVisionRule(variant);
+    }else{ //TODO: implement custom games again
+        variant = "custom";
+        //visionRules = FromChesscomVisionRules(hostedGame.game_rules().custom_rules());
     }
+
     std::shared_ptr<::Match> match = std::make_shared<::Match>(matchToken, white, black, 
-       fenString, ruleType, visionRules);
+       fenString, variant, visionRules);
     match->clock->blackSecLeft = hostedGame.game_rules().time_rules().player_time().minutes() * 60 + hostedGame.game_rules().time_rules().player_time().seconds();
     match->clock->whiteSecLeft = match->clock->blackSecLeft;
     match->clock->secsPerMove = hostedGame.game_rules().time_rules().seconds_per_move();

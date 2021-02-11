@@ -50,6 +50,14 @@ std::map<std::string, const VisionRules*> SlugChess::GetVisionRules()
 {
     return {{"NoRules", &VisionRules_NoRules}, {"SightWip", &VisionRules_SightWip}, {"TorchWip", &VisionRules_TorchWip}};
 }
+std::vector<std::string> SlugChess::GetVariants()
+{
+    return {"Classic", "SightWip", "TorchWip"/*,"Custom"?*/,};
+}
+std::vector<std::string> SlugChess::GetVariantsAsInSAN()
+{
+    return {"SlugChess.SightWip", "SlugChess.TorchWip"/*,"Custom"?*/,};
+}
 const VisionRules* SlugChess::GetVisionRule(const std::string& vrName)
 {
     //std::cout << "Fetching vision " << vrName << std::endl;
@@ -61,6 +69,8 @@ const VisionRules* SlugChess::GetVisionRule(const std::string& vrName)
         return &VisionRules_SightWip;
     }else if(vrName == "TorchWip"){
         return &VisionRules_TorchWip;
+    }else if(vrName == "Classic"){
+        return &VisionRules_NoRules;
     }else{
         return nullptr;
     }

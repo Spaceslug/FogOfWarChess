@@ -51,6 +51,9 @@ public:
     ~ChessComService();
     grpc::Status RegisterUser(ServerContext* context, const chesscom::RegiserUserForm* request, chesscom::RegiserUserFormResult* response) override;
     grpc::Status Login(ServerContext* context, const chesscom::LoginForm* request, chesscom::LoginResult* response) override;
+    grpc::Status GetNamedVariants(ServerContext* context, const chesscom::Void* request, chesscom::NamedVariants* response) override;
+    
+    grpc::Status Logout(grpc::ServerContext* context, const chesscom::UserIdentification* request, chesscom::LogoutResult* response) override;
     grpc::Status LookForMatch(ServerContext* context, const chesscom::UserIdentification* request, chesscom::LookForMatchResult* response) override;
     grpc::Status Match(ServerContext* context, grpc::ServerReaderWriter< chesscom::MoveResult, chesscom::MovePacket>* stream) override;
     grpc::Status MatchEventListener(grpc::ServerContext *context, const chesscom::MatchObserver* request, grpc::ServerWriter<chesscom::MoveResult> *writer) override;

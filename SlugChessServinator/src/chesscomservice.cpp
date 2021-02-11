@@ -106,6 +106,24 @@ Status ChessComService::Login(ServerContext* context, const chesscom::LoginForm*
     return Status::OK;
 }
 
+grpc::Status ChessComService::GetNamedVariants(ServerContext* context, const chesscom::Void* request, chesscom::NamedVariants* response) 
+{
+    //response->set_variants();
+    auto variants = SlugChess::GetVariants();
+    *response->mutable_variants() = {variants.begin(), variants.end()};
+    return Status::OK;
+}
+    
+grpc::Status ChessComService::Logout(grpc::ServerContext* context, const chesscom::UserIdentification* request, chesscom::LogoutResult* response) 
+{
+    //TODO verify user identification
+    response->set_successfull_logout(UserManager::Get()->Logout(request->usertoken()));
+    if(!response->successfull_logout()){
+        response->set_logout_message("Could not logout as user not logged in");
+    }
+    return Status::OK;
+}
+
 Status ChessComService::LookForMatch(ServerContext* context, const chesscom::UserIdentification* request, chesscom::LookForMatchResult* response) 
 {
     //////////     TODO: depracated as fuck
@@ -383,7 +401,6 @@ grpc::Status ChessComService::Alive(grpc::ServerContext* context, const chesscom
     {
         Messenger::Log("'"+request->usertoken() + "' failed heartbeat test and was force logged out");       
         UserManager::Get()->Logout(request->usertoken());
-        UserManager::Get()->RemoveMessageStream(request->usertoken());
         response->set_alive(false);
         response->set_usertoken(request->usertoken());
         return grpc::Status::OK;

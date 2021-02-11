@@ -49,7 +49,7 @@ public:
     std::map<std::string, Player> _players;
     std::mutex _mutex;
     std::string _pgn = "";
-    std::string _ruleType;
+    std::string _variant;
 
     void nl_SendMessageAllPlayers(const std::string& message);
     void nl_MatchCompleted(chesscom::MatchEvent result);

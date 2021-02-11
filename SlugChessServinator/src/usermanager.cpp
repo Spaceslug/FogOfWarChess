@@ -72,10 +72,15 @@ bool UserManager::Logout(const std::string& token)
     std::vector<uint8_t> encryptionKey;
     {
         std::scoped_lock<std::mutex> lock(_mutex);
-        userdata = _logedInUsers.at(token).data;
-        encryptionKey = _logedInUsers.at(token).encryptionKey;
-        _logedInUsers.at(token).changedCV.notify_all();
-        _logedInUsers.erase(token);
+        if(_logedInUsers.count(token) > 0){
+            userdata = _logedInUsers.at(token).data;
+            encryptionKey = _logedInUsers.at(token).encryptionKey;
+            _logedInUsers.at(token).changedCV.notify_all();
+            _logedInUsers.erase(token);
+        }else{
+            return false;
+        }
+        
     }
     UserStore::Get()->WriteUserEloToFile(userdata, encryptionKey);
     //Add calls to managers that want to be notified of this

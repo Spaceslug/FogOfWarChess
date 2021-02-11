@@ -3,8 +3,9 @@
 #include "filesystem.h"
 #include <algorithm>
 
-Match::Match(const std::string& token, const std::string& whitePlayerToken, const std::string& blackPlayerToken, const std::string& fenString, const std::string& ruleType, VisionRules& visionRules)
+Match::Match(const std::string& token, const std::string& whitePlayerToken, const std::string& blackPlayerToken, const std::string& fenString, const std::string& variant, VisionRules& visionRules)
 {
+    //TODO: make vision rules come from variant
     _matchToken = token;
     _whitePlayer = whitePlayerToken;
     _blackPlayer = blackPlayerToken;
@@ -14,7 +15,7 @@ Match::Match(const std::string& token, const std::string& whitePlayerToken, cons
     _players[blackPlayerToken].usertoken = blackPlayerToken;
     _players[blackPlayerToken].type = PlayerTypes::Black; 
     _players[blackPlayerToken].askingForDrawTimstamp = std::chrono::system_clock::now();
-    _ruleType = ruleType;
+    _variant = variant;
     clock = std::make_shared<ChessClock>();
     game = std::make_shared<SlugChess>(fenString, visionRules);
     std::cout  << "Creating match: " << _matchToken << " white: " << whitePlayerToken << " black:" << blackPlayerToken  << std::endl << std::flush;
@@ -219,9 +220,9 @@ std::string Match::GetPgnString(time_t& ttime)
     ss << "[Mode \"ICS\"]" << std::endl;
     ss << "[FEN \"" << game->GetFenString() << "\"]" << std::endl;
     ss << "[SetUp \"1\"]" << std::endl;
-    if(_ruleType != "custom")
+    if(_variant != "custom")
     {
-        ss << "[Variant \"SlugChess." << _ruleType << "\"]" << std::endl;
+        ss << "[Variant \"SlugChess." << _variant << "\"]" << std::endl;
     } else {
         ss << "[Variant \"SlugChess." << "custom." << "{}" << "\"]" << std::endl;
     }

@@ -13,7 +13,7 @@
 #include "shared.h"
 
 class SlugChess {
-    public:
+public:
     enum EndResult{
         StillPlaying = 0,
         Draw = 1,
@@ -72,11 +72,13 @@ class SlugChess {
     const static VisionRules VisionRules_TorchWip;
     const static VisionRules VisionRules_SightWip;
     static std::map<std::string, const VisionRules*> GetVisionRules();
+    static std::vector<std::string> GetVariants();
+    static std::vector<std::string> GetVariantsAsInSAN();
     static const VisionRules* GetVisionRule(const std::string& vrName);
     static const int32_t BPToIndx(const std::string& pos){return GameRules::BoardPosToIndex(pos);}
     static std::string BP(int index) { return GameRules::BoardPos(index); }
     
-    private:
+private:
     SlugChess() {}; //Hiding default constructor
     Field ExecuteMove(const std::string from, const std::string to);
     Field ExecuteMove(int from, int to);
