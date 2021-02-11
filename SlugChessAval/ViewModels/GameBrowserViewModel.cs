@@ -26,7 +26,7 @@ namespace SlugChessAval.ViewModels
 
         private CancellationTokenSource _joinGameTokenSource = new CancellationTokenSource();
 
-        public ICommand Cancel => ((MainWindowViewModel)HostScreen).Cancel;
+        public ICommand Cancel => ((MainWindowViewModel)HostScreen).NavigateBack;
 
         public ReactiveCommand<Unit, HostedGamesMap> RefreshGamesList { get; }
         public ReactiveCommand<Unit, LookForMatchResult> JoinGame { get; }

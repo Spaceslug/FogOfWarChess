@@ -24,7 +24,7 @@ namespace SlugChessAval.ViewModels
         public const int DEFAULT_START_TIME_MIN = 5;
         public const int DEFAULT_EXTRA_TIME_SEC = 6;
         public const int DEFAULT_CHESSTYPE_INDEX = 2;
-        public const int DEFAULT_VISION_RULES_INDEX = 1;
+        public const int DEFAULT_VISION_RULES_INDEX = 0;
         public const int DEFAULT_HOST_COLOR_INDEX = 2;
 
         public ViewModelActivator Activator { get; } = new ViewModelActivator();
@@ -33,7 +33,7 @@ namespace SlugChessAval.ViewModels
 
         private CancellationTokenSource _hostGameTokenSource = new CancellationTokenSource();
 
-        public ReactiveCommand<Unit, Unit> Cancel => ((MainWindowViewModel)HostScreen).Cancel;
+        public ICommand Cancel => ((MainWindowViewModel)HostScreen).NavigateBack;
 
         public ReactiveCommand<Unit, LookForMatchResult> HostGame { get; }
 
@@ -71,7 +71,8 @@ namespace SlugChessAval.ViewModels
         }
         private int _visionRulesSelectedIndex = DEFAULT_VISION_RULES_INDEX;
 
-        public IList<KeyValuePair<string, VisionRules>> VisionRuleItems => SlugChessService.Client.ServerVisionRuleset.OrderByDescending(x => x.Key).ToList();
+        //public IList<KeyValuePair<string, VisionRules>> VisionRuleItems => SlugChessService.Client.ServerVisionRuleset.OrderByDescending(x => x.Key).ToList();
+        public IList<string> VariantsItems => SlugChessService.Client.ServerNamedVariants.OrderByDescending(x => x).ToList(); // Will include custom when supported on server
 
         public CreateGameViewModel(IScreen? screen = null)
         {
@@ -104,7 +105,8 @@ namespace SlugChessAval.ViewModels
                 ChessCom.SideType sideType = _hostColorSelectedIndex == 0 ? ChessCom.SideType.HostIsWhite :
                                                 _hostColorSelectedIndex == 1 ? ChessCom.SideType.HostIsBlack :
                                                 ChessCom.SideType.Random;
-               string vrType = VisionRuleItems[_visionRulesSelectedIndex].Key;
+               // will be used as part of custom game
+               //string vrType = VisionRuleItems[_visionRulesSelectedIndex].Key;
 
                 var token = _hostGameTokenSource.Token;
                ((MainWindowViewModel)HostScreen).Notification = "Hosting game";
@@ -115,9 +117,10 @@ namespace SlugChessAval.ViewModels
                            Host = SlugChessService.Client.UserData,
                            GameRules = new ChessCom.GameRules
                            {
-                                ChessType = chessType,
+                                Named = VariantsItems[_visionRulesSelectedIndex],
+                                //ChessType = chessType,
                                 SideType = sideType,
-                                TypeRules = vrType,
+                                //TypeRules = vrType,
                                 TimeRules = new ChessCom.TimeRules { PlayerTime = new ChessCom.Time { Minutes = starttime }, SecondsPerMove = movetime }
                            }
                        }, null, null, _hostGameTokenSource.Token);

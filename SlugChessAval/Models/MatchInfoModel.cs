@@ -21,22 +21,24 @@ namespace SlugChessAval.Models
 
         public string Host { get; set; }
         public int HostElo { get; set; }
-        public string ChessType { get; set; }
+        public string Variant { get; set; }
+        //public string ChessType { get; set; }
         public string SideType { get; set; }
         public string Time { get; set; }
-        public string VisionRules { get; set; }
+        //public string VisionRules { get; set; }
         private int _matchId;
         public int GetMatchId() => _matchId;
         private string _hostUsertoken;
 
-        private MatchInfoModel(string host, int hostElo, string chessType, string sideType, string time, string visionRules, int matchId, string hostUsertoken)
+        private MatchInfoModel(string host, int hostElo, string variant, string sideType, string time, int matchId, string hostUsertoken)
         {
             Host = host;
             HostElo = hostElo;
-            ChessType = chessType;
+            Variant = variant;
+            //ChessType = chessType;
             SideType = sideType;
             Time = time;
-            VisionRules = visionRules;
+            //VisionRules = visionRules;
             _matchId = matchId;
             _hostUsertoken = hostUsertoken;
         }
@@ -52,11 +54,11 @@ namespace SlugChessAval.Models
                 var match = new MatchInfoModel(
                     keyVal.Value.Host.Username,
                     (int)Math.Round(keyVal.Value.Host.Elo),
-                    keyVal.Value.GameRules.ChessType.ToString(),
+                    (keyVal.Value.GameRules.VariantCase == GameRules.VariantOneofCase.Named? keyVal.Value.GameRules.Named:"Custom"),
+                    //keyVal.Value.GameRules.ChessType.ToString(),
                     keyVal.Value.GameRules.SideType.ToString(),
                     TimeRulesToString(keyVal.Value.GameRules.TimeRules),
-                    //!vr.Enabled ? "No Vision Rules" : vr.ViewMoveFields ? "SlugChess Sea" : "SlugChess Standard",
-                    gameRules.VisionRulesCase == GameRules.VisionRulesOneofCase.TypeRules?"SlugChess."+ gameRules.TypeRules:throw new NotImplementedException("aaaaaaaaaahahahaaaaaahaaaa"),
+                    //gameRules.VisionRulesCase == GameRules.VisionRulesOneofCase.TypeRules?"SlugChess."+ gameRules.TypeRules:throw new NotImplementedException("aaaaaaaaaahahahaaaaaahaaaa"),
                     keyVal.Value.Id,
                     keyVal.Value.Host.Usertoken
                     );
@@ -68,8 +70,8 @@ namespace SlugChessAval.Models
 
         public static List<MatchInfoModel> FromTestData()
         {
-            return new List<MatchInfoModel> { new MatchInfoModel("frank", 9999, ChessCom.ChessType.SlugRandom.ToString(), ChessCom.SideType.Random.ToString(), "gucvk all", "blind mand", 153135, "tickenthing")
-                , new MatchInfoModel("dannnr", 8888, ChessCom.ChessType.Classic.ToString(), ChessCom.SideType.Random.ToString(), "gucvk all", "blind mand", 153136, "tickenthing") };
+            return new List<MatchInfoModel> { new MatchInfoModel("frank", 9999, "TourchWip", ChessCom.SideType.Random.ToString(), "gucvk all", 153135, "tickenthing")
+                , new MatchInfoModel("dannnr", 8888, "Sigith", ChessCom.SideType.Random.ToString(), "gucvk all", 153136, "tickenthing") };
         }
 
         public static string TimeRulesToString(TimeRules timeRules)

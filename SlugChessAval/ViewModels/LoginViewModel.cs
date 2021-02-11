@@ -101,7 +101,7 @@ namespace SlugChessAval.ViewModels
             {
                 MainWindowViewModel.SendNotification(result.UserData.Username + " logged in :>");
 
-                SlugChessService.Client.MessageToLocal("Logged in as " + result.UserData.Username, "system");
+                //SlugChessService.Client.MessageToLocal("Logged in as " + result.UserData.Username, "system");
                 Serilog.Log.Information("Logged in as " + result.UserData.Username);
 
                 HostScreen.Router.Navigate.Execute(new PlayViewModel()).Subscribe();

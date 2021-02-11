@@ -24,12 +24,13 @@
       <RowDefinition Height="48" />
       <RowDefinition Height="48" />
     </Grid.RowDefinitions>
-	  <TextBlock Grid.Row="1" Grid.Column="1" Text="Chess Type"  Margin="3"/>
+    <!--
+    <TextBlock Grid.Row="1" Grid.Column="1" Text="Chess Type"  Margin="3"/>
 	  <ComboBox Grid.Row="1" Grid.Column="2" SelectedIndex="{Binding ChessTypeSelectedIndex}" IsEnabled="{Binding !HostGame.IsExecuting^}" Margin="3">
 	      <ComboBoxItem IsEnabled="True">Classic</ComboBoxItem>
 	      <ComboBoxItem IsEnabled="False">Fisher Random</ComboBoxItem>
 	      <ComboBoxItem IsEnabled="True">Slug Random</ComboBoxItem>
-	  </ComboBox>
+	  </ComboBox> -->
 	  <TextBlock Grid.Row="2" Grid.Column="1" Text="Host Color"  Margin="3" />
 	  <ComboBox Grid.Row="2" Grid.Column="2" SelectedIndex="{Binding HostColorSelectedIndex}" IsEnabled="{Binding !HostGame.IsExecuting^}" Margin="3">
 	      <ComboBoxItem >Host is White</ComboBoxItem>
@@ -42,8 +43,9 @@
 	  <TextBlock  Grid.Row="4" Grid.Column="1" Text="Extra time" Margin="3"/>
 	  <TextBox  Grid.Row="4" Grid.Column="2"  Text="{Binding ExtraTimeSec, Mode=TwoWay}" IsEnabled="{Binding !HostGame.IsExecuting^}" Margin="3" />
 	  <TextBlock  Grid.Row="4" Grid.Column="3" Text="sec" Margin="3"/>
+    <!--
 	  <TextBlock  Grid.Row="5" Grid.Column="1" Text="Vision Rules" Margin="3" />
-	  <ComboBox  Grid.Row="5" Grid.Column="2"  Items="{Binding VisionRuleItems}" 
+    <ComboBox  Grid.Row="5" Grid.Column="2"  Items="{Binding VisionRuleItems}" 
                SelectedIndex="{Binding VisionRulesSelectedIndex}" 
                IsEnabled="{Binding !HostGame.IsExecuting^}" Margin="3">
         <ComboBox.ItemTemplate>
@@ -51,13 +53,23 @@
                 <TextBlock Text="{Binding Key}" />
             </DataTemplate>
         </ComboBox.ItemTemplate>
-	  </ComboBox> 
-	  <ToolTip  Grid.Row="5" Grid.Column="3" Tip="Non: see all board &#x0a;Torch: 1 view range pawn, 2 view range officer &#x0a;Sight: pices see where they can move, knight, pawn 1 view range" Content="more info" Margin="3"/>
+	  </ComboBox> -->
+    <TextBlock  Grid.Row="5" Grid.Column="1" Text="Chess Variant" Margin="3" />
+    <ComboBox  Grid.Row="5" Grid.Column="2"  Items="{Binding VariantsItems}"
+               SelectedIndex="{Binding VisionRulesSelectedIndex}"
+               IsEnabled="{Binding !HostGame.IsExecuting^}" Margin="3">
+      <ComboBox.ItemTemplate>
+        <DataTemplate>
+          <TextBlock Text="{Binding }" />
+        </DataTemplate>
+      </ComboBox.ItemTemplate>
+    </ComboBox>
+	  <ToolTip  Grid.Row="5" Grid.Column="3" Tip="Torch: 1 view range pawn, 2 view range officer &#x0a;Sight: pices see where they can move, knight, pawn 1 view range" Content="more info" Margin="3"/>
 	  <Button  Grid.Row="7" Grid.Column="1" Classes="normal" Content="Host Game" Command="{Binding HostGame}" IsEnabled="{Binding !HostGame.IsExecuting^}" />
  	  <Button  Grid.Row="7" Grid.Column="2" Classes="normal" Content="Cancel" Command="{Binding Cancel}" />
   </Grid>
   <Grid Grid.Row="1">
-		<TextBlock Text="Your game is now joineble by other players. Close the window if you are tired of waiting" IsVisible="{Binding HostGame.IsExecuting^}"  Margin="3" />  
+		<TextBlock Text="Your game is now joineble by other players. Go back if you are tired of waiting" IsVisible="{Binding HostGame.IsExecuting^}"  Margin="3" />  
   </Grid>
 </Grid>
 </UserControl>

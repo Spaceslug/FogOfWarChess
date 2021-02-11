@@ -61,8 +61,9 @@ Changes to chesscom commuication api or underlating function.
 - [ ] rename 'libslugchess.so' to 'libslugchess-core.so'
 
 ### version 0.16.1
-- [ ] lots of text in aval is wrong. Go through everything
-- [ ] add games played to player data
+- [x] Aval: Went through a lot of the text on SlugChessAval and improved it
+- [x] Proto: added Logout and NamedVariants 
+- [x] Server: can now logout 
 
 ### version 0.16.0 (Done)
 - [x] Formalize Torch and Sight. Both a text and ~chesscom~ description of the rules. Formalized in SlugChessCore They should temporerly be known as TorchWip and SightWip. 

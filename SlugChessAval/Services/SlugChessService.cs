@@ -88,12 +88,12 @@ namespace SlugChessAval.Services
                             Dispatcher.UIThread.InvokeAsync(() =>
                             {
                                 MessageToLocal(stream.ResponseStream.Current.Message, stream.ResponseStream.Current.SenderUsername);
-                            });
+                            }).Wait(); //Wait to process one before starting to process the next
                         }
                         stream.Dispose();
                     });
                 } else {
-                    _heartbeatTimer.Stop(); 
+                    _heartbeatTimer.Stop();
                 } 
             });
 
@@ -120,7 +120,8 @@ namespace SlugChessAval.Services
         }
         private bool _connectionAlive = false;
 
-        public AvaloniaList<KeyValuePair<string, VisionRules>> ServerVisionRuleset { get; } = new AvaloniaList<KeyValuePair<string, VisionRules>>();
+        //public AvaloniaList<KeyValuePair<string, VisionRules>> ServerVisionRuleset { get; } = new AvaloniaList<KeyValuePair<string, VisionRules>>();
+        public AvaloniaList<string> ServerNamedVariants { get; } = new AvaloniaList<string>();
         //private AvaloniaList<KeyValuePair<string, VisionRules>> _serverVisionRulesetTemp = new AvaloniaList<KeyValuePair<string, VisionRules>>();
 
         public Subject<bool> UserLoggedIn { get; set; } = new Subject<bool>();
@@ -162,19 +163,24 @@ namespace SlugChessAval.Services
                             Elo = result.UserData.Elo
                         };
                         UserLoggedIn.OnNext(true);
-                        Call.ServerVisionRulesetsAsync(new ChessCom.Void()).ResponseAsync.ContinueWith(y =>
-                        {
-                            ServerVisionRuleset.Clear();
-                            var a = y.Result.VisionRulesets.ToList();
+                        //Call.ServerVisionRulesetsAsync(new ChessCom.Void()).ResponseAsync.ContinueWith(y =>
+                        //{
+                        //    ServerVisionRuleset.Clear();
+                        //    var a = y.Result.VisionRulesets.ToList();
                             //a.Insert(0, new KeyValuePair<string, VisionRules>("No Vision Rules", new VisionRules { Enabled = false }));
-                            ServerVisionRuleset.AddRange(a);
+                        //    ServerVisionRuleset.AddRange(a);
+                        //});
+                        Call.GetNamedVariantsAsync(new ChessCom.Void()).ResponseAsync.ContinueWith(y =>
+                        {
+                            ServerNamedVariants.Clear();
+                            ServerNamedVariants.AddRange(y.Result.Variants);
                         });
 
                         return result;
                     }
                     else
                     {
-                        Serilog.Log.Information("Login failed. " + result.LoginMessage);
+                        //TODO: make Serilog work -> Serilog.Log.Information("Login failed. " + result.LoginMessage);
                         MainWindowViewModel.SendNotification("Login attempt rejected from server");
                         return result;
                     }
@@ -183,7 +189,7 @@ namespace SlugChessAval.Services
                 {
                     if(ex.StatusCode == StatusCode.Unavailable)
                     {
-                        Serilog.Log.Warning("SlugChessServer Unavailable. " + ex.Message);
+                        Serilog.Log.Warning("SlugChess Server Unavailable. " + ex.Message);
                         MainWindowViewModel.SendNotification("SlugChessServer Unavailable");
                         return new LoginResult
                         {
@@ -199,6 +205,21 @@ namespace SlugChessAval.Services
                 }
                 
             });
+        public Task Logout() => Task.Run(() =>
+        {
+            if (ConnectionAlive)
+            {
+                var result = Call.Logout(new UserIdentification{ Usertoken = UserData?.Usertoken ?? ""});
+                if (!result.SuccessfullLogout)
+                {
+                    MainWindowViewModel.SendNotification("Malformed logout: " + result.LogoutMessage);
+                }
+                //TODO: Write in logfile the message if there is one -> if(result.LogoutMessage != "")
+
+                UserLoggedIn.OnNext(false);
+                UserData = new UserData();
+            }
+        });
 
         public IObservable<MoveResult> GetMatchListener(string matchId)
         {
