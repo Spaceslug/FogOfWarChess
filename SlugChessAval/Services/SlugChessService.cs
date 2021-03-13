@@ -76,7 +76,9 @@ namespace SlugChessAval.Services
                 catch(Grpc.Core.RpcException ex)
                 {
                     // EX here means Heartbeat failed for some reason.
+                    #pragma warning disable CA2200
                     throw ex;
+                    #pragma warning restore CA2200
                 }
             };
             UserLoggedIn.Subscribe(loggedIn => { 
@@ -206,7 +208,9 @@ namespace SlugChessAval.Services
                     }   
                     else 
                     {
+                        #pragma warning disable CA2200
                         throw ex;
+                        #pragma warning restore CA2200
                     }
                 }
                 

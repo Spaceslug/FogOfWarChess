@@ -15,7 +15,9 @@ using Avalonia.Threading;
 namespace SlugChessAval.ViewModels
 {
     [DataContract]
+    #pragma warning disable 8612
     public class RegisterUserViewModel : ViewModelBase, IRoutableViewModel, IActivatableViewModel
+    #pragma warning restore 8612
     {
         public ViewModelActivator Activator { get; }
         public string UrlPathSegment => "/registerUser";

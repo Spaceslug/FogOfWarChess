@@ -14,7 +14,9 @@ using System.Windows.Input;
 
 namespace SlugChessAval.ViewModels
 {
+    #pragma warning disable 8612
     public class StartMenuViewModel : ViewModelBase, IRoutableViewModel, IActivatableViewModel
+    #pragma warning restore 8612
     {
         public string UrlPathSegment => "/startmenu";
         public IScreen HostScreen { get; }

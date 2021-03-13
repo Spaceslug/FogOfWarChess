@@ -17,7 +17,8 @@ namespace SlugChessAval.Views
             AvaloniaXamlLoader.Load(this);
             this.WhenActivated(disposables =>
             {
-                ((CapturedPicesViewModel)DataContext).PanelWidth = Width;
+                CapturedPicesViewModel? context = (CapturedPicesViewModel?)DataContext;
+                if(context != null)context.PanelWidth = Width;
                 //if(((ScrollContentPresenter)_scroller.Presenter) != null)((ScrollContentPresenter)_scroller.Presenter).CanHorizontallyScroll = false;
             });
             _repeater = this.FindControl<ItemsRepeater>("repeater");

@@ -19,7 +19,9 @@ using System.Windows.Input;
 
 namespace SlugChessAval.ViewModels
 {
+    #pragma warning disable 8612
     public class CreateGameViewModel : ViewModelBase, IRoutableViewModel, IActivatableViewModel
+    #pragma warning restore 8612
     {
         public const int DEFAULT_START_TIME_MIN = 5;
         public const int DEFAULT_EXTRA_TIME_SEC = 6;
@@ -95,51 +97,53 @@ namespace SlugChessAval.ViewModels
 
         private Task<LookForMatchResult> HostGameRequest() => Task.Run(() =>
        {
-           try
-           {
-               var starttime = _startTimeMin;
-               var movetime = _extraTimeSec;
-               ChessCom.ChessType chessType = _chessTypeSelectedIndex == 0 ? ChessCom.ChessType.Classic :
-                                               _chessTypeSelectedIndex == 1 ? ChessCom.ChessType.FisherRandom :
-                                               ChessCom.ChessType.SlugRandom;
-                ChessCom.SideType sideType = _hostColorSelectedIndex == 0 ? ChessCom.SideType.HostIsWhite :
-                                                _hostColorSelectedIndex == 1 ? ChessCom.SideType.HostIsBlack :
-                                                ChessCom.SideType.Random;
-               // will be used as part of custom game
-               //string vrType = VisionRuleItems[_visionRulesSelectedIndex].Key;
+           //try
+           //{
+            var starttime = _startTimeMin;
+            var movetime = _extraTimeSec;
+            ChessCom.ChessType chessType = _chessTypeSelectedIndex == 0 ? ChessCom.ChessType.Classic :
+                                            _chessTypeSelectedIndex == 1 ? ChessCom.ChessType.FisherRandom :
+                                            ChessCom.ChessType.SlugRandom;
+            ChessCom.SideType sideType = _hostColorSelectedIndex == 0 ? ChessCom.SideType.HostIsWhite :
+                                            _hostColorSelectedIndex == 1 ? ChessCom.SideType.HostIsBlack :
+                                            ChessCom.SideType.Random;
+            // will be used as part of custom game
+            //string vrType = VisionRuleItems[_visionRulesSelectedIndex].Key;
 
-                var token = _hostGameTokenSource.Token;
-               ((MainWindowViewModel)HostScreen).Notification = "Hosting game";
-               try
-                   {
-                       var matchResult = SlugChessService.Client.Call.HostGame(new ChessCom.HostedGame
-                       {
-                           Host = SlugChessService.Client.UserData,
-                           GameRules = new ChessCom.GameRules
-                           {
-                                Named = VariantsItems[_visionRulesSelectedIndex],
-                                //ChessType = chessType,
-                                SideType = sideType,
-                                //TypeRules = vrType,
-                                TimeRules = new ChessCom.TimeRules { PlayerTime = new ChessCom.Time { Minutes = starttime }, SecondsPerMove = movetime }
-                           }
-                       }, null, null, _hostGameTokenSource.Token);
-                       return matchResult;
+            var token = _hostGameTokenSource.Token;
+            ((MainWindowViewModel)HostScreen).Notification = "Hosting game";
+            try
+            {
+                var matchResult = SlugChessService.Client.Call.HostGame(new ChessCom.HostedGame
+                {
+                    Host = SlugChessService.Client.UserData,
+                    GameRules = new ChessCom.GameRules
+                    {
+                        Named = VariantsItems[_visionRulesSelectedIndex],
+                        //ChessType = chessType,
+                        SideType = sideType,
+                        //TypeRules = vrType,
+                        TimeRules = new ChessCom.TimeRules { PlayerTime = new ChessCom.Time { Minutes = starttime }, SecondsPerMove = movetime }
+                    }
+                }, null, null, _hostGameTokenSource.Token);
+                return matchResult;
 
-                   }
-                   catch (Grpc.Core.RpcException ex)
-                   {
-                       if (!token.IsCancellationRequested)
-                       {
-                           throw ex;
-                       }
-                       return new LookForMatchResult { Succes = false };
-                   }
-           }
-           catch (Exception ex)
-           {
-               throw ex;
-           }
+            }
+            catch (Grpc.Core.RpcException ex)
+            {
+                if (!token.IsCancellationRequested)
+                {
+                    #pragma warning disable CA2200
+                    throw ex;
+                    #pragma warning restore CA2200
+                }
+                return new LookForMatchResult { Succes = false };
+            }
+           //}
+           //catch (Exception ex)
+           //{
+           //    throw ex;
+           //}
        });
     }
 }

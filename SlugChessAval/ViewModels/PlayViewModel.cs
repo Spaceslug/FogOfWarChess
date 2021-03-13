@@ -24,7 +24,9 @@ using System.ComponentModel.Design;
 namespace SlugChessAval.ViewModels
 {
     [DataContract]
+    #pragma warning disable 8612
     public class PlayViewModel : ViewModelBase, IRoutableViewModel, IActivatableViewModel
+    #pragma warning restore 8612
     {
         public ViewModelActivator Activator { get; } = new ViewModelActivator();
         public string UrlPathSegment => "/play";

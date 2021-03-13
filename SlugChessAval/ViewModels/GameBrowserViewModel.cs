@@ -17,8 +17,11 @@ using System.Windows.Input;
 
 namespace SlugChessAval.ViewModels
 {
+    #pragma warning disable 8612
     public class GameBrowserViewModel : ViewModelBase, IRoutableViewModel, IActivatableViewModel
+    #pragma warning restore 8612
     {
+        
         public string UrlPathSegment => "/gamebrowser";
         public IScreen HostScreen { get; }
 
@@ -104,7 +107,9 @@ namespace SlugChessAval.ViewModels
             {
                 if (!token.IsCancellationRequested)
                 {
+                    #pragma warning disable CA2200
                     throw ex;
+                    #pragma warning restore CA2200
                 }
                 return new LookForMatchResult { Succes = false };
             }
