@@ -87,9 +87,9 @@ namespace SlugChessAval.ViewModels
         public MatchModel MatchModel { get; }
         private string _matchToken { get; set; } = "0000";
 
-        public IObservable<bool> CurrentVisionDefault { get; }
-        public IObservable<bool> CurrentVisionWhite{ get; }
-        public IObservable<bool> CurrentVisionBlack{ get; }
+        public IObservable<bool> AwailableVisionDefault { get; }
+        public IObservable<bool> AwailableVisionWhite{ get; }
+        public IObservable<bool> AwailableVisionBlack{ get; }
 
         public ICommand MoveToCreateGame => _moveToCreateGame;
         private readonly ReactiveCommand<Unit, Unit> _moveToCreateGame;
@@ -130,12 +130,27 @@ namespace SlugChessAval.ViewModels
                 .Subscribe(x => MoveDisplayIndex = MatchModel.ChessboardPositions.Count - 1);
 
             Chessboard = new ChessboardViewModel{ CbModel = ChessboardModel.FromDefault()};
-            CurrentVisionDefault = Chessboard.WhenAnyValue(x => x.ViewType).Select(x => x == ChessboardViewModel.ViewTypes.Default);
-            CurrentVisionWhite = Chessboard.WhenAnyValue(x => x.ViewType).Select(x => x == ChessboardViewModel.ViewTypes.White);
-            CurrentVisionBlack = Chessboard.WhenAnyValue(x => x.ViewType).Select(x => x == ChessboardViewModel.ViewTypes.Black);
+            AwailableVisionDefault = Observable.CombineLatest(
+                Chessboard.WhenAnyValue(x => x.ViewType),
+                Chessboard.WhenAnyValue(y => y.AwailableViewTypes),
+                (viewType, vtAvailable) => (viewType, vtAvailable)
+            ).Select( t => t.viewType != ChessboardViewModel.ViewTypes.Default && t.vtAvailable.Contains(ChessboardViewModel.ViewTypes.Default));
+            AwailableVisionWhite = Observable.CombineLatest(
+                Chessboard.WhenAnyValue(x => x.ViewType),
+                Chessboard.WhenAnyValue(y => y.AwailableViewTypes),
+                (viewType, vtAvailable) => (viewType, vtAvailable)
+            ).Select( t => t.viewType != ChessboardViewModel.ViewTypes.White && t.vtAvailable.Contains(ChessboardViewModel.ViewTypes.White));
+            AwailableVisionBlack = Observable.CombineLatest(
+                Chessboard.WhenAnyValue(x => x.ViewType),
+                Chessboard.WhenAnyValue(y => y.AwailableViewTypes),
+                (viewType, vtAvailable) => (viewType, vtAvailable)
+            ).Select( t => t.viewType != ChessboardViewModel.ViewTypes.Black && t.vtAvailable.Contains(ChessboardViewModel.ViewTypes.Black));
             _changeChessboardVision = ReactiveCommand.Create<string>(s =>
                 {
-                    Chessboard.ViewType = s switch { "Default" => ChessboardViewModel.ViewTypes.Default, "White" => ChessboardViewModel.ViewTypes.White, "Black" => ChessboardViewModel.ViewTypes.Black };
+                    Chessboard.ViewType = s switch { "Default" => ChessboardViewModel.ViewTypes.Default, 
+                    "White" => ChessboardViewModel.ViewTypes.White, 
+                    "Black" => ChessboardViewModel.ViewTypes.Black,
+                    _ => throw new ArgumentException("Chessboard.ViewType not a valid viewtype")};
                 }, 
                 MatchModel.ThisPlayerColored.Select(x => !x)
             );

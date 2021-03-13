@@ -31,6 +31,13 @@ namespace SlugChessAval.ViewModels
             Black
         }
 
+        public ViewTypes VisionTypeToViewType(ChessboardModel.VisionTypes x) => x switch {
+            ChessboardModel.VisionTypes.Black => ViewTypes.Black,
+            ChessboardModel.VisionTypes.White => ViewTypes.White,
+            ChessboardModel.VisionTypes.Observer => ViewTypes.Default,
+            _ => throw new ArgumentException("This does not exists")
+        };
+
         public List<Field> FieldBoard
         {
             get => _fieldBoard;
@@ -76,6 +83,13 @@ namespace SlugChessAval.ViewModels
         }
         private ViewTypes _viewType = ViewTypes.Default;
 
+        public List<ViewTypes> AwailableViewTypes
+        {
+            get => _awailableViewTypes;
+            set => this.RaiseAndSetIfChanged(ref _awailableViewTypes, value);
+        }
+        private List<ViewTypes> _awailableViewTypes = new List<ViewTypes>{ViewTypes.Default};
+
         public ReactiveCommand<(string from, string to), (string from, string to)> MoveFromTo;
 
         public IBrush FogBackground = new ImageBrush(AssetBank.GetImage("fog"));
@@ -97,13 +111,14 @@ namespace SlugChessAval.ViewModels
             MoveFromTo = ReactiveCommand.Create<(string from, string to),(string from, string to)>( t => t);
 
             //Console.WriteLine(" whaaaaah");
+            this.WhenAnyValue(x => x.CbModel).Subscribe(x => this.AwailableViewTypes = new List<ViewTypes>( x.Visions.Keys.Select(x => VisionTypeToViewType(x))));
 
             this.WhenAnyValue(x => x.AllowedToSelect).Where(x => !x).Subscribe(x => Selected = "");
             Observable.CombineLatest(
                 this.WhenAnyValue(x => x.CbModel),
                 this.WhenAnyValue(y => y.ViewType),
-                (x, y) => x
-            ).Subscribe(x => UpdateBoard(x));
+                (x, y) => (x, y)
+            ).Subscribe(t => UpdateBoard(t.x));
             
             Observable.Merge(
                 this.WhenAnyValue(x => x.Selected),
@@ -114,7 +129,8 @@ namespace SlugChessAval.ViewModels
 
         public void ChessfieldClicked(Border border)
         {
-            if (!AllowedToSelect) return;
+            if (!AllowedToSelect ) return;
+            if (border.Name == null) return;
             if (Selected == "") 
             {
                 Selected = border.Name;
@@ -138,6 +154,7 @@ namespace SlugChessAval.ViewModels
         public void ChessfieldEnter(Border border)
         {
             if (!AllowedToSelect) return;
+            if(border.Name==null) return;
             if (Selected == "")
             {
                 Hover = border.Name;
@@ -159,7 +176,8 @@ namespace SlugChessAval.ViewModels
             {
                 ViewTypes.Default => model.Visions[model.PlayerVisionType][i],
                 ViewTypes.White => model.Visions[ChessboardModel.VisionTypes.White][i],
-                ViewTypes.Black => model.Visions[ChessboardModel.VisionTypes.Black][i]
+                ViewTypes.Black => model.Visions[ChessboardModel.VisionTypes.Black][i],
+                _ => throw new ArgumentException("Inconsivable")
             };
         }
 
@@ -252,14 +270,6 @@ namespace SlugChessAval.ViewModels
                 }
             }
             FieldBoard = new List<Field>(FieldBoard);
-        }
-
-
-        
-
-        public class Student
-        {
-            public string Name { get; set; } = "default";
         }
 
         public class Field

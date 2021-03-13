@@ -19,8 +19,8 @@ namespace SlugChessAval.Views
                 // Bind the 'ExampleCommand' to 'ExampleButton' defined above.
                 //this.BindCommand(ViewModel, x => x.ClickShit, x => x.ExampleGrid)
                 //    .DisposeWith(disposables);
-                StyleMirror.WhiteField = (SolidColorBrush)this.Resources["WhiteField"];
-                StyleMirror.BlackField = (SolidColorBrush)this.Resources["BlackField"];
+                StyleMirror.WhiteField = (SolidColorBrush?)this.Resources["WhiteField"] ?? throw new System.Exception("Set this man");
+                StyleMirror.BlackField = (SolidColorBrush?)this.Resources["BlackField"] ?? throw new System.Exception("Set this man");
 
 
             });
