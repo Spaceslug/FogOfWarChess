@@ -15,7 +15,6 @@ using System.Windows.Input;
 using System.Threading;
 using Google.Protobuf;
 using System.IO;
-using SharpDX.Direct3D11;
 using System.Collections.ObjectModel;
 using Avalonia.Collections;
 using DynamicData.Binding;

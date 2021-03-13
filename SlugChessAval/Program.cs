@@ -3,12 +3,9 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Logging.Serilog;
 using Avalonia.ReactiveUI;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Serilog;
-using Serilog.Filters;
 using Avalonia.Logging;
 using System.Reflection;
 using System.IO;
@@ -87,7 +84,17 @@ namespace SlugChessAval
         public static bool LaunchedWithParam(string s) => _launchParms.Contains(s);
         public static string GetParamValue(string s) => _launchParms[_launchParms.IndexOf(s)+1];
 
-        public static string RootDir = (Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) ?? ".") + "/";
+        //public static string RootDir = (Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) ?? ".") + "/";
+        public static string RootDir = OtherRootDir;
+        public static string OtherRootDir
+        {
+            get
+            {
+                var name = "/" + System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name+".dll" ?? "";
+                var fullpath = System.Reflection.Assembly.GetEntryAssembly()?.Location ?? "";
+                return fullpath.Replace(name, "") + "/";
+            }
+        }
 
         public static string? VersionCheckMessage = null;
 
@@ -119,25 +126,25 @@ namespace SlugChessAval
                 switch (result)
                 {
                     case "0":
-                        Log.Information("Version is up to date");
+                        Console.WriteLine("Version is up to date");
                         break;
                     case "1":
-                        Log.Information("Version out of date. Starting updater and exiting");
+                        Console.WriteLine("Version out of date. Starting updater and exiting");
                         StartUpdaterUpdate();
                         return;
                     case "2":
-                        Log.Information("New Version availeble and you should update");
+                        Console.WriteLine("New Version availeble and you should update");
                         break;
                     case "3":
                         VersionCheckMessage = "New Version availeble. You must manualy download new version. Copy over appstate.json to preserve settings";
-                        Log.Information(VersionCheckMessage);
+                        Console.WriteLine(VersionCheckMessage);
                         break;
                     default:
-                        Log.Error(result);
+                        Console.WriteLine(result);
                         break;
                 }
             }
-            Log.Information("WEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
+            Console.WriteLine("WEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
 
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         } 
@@ -146,7 +153,7 @@ namespace SlugChessAval
         public static AppBuilder BuildAvaloniaApp()
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
-                .LogToDebug()
+                .LogToTrace()
                 .UseReactiveUI();
 
 

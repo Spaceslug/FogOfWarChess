@@ -26,20 +26,24 @@ namespace SlugChessAval.Services
     public class SlugChessService : INotifyPropertyChanged
     {
         #region init stuff
-        public static SlugChessService Client { get; private set; } = new SlugChessService("localhost", 9999);
-        public static string Usertoken => Client.UserData?.Usertoken ?? "";
+        public static SlugChessService Client => _client ?? throw new Exception("Asking for client when client is null");
+        private static SlugChessService? _client = null;
+        public static string Usertoken => Client?.UserData?.Usertoken ?? "";
         public static void Instanciate(string adress, int port)
         {
-            //if (Client != null) throw new Exception("Allready initialized");
-            Client._channel?.ShutdownAsync().Wait();
-            Client.ConnectionAlive = false;
-            Client = new SlugChessService(adress, port);
+            if (_client != null) {
+                Console.WriteLine("Allready initialized ChessCom Client. Starting new");
+                _client._channel?.ShutdownAsync().Wait();
+                _client.ConnectionAlive = false;
+            }
+            
+            _client = new SlugChessService(adress, port);
             ////Task.Run(ChannelStateListner);
-            Client._channel.ConnectAsync(DateTime.UtcNow + TimeSpan.FromSeconds(3)).ContinueWith(x =>
+            _client._channel.ConnectAsync(DateTime.UtcNow + TimeSpan.FromSeconds(3)).ContinueWith(x =>
             {
                 if (x.IsCompletedSuccessfully)
                 {
-                    Client.ConnectionAlive = true;
+                    _client.ConnectionAlive = true;
                 }
                 else
                 {
@@ -55,7 +59,6 @@ namespace SlugChessAval.Services
         //public object temp;
         private SlugChessService(string adress, int port)
         {
-            if (port == 9999) return;
             _channel = new Channel(adress, port, ChannelCredentials.Insecure);
             Call = new ChessCom.ChessCom.ChessComClient(_channel);
             _heartbeatTimer.AutoReset = true;
@@ -141,19 +144,22 @@ namespace SlugChessAval.Services
 
         public void GetNewUserdata()
         {
+            if(_client == null)return;
             var userId = new UserIdentification { Usertoken = UserData.Usertoken, Secret = "????" };
             var req = new UserDataRequest { UserIdent = userId, Username = UserData.Username };
-            var ud = Client.Call.GetPublicUserdata(req);
+            var ud = _client.Call.GetPublicUserdata(req);
             //WAAAAA. Make sure not to overwrite the usertoken
             UserData = new UserData { Username=UserData.Username, Usertoken = UserData.Usertoken, Elo = ud.Elo };
         }
 
         public Task<LoginResult> LoginInUserAsync(string username, string password) => Task.Run<LoginResult>(() => 
             {
+                if(_client == null) return new LoginResult{ SuccessfullLogin=false, LoginMessage="Could not login as not connected to SlugChess server"};
+
                 var ver = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
                 try
                 {
-                    var result = Client.Call.Login(new LoginForm { Username = username, Password = password, MajorVersion = ver.FileMajorPart.ToString(), MinorVersion = ver.FileMinorPart.ToString(), BuildVersion = ver.FileBuildPart.ToString() });
+                    var result = _client.Call.Login(new LoginForm { Username = username, Password = password, MajorVersion = ver.FileMajorPart.ToString(), MinorVersion = ver.FileMinorPart.ToString(), BuildVersion = ver.FileBuildPart.ToString() });
                     if (result.SuccessfullLogin)
                     {
                         UserData = new UserData
@@ -189,7 +195,7 @@ namespace SlugChessAval.Services
                 {
                     if(ex.StatusCode == StatusCode.Unavailable)
                     {
-                        Serilog.Log.Warning("SlugChess Server Unavailable. " + ex.Message);
+                        Console.WriteLine("SlugChess Server Unavailable. " + ex.Message);
                         MainWindowViewModel.SendNotification("SlugChessServer Unavailable");
                         return new LoginResult
                         {
