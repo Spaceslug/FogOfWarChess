@@ -125,6 +125,10 @@ namespace SlugChessAval.ViewModels
         {
             Title = $"SlugChess v{Program.GetSlugChessVersion()}";
 
+            
+            _exit = ReactiveCommand.Create(() => {
+                App.Shutdown();
+            });
             _notiTimer = new System.Timers.Timer(9000);
             _notiTimer.Elapsed += (Object source, ElapsedEventArgs e) => Notification = "";
 

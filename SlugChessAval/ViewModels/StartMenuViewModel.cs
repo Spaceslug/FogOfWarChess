@@ -35,6 +35,8 @@ namespace SlugChessAval.ViewModels
         public ICommand MoveToRegister => _moveToRegister;
         private readonly ReactiveCommand<Unit, Unit> _moveToRegister;
 
+        public ICommand Exit => ((MainWindowViewModel)HostScreen).Exit;
+
         private bool _haveTriedDebugLogin = false;
 
         public StartMenuViewModel(IScreen? screen = null)

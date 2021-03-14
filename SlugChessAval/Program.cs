@@ -146,7 +146,7 @@ namespace SlugChessAval
             }
             Console.WriteLine("WEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
 
-            BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+            BuildAvaloniaApp().StartWithClassicDesktopLifetime(args, Avalonia.Controls.ShutdownMode.OnLastWindowClose);
         } 
 
         // Avalonia configuration, don't remove; also used by visual designer.
