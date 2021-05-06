@@ -14,7 +14,9 @@ using System.Windows.Input;
 
 namespace SlugChessAval.ViewModels
 {
+    #pragma warning disable 8612
     public class StartMenuViewModel : ViewModelBase, IRoutableViewModel, IActivatableViewModel
+    #pragma warning restore 8612
     {
         public string UrlPathSegment => "/startmenu";
         public IScreen HostScreen { get; }
@@ -32,6 +34,8 @@ namespace SlugChessAval.ViewModels
         private readonly ReactiveCommand<(string?, string?), (string?, string?)> _moveToLogin;
         public ICommand MoveToRegister => _moveToRegister;
         private readonly ReactiveCommand<Unit, Unit> _moveToRegister;
+
+        public ICommand Exit => ((MainWindowViewModel)HostScreen).Exit;
 
         private bool _haveTriedDebugLogin = false;
 

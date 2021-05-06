@@ -15,6 +15,12 @@ namespace SlugChessAval
 {
     public class App : Application
     {
+
+        public static void Shutdown(){
+            _lifetime?.Shutdown();
+        }
+
+        private static IClassicDesktopStyleApplicationLifetime? _lifetime;
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);
@@ -23,7 +29,7 @@ namespace SlugChessAval
         public override void OnFrameworkInitializationCompleted()
         {
             AssetBank.LoadAssets();
-
+            _lifetime = (IClassicDesktopStyleApplicationLifetime)ApplicationLifetime;
             // Initialize suspension hooks.
             var suspension = new AutoSuspendHelper(ApplicationLifetime);
             RxApp.SuspensionHost.CreateNewAppState = () => new MainWindowViewModel();
@@ -46,7 +52,7 @@ namespace SlugChessAval
             Locator.CurrentMutable.Register<IViewFor<ChatboxViewModel>>(() => new Chatbox());
             Locator.CurrentMutable.Register<IViewFor<RegisterUserViewModel>>(() => new RegisterUserView());
 
-
+            
             // Show the main window.
             new MainWindow { DataContext = Locator.Current.GetService<IScreen>() }.Show();
             base.OnFrameworkInitializationCompleted();

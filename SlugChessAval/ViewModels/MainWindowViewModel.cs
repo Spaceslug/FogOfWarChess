@@ -69,6 +69,13 @@ namespace SlugChessAval.ViewModels
         }
         private string _title = "SlugChess";
 
+        public string NavigateBackText
+        {
+            get => _navigateBackText;
+            set => this.RaiseAndSetIfChanged(ref _navigateBackText, value);
+        }
+        private string _navigateBackText = "Go Back";
+
         //[DataMember]
         public string Notification
         {
@@ -90,7 +97,8 @@ namespace SlugChessAval.ViewModels
         public ICommand Exit => _exit;
         private readonly ReactiveCommand<Unit, Unit> _exit;
 
-        public readonly ReactiveCommand<Unit, Unit> Cancel;
+        public ICommand NavigateBack => _navigateBack;
+        public readonly ReactiveCommand<Unit, Unit> _navigateBack;
 
         public IObservable<bool> MoveBackEnabled => _moveBackEnabled;
         BehaviorSubject<bool> _moveBackEnabled = new BehaviorSubject<bool>(false);
@@ -117,6 +125,10 @@ namespace SlugChessAval.ViewModels
         {
             Title = $"SlugChess v{Program.GetSlugChessVersion()}";
 
+            
+            _exit = ReactiveCommand.Create(() => {
+                App.Shutdown();
+            });
             _notiTimer = new System.Timers.Timer(9000);
             _notiTimer.Elapsed += (Object source, ElapsedEventArgs e) => Notification = "";
 
@@ -124,21 +136,31 @@ namespace SlugChessAval.ViewModels
             {
                 if (Router.NavigationStack.Count == 1)
                 {
+                    NavigateBackText = "Go Back";
                     _moveBackEnabled.OnNext(false);
                 }
                 else if (Router.CurrentViewModel.Take(1).Wait() is PlayViewModel)
                 {
-                    _moveBackEnabled.OnNext(false);
+                    NavigateBackText = "Logout";
+                    _moveBackEnabled.OnNext(true);
                 } 
                 else 
                 {
+                    NavigateBackText = "Go Back";
                     _moveBackEnabled.OnNext(true);
                 }
             });
 
             //Application.Current.Ex
             //_exit = ReactiveCommand.Create(() => this.)
-            Cancel = ReactiveCommand.Create(() => { Router.NavigateBack.Execute().Subscribe(); });
+            _navigateBack = ReactiveCommand.Create(() => { 
+                if(Router.CurrentViewModel.Take(1).Wait() is PlayViewModel)
+                {
+                    SlugChessService.Client.Logout();
+                }
+                
+                Router.NavigateBack.Execute().Subscribe();
+            }, MoveBackEnabled);
             // If the authorization page is currently shown, then
             // we disable the "Open authorization view" button.
             //var canLogin = this.WhenAnyValue(x => x.ClientActive)

@@ -14,11 +14,11 @@
     <WrapPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical" MinWidth="120">
       <TextBlock Text="Change vision:" IsVisible="{Binding !MatchModel.ThisPlayerColored^}" />
       <Button Classes="normal" Command="{Binding ChangeChessboardVision}" CommandParameter="Default"
-              Content="Default" IsEnabled="{Binding !CurrentVisionDefault^}" IsVisible="{Binding !MatchModel.ThisPlayerColored^}" />
+              Content="Default" IsEnabled="{Binding AwailableVisionDefault^}" IsVisible="{Binding !MatchModel.ThisPlayerColored^}" />
       <Button Classes="normal" Command="{Binding ChangeChessboardVision}" CommandParameter="White" 
-              Content="White" IsEnabled="{Binding !CurrentVisionWhite^}" IsVisible="{Binding !MatchModel.ThisPlayerColored^}"/>
+              Content="White" IsEnabled="{Binding AwailableVisionWhite^}" IsVisible="{Binding !MatchModel.ThisPlayerColored^}"/>
       <Button Classes="normal" Command="{Binding ChangeChessboardVision}" CommandParameter="Black"
-              Content="Black" IsEnabled="{Binding !CurrentVisionBlack^}" IsVisible="{Binding !MatchModel.ThisPlayerColored^}"/>
+              Content="Black" IsEnabled="{Binding AwailableVisionBlack^}" IsVisible="{Binding !MatchModel.ThisPlayerColored^}"/>
       <Panel Width="50" />
       <TextBlock Text="{Binding SlugChess.UserData.Username}" Classes="normal"></TextBlock>
       <WrapPanel Orientation="Horizontal">

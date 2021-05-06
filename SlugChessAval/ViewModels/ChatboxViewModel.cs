@@ -47,6 +47,12 @@ namespace SlugChessAval.ViewModels
             ChatroomName = "system/CurrentMatch";
             SendTextCommand = ReactiveCommand.Create(() =>  
             {
+                if(MessageText.Substring(0, 5) == "/help")
+                {
+                    SlugChessService.Client.MessageToLocal("'/help' is not implemented yet", "system");
+                    MessageText = "";
+                    return;
+                }
                 SlugChessService.Client.Call.SendChatMessage(new ChessCom.ChatMessage
                 {
                     Message = MessageText,

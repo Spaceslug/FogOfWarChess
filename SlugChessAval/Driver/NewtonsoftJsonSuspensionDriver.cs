@@ -26,12 +26,15 @@ namespace SlugChessAval.Drivers
             return Observable.Return(Unit.Default);
         }
 
-        public IObservable<object?> LoadState()
+        public IObservable<object> LoadState()
         {
-            if (!File.Exists(_file)) throw new FileNotFoundException($"Can not find {_file}");
+            if (!File.Exists(_file)) {
+                Console.WriteLine("appstate.json not found. Creating from default");
+                return Observable.Return(new MainWindowViewModel());
+            };
             //var open = File.OpenRead(_file);
             var lines = File.ReadAllText(_file);
-            var state = JsonConvert.DeserializeObject<MainWindowViewModel>(lines, _settings);
+            var state = JsonConvert.DeserializeObject<MainWindowViewModel>(lines, _settings) ?? new MainWindowViewModel();
             return Observable.Return(state);
         }
 

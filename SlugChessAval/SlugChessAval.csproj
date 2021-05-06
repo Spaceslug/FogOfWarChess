@@ -1,16 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <BeautyLibsDir>libs</BeautyLibsDir>
     <DisableBeauty>False</DisableBeauty>
     <!-- dlls that you don't want to be moved or can not be moved -->
     <!-- <BeautyExcludes>dll1.dll;lib*;...</BeautyExcludes> -->
     <BeautyLogLevel>Error</BeautyLogLevel>
     <Nullable>enable</Nullable>
-    <AssemblyVersion>0.16.0.0</AssemblyVersion>
-    <FileVersion>0.16.0.0</FileVersion>
-    <Version>0.16.0</Version>
+    <AssemblyVersion>0.17.0.0</AssemblyVersion>
+    <FileVersion>0.17.0.0</FileVersion>
+    <Version>0.17.0</Version>
     <Authors>Spaceslug</Authors>
     <Company>spaceslug.no</Company>
   </PropertyGroup>
@@ -69,15 +69,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="0.9.11" />
-    <PackageReference Include="Avalonia.Controls.DataGrid" Version="0.9.11" />
-    <PackageReference Include="Avalonia.Desktop" Version="0.9.11" />
-    <PackageReference Include="Avalonia.ReactiveUI" Version="0.9.11" />
-    <PackageReference Include="Google.Protobuf" Version="3.12.3" />
-    <PackageReference Include="Grpc" Version="2.30.0" />
+    <PackageReference Include="Avalonia" Version="0.10.0" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="0.10.0" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.10.0" />
+    <PackageReference Include="Avalonia.Diagnostics" Version="0.10.0" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.0" />
+    <PackageReference Include="Google.Protobuf" Version="3.15.5" />
+    <PackageReference Include="Grpc" Version="2.36.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="nulastudio.NetCoreBeauty" Version="1.2.9" />
-    <PackageReference Include="SkiaSharp" Version="1.68.0" />
+    <!--<PackageReference Include="nulastudio.NetCoreBeauty" Version="1.2.9.2" />-->
   </ItemGroup>
   <ItemGroup>
     <None Include="SkiaSvg\Extensions.cs" />

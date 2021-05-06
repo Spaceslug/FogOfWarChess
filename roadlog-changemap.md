@@ -53,16 +53,20 @@ Changes to chesscom commuication api or underlating function.
 - [ ] auto updator can update to spesific version. A command line option. Mayby post link to available releases page
 
 ### version 0.18.0
-
+- [ ] make the game look and feel nice. Go over ui and userflow
+- [ ] somehow make emoji work with Avalonia
 
 ### version 0.17.0
-- [ ] make a propper version system for slugchesscore shared lib. A build of slugchess server needs a spesific version of core. When you publish server release you supply a core version (think more on it). symlink to more spsific version to support multiple versions. Currently slugchesscoretest rpath does not work and will only use export version of lib
+- [x] make a propper version system for slugchesscore shared lib. A build of slugchess server needs a spesific version of core. When you publish server release you supply a core version (think more on it). symlink to more spsific version to support multiple versions. Currently slugchesscoretest rpath does not work and will only use export version of lib
 - [ ] makefile SlugChessServer have a define for debug build. Compile different .o files for debug and regular
-- [ ] rename 'libslugchess.so' to 'libslugchess-core.so'
+- [x] rename 'libslugchess.so' to 'libslugchesscore.so'
+- [x] clean illegal filesystem names from usernames in replays
+- [x] updated SlugChessAval to dotnet5.0
 
 ### version 0.16.1
-- [ ] lots of text in aval is wrong. Go through everything
-- [ ] add games played to player data
+- [x] Aval: Went through a lot of the text on SlugChessAval and improved it
+- [x] Proto: added Logout and NamedVariants 
+- [x] Server: can now logout 
 
 ### version 0.16.0 (Done)
 - [x] Formalize Torch and Sight. Both a text and ~chesscom~ description of the rules. Formalized in SlugChessCore They should temporerly be known as TorchWip and SightWip. 

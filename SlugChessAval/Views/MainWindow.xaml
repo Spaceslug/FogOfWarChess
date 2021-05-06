@@ -10,7 +10,8 @@
         x:Class="SlugChessAval.Views.MainWindow"
         Icon="/Assets/icon.ico"
         Title="{Binding Title}"
-        Width="1010" Height="600">
+        Width="1010" Height="600"
+        FontFamily="Ubuntu, Lucida Grande, Noto Color Emoji, Segoe UI Emoji">
   <Window.Resources>
     <converters:TimeSpanToMinSecString x:Key="timeSpanToMinSec"/>
     <sys:Double x:Key="FontSizeSmall">12</sys:Double>
@@ -59,7 +60,7 @@
       <Grid Grid.Row="1" RowDefinitions="*,*,*" ColumnDefinitions="80,1*,80">
         <TextBlock Grid.Row="0" Grid.Column="1" Text="Welcome to SlugChess" TextAlignment="Center"/>
         <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Notification}" Margin="0,0,0,5" Foreground="LightSalmon" TextAlignment="Center" />
-        <Button Grid.Row="2" Grid.Column="1" Content="Go back" Command="{Binding Router.NavigateBack}" IsEnabled="{Binding MoveBackEnabled^}" />
+        <Button Grid.Row="2" Grid.Column="1" Content="{Binding NavigateBackText}" Command="{Binding NavigateBack}"  />
       </Grid>
     </Grid>
 

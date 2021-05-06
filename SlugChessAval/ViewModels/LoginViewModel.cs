@@ -24,7 +24,9 @@ namespace SlugChessAval.ViewModels
 {
 
     [DataContract]
+    #pragma warning disable 8612
     public class LoginViewModel : ViewModelBase, IRoutableViewModel, IActivatableViewModel
+    #pragma warning restore 8612
     {
         public ViewModelActivator Activator { get; }
         public string UrlPathSegment => "/login";
@@ -67,8 +69,8 @@ namespace SlugChessAval.ViewModels
                 .WhenAnyValue(
                     x => x.Username,
                     x => x.Password,
-                    (user, pass) => !string.IsNullOrWhiteSpace(user) &&
-                                    !string.IsNullOrWhiteSpace(pass));
+                    (user, pass) => !string.IsNullOrWhiteSpace(user) && !user.Contains('/') && Encoding.UTF8.GetByteCount(user) < 81 &&
+                                    !string.IsNullOrWhiteSpace(pass) && Encoding.UTF8.GetByteCount(pass) < 81);
 
             // Buttons bound to the command will stay disabled
             // as long as the command stays disabled.
@@ -101,8 +103,8 @@ namespace SlugChessAval.ViewModels
             {
                 MainWindowViewModel.SendNotification(result.UserData.Username + " logged in :>");
 
-                SlugChessService.Client.MessageToLocal("Logged in as " + result.UserData.Username, "system");
-                Serilog.Log.Information("Logged in as " + result.UserData.Username);
+                //SlugChessService.Client.MessageToLocal("Logged in as " + result.UserData.Username, "system");
+                Console.WriteLine("Logged in as " + result.UserData.Username);
 
                 HostScreen.Router.Navigate.Execute(new PlayViewModel()).Subscribe();
                 ////TODO recive message callback
@@ -110,7 +112,7 @@ namespace SlugChessAval.ViewModels
 
                 if (result.LoginMessage != "")
                 {
-                    Serilog.Log.Information("Login Message: " + result.LoginMessage);
+                    Console.WriteLine("Login Message: " + result.LoginMessage);
                     SlugChessService.Client.MessageToLocal("Login Message: " + result.LoginMessage, "system");
                 }
             }

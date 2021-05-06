@@ -15,7 +15,7 @@ The two SlugChess sub-variants have a different combination of these vision rule
 
 ## Shuffling of the officers
 
-Like Fisher Random/Chess960 the officers of SlugChess are shuffled. Unlike Fisher Random the officers in SlugChess are shuffled completely random. That means that the two Bishops can end up on the same colors, and both Rook on the same side of the King. In addition there is NO CASTELLING is SlugChess. This is because threating castling fields preventing castling would be a leak of information through the fog-of-war.
+Like Fisher Random/Chess960 the officers of SlugChess are shuffled. Unlike Fisher Random the officers in SlugChess are shuffled completely random. That means that the two Bishops can end up on the same colors, and both Rook on the same side of the King. In addition there is NO CASTLING is SlugChess. This is because threating castling fields preventing castling would be a leak of information through the fog-of-war.
 
 ## No Checks
 
