@@ -68,8 +68,8 @@ namespace SlugChessAval.ViewModels
                     x => x.Username,
                     x => x.Password,
                     x => x.ConfPassword,
-                    (user, pass, confPass) => !string.IsNullOrWhiteSpace(user) &&
-                                    !string.IsNullOrWhiteSpace(pass) && 
+                    (user, pass, confPass) => !string.IsNullOrWhiteSpace(user) && !user.Contains('/') && Encoding.UTF8.GetByteCount(user) < 81 &&
+                                    !string.IsNullOrWhiteSpace(pass) && Encoding.UTF8.GetByteCount(pass) < 81 && 
                                     pass == confPass);
 
             // Buttons bound to the command will stay disabled

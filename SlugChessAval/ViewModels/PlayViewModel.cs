@@ -20,6 +20,7 @@ using Avalonia.Controls;
 using System.IO;
 using DynamicData.Binding;
 using System.ComponentModel.Design;
+using System.Runtime.InteropServices;
 
 namespace SlugChessAval.ViewModels
 {
@@ -352,7 +353,7 @@ namespace SlugChessAval.ViewModels
             dialog.Filters.Add(new FileDialogFilter() {Name="chess notation", Extensions = { "pgn" },  });
 
             string[] result = dialog.ShowAsync(window).Result;
-            if (result.Length == 1)
+            if (result?.Length == 1 )
             {
                 Dispatcher.UIThread.InvokeAsync(() =>
                 {
@@ -400,7 +401,11 @@ namespace SlugChessAval.ViewModels
             if (!Directory.Exists(Program.RootDir + "games_database")) Directory.CreateDirectory(Program.RootDir + "games_database");
             if (!Directory.Exists(Program.RootDir + "games_database/last_few")) Directory.CreateDirectory(Program.RootDir + "games_database/last_few");
             File.WriteAllText(Program.RootDir + "games_database/latest.pgn", pgn);
-            File.WriteAllText(Program.RootDir + $"games_database/last_few/{DateTime.Now:yyyy-MM-dd-HH-mm-ss}_{whiteUsername}_{blackUsername}.pgn", pgn);
+             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)){
+                File.WriteAllText(Program.RootDir + $"games_database/last_few/{DateTime.Now:yyyy-MM-dd-HH-mm-ss}_{Program.GetSafeFilename(whiteUsername)}_{Program.GetSafeFilename(blackUsername)}.pgn", pgn);
+             }else{
+                 File.WriteAllText(Program.RootDir + $"games_database/last_few/{DateTime.Now:yyyy-MM-dd-HH-mm-ss}_{whiteUsername}_{blackUsername}.pgn", pgn);
+             }
         }
     }
 }

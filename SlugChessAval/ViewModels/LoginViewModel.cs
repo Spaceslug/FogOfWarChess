@@ -69,8 +69,8 @@ namespace SlugChessAval.ViewModels
                 .WhenAnyValue(
                     x => x.Username,
                     x => x.Password,
-                    (user, pass) => !string.IsNullOrWhiteSpace(user) &&
-                                    !string.IsNullOrWhiteSpace(pass));
+                    (user, pass) => !string.IsNullOrWhiteSpace(user) && !user.Contains('/') && Encoding.UTF8.GetByteCount(user) < 81 &&
+                                    !string.IsNullOrWhiteSpace(pass) && Encoding.UTF8.GetByteCount(pass) < 81);
 
             // Buttons bound to the command will stay disabled
             // as long as the command stays disabled.

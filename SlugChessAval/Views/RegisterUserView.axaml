@@ -37,10 +37,13 @@
       <Button Grid.Row="4" Grid.Column="2" Content="Parent back" Command="{Binding $parent[views:MainWindow].Cancel}" Classes="normal" Margin="3"  />
       <Button Grid.Row="5" Grid.Column="1" Content="Register"   Command="{Binding RegisterUser}" Classes="normal" Margin="3" />
       <Button Grid.Row="5" Grid.Column="2" Content="Back" Command="{Binding $parent[Window].Cancel}" Classes="normal" Margin="3" />
+      
     </Grid>
-    <Grid Grid.Row="2">
-      <TextBlock Margin="3" Text="{Binding LoginMessage}" TextWrapping="Wrap" Foreground="MediumVioletRed" />
-    </Grid>
+    <StackPanel Grid.Row="2">
+      <TextBlock Text="Username can be any UTF-8 string except '/' and must be less then 81 bytes"  Margin="3" TextWrapping="Wrap" TextAlignment="Center" />
+      <TextBlock Margin="3" Text="{Binding RegisterMessage}" TextWrapping="Wrap" Foreground="MediumVioletRed" TextAlignment="Center" />
+      <TextBlock  />
+    </StackPanel>
   </Grid>
 
     
