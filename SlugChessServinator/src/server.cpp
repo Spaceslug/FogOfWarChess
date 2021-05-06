@@ -45,6 +45,7 @@ void SigintHandler (int param)
     Worker::Stop();
     auto deadline = std::chrono::system_clock::now() + std::chrono::milliseconds(SHUTDOWN_WAIT_MS);
     server->Shutdown(deadline);
+    //std::this_thread::sleep_for(std::chrono::milliseconds(3000));
     Worker::Join();
 }
 
