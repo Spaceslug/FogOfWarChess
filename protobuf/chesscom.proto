@@ -202,7 +202,7 @@ message GameResult {
 
 message RegiserUserForm 
 {
-	string username = 1; // any utf-8 name
+	string username = 1; // any utf-8 name (except '/'), max 80 bytes
 	string password = 2;
 }
 

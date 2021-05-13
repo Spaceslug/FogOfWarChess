@@ -10,10 +10,25 @@ ChessComService::~ChessComService()
 }
 grpc::Status ChessComService::RegisterUser(ServerContext* context, const chesscom::RegiserUserForm* request, chesscom::RegiserUserFormResult* response) 
 {
-    
+    if(request->username().find('/') != std::string::npos){
+        response->set_success(false);
+        response->set_fail_message("Username '" + request->username() + "' contains '/'. Choose another one.");
+        return Status::OK;
+    }
+    if(request->username().size() > 80){
+        response->set_success(false);
+        response->set_fail_message("Username '" + request->username() + "' is to long. Choose another one.");
+        return Status::OK;
+    }
+    if(request->password().size() > 80){
+        response->set_success(false);
+        response->set_fail_message("Password is to long. Choose another one.");
+        return Status::OK;
+    }
     if(Filesystem::UserFileExists(UserStore::UsernameToDataFilename(request->username()))){
         response->set_success(false);
         response->set_fail_message("Username '" + request->username() + "' already exists. Choose another one.");
+        return Status::OK;
     }else{
         auto encry_key = UserStore::EncryptionKeyFromPassword(request->password());
         chesscom::UserStaticData ud;

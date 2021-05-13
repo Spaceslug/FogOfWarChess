@@ -3,9 +3,14 @@
 #include "condition_variable"
 #include "tuple"
 
+
+#pragma GCC diagnostic push 
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+
 #include "../../SlugChessCore/src/slugchess.h"
 #include "../chesscom/chesscom.pb.h"
 
+#pragma GCC diagnostic pop
 
 class GameBrowser{
     private:

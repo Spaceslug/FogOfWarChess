@@ -36,11 +36,12 @@ void GameBrowser::WriteAvailableGames(chesscom::HostedGamesMap& gamesList)
 
 void GameBrowser::JoinGame(int32_t id, const chesscom::UserData& joinerData, chesscom::LookForMatchResult* joinerMatchResult)
 {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
     chesscom::HostedGame hostedGame;
     std::condition_variable* hostCV;
     chesscom::LookForMatchResult* hostMatchResult;
     bool* hostFinished;
-
     //std::tuple<std::condition_variable*, chesscom::LookForMatchResult*, bool*> hostTuple;
     bool successExtracted = false;
     {
@@ -77,8 +78,7 @@ void GameBrowser::JoinGame(int32_t id, const chesscom::UserData& joinerData, che
     {
         joinerMatchResult->set_succes(false);
     }
-    
-    
+#pragma GCC diagnostic pop    
 }
 
 void GameBrowser::CancelHostGame(int id)
