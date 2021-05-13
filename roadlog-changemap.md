@@ -55,10 +55,11 @@ Changes to chesscom commuication api or underlating function.
 ### version 0.18.0
 - [ ] make the game look and feel nice. Go over ui and userflow
 - [ ] somehow make emoji work with Avalonia
+- [ ] fix autoupdate on linux. when in /usr/local/bin you need sudo to update the files.
 
 ### version 0.17.0
 - [x] make a propper version system for slugchesscore shared lib. A build of slugchess server needs a spesific version of core. When you publish server release you supply a core version (think more on it). symlink to more spsific version to support multiple versions. Currently slugchesscoretest rpath does not work and will only use export version of lib
-- [ ] makefile SlugChessServer have a define for debug build. Compile different .o files for debug and regular
+- [x] makefile SlugChessServer have a define for debug build. Compile different .o files for debug and regular
 - [x] rename 'libslugchess.so' to 'libslugchesscore.so'
 - [x] clean illegal filesystem names from usernames in replays
 - [x] updated SlugChessAval to dotnet5.0

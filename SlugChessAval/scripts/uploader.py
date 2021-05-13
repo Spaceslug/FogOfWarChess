@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 import os, shutil, py7zr, pysftp, paramiko
 from base64 import b64decode
+from pathlib import Path
 # register file format at first.
 shutil.register_archive_format('7zip', py7zr.pack_7zarchive, description='7zip archive')
 shutil.register_unpack_format('7zip', ['.7z'], py7zr.unpack_7zarchive)
 
 rootDir = os.path.dirname(__file__)
 projectDir = os.path.join(rootDir, '..')
-releaseDir = os.path.join(projectDir, 'bin/Release/netcoreapp3.1')
-debugDir = os.path.join(projectDir, 'bin/Debug/netcoreapp3.1')
+releaseDir = os.path.join(projectDir, 'bin/Release/net5.0')
+debugDir = os.path.join(projectDir, 'bin/Debug/net5.0')
 tempDir = os.path.join(projectDir, 'temp')
 
 
@@ -50,9 +51,9 @@ def make_archive(source, destination):
 
 
 def uploadArchive(targets, version, debug=False):
-    hostname = open(projectDir + '/../../spaceslug.no_SFTP_hostname.txt', 'r').read()
-    username = open(projectDir + '/../../spaceslug.no_SFTP_username.txt', 'r').read()
-    password = open(projectDir + '/../../spaceslug.no_SFTP_passord.txt', 'r').read()
+    hostname = open(str(Path.home()) + '/.secrets/spaceslug.no_SFTP_hostname.txt', 'r').read()
+    username = open(str(Path.home()) + '/.secrets/spaceslug.no_SFTP_username.txt', 'r').read()
+    password = open(str(Path.home()) + '/.secrets/spaceslug.no_SFTP_passord.txt', 'r').read()
     #since pysftp is shit on windows and can not find known_hosts from putty i must disable the security feature
     cnopts = pysftp.CnOpts()
     cnopts.hostkeys = None   
